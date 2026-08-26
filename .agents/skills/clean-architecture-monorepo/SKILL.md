@@ -1,237 +1,223 @@
 ---
 name: clean-architecture-monorepo
-description: Guidelines for the monorepo Clean Architecture pattern (domains -> database -> applications -> infrastructures), including strict rules against ignoring TS/ESLint errors.
-user-invocable: false
+description: Scaffold, initialize, and configure individual packages in a Turborepo Monorepo — generates package.json with subpath imports, tsconfig.json, eslint.config.mjs with layer boundary rules, and starter directories for domains, database, applications, infrastructures, client, ui, or custom packages.
+tags:
+  - both
+  - fullstack
+  - backend
+  - frontend
 ---
 
-# Monorepo Clean Architecture Rules
+# Monorepo Package Initializer & Scaffolder Skill 📦
 
-This project strictly follows a Clean Architecture pattern separated by Turborepo workspaces (packages).
-The dependency flow MUST strictly go from inner layers to outer layers as follows:
-
-**`domains` -> `database` -> `applications` -> `infrastructures`**
-
-## 1. Dependency Flow & Rules
-
-### `packages/domains` (Inner-most Layer)
-- **Role**: Contains Enterprise Business Rules (Entities, Repository Interfaces, Types, DTOs).
-- **Dependencies**: Cannot depend on any other internal packages. Must have ZERO dependencies on `database`, `applications`, or `infrastructures`.
-- **Allowed**: Pure TypeScript/JavaScript. No framework or database specific imports.
-
-### `packages/database` 
-- **Role**: Defines database schemas (e.g., Drizzle ORM schemas) and base repository abstractions.
-- **Dependencies**: May depend on `domains` (e.g., for types) if necessary, but is largely independent.
-- **Forbidden**: Cannot depend on `applications` or `infrastructures`.
-
-### `packages/applications` 
-- **Role**: Contains Application Business Rules (Use Cases, Services).
-- **Dependencies**: Depends heavily on `domains` (for Entities and Repository Interfaces).
-- **Forbidden**: Cannot depend on `infrastructures` or `database` directly. Cannot import concrete implementations of Repositories, external APIs, or Frameworks (e.g., Express, Next.js). Must use Dependency Injection.
-
-### `packages/infrastructures` (Outer-most Layer)
-- **Role**: Contains concrete implementations of interfaces defined in `domains` (e.g., Drizzle Repositories, external API clients, Next.js controllers/routes).
-- **Dependencies**: Depends on `domains`, `database`, and `applications`.
-- **Allowed**: Everything. This is where frameworks, DB clients, and external SDKs live.
+Use this skill when **initializing a new package** or **adding a layer module** to a Turborepo Monorepo (e.g. *"Init package applications"*, *"Add a new package database"*, *"Create custom package analytics"*).
 
 ---
 
-## 2. Strict Type & Linting Enforcement
+## 🎯 When to Activate This Skill
 
-- **NEVER use `// @ts-ignore`, `// @ts-expect-error`, or `// @ts-nocheck`.** You MUST fix TypeScript errors by writing correct types or interfaces.
-- **NEVER use `// eslint-disable` or `/* eslint-disable */`.** You MUST resolve linting errors by adhering to the established rules (e.g., fixing cross-layer import errors, removing unused variables, typing correctly).
-- **NO `any` types.** Always define explicit interfaces or use `unknown` if the type is truly dynamic, then safely cast/narrow it down.
+Activate when requested to:
+- *"Add a new package named `<name>` (e.g., `applications`, `domains`, `database`, `infrastructures`, `client`, `ui`)"*
+- *"Init package `<name>` with tsconfig, eslint, and subpath imports"*
+- *"Scaffold a new layer package in packages/<name>"*
 
 ---
 
-## 3. Detailed Examples
+## ⚡ The 6-Step Package Initialization Pipeline
 
-### 3.1 Domain Layer - Schema-First Pattern (`packages/domains/src/schema/user.ts`)
-Always use Zod for runtime validation and type inference in the Domain layer.
+Whenever creating a new package in `packages/<name>`, follow this exact 6-step workflow:
 
-```typescript
-import { z } from 'zod';
-import { BaseEntity, StringField, EmailField } from '../lib/entity';
-
-export const userSchema = BaseEntity({
-  name: StringField({ required: true }),
-  email: EmailField({ required: true })
-});
-
-export const createUserSchema = userSchema.omit({ id: true, createdAt: true, updatedAt: true });
-export const updateUserSchema = userSchema.partial().omit({ id: true, createdAt: true, updatedAt: true });
-
-export type UserEntity = z.infer<typeof userSchema>;
-export type CreateUser = z.infer<typeof createUserSchema>;
-export type UpdateUser = z.infer<typeof updateUserSchema>;
+```text
+[Step 1: Detect Scope] ──▶ [Step 2: Match Preset] ──▶ [Step 3: package.json (#imports & exports)]
+                                                                      │
+                                                                      ▼
+[Step 6: Verify] ◀── [Step 5: src/ & index.ts] ◀── [Step 4: tsconfig & eslint (Boundary Rules)]
 ```
 
-### 3.2 Domain Layer - Entities (`packages/domains/src/entities/user.ts`)
-Implement the class by inferring types from the schema.
+---
 
-```typescript
-import type { UserEntity } from '../schema/user';
+### Step 1: Detect Project Scope Prefix
+Read root `package.json` or existing packages to determine the monorepo scope prefix:
+- If root `name` is `my-org`, scope is `@my-org/<name>`.
+- If packages use `@app/*`, scope is `@app/<name>`.
+- If no scope is used, use `<name>`.
 
-export class User implements UserEntity {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
+---
 
-  constructor(data: UserEntity) {
-    this.id = data.id;
-    this.name = data.name;
-    this.email = data.email;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+### Step 2: Match Package Preset
+
+Choose the matching preset according to the Clean Architecture layer:
+
+| Preset | Target Layer | Role | Internal Imports (`#...`) |
+|---|---|---|---|
+| `domains` | Core Domain | Zod schemas, Entities, Repo/Use-case contracts | `#lib/*`, `#schema/*`, `#entities/*`, `#repositories/*`, `#applications/*` |
+| `database` | Data Access | Drizzle ORM schemas, Base generic repo, connection | `#lib/*`, `#schema/*` |
+| `applications` | Application Rules | Concrete Use Cases, App errors | `#lib/*`, `#use-cases/*` |
+| `infrastructures` | Adapters & Drivers | Concrete Repositories, Auth, Password hashing | `#lib/*`, `#repositories/*` |
+| `client` | API & SDK | TypeSpec API specifications & Client SDK | Built-in via TypeSpec / Hey-API |
+| `ui` | Frontend Primitives | Dumb Design System primitives (Buttons, Inputs) | `#components/*`, `#lib/*`, `#hooks/*` |
+| `generic` | Custom Layer | Domain-specific library or helper package | `#lib/*`, `#utils/*` |
+
+---
+
+### Step 3: Create `packages/<name>/package.json`
+
+Every package must define:
+1. `"name": "@<project>/<name>"`
+2. Subpath **`imports` (`#...`)** for internal module navigation (avoiding messy relative `../../` paths).
+3. Subpath **`exports`** for consuming from other packages.
+4. Standard **`scripts`** (`build`, `dev`, `lint`, `check-types`).
+
+#### Example: `packages/applications/package.json`
+```json
+{
+  "name": "@<project>/applications",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./use-cases/*": "./src/use-cases/**/*.usecase.ts",
+    "./lib/*": "./src/lib/*.ts"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*.ts",
+    "#use-cases/*": "./src/use-cases/**/*.usecase.ts"
+  },
+  "dependencies": {
+    "@<project>/domains": "*"
+  },
+  "devDependencies": {
+    "@<project>/eslint-config": "*",
+    "@<project>/typescript-config": "*",
+    "typescript": "^5.0.0"
   }
 }
 ```
 
-### 3.3 Domain Layer - Interfaces (`packages/domains/src/repositories/user.repo.ts`)
-```typescript
-import type { User, UserEntity } from '../entities/user';
+---
 
-// Define the contract, NOT the implementation
-export interface IUserRepository {
-  findById(id: string): Promise<User | null>;
-  save(user: UserEntity): Promise<User>;
+### Step 4: Create `tsconfig.json` & `eslint.config.mjs`
+
+#### 1. `packages/<name>/tsconfig.json`
+Extends the shared workspace TypeScript configuration:
+
+```json
+{
+  "extends": "@<project>/typescript-config/base.json",
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "customConditions": ["source"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }
 ```
+*(If the workspace uses root tsconfig, set `"extends": "../../tsconfig.json"`)*.
 
-### 3.3 Database Layer (`packages/database/src/schema/user.ts`)
-```typescript
-import { pgTable, text, uuid } from 'drizzle-orm/pg-core';
+---
 
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-});
-```
+#### 2. `packages/<name>/eslint.config.mjs` (Enforcing Layer Boundary Rules)
+Uses ESLint `no-restricted-imports` to **block illegal outward-pointing imports** at compile-time:
 
-### 3.4 Application Layer (`packages/applications/src/usecases/create-user.ts`)
-```typescript
-import { User } from '@shop/domains/entities/user';
-import type { IUserRepository } from '@shop/domains/repositories/user.repo';
+```javascript
+import { config } from '@<project>/eslint-config/base';
 
-export class CreateUserUseCase {
-  // Dependency Injection: Inject the interface, NOT the concrete class
-  constructor(private readonly userRepository: IUserRepository) {}
-
-  async execute(name: string, email: string): Promise<User> {
-    const newUser = new User({ id: crypto.randomUUID(), name, email });
-    return this.userRepository.save(newUser);
+/** @type {import("eslint").Linter.Config} */
+export default [
+  ...config,
+  {
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              // Enforce Clean Architecture boundary for this layer
+              group: [
+                '@<project>/infrastructures*',
+                '@<project>/database*',
+                '@<project>/ui*'
+              ],
+              message: 'Application layer cannot import Infrastructure or Presentation layers (Clean Architecture).'
+            }
+          ]
+        }
+      ]
+    }
   }
-}
+];
 ```
 
-### 3.5 Infrastructure Layer (`packages/infrastructures/src/repositories/user.repo.ts`)
-```typescript
-import { eq } from 'drizzle-orm';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { users } from '@shop/database/schema';
+#### Layer Boundary Rules Reference:
+- **`domains`**: Block `@<project>/database*`, `@<project>/applications*`, `@<project>/infrastructures*`, `@<project>/ui*`.
+- **`database`**: Block `@<project>/applications*`, `@<project>/infrastructures*`, `@<project>/ui*`.
+- **`applications`**: Block `@<project>/infrastructures*`, `@<project>/database*`, `@<project>/ui*`.
+- **`infrastructures`**: Block `@<project>/applications*`, `@<project>/ui*`.
+- **`ui`**: Block all backend packages (`@<project>/domains*`, `@<project>/database*`, `@<project>/applications*`, `@<project>/infrastructures*`).
 
-import type { IUserRepository } from '@shop/domains/repositories/user.repo';
-import { User, type UserEntity } from '@shop/domains/entities/user';
+---
 
-// Concrete implementation
-export class UserRepository implements IUserRepository {
-  constructor(private readonly db: NodePgDatabase<never>) {}
+### Step 5: Scaffold Directory Layout & Starter Code
 
-  async findById(id: string): Promise<User | null> {
-    const [result] = await this.db.select().from(users).where(eq(users.id, id));
-    if (!result) return null;
-    return new User(result);
-  }
+Create the standard folder tree and root entry point `src/index.ts`:
 
-  async save(user: UserEntity): Promise<User> {
-    const [result] = await this.db.insert(users).values(user).returning();
-    return new User(result);
-  }
-}
+#### For `applications`:
+```bash
+mkdir -p packages/applications/src/{use-cases,lib}
+```
+- `src/lib/error.ts` (Application error hierarchy)
+- `src/index.ts`:
+  ```typescript
+  export * from './lib/error';
+  ```
+
+#### For `domains`:
+```bash
+mkdir -p packages/domains/src/{lib,schema,entities,repositories,applications}
+mkdir -p packages/domains/scripts
+```
+- `src/lib/entity.ts` (Zod BaseEntity builder)
+- `src/index.ts` (BaseUseCase, BaseRepository)
+- `scripts/generate.ts` (ts-morph TypeSpec generator)
+
+#### For `database`:
+```bash
+mkdir -p packages/database/src/{schema,lib}
+```
+- `src/lib/utils.ts` (primaryKeyUuid7, timestamp helpers)
+- `src/repository.ts` (Generic Drizzle Repository base class)
+- `src/db.ts` (drizzle client connection)
+- `src/relations.ts` (centralized relations definition)
+- `src/index.ts`
+
+#### For `infrastructures`:
+```bash
+mkdir -p packages/infrastructures/src/{repositories,lib,auth}
+```
+- `src/lib/password.ts` (Argon2 hasher)
+- `src/repositories/index.ts`
+- `src/index.ts`
+
+---
+
+### Step 6: Install & Verify
+
+Run from monorepo root:
+```bash
+npm install           # 1. Link new package across workspace
+npm run check-types   # 2. Verify TypeScript compiles cleanly
+npm run lint          # 3. Verify ESLint layer boundaries pass
 ```
 
-### 3.6 Dependency Injection in Presentation Layer (`apps/web/src/shared/`)
-When consuming these layers in the frontend application, instantiate them once in a shared directory to form a simple Dependency Injection container.
+---
 
-**`apps/web/src/shared/repositories/index.ts`**:
-```typescript
-import db from '@shop/database/db';
-import { UserRepository } from '@shop/infrastructures/repositories/user';
+## 📚 Further Reference
 
-export const userRepository = new UserRepository(db as never);
-```
-
-**`apps/web/src/shared/applications/user.usecase.ts`**:
-```typescript
-import { CreateUserUseCase } from '@shop/applications/use-cases/users/user';
-import { userRepository } from '@/shared/repositories';
-
-export const createUserUseCase = new CreateUserUseCase(userRepository);
-```
-
-### 3.7 API Layer (Controllers & Routes)
-Use Hono for routing. Apply the **Ponytail Principle** (laziest, least boilerplate): Group related entities by module rather than creating separate files for every single entity.
-
-**1. Controllers (`apps/web/src/api/controllers/`)**
-Extend the base `Controller` and use `this.validator` for Zod validation. Keep use cases grouped by module (e.g., all company-related use cases in `company.controller.ts`).
-
-```typescript
-import Controller from '@/shared/utils/controller';
-import { createUserUseCase } from '@/shared/applications/user.usecase';
-import { createUserSchema } from '@shop/domains/schema/user';
-
-class UserController extends Controller {
-  public createUser = this.validator({ body: createUserSchema }, async (c) => {
-    const body = c.get('body');
-    const result = await createUserUseCase.execute({ data: body });
-    return this.success(c, 'User created successfully', result);
-  });
-}
-export default new UserController();
-```
-
-**2. Routes (`apps/web/src/api/routes/`)**
-Create one route file per module.
-
-```typescript
-import { Hono } from 'hono';
-import userController from '@/api/controllers/user.controller';
-
-const userRoutes = new Hono();
-userRoutes.post('/', userController.createUser);
-
-export default userRoutes;
-```
-
-**3. Main Router (`apps/web/src/api/index.ts`)**
-Register the module routes under a common API instance.
-
-```typescript
-import userRoutes from '@/api/routes/user.route';
-import companyRoutes from '@/api/routes/company.route';
-
-app.route('/users', userRoutes);
-app.route('/company', companyRoutes);
-```
-
-### 3.8 API Specification (TypeSpec) Pattern
-The `packages/client/spec` TypeSpec files MUST strictly align with the Domain Layer (Zod Schemas).
-
-**1. Entities (`models/entities.tsp`)**
-TypeSpec `Domain.Entity` models must mirror the exact structure of the `[entity]Schema` in `packages/domains/src/schema/`, including exact optionality and nullability (`| null`).
-
-**2. DTOs (`models/[domain].tsp`)**
-TypeSpec `Create[Entity]` and `Update[Entity]` must mirror the exact `.omit()` fields defined in Zod `create[Entity]Schema` and `update[Entity]Schema`.
-Apply the **Ponytail Principle**: Do not redefine fields. Use TypeSpec utility types.
-```tsp
-model CreateUser
-  is OmitProperties<
-    User,
-    "id" | "isActive" | "lastLogin" | "createdAt" | "updatedAt"
-  >;
-```
-
-**3. Services (`services/[domain].tsp`)**
-Group endpoints by module interface (`@route("/[module]")`), utilizing standard wrapper responses (`ApiOkResponse`, `ApiErrorResponse`).
+- [package-presets.md](references/package-presets.md): Complete copy-paste ready package.json, tsconfig, and eslint configs for every package preset.
+- [starter-libraries.md](../clean-architecture-setup/references/starter-libraries.md): Full source code for all shared utilities and starter base classes.
