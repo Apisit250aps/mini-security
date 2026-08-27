@@ -15,7 +15,7 @@
     },
     "clean-architecture-application": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-application/SKILL.md",
       "computedHash": "fb0ac4ccb2c79ac9a732d01399228a55eb24db72424f79528fee7cf258f25572"
@@ -29,70 +29,70 @@
     },
     "clean-architecture-domain": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-domain/SKILL.md",
       "computedHash": "2ce83609cd9f71b05e42aa6527ed70a909986afb5284c9b2e9a78a32836f76df"
     },
     "clean-architecture-feature": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-feature/SKILL.md",
       "computedHash": "21e83dd6d0f9569d30321bd2e7470be5f2d485b8ddd25b5fb9dac6b02282b746"
     },
     "clean-architecture-format": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-format/SKILL.md",
       "computedHash": "01f2e7437fa2542699cf66e1d265ce58434c5055698f1547fb0282a4ffbf0397"
     },
     "clean-architecture-frontend": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-frontend/SKILL.md",
       "computedHash": "425831fbac2e568e126959bf935a140e2df188bfad68eeeffd76e796f4fb3cd1"
     },
     "clean-architecture-infrastructure": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-infrastructure/SKILL.md",
       "computedHash": "b10af8f423813fd5c6f997e174a95f9b565cd25197c195a5d177ab111c73ba06"
     },
     "clean-architecture-monorepo": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-monorepo/SKILL.md",
       "computedHash": "866cc41e50e5f559076070f59c74922c6ea877f67670b953e2300ac3b3833b4a"
     },
     "clean-architecture-presentation": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-presentation/SKILL.md",
       "computedHash": "20373503cb2dc1afe0859a3cf7397fb92d0c873e4efdd8f4a8dc655459b87780"
     },
     "clean-architecture-setup": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-setup/SKILL.md",
       "computedHash": "e1b3ec1bd4c0ae0477f349af297aaee170884fbe0d86c5de3444580f9820c65b"
     },
     "clean-architecture-typespec": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-typespec/SKILL.md",
       "computedHash": "11340554a3a6e58468d64a222e309d38c5a12250a7e1751768ebd9ef7b09b996"
     },
     "clean-architecture-validator": {
       "source": "Apisit250aps/wayu-clean-architecture",
-      "ref": "v0.4.1",
+      "ref": "v0.5.0",
       "sourceType": "github",
       "skillPath": "skills/clean-architecture-validator/SKILL.md",
       "computedHash": "6a6be2f580d072c2d4cf70caa9ab7fbb6240f39c7b7f884ecdc3d24ca0f8033d"
