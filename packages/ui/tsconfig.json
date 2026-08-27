@@ -1,0 +1,16 @@
+{
+  "extends": "@repo/typescript-config/react-library.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"],
+      "#components": ["./src/components"],
+      "#components/*": ["./src/components/*"],
+      "#lib": ["./src/lib"],
+      "#lib/*": ["./src/lib/*"],
+      "#hooks": ["./src/hooks"],
+      "#hooks/*": ["./src/hooks/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
