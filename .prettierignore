@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+build
+dist
+coverage
+*.log
+package-lock.json
+bun.lock
+.agents
+.turbo
