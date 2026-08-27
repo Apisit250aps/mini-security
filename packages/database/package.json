@@ -1,0 +1,43 @@
+{
+  "name": "@repo/database",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./db": "./src/db.ts",
+    "./schema": "./src/schema/index.ts",
+    "./repository": "./src/repository.ts"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*.ts",
+    "#schema/*": "./src/schema/*.ts"
+  },
+  "dependencies": {
+    "@repo/domains": "*",
+    "dotenv": "^16.0.3",
+    "drizzle-orm": "^1.0.0-rc.4",
+    "pg": "^8.23.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@types/node": "^22",
+    "@types/pg": "^8.23.1",
+    "@types/uuid": "^10.0.0",
+    "drizzle-kit": "^1.0.0-rc.4",
+    "eslint": "^9",
+    "tsx": "^4.23.12",
+    "typescript": "^5.8.2"
+  }
+}

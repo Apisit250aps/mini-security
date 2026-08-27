@@ -8,7 +8,10 @@ import type {
 } from '#schema/company';
 
 // Context Types
-export type ICreateCompanyContext = { data: CreateCompany; ownerUserId: string };
+export type ICreateCompanyContext = {
+  data: CreateCompany;
+  ownerUserId: string;
+};
 export type IUpdateCompanyContext = { id: string; data: UpdateCompany };
 export type IDeleteCompanyContext = { id: string };
 export type IGetCompanyContext = { id: string };
@@ -28,7 +31,10 @@ export type IGetUserCompaniesContext = { userId: string };
 export type ICreateCompanyUseCase = BaseUseCase<ICreateCompanyContext, Company>;
 export type IUpdateCompanyUseCase = BaseUseCase<IUpdateCompanyContext, Company>;
 export type IDeleteCompanyUseCase = BaseUseCase<IDeleteCompanyContext, void>;
-export type IGetCompanyUseCase = BaseUseCase<IGetCompanyContext, Company | null>;
+export type IGetCompanyUseCase = BaseUseCase<
+  IGetCompanyContext,
+  Company | null
+>;
 export type IGetCompanyBySlugUseCase = BaseUseCase<
   IGetCompanyBySlugContext,
   Company | null

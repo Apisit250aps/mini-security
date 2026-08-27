@@ -1,10 +1,5 @@
 import { z } from 'zod';
-import {
-  BaseEntity,
-  BooleanField,
-  StringField,
-  UUIDField,
-} from '#lib/entity';
+import { BaseEntity, BooleanField, StringField, UUIDField } from '#lib/entity';
 
 // --- Role Schema ---
 export const roleSchema = BaseEntity({

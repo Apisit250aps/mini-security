@@ -20,6 +20,13 @@
       "skillPath": "skills/clean-architecture-application/SKILL.md",
       "computedHash": "fb0ac4ccb2c79ac9a732d01399228a55eb24db72424f79528fee7cf258f25572"
     },
+    "clean-architecture-database-drizzle": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-database-drizzle/SKILL.md",
+      "computedHash": "217edd199c12ce792afafe2cdc225f21e803d0b2528732b2a393f365633a7944"
+    },
     "clean-architecture-domain": {
       "source": "Apisit250aps/wayu-clean-architecture",
       "ref": "v0.4.1",

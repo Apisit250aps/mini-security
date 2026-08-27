@@ -1,7 +1,4 @@
-import type {
-  CompanyEntity,
-  CompanyMemberEntity,
-} from '#schema/company';
+import type { CompanyEntity, CompanyMemberEntity } from '#schema/company';
 
 export class Company implements CompanyEntity {
   id: string;

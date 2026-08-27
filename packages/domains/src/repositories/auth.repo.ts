@@ -18,7 +18,10 @@ export interface ISessionRepository
 
 export interface IAccountRepository
   extends BaseRepository<Account, CreateAccount, UpdateAccount> {
-  findByProvider(providerId: string, accountId: string): Promise<Account | null>;
+  findByProvider(
+    providerId: string,
+    accountId: string,
+  ): Promise<Account | null>;
   findByUserId(userId: string): Promise<Account[]>;
   findByUserIdAndProvider(
     userId: string,
@@ -27,11 +30,7 @@ export interface IAccountRepository
 }
 
 export interface IVerificationRepository
-  extends BaseRepository<
-    Verification,
-    CreateVerification,
-    UpdateVerification
-  > {
+  extends BaseRepository<Verification, CreateVerification, UpdateVerification> {
   findByIdentifier(identifier: string): Promise<Verification | null>;
   deleteByIdentifier(identifier: string): Promise<void>;
 }

@@ -1,0 +1,34 @@
+{
+  "name": "@repo/infrastructures",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./repositories/*": "./src/repositories/*.repo.ts",
+    "./lib/*": "./src/lib/*.ts"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*.ts",
+    "#repositories/*": "./src/repositories/*.repo.ts"
+  },
+  "dependencies": {
+    "@repo/database": "*",
+    "@repo/domains": "*",
+    "argon2": "^0.41.1",
+    "drizzle-orm": "^1.0.0-rc.4"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@types/node": "^22",
+    "eslint": "^9",
+    "typescript": "^5.8.2",
+    "drizzle-kit": "^1.0.0-rc.4"
+  }
+}

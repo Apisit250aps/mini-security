@@ -47,9 +47,18 @@ export type IAuthResponse = {
 };
 
 // Use Case Contracts
-export type ISignInEmailUseCase = BaseUseCase<ISignInEmailContext, IAuthResponse>;
-export type ISignUpEmailUseCase = BaseUseCase<ISignUpEmailContext, IAuthResponse>;
-export type ISocialLoginUseCase = BaseUseCase<ISocialLoginContext, IAuthResponse>;
+export type ISignInEmailUseCase = BaseUseCase<
+  ISignInEmailContext,
+  IAuthResponse
+>;
+export type ISignUpEmailUseCase = BaseUseCase<
+  ISignUpEmailContext,
+  IAuthResponse
+>;
+export type ISocialLoginUseCase = BaseUseCase<
+  ISocialLoginContext,
+  IAuthResponse
+>;
 export type ISignOutUseCase = BaseUseCase<ISignOutContext, void>;
 export type IValidateSessionUseCase = BaseUseCase<
   IValidateSessionContext,

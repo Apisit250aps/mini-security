@@ -20,11 +20,7 @@ export interface IRoleRepository
 }
 
 export interface IPermissionRepository
-  extends BaseRepository<
-    Permission,
-    CreatePermission,
-    UpdatePermission
-  > {
+  extends BaseRepository<Permission, CreatePermission, UpdatePermission> {
   findByAction(action: string): Promise<Permission | null>;
   findByModule(module: string): Promise<Permission[]>;
 }
