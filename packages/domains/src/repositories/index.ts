@@ -1,2 +1,4 @@
-// Export repository interfaces here
-export {};
+export * from './user.repo';
+export * from './auth.repo';
+export * from './company.repo';
+export * from './permission.repo';
