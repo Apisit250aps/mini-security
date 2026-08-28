@@ -11,6 +11,16 @@
       "#hooks/*": ["./src/hooks/*"]
     }
   },
-  "include": ["src", "../../apps/web/src/shared/components/app/site-header.tsx", "../../apps/web/src/shared/components/app/section-cards.tsx", "../../apps/web/src/shared/components/app/nav-user.tsx", "../../apps/web/src/shared/components/app/nav-secondary.tsx", "../../apps/web/src/shared/components/app/nav-main.tsx", "../../apps/web/src/shared/components/app/nav-documents.tsx", "../../apps/web/src/shared/components/app/app-sidebar.tsx", "../../apps/web/src/shared/components/app/data-table.tsx"],
+  "include": [
+    "src",
+    "../../apps/web/src/shared/components/app/site-header.tsx",
+    "../../apps/web/src/shared/components/app/section-cards.tsx",
+    "../../apps/web/src/shared/components/app/nav-user.tsx",
+    "../../apps/web/src/shared/components/app/nav-secondary.tsx",
+    "../../apps/web/src/shared/components/app/nav-main.tsx",
+    "../../apps/web/src/shared/components/app/nav-documents.tsx",
+    "../../apps/web/src/shared/components/app/app-sidebar.tsx",
+    "../../apps/web/src/shared/components/app/data-table.tsx"
+  ],
   "exclude": ["node_modules", "dist"]
 }

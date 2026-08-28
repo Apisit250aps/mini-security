@@ -5,6 +5,18 @@ import { DialogTrigger, Dialog } from '@repo/ui/components/dialog';
 import { Button } from '@repo/ui/components/button';
 import { format } from 'date-fns';
 import { Calendar } from '@repo/ui/components/calendar';
+import { CalendarDate, getLocalTimeZone } from '@internationalized/date';
+
+// react-hook-form stores a plain JS Date; Calendar needs a react-aria DateValue
+function toDateValue(value: unknown): CalendarDate | null {
+  const date = value instanceof Date ? value : null;
+  if (!date || Number.isNaN(date.getTime())) return null;
+  return new CalendarDate(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+  );
+}
 
 function DateField<T extends FieldValues>({
   name,
@@ -42,8 +54,12 @@ function DateField<T extends FieldValues>({
               <Popover className="w-auto p-0" placement="bottom start">
                 <Dialog>
                   <Calendar
-                    value={field.value as any}
-                    onChange={field.onChange}
+                    value={toDateValue(field.value)}
+                    onChange={(date) =>
+                      field.onChange(
+                        date ? date.toDate(getLocalTimeZone()) : null,
+                      )
+                    }
                   />
                 </Dialog>
               </Popover>

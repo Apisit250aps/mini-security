@@ -1,19 +1,19 @@
-import { AppSidebar } from "../../../../apps/web/src/shared/components/app/app-sidebar"
-import { ChartAreaInteractive } from "#components/chart-area-interactive"
-import { DataTable } from "../../../../apps/web/src/shared/components/app/data-table"
-import { SectionCards } from "../../../../apps/web/src/shared/components/app/section-cards"
-import { SiteHeader } from "../../../../apps/web/src/shared/components/app/site-header"
-import { SidebarInset, SidebarProvider } from "#components/sidebar"
+import { AppSidebar } from '../../../../apps/web/src/shared/components/app/app-sidebar';
+import { ChartAreaInteractive } from '#components/chart-area-interactive';
+import { DataTable } from '../../../../apps/web/src/shared/components/app/data-table';
+import { SectionCards } from '../../../../apps/web/src/shared/components/app/section-cards';
+import { SiteHeader } from '../../../../apps/web/src/shared/components/app/site-header';
+import { SidebarInset, SidebarProvider } from '#components/sidebar';
 
-import data from "./data.json"
+import data from './data.json';
 
 export default function Page() {
   return (
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 12)',
         } as React.CSSProperties
       }
     >
@@ -33,5 +33,5 @@ export default function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
