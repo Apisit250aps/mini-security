@@ -1,8 +1,10 @@
-// Entry point for apps/api
-// Ready for Hono application setup
+import app from '@/app';
+import config from '@/configs';
+import { serve } from '@hono/node-server';
 
-export const serverConfig = {
-  port: Number(process.env.PORT) || 4000,
-};
+serve({
+  fetch: app.fetch,
+  port: config.port,
+});
 
-console.log(`[api] Server initialized on port ${serverConfig.port}`);
+console.log(`Server running at http://localhost:${config.port}`);
