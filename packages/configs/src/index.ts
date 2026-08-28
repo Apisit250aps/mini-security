@@ -18,7 +18,9 @@ class Config {
     origin: this.load('BACKEND_ORIGIN', 'http://localhost:8000'),
     port: this.loadNumber('BACKEND_PORT', '8000'),
     url: this.load('BACKEND_URL', 'http://localhost:8000'),
+    corsOrigins: this.load('BACKEND_CORS_ORIGINS', 'http://localhost:3000'),
   };
+  
   /**
    * Authentication configuration
    */
