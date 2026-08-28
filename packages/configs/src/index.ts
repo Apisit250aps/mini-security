@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import { findEnvFile } from './path';
+
+dotenv.config({ path: findEnvFile() });
 
 /**
  * Application configuration
@@ -12,9 +14,11 @@ class Config {
   /**
    * Backend configuration
    */
-  backendOrigin = this.load('BACKEND_ORIGIN', 'http://localhost:8000');
-  backendPort = this.loadNumber('BACKEND_PORT', '8000');
-  backendUrl = this.load('BACKEND_URL', 'http://localhost:8000');
+  backend = {
+    origin: this.load('BACKEND_ORIGIN', 'http://localhost:8000'),
+    port: this.loadNumber('BACKEND_PORT', '8000'),
+    url: this.load('BACKEND_URL', 'http://localhost:8000'),
+  };
   /**
    * Authentication configuration
    */

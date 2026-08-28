@@ -1,6 +1,6 @@
 import { defineConfig } from 'drizzle-kit';
-
-const url = process.env.DATABASE_URL;
+import config from '@repo/configs';
+const url = config.databaseUrl;
 if (!url) {
   throw new Error('DATABASE_URL environment variable is not set');
 }

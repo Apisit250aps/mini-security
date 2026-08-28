@@ -4,7 +4,7 @@ import { serve } from '@hono/node-server';
 
 serve({
   fetch: app.fetch,
-  port: config.backendPort,
+  port: config.backend.port,
 });
 
-console.log(`Server running at http://localhost:${config.backendPort}`);
+console.log(`Server running at http://localhost:${config.backend.port}`);
