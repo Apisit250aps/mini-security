@@ -1,12 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
-  "globalEnv": [
-    "DATABASE_URL",
-    "PORT",
-    "BETTER_AUTH_SECRET",
-    "BETTER_AUTH_URL"
-  ],
+  "ui": "stream",
+  "globalEnv": ["DATABASE_URL", "PORT", "BETTER_AUTH_*", "BACKEND_*"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

@@ -10,12 +10,14 @@
     ".": "./src/index.ts",
     "./repositories/*": "./src/repositories/*.repo.ts",
     "./lib/*": "./src/lib/*.ts",
-    "./auth": "./src/auth/index.ts"
+    "./auth": "./src/auth/index.ts",
+    "./auth/client": "./src/auth/client.ts"
   },
   "imports": {
     "#lib/*": "./src/lib/*.ts",
     "#repositories/*": "./src/repositories/*.repo.ts",
-    "#auth/*": "./src/auth/*.ts"
+    "#auth/*": "./src/auth/*.ts",
+    "#auth/client": "./src/auth/client.ts"
   },
   "dependencies": {
     "@repo/configs": "*",
