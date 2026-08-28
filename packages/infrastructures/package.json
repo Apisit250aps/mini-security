@@ -10,24 +10,27 @@
   "exports": {
     ".": "./src/index.ts",
     "./repositories/*": "./src/repositories/*.repo.ts",
-    "./lib/*": "./src/lib/*.ts"
+    "./lib/*": "./src/lib/*.ts",
+    "./auth": "./src/auth/index.ts"
   },
   "imports": {
     "#lib/*": "./src/lib/*.ts",
-    "#repositories/*": "./src/repositories/*.repo.ts"
+    "#repositories/*": "./src/repositories/*.repo.ts",
+    "#auth/*": "./src/auth/*.ts"
   },
   "dependencies": {
     "@repo/database": "*",
     "@repo/domains": "*",
     "argon2": "^0.41.1",
+    "better-auth": "^1.7.2",
     "drizzle-orm": "^1.0.0-rc.4"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/node": "^22",
+    "drizzle-kit": "^1.0.0-rc.4",
     "eslint": "^9",
-    "typescript": "^5.8.2",
-    "drizzle-kit": "^1.0.0-rc.4"
+    "typescript": "^5.8.2"
   }
 }

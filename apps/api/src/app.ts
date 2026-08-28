@@ -1,6 +1,9 @@
-import { Hono } from 'hono'
-const app = new Hono()
+import { Hono } from 'hono';
+import auth from '@repo/infrastructures/auth';
 
-app.get('/', (c) => c.body('Hono!'))
+const app = new Hono();
 
-export default app
+app.get('/', (c) => c.body('Hono!'));
+app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
+
+export default app;
