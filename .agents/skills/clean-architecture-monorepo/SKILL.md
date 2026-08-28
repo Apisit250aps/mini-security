@@ -66,7 +66,7 @@ Every package must define:
 1. `"name": "@<project>/<name>"`
 2. Subpath **`imports` (`#...`)** for internal module navigation (avoiding messy relative `../../` paths).
 3. Subpath **`exports`** for consuming from other packages.
-4. Standard **`scripts`** (`build`, `dev`, `lint`, `check-types`).
+4. Standard **`scripts`** (`lint`, `check-types`).
 
 #### Example: `packages/applications/package.json`
 ```json
@@ -75,8 +75,6 @@ Every package must define:
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
     "check-types": "tsc --noEmit",
     "lint": "eslint ."
   },

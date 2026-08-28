@@ -13,8 +13,6 @@ This reference contains ready-to-use blueprints (`package.json`, `tsconfig.json`
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
     "generate": "npx tsx scripts/generate.ts"
@@ -119,8 +117,6 @@ export * from './applications';
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
     "check-types": "tsc --noEmit",
     "lint": "eslint ."
   },
@@ -203,8 +199,6 @@ export default [
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
     "check-types": "tsc --noEmit",
     "lint": "eslint ."
   },
@@ -286,8 +280,6 @@ export * from './lib/error';
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
     "check-types": "tsc --noEmit",
     "lint": "eslint ."
   },

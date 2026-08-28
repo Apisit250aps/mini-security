@@ -31,12 +31,6 @@
     "apps/*",
     "packages/*"
   ],
-  "allowScripts": {
-    "unrs-resolver@1.12.2": true,
-    "argon2@0.41.1": true,
-    "fsevents@2.3.3": true,
-    "esbuild@0.28.2": true
-  },
   "dependencies": {
     "dotenv-cli": "^11.0.0"
   }

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
     "db:generate": "drizzle-kit generate",
