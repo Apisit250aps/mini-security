@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react"
 import {
   Cell as CellPrimitive,
   Column as ColumnPrimitive,
@@ -14,9 +14,9 @@ import {
   type TableFooterProps,
   type TableHeaderProps,
   type TableProps,
-} from 'react-aria-components';
+} from "react-aria-components"
 
-import { cn } from '#lib/utils';
+import { cn } from "#lib/utils"
 
 function Table({ className, ...props }: TableProps) {
   return (
@@ -26,21 +26,21 @@ function Table({ className, ...props }: TableProps) {
     >
       <TablePrimitive
         data-slot="table"
-        className={cn('w-full caption-bottom text-sm', className)}
+        className={cn("w-full caption-bottom text-sm", className)}
         {...props}
       />
     </div>
-  );
+  )
 }
 
 function TableHeader<T>({ className, ...props }: TableHeaderProps<T>) {
   return (
     <TableHeaderPrimitive
       data-slot="table-header"
-      className={cn('[&_tr]:border-b', className)}
+      className={cn("[&_tr]:border-b", className)}
       {...props}
     />
-  );
+  )
 }
 
 function TableBody<T>({ className, ...props }: TableBodyProps<T>) {
@@ -48,12 +48,12 @@ function TableBody<T>({ className, ...props }: TableBodyProps<T>) {
     <TableBodyPrimitive
       data-slot="table-body"
       className={cn(
-        'data-empty:h-24 data-empty:text-center [&_tr:last-child]:border-0',
-        className,
+        "data-empty:h-24 data-empty:text-center [&_tr:last-child]:border-0",
+        className
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableFooter<T>({ className, ...props }: TableFooterProps<T>) {
@@ -61,12 +61,12 @@ function TableFooter<T>({ className, ...props }: TableFooterProps<T>) {
     <TableFooterPrimitive
       data-slot="table-footer"
       className={cn(
-        'border-t bg-muted/50 font-medium [&>tr]:last:border-b-0',
-        className,
+        "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+        className
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableRow<T>({ className, ...props }: RowProps<T>) {
@@ -74,12 +74,12 @@ function TableRow<T>({ className, ...props }: RowProps<T>) {
     <RowPrimitive
       data-slot="table-row"
       className={cn(
-        'border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted data-selected:bg-muted',
-        className,
+        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted data-selected:bg-muted",
+        className
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableHead({ className, ...props }: ColumnProps) {
@@ -87,12 +87,12 @@ function TableHead({ className, ...props }: ColumnProps) {
     <ColumnPrimitive
       data-slot="table-head"
       className={cn(
-        'h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([data-slot=checkbox])]:pr-0 [&:has([role=checkbox])]:pr-0',
-        className,
+        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([data-slot=checkbox])]:pr-0 [&:has([role=checkbox])]:pr-0",
+        className
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableCell({ className, ...props }: CellProps) {
@@ -100,28 +100,28 @@ function TableCell({ className, ...props }: CellProps) {
     <CellPrimitive
       data-slot="table-cell"
       className={cn(
-        'p-2 align-middle whitespace-nowrap [&:has([data-slot=checkbox])]:pr-0 [&:has([role=checkbox])]:pr-0',
-        className,
+        "p-2 align-middle whitespace-nowrap [&:has([data-slot=checkbox])]:pr-0 [&:has([role=checkbox])]:pr-0",
+        className
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableCaption({
   className,
   ...props
-}: React.ComponentProps<'figcaption'>) {
+}: React.ComponentProps<"figcaption">) {
   return (
     <figcaption
       data-slot="table-caption"
       className={cn(
-        'mt-4 text-center text-sm text-muted-foreground',
-        className,
+        "mt-4 text-center text-sm text-muted-foreground",
+        className
       )}
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -133,4 +133,4 @@ export {
   TableRow,
   TableCell,
   TableCaption,
-};
+}
