@@ -1,12 +1,8 @@
-import dotenv from 'dotenv';
-import { findEnvFile } from './path';
-
-dotenv.config({ path: findEnvFile() });
-
+import BaseConfig from './base';
 /**
  * Application configuration
  */
-class Config {
+class Config extends BaseConfig {
   /**
    * Database configuration
    */
@@ -20,7 +16,6 @@ class Config {
     url: this.load('BACKEND_URL', 'http://localhost:8000'),
     corsOrigins: this.load('BACKEND_CORS_ORIGINS', 'http://localhost:3000'),
   };
-  
   /**
    * Authentication configuration
    */
@@ -28,14 +23,6 @@ class Config {
     secret: this.load('BETTER_AUTH_SECRET', ''),
     url: this.load('BETTER_AUTH_URL', 'http://localhost:8000'),
   };
-
-  load(key: string, defaultValue = ''): string {
-    return process.env[key] || defaultValue;
-  }
-
-  loadNumber(key: string, defaultValue = '0'): number {
-    return Number(this.load(key, defaultValue));
-  }
 }
 
 export const config = new Config();
