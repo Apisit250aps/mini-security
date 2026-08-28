@@ -19,6 +19,7 @@
     "#auth/*": "./src/auth/*.ts"
   },
   "dependencies": {
+    "@repo/configs": "*",
     "@repo/database": "*",
     "@repo/domains": "*",
     "argon2": "^0.41.1",
@@ -26,8 +27,7 @@
     "drizzle-orm": "^1.0.0-rc.4"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
+    "@repo/configs": "*",
     "@types/node": "^22",
     "drizzle-kit": "^1.0.0-rc.4",
     "eslint": "^9",

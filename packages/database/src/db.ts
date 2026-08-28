@@ -1,7 +1,8 @@
+import { config } from '@repo/configs';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { relations } from './relations';
 
-const url = process.env.DATABASE_URL;
+const url = config.databaseUrl || process.env.DATABASE_URL;
 if (!url) {
   throw new Error('DATABASE_URL environment variable is not set');
 }

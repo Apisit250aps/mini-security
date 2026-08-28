@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
+  "extends": "@repo/configs/typescript/react-library.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"],
@@ -9,18 +9,9 @@
       "#lib/*": ["./src/lib/*"],
       "#hooks": ["./src/hooks"],
       "#hooks/*": ["./src/hooks/*"]
-    }
+    },
+    "strictNullChecks": true,
   },
-  "include": [
-    "src",
-    "../../apps/web/src/shared/components/app/site-header.tsx",
-    "../../apps/web/src/shared/components/app/section-cards.tsx",
-    "../../apps/web/src/shared/components/app/nav-user.tsx",
-    "../../apps/web/src/shared/components/app/nav-secondary.tsx",
-    "../../apps/web/src/shared/components/app/nav-main.tsx",
-    "../../apps/web/src/shared/components/app/nav-documents.tsx",
-    "../../apps/web/src/shared/components/app/app-sidebar.tsx",
-    "../../apps/web/src/shared/components/app/data-table.tsx"
-  ],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

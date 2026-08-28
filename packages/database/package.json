@@ -22,6 +22,7 @@
     "#schema/*": "./src/schema/*.ts"
   },
   "dependencies": {
+    "@repo/configs": "*",
     "@repo/domains": "*",
     "dotenv": "^16.0.3",
     "drizzle-orm": "^1.0.0-rc.4",
@@ -29,8 +30,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
+    "@repo/configs": "*",
     "@types/node": "^22",
     "@types/pg": "^8.23.1",
     "@types/uuid": "^10.0.0",

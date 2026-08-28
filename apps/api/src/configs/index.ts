@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import config from '@repo/configs';
 
-export default {
-  port: Number(process.env.PORT) || 8000,
-};
+export * from '@repo/configs';
+export default config;

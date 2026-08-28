@@ -1,6 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
@@ -15,7 +17,6 @@
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "ES2022",
-    "customConditions": ["source"]
+    "target": "ES2022"
   }
 }

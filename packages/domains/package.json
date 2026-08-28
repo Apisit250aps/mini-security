@@ -28,8 +28,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
+    "@repo/configs": "*",
     "@types/node": "^22",
     "@types/uuid": "^10.0.0",
     "eslint": "^9",
