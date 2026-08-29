@@ -10,15 +10,18 @@ import {
   GetRolesByCompanyUseCase,
   GetRoleUseCase,
   GetSystemDefaultRolesUseCase,
+  PermissionGuard,
   RevokePermissionFromRoleUseCase,
   UpdatePermissionUseCase,
   UpdateRoleUseCase,
 } from '@repo/applications';
+import { companyMemberRepository } from '../repositories/company.repository';
 import {
   permissionRepository,
   rolePermissionRepository,
   roleRepository,
 } from '../repositories/permission.repository';
+import { userRepository } from '../repositories/user.repository';
 
 export const createRoleUseCase = new CreateRoleUseCase(roleRepository);
 export const updateRoleUseCase = new UpdateRoleUseCase(roleRepository);
@@ -57,4 +60,10 @@ export const getRolePermissionsUseCase = new GetRolePermissionsUseCase(
 export const checkUserPermissionUseCase = new CheckUserPermissionUseCase(
   rolePermissionRepository,
   permissionRepository,
+  userRepository,
+  companyMemberRepository,
 );
+
+// Register checker in PermissionGuard for @RequirePermission decorator support
+PermissionGuard.setChecker(checkUserPermissionUseCase);
+

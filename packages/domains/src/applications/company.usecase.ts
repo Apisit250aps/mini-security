@@ -1,4 +1,5 @@
 import type { BaseUseCase } from '../index';
+import type { ISecurityContext } from '#constants/permissions';
 import type { Company, CompanyMember } from '#entities/company';
 import type {
   CreateCompany,
@@ -8,24 +9,31 @@ import type {
 } from '#schema/company';
 
 // Context Types
-export type ICreateCompanyContext = {
+export type ICreateCompanyContext = ISecurityContext & {
   data: CreateCompany;
   ownerUserId: string;
 };
-export type IUpdateCompanyContext = { id: string; data: UpdateCompany };
-export type IDeleteCompanyContext = { id: string };
-export type IGetCompanyContext = { id: string };
-export type IGetCompanyBySlugContext = { slug: string };
-export type IGetCompaniesContext = { filter?: Record<string, unknown> };
+export type IUpdateCompanyContext = ISecurityContext & {
+  id: string;
+  data: UpdateCompany;
+};
+export type IDeleteCompanyContext = ISecurityContext & { id: string };
+export type IGetCompanyContext = ISecurityContext & { id: string };
+export type IGetCompanyBySlugContext = ISecurityContext & { slug: string };
+export type IGetCompaniesContext = ISecurityContext & {
+  filter?: Record<string, unknown>;
+};
 
-export type IAddCompanyMemberContext = { data: CreateCompanyMember };
-export type IUpdateCompanyMemberContext = {
+export type IAddCompanyMemberContext = ISecurityContext & {
+  data: CreateCompanyMember;
+};
+export type IUpdateCompanyMemberContext = ISecurityContext & {
   id: string;
   data: UpdateCompanyMember;
 };
-export type IRemoveCompanyMemberContext = { id: string };
-export type IGetCompanyMembersContext = { companyId: string };
-export type IGetUserCompaniesContext = { userId: string };
+export type IRemoveCompanyMemberContext = ISecurityContext & { id: string };
+export type IGetCompanyMembersContext = ISecurityContext & { companyId: string };
+export type IGetUserCompaniesContext = ISecurityContext & { userId: string };
 
 // Use Case Contracts
 export type ICreateCompanyUseCase = BaseUseCase<ICreateCompanyContext, Company>;
@@ -39,7 +47,10 @@ export type IGetCompanyBySlugUseCase = BaseUseCase<
   IGetCompanyBySlugContext,
   Company | null
 >;
-export type IGetCompaniesUseCase = BaseUseCase<IGetCompaniesContext, Company[]>;
+export type IGetCompaniesUseCase = BaseUseCase<
+  IGetCompaniesContext | void,
+  Company[]
+>;
 
 export type IAddCompanyMemberUseCase = BaseUseCase<
   IAddCompanyMemberContext,

@@ -9,6 +9,8 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./constants": "./src/constants/index.ts",
+    "./constants/*": "./src/constants/*.ts",
     "./schema/*": "./src/schema/*.ts",
     "./entities": "./src/entities/index.ts",
     "./entities/*": "./src/entities/*.ts",
@@ -16,6 +18,7 @@
     "./applications/*": "./src/applications/*.usecase.ts"
   },
   "imports": {
+    "#constants/*": "./src/constants/*.ts",
     "#lib/*": "./src/lib/*.ts",
     "#schema/*": "./src/schema/*.ts",
     "#entities/*": "./src/entities/*.ts",

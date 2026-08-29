@@ -1,4 +1,5 @@
 import type { BaseUseCase } from '../index';
+import type { ISecurityContext } from '#constants/permissions';
 import type { Permission, Role, RolePermission } from '#entities/permission';
 import type {
   CreatePermission,
@@ -9,24 +10,36 @@ import type {
 } from '#schema/permission';
 
 // Context Types
-export type ICreateRoleContext = { data: CreateRole };
-export type IUpdateRoleContext = { id: string; data: UpdateRole };
-export type IDeleteRoleContext = { id: string };
-export type IGetRoleContext = { id: string };
-export type IGetRolesByCompanyContext = { companyId: string };
-export type IGetSystemDefaultRolesContext = void;
+export type ICreateRoleContext = ISecurityContext & { data: CreateRole };
+export type IUpdateRoleContext = ISecurityContext & {
+  id: string;
+  data: UpdateRole;
+};
+export type IDeleteRoleContext = ISecurityContext & { id: string };
+export type IGetRoleContext = ISecurityContext & { id: string };
+export type IGetRolesByCompanyContext = ISecurityContext & {
+  companyId: string;
+};
+export type IGetSystemDefaultRolesContext = ISecurityContext | void;
 
-export type ICreatePermissionContext = { data: CreatePermission };
-export type IUpdatePermissionContext = { id: string; data: UpdatePermission };
-export type IDeletePermissionContext = { id: string };
-export type IGetPermissionsContext = { module?: string };
+export type ICreatePermissionContext = ISecurityContext & {
+  data: CreatePermission;
+};
+export type IUpdatePermissionContext = ISecurityContext & {
+  id: string;
+  data: UpdatePermission;
+};
+export type IDeletePermissionContext = ISecurityContext & { id: string };
+export type IGetPermissionsContext = ISecurityContext & { module?: string };
 
-export type IAssignPermissionToRoleContext = { data: CreateRolePermission };
-export type IRevokePermissionFromRoleContext = {
+export type IAssignPermissionToRoleContext = ISecurityContext & {
+  data: CreateRolePermission;
+};
+export type IRevokePermissionFromRoleContext = ISecurityContext & {
   roleId: string;
   permissionId: string;
 };
-export type IGetRolePermissionsContext = { roleId: string };
+export type IGetRolePermissionsContext = ISecurityContext & { roleId: string };
 export type ICheckUserPermissionContext = {
   userId: string;
   companyId?: string;
@@ -43,7 +56,7 @@ export type IGetRolesByCompanyUseCase = BaseUseCase<
   Role[]
 >;
 export type IGetSystemDefaultRolesUseCase = BaseUseCase<
-  IGetSystemDefaultRolesContext,
+  IGetSystemDefaultRolesContext | void,
   Role[]
 >;
 
@@ -60,7 +73,7 @@ export type IDeletePermissionUseCase = BaseUseCase<
   void
 >;
 export type IGetPermissionsUseCase = BaseUseCase<
-  IGetPermissionsContext,
+  IGetPermissionsContext | void,
   Permission[]
 >;
 

@@ -13,6 +13,7 @@ import {
   updateCompanyUseCase,
 } from '../applications/company.application';
 import { CompanyController } from '../controllers/company.controller';
+import { authMiddleware, type AuthContext } from '../middleware';
 
 const companyController = new CompanyController(
   createCompanyUseCase,
@@ -28,7 +29,9 @@ const companyController = new CompanyController(
   getUserCompaniesUseCase,
 );
 
-const companyRoutes = new Hono();
+const companyRoutes = new Hono<AuthContext>();
+
+companyRoutes.use('*', authMiddleware);
 
 // Company CRUD
 companyRoutes.get('/', companyController.getCompanies);

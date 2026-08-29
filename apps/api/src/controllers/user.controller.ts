@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import { createUserSchema, updateUserSchema } from '@repo/domains/schema/user';
 import type {
@@ -27,20 +28,29 @@ export class UserController extends Controller {
   }
 
   public getUsers = async (c: Parameters<typeof this.success>[0]) => {
-    const users = await this.getUsersUseCase.execute();
+    const user = (c as any).get('user');
+    const users = await this.getUsersUseCase.execute({ userId: user?.id });
     return this.success(c, 'Users retrieved successfully', users);
   };
 
   public getUser = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = await this.getUserUseCase.execute({ id });
-    return this.success(c, 'User retrieved successfully', user);
+    const user = (c as any).get('user');
+    const userResult = await this.getUserUseCase.execute({
+      id,
+      userId: user?.id,
+    });
+    return this.success(c, 'User retrieved successfully', userResult);
   });
 
   public createUser = this.validator({ body: createUserSchema }, async (c) => {
     const body = c.get('body');
-    const user = await this.createUserUseCase.execute({ data: body });
-    return this.created(c, 'User created successfully', user);
+    const user = (c as any).get('user');
+    const userResult = await this.createUserUseCase.execute({
+      data: body,
+      userId: user?.id,
+    });
+    return this.created(c, 'User created successfully', userResult);
   });
 
   public updateUser = this.validator(
@@ -48,14 +58,23 @@ export class UserController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = await this.updateUserUseCase.execute({ id, data: body });
-      return this.success(c, 'User updated successfully', user);
+      const user = (c as any).get('user');
+      const userResult = await this.updateUserUseCase.execute({
+        id,
+        data: body,
+        userId: user?.id,
+      });
+      return this.success(c, 'User updated successfully', userResult);
     },
   );
 
   public deleteUser = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    await this.deleteUserUseCase.execute({ id });
+    const user = (c as any).get('user');
+    await this.deleteUserUseCase.execute({
+      id,
+      userId: user?.id,
+    });
     return this.success(c, 'User deleted successfully');
   });
 }

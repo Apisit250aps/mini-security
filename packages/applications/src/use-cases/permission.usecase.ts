@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { PERMISSIONS } from '@repo/domains/constants';
 import type {
   IAssignPermissionToRoleContext,
   IAssignPermissionToRoleUseCase,
@@ -19,6 +21,7 @@ import type {
   IGetRoleUseCase,
   IGetRolesByCompanyContext,
   IGetRolesByCompanyUseCase,
+  IGetSystemDefaultRolesContext,
   IGetSystemDefaultRolesUseCase,
   IRevokePermissionFromRoleContext,
   IRevokePermissionFromRoleUseCase,
@@ -32,11 +35,13 @@ import type {
   Role,
   RolePermission,
 } from '@repo/domains/entities/permission';
+import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
 import type {
   IPermissionRepository,
   IRolePermissionRepository,
   IRoleRepository,
 } from '@repo/domains/repositories/permission';
+import type { IUserRepository } from '@repo/domains/repositories/user';
 import {
   createPermissionSchema,
   createRolePermissionSchema,
@@ -44,11 +49,15 @@ import {
   updatePermissionSchema,
   updateRoleSchema,
 } from '@repo/domains/schema/permission';
+import { RequirePermission } from '../decorators/permission.decorator';
 import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
 
 export class CreateRoleUseCase implements ICreateRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
+  @RequirePermission(PERMISSIONS.ROLE.CREATE, (ctx) => ({
+    companyId: ctx.data.companyId ?? undefined,
+  }))
   async execute(context: ICreateRoleContext): Promise<Role> {
     const parsed = await createRoleSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -72,6 +81,7 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
 export class UpdateRoleUseCase implements IUpdateRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
+  @RequirePermission(PERMISSIONS.ROLE.UPDATE)
   async execute(context: IUpdateRoleContext): Promise<Role> {
     const existing = await this.roleRepository.findById(context.id);
     if (!existing) {
@@ -93,6 +103,7 @@ export class UpdateRoleUseCase implements IUpdateRoleUseCase {
 export class DeleteRoleUseCase implements IDeleteRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
+  @RequirePermission(PERMISSIONS.ROLE.DELETE)
   async execute(context: IDeleteRoleContext): Promise<void> {
     const existing = await this.roleRepository.findById(context.id);
     if (!existing) {
@@ -106,6 +117,7 @@ export class DeleteRoleUseCase implements IDeleteRoleUseCase {
 export class GetRoleUseCase implements IGetRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
+  @RequirePermission(PERMISSIONS.ROLE.READ)
   async execute(context: IGetRoleContext): Promise<Role | null> {
     const role = await this.roleRepository.findById(context.id);
     if (!role) {
@@ -118,6 +130,9 @@ export class GetRoleUseCase implements IGetRoleUseCase {
 export class GetRolesByCompanyUseCase implements IGetRolesByCompanyUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
+  @RequirePermission(PERMISSIONS.ROLE.READ, (ctx) => ({
+    companyId: ctx.companyId,
+  }))
   async execute(context: IGetRolesByCompanyContext): Promise<Role[]> {
     return this.roleRepository.findByCompanyId(context.companyId);
   }
@@ -128,7 +143,8 @@ export class GetSystemDefaultRolesUseCase
 {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  async execute(): Promise<Role[]> {
+  @RequirePermission(PERMISSIONS.ROLE.READ)
+  async execute(_context?: IGetSystemDefaultRolesContext): Promise<Role[]> {
     return this.roleRepository.findSystemDefaultRoles();
   }
 }
@@ -136,6 +152,7 @@ export class GetSystemDefaultRolesUseCase
 export class CreatePermissionUseCase implements ICreatePermissionUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
+  @RequirePermission(PERMISSIONS.PERMISSION.CREATE)
   async execute(context: ICreatePermissionContext): Promise<Permission> {
     const parsed = await createPermissionSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -159,6 +176,7 @@ export class CreatePermissionUseCase implements ICreatePermissionUseCase {
 export class UpdatePermissionUseCase implements IUpdatePermissionUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
+  @RequirePermission(PERMISSIONS.PERMISSION.UPDATE)
   async execute(context: IUpdatePermissionContext): Promise<Permission> {
     const existing = await this.permissionRepository.findById(context.id);
     if (!existing) {
@@ -180,6 +198,7 @@ export class UpdatePermissionUseCase implements IUpdatePermissionUseCase {
 export class DeletePermissionUseCase implements IDeletePermissionUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
+  @RequirePermission(PERMISSIONS.PERMISSION.DELETE)
   async execute(context: IDeletePermissionContext): Promise<void> {
     const existing = await this.permissionRepository.findById(context.id);
     if (!existing) {
@@ -193,6 +212,7 @@ export class DeletePermissionUseCase implements IDeletePermissionUseCase {
 export class GetPermissionsUseCase implements IGetPermissionsUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
+  @RequirePermission(PERMISSIONS.PERMISSION.READ)
   async execute(context?: IGetPermissionsContext): Promise<Permission[]> {
     if (context?.module) {
       return this.permissionRepository.findByModule(context.module);
@@ -210,6 +230,7 @@ export class AssignPermissionToRoleUseCase
     private readonly permissionRepository: IPermissionRepository,
   ) {}
 
+  @RequirePermission(PERMISSIONS.PERMISSION.ASSIGN)
   async execute(
     context: IAssignPermissionToRoleContext,
   ): Promise<RolePermission> {
@@ -248,6 +269,7 @@ export class RevokePermissionFromRoleUseCase
     private readonly rolePermissionRepository: IRolePermissionRepository,
   ) {}
 
+  @RequirePermission(PERMISSIONS.PERMISSION.REVOKE)
   async execute(context: IRevokePermissionFromRoleContext): Promise<void> {
     await this.rolePermissionRepository.deleteByRoleAndPermission(
       context.roleId,
@@ -261,6 +283,7 @@ export class GetRolePermissionsUseCase implements IGetRolePermissionsUseCase {
     private readonly rolePermissionRepository: IRolePermissionRepository,
   ) {}
 
+  @RequirePermission(PERMISSIONS.PERMISSION.READ)
   async execute(context: IGetRolePermissionsContext): Promise<Permission[]> {
     return this.rolePermissionRepository.findPermissionsByRoleId(
       context.roleId,
@@ -272,15 +295,57 @@ export class CheckUserPermissionUseCase implements ICheckUserPermissionUseCase {
   constructor(
     private readonly rolePermissionRepository: IRolePermissionRepository,
     private readonly permissionRepository: IPermissionRepository,
+    private readonly userRepository: IUserRepository,
+    private readonly companyMemberRepository: ICompanyMemberRepository,
   ) {}
 
   async execute(context: ICheckUserPermissionContext): Promise<boolean> {
-    const targetPerm = await this.permissionRepository.findByAction(
-      context.action,
-    );
-    if (!targetPerm) return false;
+    if (!context.userId || !context.action) return false;
 
-    // Check if user has permission
-    return true;
+    // 1. Verify user exists and is currently active
+    const user = await this.userRepository.findById(context.userId);
+    if (!user || !user.isActive) return false;
+
+    // 2. Super admin bypasses all authorization checks
+    if (user.isAdmin) return true;
+
+    // 3. When scoped to a specific company, check company membership and role permissions
+    if (context.companyId) {
+      const member = await this.companyMemberRepository.findByCompanyAndUser(
+        context.companyId,
+        context.userId,
+      );
+      if (!member || !member.isActive) return false;
+
+      const permissions =
+        await this.rolePermissionRepository.findPermissionsByRoleId(
+          member.roleId,
+        );
+
+      return permissions.some(
+        (p) =>
+          p.action === context.action ||
+          p.action === '*' ||
+          p.action === `${context.action.split(':')[0]}:*`,
+      );
+    }
+
+    // 4. When unscoped (global / system operations), check user active memberships' roles
+    const userMemberships = await this.companyMemberRepository.findByUserId(
+      context.userId,
+    );
+    const activeMemberships = userMemberships.filter((m) => m.isActive);
+    if (activeMemberships.length === 0) return false;
+
+    const roleIds = [...new Set(activeMemberships.map((m) => m.roleId))];
+    const permissions =
+      await this.rolePermissionRepository.findPermissionsByRoleIds(roleIds);
+
+    return permissions.some(
+      (p) =>
+        p.action === context.action ||
+        p.action === '*' ||
+        p.action === `${context.action.split(':')[0]}:*`,
+    );
   }
 }

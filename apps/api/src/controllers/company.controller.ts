@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import {
   createCompanyMemberSchema,
@@ -50,13 +51,21 @@ export class CompanyController extends Controller {
   }
 
   public getCompanies = async (c: Parameters<typeof this.success>[0]) => {
-    const companies = await this.getCompaniesUseCase.execute();
+    const user = (c as any).get('user');
+    const companies = await this.getCompaniesUseCase.execute({
+      userId: user?.id,
+    });
     return this.success(c, 'Companies retrieved successfully', companies);
   };
 
   public getCompany = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const company = await this.getCompanyUseCase.execute({ id });
+    const user = (c as any).get('user');
+    const company = await this.getCompanyUseCase.execute({
+      id,
+      userId: user?.id,
+      companyId: id,
+    });
     return this.success(c, 'Company retrieved successfully', company);
   });
 
@@ -64,7 +73,11 @@ export class CompanyController extends Controller {
     { params: slugParamSchema },
     async (c) => {
       const { slug } = c.get('params');
-      const company = await this.getCompanyBySlugUseCase.execute({ slug });
+      const user = (c as any).get('user');
+      const company = await this.getCompanyBySlugUseCase.execute({
+        slug,
+        userId: user?.id,
+      });
       return this.success(c, 'Company retrieved successfully', company);
     },
   );
@@ -73,9 +86,11 @@ export class CompanyController extends Controller {
     { body: createCompanySchema },
     async (c) => {
       const body = c.get('body');
+      const user = (c as any).get('user');
       const company = await this.createCompanyUseCase.execute({
         data: body,
-        ownerUserId: '',
+        ownerUserId: user?.id ?? '',
+        userId: user?.id,
       });
       return this.created(c, 'Company created successfully', company);
     },
@@ -86,9 +101,12 @@ export class CompanyController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
+      const user = (c as any).get('user');
       const company = await this.updateCompanyUseCase.execute({
         id,
         data: body,
+        userId: user?.id,
+        companyId: id,
       });
       return this.success(c, 'Company updated successfully', company);
     },
@@ -98,7 +116,12 @@ export class CompanyController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      await this.deleteCompanyUseCase.execute({ id });
+      const user = (c as any).get('user');
+      await this.deleteCompanyUseCase.execute({
+        id,
+        userId: user?.id,
+        companyId: id,
+      });
       return this.success(c, 'Company deleted successfully');
     },
   );
@@ -107,8 +130,10 @@ export class CompanyController extends Controller {
     { params: companyMemberParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
+      const user = (c as any).get('user');
       const members = await this.getCompanyMembersUseCase.execute({
         companyId,
+        userId: user?.id,
       });
       return this.success(c, 'Company members retrieved successfully', members);
     },
@@ -118,7 +143,12 @@ export class CompanyController extends Controller {
     { body: createCompanyMemberSchema },
     async (c) => {
       const body = c.get('body');
-      const member = await this.addCompanyMemberUseCase.execute({ data: body });
+      const user = (c as any).get('user');
+      const member = await this.addCompanyMemberUseCase.execute({
+        data: body,
+        userId: user?.id,
+        companyId: body.companyId,
+      });
       return this.created(c, 'Company member added successfully', member);
     },
   );
@@ -128,9 +158,11 @@ export class CompanyController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
+      const user = (c as any).get('user');
       const member = await this.updateCompanyMemberUseCase.execute({
         id,
         data: body,
+        userId: user?.id,
       });
       return this.success(c, 'Company member updated successfully', member);
     },
@@ -138,7 +170,11 @@ export class CompanyController extends Controller {
 
   public removeMember = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    await this.removeCompanyMemberUseCase.execute({ id });
+    const user = (c as any).get('user');
+    await this.removeCompanyMemberUseCase.execute({
+      id,
+      userId: user?.id,
+    });
     return this.success(c, 'Company member removed successfully');
   });
 }

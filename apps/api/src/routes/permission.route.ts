@@ -15,6 +15,7 @@ import {
   updateRoleUseCase,
 } from '../applications/permission.application';
 import { PermissionController } from '../controllers/permission.controller';
+import { authMiddleware, type AuthContext } from '../middleware';
 
 const permissionController = new PermissionController(
   createRoleUseCase,
@@ -32,7 +33,9 @@ const permissionController = new PermissionController(
   getRolePermissionsUseCase,
 );
 
-const permissionRoutes = new Hono();
+const permissionRoutes = new Hono<AuthContext>();
+
+permissionRoutes.use('*', authMiddleware);
 
 // Roles
 permissionRoutes.get(

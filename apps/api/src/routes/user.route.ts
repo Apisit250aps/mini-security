@@ -8,6 +8,7 @@ import {
   updateUserUseCase,
 } from '../applications/user.application';
 import { UserController } from '../controllers/user.controller';
+import { authMiddleware, type AuthContext } from '../middleware';
 
 const userController = new UserController(
   createUserUseCase,
@@ -18,7 +19,9 @@ const userController = new UserController(
   getUsersUseCase,
 );
 
-const userRoutes = new Hono();
+const userRoutes = new Hono<AuthContext>();
+
+userRoutes.use('*', authMiddleware);
 
 userRoutes.get('/', userController.getUsers);
 userRoutes.get('/:id', userController.getUser);
