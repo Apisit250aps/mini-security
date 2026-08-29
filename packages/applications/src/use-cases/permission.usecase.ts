@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PERMISSIONS } from '@repo/domains/constants';
 import type {
   IAssignPermissionToRoleContext,
   IAssignPermissionToRoleUseCase,
@@ -55,7 +54,7 @@ import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
 export class CreateRoleUseCase implements ICreateRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  @RequirePermission(PERMISSIONS.ROLE.CREATE, (ctx) => ({
+  @RequirePermission('role:create', (ctx) => ({
     companyId: ctx.data.companyId ?? undefined,
   }))
   async execute(context: ICreateRoleContext): Promise<Role> {
@@ -81,7 +80,7 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
 export class UpdateRoleUseCase implements IUpdateRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  @RequirePermission(PERMISSIONS.ROLE.UPDATE)
+  @RequirePermission('role:update')
   async execute(context: IUpdateRoleContext): Promise<Role> {
     const existing = await this.roleRepository.findById(context.id);
     if (!existing) {
@@ -103,7 +102,7 @@ export class UpdateRoleUseCase implements IUpdateRoleUseCase {
 export class DeleteRoleUseCase implements IDeleteRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  @RequirePermission(PERMISSIONS.ROLE.DELETE)
+  @RequirePermission('role:delete')
   async execute(context: IDeleteRoleContext): Promise<void> {
     const existing = await this.roleRepository.findById(context.id);
     if (!existing) {
@@ -117,7 +116,7 @@ export class DeleteRoleUseCase implements IDeleteRoleUseCase {
 export class GetRoleUseCase implements IGetRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  @RequirePermission(PERMISSIONS.ROLE.READ)
+  @RequirePermission('role:read')
   async execute(context: IGetRoleContext): Promise<Role | null> {
     const role = await this.roleRepository.findById(context.id);
     if (!role) {
@@ -130,7 +129,7 @@ export class GetRoleUseCase implements IGetRoleUseCase {
 export class GetRolesByCompanyUseCase implements IGetRolesByCompanyUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  @RequirePermission(PERMISSIONS.ROLE.READ, (ctx) => ({
+  @RequirePermission('role:read', (ctx) => ({
     companyId: ctx.companyId,
   }))
   async execute(context: IGetRolesByCompanyContext): Promise<Role[]> {
@@ -143,7 +142,7 @@ export class GetSystemDefaultRolesUseCase
 {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  @RequirePermission(PERMISSIONS.ROLE.READ)
+  @RequirePermission('role:read')
   async execute(_context?: IGetSystemDefaultRolesContext): Promise<Role[]> {
     return this.roleRepository.findSystemDefaultRoles();
   }
@@ -152,7 +151,7 @@ export class GetSystemDefaultRolesUseCase
 export class CreatePermissionUseCase implements ICreatePermissionUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
-  @RequirePermission(PERMISSIONS.PERMISSION.CREATE)
+  @RequirePermission('permission:create')
   async execute(context: ICreatePermissionContext): Promise<Permission> {
     const parsed = await createPermissionSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -176,7 +175,7 @@ export class CreatePermissionUseCase implements ICreatePermissionUseCase {
 export class UpdatePermissionUseCase implements IUpdatePermissionUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
-  @RequirePermission(PERMISSIONS.PERMISSION.UPDATE)
+  @RequirePermission('permission:update')
   async execute(context: IUpdatePermissionContext): Promise<Permission> {
     const existing = await this.permissionRepository.findById(context.id);
     if (!existing) {
@@ -198,7 +197,7 @@ export class UpdatePermissionUseCase implements IUpdatePermissionUseCase {
 export class DeletePermissionUseCase implements IDeletePermissionUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
-  @RequirePermission(PERMISSIONS.PERMISSION.DELETE)
+  @RequirePermission('permission:delete')
   async execute(context: IDeletePermissionContext): Promise<void> {
     const existing = await this.permissionRepository.findById(context.id);
     if (!existing) {
@@ -212,7 +211,7 @@ export class DeletePermissionUseCase implements IDeletePermissionUseCase {
 export class GetPermissionsUseCase implements IGetPermissionsUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
-  @RequirePermission(PERMISSIONS.PERMISSION.READ)
+  @RequirePermission('permission:read')
   async execute(context?: IGetPermissionsContext): Promise<Permission[]> {
     if (context?.module) {
       return this.permissionRepository.findByModule(context.module);
@@ -230,7 +229,7 @@ export class AssignPermissionToRoleUseCase
     private readonly permissionRepository: IPermissionRepository,
   ) {}
 
-  @RequirePermission(PERMISSIONS.PERMISSION.ASSIGN)
+  @RequirePermission('permission:assign')
   async execute(
     context: IAssignPermissionToRoleContext,
   ): Promise<RolePermission> {
@@ -269,7 +268,7 @@ export class RevokePermissionFromRoleUseCase
     private readonly rolePermissionRepository: IRolePermissionRepository,
   ) {}
 
-  @RequirePermission(PERMISSIONS.PERMISSION.REVOKE)
+  @RequirePermission('permission:revoke')
   async execute(context: IRevokePermissionFromRoleContext): Promise<void> {
     await this.rolePermissionRepository.deleteByRoleAndPermission(
       context.roleId,
@@ -283,7 +282,7 @@ export class GetRolePermissionsUseCase implements IGetRolePermissionsUseCase {
     private readonly rolePermissionRepository: IRolePermissionRepository,
   ) {}
 
-  @RequirePermission(PERMISSIONS.PERMISSION.READ)
+  @RequirePermission('permission:read')
   async execute(context: IGetRolePermissionsContext): Promise<Permission[]> {
     return this.rolePermissionRepository.findPermissionsByRoleId(
       context.roleId,

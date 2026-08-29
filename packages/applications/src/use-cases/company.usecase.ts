@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PERMISSIONS } from '@repo/domains/constants';
 import type {
   IAddCompanyMemberContext,
   IAddCompanyMemberUseCase,
@@ -41,7 +40,7 @@ import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
 export class CreateCompanyUseCase implements ICreateCompanyUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY.CREATE)
+  @RequirePermission('company:create')
   async execute(context: ICreateCompanyContext): Promise<Company> {
     const parsed = await createCompanySchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -60,7 +59,7 @@ export class CreateCompanyUseCase implements ICreateCompanyUseCase {
 export class UpdateCompanyUseCase implements IUpdateCompanyUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY.UPDATE, (ctx) => ({
+  @RequirePermission('company:update', (ctx) => ({
     companyId: ctx.id,
   }))
   async execute(context: IUpdateCompanyContext): Promise<Company> {
@@ -93,7 +92,7 @@ export class UpdateCompanyUseCase implements IUpdateCompanyUseCase {
 export class DeleteCompanyUseCase implements IDeleteCompanyUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY.DELETE, (ctx) => ({
+  @RequirePermission('company:delete', (ctx) => ({
     companyId: ctx.id,
   }))
   async execute(context: IDeleteCompanyContext): Promise<void> {
@@ -109,7 +108,7 @@ export class DeleteCompanyUseCase implements IDeleteCompanyUseCase {
 export class GetCompanyUseCase implements IGetCompanyUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY.READ, (ctx) => ({
+  @RequirePermission('company:read', (ctx) => ({
     companyId: ctx.id,
   }))
   async execute(context: IGetCompanyContext): Promise<Company | null> {
@@ -124,7 +123,7 @@ export class GetCompanyUseCase implements IGetCompanyUseCase {
 export class GetCompanyBySlugUseCase implements IGetCompanyBySlugUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY.READ)
+  @RequirePermission('company:read')
   async execute(context: IGetCompanyBySlugContext): Promise<Company | null> {
     const company = await this.companyRepository.findBySlug(context.slug);
     if (!company) {
@@ -137,7 +136,7 @@ export class GetCompanyBySlugUseCase implements IGetCompanyBySlugUseCase {
 export class GetCompaniesUseCase implements IGetCompaniesUseCase {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY.READ)
+  @RequirePermission('company:read')
   async execute(_context?: IGetCompaniesContext): Promise<Company[]> {
     return this.companyRepository.findAll();
   }
@@ -149,7 +148,7 @@ export class AddCompanyMemberUseCase implements IAddCompanyMemberUseCase {
     private readonly companyRepository: ICompanyRepository,
   ) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY_MEMBER.CREATE, (ctx) => ({
+  @RequirePermission('company_member:create', (ctx) => ({
     companyId: ctx.data.companyId,
   }))
   async execute(context: IAddCompanyMemberContext): Promise<CompanyMember> {
@@ -185,7 +184,7 @@ export class AddCompanyMemberUseCase implements IAddCompanyMemberUseCase {
 export class UpdateCompanyMemberUseCase implements IUpdateCompanyMemberUseCase {
   constructor(private readonly memberRepository: ICompanyMemberRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY_MEMBER.UPDATE)
+  @RequirePermission('company_member:update')
   async execute(context: IUpdateCompanyMemberContext): Promise<CompanyMember> {
     const existing = await this.memberRepository.findById(context.id);
     if (!existing) {
@@ -207,7 +206,7 @@ export class UpdateCompanyMemberUseCase implements IUpdateCompanyMemberUseCase {
 export class RemoveCompanyMemberUseCase implements IRemoveCompanyMemberUseCase {
   constructor(private readonly memberRepository: ICompanyMemberRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY_MEMBER.DELETE)
+  @RequirePermission('company_member:delete')
   async execute(context: IRemoveCompanyMemberContext): Promise<void> {
     const existing = await this.memberRepository.findById(context.id);
     if (!existing) {
@@ -221,7 +220,7 @@ export class RemoveCompanyMemberUseCase implements IRemoveCompanyMemberUseCase {
 export class GetCompanyMembersUseCase implements IGetCompanyMembersUseCase {
   constructor(private readonly memberRepository: ICompanyMemberRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY_MEMBER.READ, (ctx) => ({
+  @RequirePermission('company_member:read', (ctx) => ({
     companyId: ctx.companyId,
   }))
   async execute(context: IGetCompanyMembersContext): Promise<CompanyMember[]> {
@@ -232,7 +231,7 @@ export class GetCompanyMembersUseCase implements IGetCompanyMembersUseCase {
 export class GetUserCompaniesUseCase implements IGetUserCompaniesUseCase {
   constructor(private readonly memberRepository: ICompanyMemberRepository) {}
 
-  @RequirePermission(PERMISSIONS.COMPANY.READ)
+  @RequirePermission('company:read')
   async execute(context: IGetUserCompaniesContext): Promise<CompanyMember[]> {
     return this.memberRepository.findByUserId(context.userId);
   }

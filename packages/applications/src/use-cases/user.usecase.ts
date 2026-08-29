@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PERMISSIONS } from '@repo/domains/constants';
 import type {
   ICreateUserContext,
   ICreateUserUseCase,
@@ -23,7 +22,7 @@ import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
 export class CreateUserUseCase implements ICreateUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  @RequirePermission(PERMISSIONS.USER.CREATE)
+  @RequirePermission('user:create')
   async execute(context: ICreateUserContext): Promise<User> {
     const parsed = await createUserSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -42,7 +41,7 @@ export class CreateUserUseCase implements ICreateUserUseCase {
 export class UpdateUserUseCase implements IUpdateUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  @RequirePermission(PERMISSIONS.USER.UPDATE)
+  @RequirePermission('user:update')
   async execute(context: IUpdateUserContext): Promise<User> {
     const existing = await this.userRepository.findById(context.id);
     if (!existing) {
@@ -73,7 +72,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
 export class DeleteUserUseCase implements IDeleteUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  @RequirePermission(PERMISSIONS.USER.DELETE)
+  @RequirePermission('user:delete')
   async execute(context: IDeleteUserContext): Promise<void> {
     const existing = await this.userRepository.findById(context.id);
     if (!existing) {
@@ -87,7 +86,7 @@ export class DeleteUserUseCase implements IDeleteUserUseCase {
 export class GetUserUseCase implements IGetUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  @RequirePermission(PERMISSIONS.USER.READ)
+  @RequirePermission('user:read')
   async execute(context: IGetUserContext): Promise<User | null> {
     const user = await this.userRepository.findById(context.id);
     if (!user) {
@@ -100,7 +99,7 @@ export class GetUserUseCase implements IGetUserUseCase {
 export class GetUserByEmailUseCase implements IGetUserByEmailUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  @RequirePermission(PERMISSIONS.USER.READ)
+  @RequirePermission('user:read')
   async execute(context: IGetUserByEmailContext): Promise<User | null> {
     const user = await this.userRepository.findByEmail(context.email);
     if (!user) {
@@ -113,7 +112,7 @@ export class GetUserByEmailUseCase implements IGetUserByEmailUseCase {
 export class GetUsersUseCase implements IGetUsersUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  @RequirePermission(PERMISSIONS.USER.READ)
+  @RequirePermission('user:read')
   async execute(_context?: IGetUsersContext): Promise<User[]> {
     return this.userRepository.findAll();
   }
