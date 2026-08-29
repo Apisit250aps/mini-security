@@ -2,7 +2,7 @@ import BaseConfig from './base';
 /**
  * Application configuration
  */
-class Config extends BaseConfig {
+export class Config extends BaseConfig {
   /**
    * Database configuration
    */
