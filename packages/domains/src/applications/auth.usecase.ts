@@ -44,6 +44,7 @@ export type IAuthResponse = {
   user: User;
   session: Session;
   account?: Account;
+  token?: string;
 };
 
 // Use Case Contracts

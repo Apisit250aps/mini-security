@@ -65,3 +65,13 @@ export const verification = pgTable(
   },
   (table) => [index('verification_identifier_idx').on(table.identifier)],
 );
+
+export const jwks = pgTable('jwks', {
+  id: primaryKeyUuid7('id'),
+  publicKey: text('public_key').notNull(),
+  privateKey: text('private_key').notNull(),
+  createdAt: createdAtTimestamp('created_at'),
+  expiresAt: timestamp('expires_at'),
+  alg: text('alg'),
+  crv: text('crv'),
+});

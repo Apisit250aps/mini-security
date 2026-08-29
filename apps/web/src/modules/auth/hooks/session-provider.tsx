@@ -1,16 +1,14 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { createAuthClient } from 'better-auth/react';
+import { createAuthClient, jwtClient } from '@repo/infrastructures/auth/client';
 
-const {
-  signIn,
-  signUp,
-  useSession: useAuthSession,
-  signOut,
-} = createAuthClient({
+export const authClient = createAuthClient({
   baseURL: typeof window !== 'undefined' ? window.location.origin : '',
+  plugins: [jwtClient()],
 });
+
+const { signIn, signUp, useSession: useAuthSession, signOut } = authClient;
 
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
 
@@ -20,6 +18,7 @@ type SessionContextProps = {
   signOut: typeof signOut;
   data: ReturnType<typeof useAuthSession>['data'];
   status: SessionStatus;
+  getToken: () => Promise<string | null>;
 };
 
 const sessionContext = React.createContext<SessionContextProps | null>(null);
@@ -39,9 +38,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return { status: 'unauthenticated', data: null };
   }, [query.isPending, query.data]);
 
+  const getToken = React.useCallback(async (): Promise<string | null> => {
+    try {
+      const res = await authClient.$fetch<{ token: string }>('/api/auth/token');
+      return res.data?.token ?? null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const value = useMemo(
-    () => ({ signIn, signUp, signOut, data, status }),
-    [data, status],
+    () => ({ signIn, signUp, signOut, data, status, getToken }),
+    [data, status, getToken],
   );
   return (
     <sessionContext.Provider value={value}>{children}</sessionContext.Provider>

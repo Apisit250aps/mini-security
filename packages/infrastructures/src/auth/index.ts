@@ -5,6 +5,8 @@ import * as schema from '@repo/database/schema';
 import { uuid } from '@repo/domains';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { bearer } from 'better-auth/plugins/bearer';
+import { jwt } from 'better-auth/plugins/jwt';
 
 const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -14,8 +16,10 @@ const auth = betterAuth({
       session: schema.session,
       account: schema.account,
       verification: schema.verification,
+      jwks: schema.jwks,
     },
   }),
+  plugins: [jwt(), bearer()],
   advanced: {
     database: {
       generateId: () => uuid(),

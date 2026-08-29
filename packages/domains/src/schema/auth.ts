@@ -74,3 +74,26 @@ export const updateVerificationSchema = verificationSchema
 export type VerificationEntity = z.infer<typeof verificationSchema>;
 export type CreateVerification = z.infer<typeof createVerificationSchema>;
 export type UpdateVerification = z.infer<typeof updateVerificationSchema>;
+
+// --- JWKS Schema (JSON Web Key Set for JWT Plugin) ---
+export const jwksSchema = BaseEntity({
+  publicKey: StringField({ required: true, max: 4096 }),
+  privateKey: StringField({ required: true, max: 8192 }),
+  expiresAt: DateField({ required: false, nullable: true }),
+  alg: StringField({ required: false, nullable: true }),
+  crv: StringField({ required: false, nullable: true }),
+});
+
+export const createJwksSchema = jwksSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateJwksSchema = jwksSchema
+  .partial()
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export type JwksEntity = z.infer<typeof jwksSchema>;
+export type CreateJwks = z.infer<typeof createJwksSchema>;
+export type UpdateJwks = z.infer<typeof updateJwksSchema>;

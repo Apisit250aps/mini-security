@@ -1,5 +1,6 @@
 import type {
   AccountEntity,
+  JwksEntity,
   SessionEntity,
   VerificationEntity,
 } from '#schema/auth';
@@ -75,6 +76,28 @@ export class Verification implements VerificationEntity {
     this.identifier = data.identifier;
     this.value = data.value;
     this.expiresAt = data.expiresAt;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
+  }
+}
+
+export class Jwks implements JwksEntity {
+  id: string;
+  publicKey: string;
+  privateKey: string;
+  expiresAt?: Date | null;
+  alg?: string | null;
+  crv?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+
+  constructor(data: JwksEntity) {
+    this.id = data.id;
+    this.publicKey = data.publicKey;
+    this.privateKey = data.privateKey;
+    this.expiresAt = data.expiresAt;
+    this.alg = data.alg;
+    this.crv = data.crv;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }

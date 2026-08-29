@@ -1,1 +1,1 @@
-// Middleware directory
+export * from './auth.middleware';
