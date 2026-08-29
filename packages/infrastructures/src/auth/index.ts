@@ -1,4 +1,5 @@
 import { hash, verify } from '#lib/password';
+import { config } from '@repo/configs';
 import db from '@repo/database/db';
 import * as schema from '@repo/database/schema';
 import { uuid } from '@repo/domains';
@@ -20,7 +21,7 @@ const auth = betterAuth({
       generateId: () => uuid(),
     },
   },
-  trustedOrigins: ['http://localhost:8000', 'http://localhost:3000'],
+  trustedOrigins: config.backend.corsOrigins.split(','),
   emailAndPassword: {
     enabled: true,
     password: {
