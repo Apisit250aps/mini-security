@@ -33,6 +33,7 @@ export class Account implements AccountEntity {
   userId: string;
   accountId: string;
   providerId: string;
+  issuer?: string | null;
   accessToken?: string | null;
   refreshToken?: string | null;
   idToken?: string | null;
@@ -48,6 +49,7 @@ export class Account implements AccountEntity {
     this.userId = data.userId;
     this.accountId = data.accountId;
     this.providerId = data.providerId;
+    this.issuer = data.issuer;
     this.accessToken = data.accessToken;
     this.refreshToken = data.refreshToken;
     this.idToken = data.idToken;

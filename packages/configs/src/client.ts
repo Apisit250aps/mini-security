@@ -22,4 +22,3 @@ export class ClientConfig {
 export const clientConfig = new ClientConfig();
 
 export default clientConfig;
-

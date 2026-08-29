@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from '@/modules/auth/hooks/client';
+import { useSession } from '@/modules/auth/hooks/session-provider';
 import React from 'react';
 
 export default function Layout({ children }: { children: React.ReactNode }) {

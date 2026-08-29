@@ -30,6 +30,7 @@ export const accountSchema = BaseEntity({
   userId: UUIDField({ required: true }),
   accountId: StringField({ required: true }),
   providerId: StringField({ required: true }),
+  issuer: StringField({ required: false, nullable: true }),
   accessToken: StringField({ required: false, nullable: true }),
   refreshToken: StringField({ required: false, nullable: true }),
   idToken: StringField({ required: false, nullable: true }),

@@ -1,3 +1,4 @@
+'use client';
 import { Button } from '@repo/ui/components/button';
 import {
   Card,
@@ -6,18 +7,50 @@ import {
   CardHeader,
   CardTitle,
 } from '@repo/ui/components/card';
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from '@repo/ui/components/field';
-import { Input } from '@repo/ui/components/input';
+import { Field, FieldDescription, FieldGroup } from '@repo/ui/components/field';
+
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { InputField, PasswordField } from '@repo/ui/form/input-field';
+import z from 'zod';
+import { useSession } from '../hooks/session-provider';
+import { useCallback } from 'react';
 
 export default function SignUpForm({
   ...props
 }: React.ComponentProps<typeof Card>) {
+  const { signUp } = useSession();
+  const methods = useForm({
+    resolver: zodResolver(
+      z.object({
+        name: z.string().min(1, 'Full Name is required'),
+        email: z.string().email('Invalid email address'),
+        password: z
+          .string()
+          .min(8, 'Password must be at least 8 characters long'),
+        confirmPassword: z
+          .string()
+          .min(8, 'Confirm Password must be at least 8 characters long'),
+      }),
+    ),
+  });
+
+  const handleSignUp = useCallback(
+    async (data: { name: string; email: string; password: string }) => {
+      const res = await signUp.email({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        callbackURL: window.location.origin,
+      });
+      if (res?.error) {
+        console.error(res.error);
+      }
+    },
+    [signUp],
+  );
+
   return (
     <Card {...props}>
       <CardHeader>
@@ -27,39 +60,39 @@ export default function SignUpForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={methods.handleSubmit(handleSignUp)}>
           <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" required />
-              <FieldDescription>
-                Must be at least 8 characters long.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input id="confirm-password" type="password" required />
-              <FieldDescription>Please confirm your password.</FieldDescription>
-            </Field>
+            <InputField
+              id="name"
+              label="Full Name"
+              placeholder="John Doe"
+              required
+              name="name"
+              control={methods.control}
+            />
+            <InputField
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="m@example.com"
+              required
+              name="email"
+              control={methods.control}
+            />
+            <PasswordField
+              id="password"
+              label="Password"
+              required
+              name="password"
+              control={methods.control}
+            />
+            <PasswordField
+              id="confirm-password"
+              label="Confirm Password"
+              required
+              name="confirmPassword"
+              control={methods.control}
+            />
             <FieldGroup>
               <Field>
                 <Button type="submit">Create Account</Button>
