@@ -1,7 +1,13 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "stream",
-  "globalEnv": ["DATABASE_URL", "PORT", "BETTER_AUTH_*", "BACKEND_*"],
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "PORT",
+    "BETTER_AUTH_*",
+    "BACKEND_*"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

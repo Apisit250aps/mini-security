@@ -1,34 +1,109 @@
 import type { MiddlewareHandler } from 'hono';
 import auth from '@repo/infrastructures/auth';
+import { UnauthorizedError } from '@repo/applications';
+
+export type AuthUser = typeof auth.$Infer.Session.user;
+export type AuthSession = typeof auth.$Infer.Session.session;
 
 export type AuthVariables = {
-  user: typeof auth.$Infer.Session.user;
-  session: typeof auth.$Infer.Session.session;
+  user: AuthUser;
+  session: AuthSession | null;
 };
 
 export type AuthContext = {
   Variables: AuthVariables;
 };
 
+/**
+ * Extracts Bearer token from headers (case-insensitive)
+ */
+function extractBearerToken(headers: Headers): string | null {
+  const authHeader =
+    headers.get('authorization') ?? headers.get('Authorization');
+
+  if (!authHeader?.toLowerCase().startsWith('bearer ')) {
+    return null;
+  }
+
+  return authHeader.slice(7).trim() || null;
+}
+
+/**
+ * Safely parse date or fallback to current date
+ */
+function parseDate(value: unknown): Date {
+  if (value instanceof Date) return value;
+  if (typeof value === 'string' || typeof value === 'number') {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+  return new Date();
+}
+
+/**
+ * Maps decoded JWT payload to standard AuthUser entity
+ */
+function mapJwtPayloadToUser(payload: Record<string, unknown>): AuthUser {
+  return {
+    id: String(payload.id ?? payload.sub ?? ''),
+    name: String(payload.name ?? ''),
+    email: String(payload.email ?? ''),
+    emailVerified: Boolean(payload.emailVerified),
+    image: typeof payload.image === 'string' ? payload.image : null,
+    createdAt: parseDate(payload.createdAt),
+    updatedAt: parseDate(payload.updatedAt),
+    isAdmin: Boolean(payload.isAdmin),
+    isActive: payload.isActive !== false,
+    lastLogin: payload.lastLogin ? parseDate(payload.lastLogin) : null,
+  };
+}
+
+/**
+ * Resolves authentication state via either Session (Cookie/Bearer) or JWT
+ */
+async function resolveAuth(
+  headers: Headers,
+): Promise<{ user: AuthUser; session: AuthSession | null } | null> {
+  // 1. Session-based authentication (Cookie or Bearer session token)
+  const session = await auth.api.getSession({ headers });
+  if (session) {
+    return {
+      user: session.user,
+      session: session.session,
+    };
+  }
+
+  // 2. JWT-based authentication (Stateless Bearer JWT)
+  const token = extractBearerToken(headers);
+  if (token) {
+    try {
+      const result = await auth.api.verifyJWT({ body: { token } });
+      if (result?.payload) {
+        return {
+          user: mapJwtPayloadToUser(result.payload),
+          session: null,
+        };
+      }
+    } catch {
+      // Token verification failed or expired
+    }
+  }
+
+  return null;
+}
+
 export const authMiddleware: MiddlewareHandler<AuthContext> = async (
   c,
   next,
 ) => {
-  const session = await auth.api.getSession({
-    headers: c.req.raw.headers,
-  });
+  const authState = await resolveAuth(c.req.raw.headers);
 
-  if (!session) {
-    return c.json(
-      {
-        message: 'Unauthorized',
-      },
-      401,
-    );
+  if (!authState) {
+    throw new UnauthorizedError('Unauthorized access');
   }
 
-  c.set('user', session.user);
-  c.set('session', session.session);
+  c.set('user', authState.user);
+  c.set('session', authState.session);
 
-  await next();
+  return await next();
 };

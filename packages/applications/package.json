@@ -1,0 +1,27 @@
+{
+  "name": "@repo/applications",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./use-cases/*": "./src/use-cases/*.ts",
+    "./lib/*": "./src/lib/*.ts"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*.ts",
+    "#use-cases/*": "./src/use-cases/*.ts"
+  },
+  "dependencies": {
+    "@repo/domains": "*"
+  },
+  "devDependencies": {
+    "@repo/configs": "*",
+    "@types/node": "^22",
+    "eslint": "^9",
+    "typescript": "^5.8.2"
+  }
+}
