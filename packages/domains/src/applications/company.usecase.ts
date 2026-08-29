@@ -32,7 +32,9 @@ export type IUpdateCompanyMemberContext = ISecurityContext & {
   data: UpdateCompanyMember;
 };
 export type IRemoveCompanyMemberContext = ISecurityContext & { id: string };
-export type IGetCompanyMembersContext = ISecurityContext & { companyId: string };
+export type IGetCompanyMembersContext = ISecurityContext & {
+  companyId: string;
+};
 export type IGetUserCompaniesContext = ISecurityContext & { userId: string };
 
 // Use Case Contracts

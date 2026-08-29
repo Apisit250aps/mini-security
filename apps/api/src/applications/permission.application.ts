@@ -66,4 +66,3 @@ export const checkUserPermissionUseCase = new CheckUserPermissionUseCase(
 
 // Register checker in PermissionGuard for @RequirePermission decorator support
 PermissionGuard.setChecker(checkUserPermissionUseCase);
-

@@ -1,0 +1,1533 @@
+openapi: 3.1.0
+info:
+  title: MiniSecurity API Service
+  version: 0.0.0
+tags:
+  - name: User
+  - name: Company
+  - name: Permission
+  - name: Role
+paths:
+  /api/companies/:
+    get:
+      operationId: CompanyServices_getCompanies
+      summary: Get all companies
+      parameters: []
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Company'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+    post:
+      operationId: CompanyServices_createCompany
+      summary: Create new company
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Company'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompany'
+  /api/companies/members:
+    post:
+      operationId: CompanyServices_addCompanyMember
+      summary: Add company member
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CompanyMember'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyMember'
+  /api/companies/members/{id}:
+    put:
+      operationId: CompanyServices_updateCompanyMember
+      summary: Update company member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CompanyMember'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyMember'
+    delete:
+      operationId: CompanyServices_removeCompanyMember
+      summary: Remove company member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+  /api/companies/slug/{slug}:
+    get:
+      operationId: CompanyServices_getCompanyBySlug
+      summary: Get company by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Company'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+  /api/companies/{companyId}/members:
+    get:
+      operationId: CompanyServices_getCompanyMembers
+      summary: Get company members
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CompanyMember'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+  /api/companies/{id}:
+    get:
+      operationId: CompanyServices_getCompany
+      summary: Get company by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Company'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+    put:
+      operationId: CompanyServices_updateCompany
+      summary: Update company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Company'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompany'
+    delete:
+      operationId: CompanyServices_deleteCompany
+      summary: Delete company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
+  /api/permissions/:
+    get:
+      operationId: PermissionServices_getPermissions
+      summary: Get all permissions
+      parameters: []
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Permission'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Permission
+    post:
+      operationId: PermissionServices_createPermission
+      summary: Create permission
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Permission'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Permission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePermission'
+  /api/permissions/roles/:
+    post:
+      operationId: RoleServices_createRole
+      summary: Create role
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Role'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRole'
+  /api/permissions/roles/company/{companyId}:
+    get:
+      operationId: RoleServices_getCompanyRoles
+      summary: Get roles by company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+  /api/permissions/roles/permissions:
+    post:
+      operationId: RoleServices_assignPermissionToRole
+      summary: Assign permission to role
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RolePermission'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRolePermission'
+  /api/permissions/roles/system-defaults:
+    get:
+      operationId: RoleServices_getSystemDefaultRoles
+      summary: Get system default roles
+      parameters: []
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+  /api/permissions/roles/{id}:
+    get:
+      operationId: RoleServices_getRole
+      summary: Get role by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Role'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+    put:
+      operationId: RoleServices_updateRole
+      summary: Update role
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Role'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRole'
+    delete:
+      operationId: RoleServices_deleteRole
+      summary: Delete role
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+  /api/permissions/roles/{roleId}/permissions:
+    get:
+      operationId: RoleServices_getRolePermissions
+      summary: Get role permissions
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RolePermission'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+  /api/permissions/roles/{roleId}/permissions/{permissionId}:
+    delete:
+      operationId: RoleServices_revokePermissionFromRole
+      summary: Revoke permission from role
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: permissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Role
+  /api/permissions/{id}:
+    put:
+      operationId: PermissionServices_updatePermission
+      summary: Update permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Permission'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Permission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePermission'
+    delete:
+      operationId: PermissionServices_deletePermission
+      summary: Delete permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Permission
+  /api/users/:
+    get:
+      operationId: UserServices_getUsers
+      summary: Get all users
+      parameters: []
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - User
+    post:
+      operationId: UserServices_createUser
+      summary: Create new user
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+  /api/users/{id}:
+    get:
+      operationId: UserServices_getUser
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - User
+    put:
+      operationId: UserServices_updateUser
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+    delete:
+      operationId: UserServices_deleteUser
+      summary: Delete user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - User
+components:
+  schemas:
+    ApiErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        error:
+          type: string
+      description: Error response returned on failures
+    ApiForbiddenResponse:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          $ref: '#/components/schemas/ApiErrorResponse'
+      description: 403 Forbidden — FORBIDDEN
+    ApiInternalErrorResponse:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          $ref: '#/components/schemas/ApiErrorResponse'
+      description: 500 Internal Server Error — INTERNAL_ERROR
+    BasicResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      description: Successful response without data payload
+    Company:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - name
+        - slug
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        slug:
+          type: string
+        logo:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+    CompanyMember:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - userId
+        - roleId
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        userId:
+          type: string
+        roleId:
+          type: string
+        isActive:
+          type: boolean
+    CreateCompany:
+      type: object
+      required:
+        - name
+        - slug
+        - isActive
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        logo:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreateCompanyMember:
+      type: object
+      required:
+        - companyId
+        - userId
+        - roleId
+        - isActive
+      properties:
+        companyId:
+          type: string
+        userId:
+          type: string
+        roleId:
+          type: string
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreatePermission:
+      type: object
+      required:
+        - action
+        - module
+      properties:
+        action:
+          type: string
+        module:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+      description: The template for omitting properties.
+    CreateRole:
+      type: object
+      required:
+        - name
+        - isSystemDefault
+      properties:
+        companyId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isSystemDefault:
+          type: boolean
+      description: The template for omitting properties.
+    CreateRolePermission:
+      type: object
+      required:
+        - roleId
+        - permissionId
+      properties:
+        roleId:
+          type: string
+        permissionId:
+          type: string
+      description: The template for omitting properties.
+    CreateUser:
+      type: object
+      required:
+        - name
+        - email
+        - emailVerified
+        - isAdmin
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        image:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isAdmin:
+          type: boolean
+      description: The template for omitting properties.
+    Permission:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - action
+        - module
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        action:
+          type: string
+        module:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+    Role:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - name
+        - isSystemDefault
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isSystemDefault:
+          type: boolean
+    RolePermission:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - roleId
+        - permissionId
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        roleId:
+          type: string
+        permissionId:
+          type: string
+    UpdateCompany:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        logo:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateCompanyMember:
+      type: object
+      properties:
+        companyId:
+          type: string
+        userId:
+          type: string
+        roleId:
+          type: string
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdatePermission:
+      type: object
+      properties:
+        action:
+          type: string
+        module:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+      description: The template for adding optional properties.
+    UpdateRole:
+      type: object
+      properties:
+        companyId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isSystemDefault:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        image:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isAdmin:
+          type: boolean
+        isActive:
+          type: boolean
+        lastLogin:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      description: The template for adding optional properties.
+    User:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - name
+        - email
+        - emailVerified
+        - isAdmin
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        image:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isAdmin:
+          type: boolean
+        isActive:
+          type: boolean
+        lastLogin:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'

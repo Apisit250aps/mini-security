@@ -58,7 +58,9 @@ export class PermissionGuard {
     },
   ): Promise<void> {
     if (!context.userId) {
-      throw new UnauthorizedError('Authentication required to perform this action');
+      throw new UnauthorizedError(
+        'Authentication required to perform this action',
+      );
     }
 
     const isAllowed = await PermissionGuard.hasPermission(
