@@ -2,7 +2,6 @@
 
 import React, { useMemo } from 'react';
 import { createAuthClient } from 'better-auth/react';
-import { Session, User } from 'better-auth';
 
 const {
   signIn,
@@ -19,7 +18,7 @@ type SessionContextProps = {
   signIn: typeof signIn;
   signUp: typeof signUp;
   signOut: typeof signOut;
-  data: ReturnType<typeof useAuthSession['data']>;
+  data: ReturnType<typeof useAuthSession>['data'];
   status: SessionStatus;
 };
 
@@ -28,7 +27,9 @@ const sessionContext = React.createContext<SessionContextProps | null>(null);
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const query = useAuthSession();
 
-  const { status, data } = useMemo(() => {
+  const { status, data } = useMemo<
+    Pick<SessionContextProps, 'status' | 'data'>
+  >(() => {
     if (query.isPending) {
       return { status: 'loading', data: null };
     }
