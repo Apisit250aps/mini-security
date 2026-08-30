@@ -1,5 +1,5 @@
 'use client';
-
+'use no memo';
 import * as React from 'react';
 import {
   ColumnDef,
@@ -73,8 +73,8 @@ export function DataTable<TData, TValue>({
         )}
         <Table aria-label="Data Table">
           <TableHeader>
-            {table.getFlatHeaders().map((header) => (
-              <TableHead key={header.id} id={header.id}>
+            {table.getFlatHeaders().map((header, index) => (
+              <TableHead key={header.id} id={header.id} isRowHeader={index === 0}>
                 {header.isPlaceholder
                   ? null
                   : flexRender(
@@ -110,6 +110,7 @@ export function DataTable<TData, TValue>({
             Rows per page
           </p>
           <Select
+            aria-label="Rows per page"
             key={String(table.getState().pagination.pageSize)}
             onChange={(key) => {
               table.setPageSize(Number(key));
