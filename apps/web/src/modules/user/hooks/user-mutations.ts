@@ -4,19 +4,24 @@ import {
   userServicesUpdateUser,
 } from '@repo/client';
 import type { CreateUser, UpdateUser } from '@repo/client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 function useUserDelete() {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
       const res = await userServicesDeleteUser({ path: { id: userId } });
       return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['GET', 'USER'] });
     },
   });
   return mutation;
 }
 
 function useUserUpdate() {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async ({
       userId,
@@ -31,15 +36,22 @@ function useUserUpdate() {
       });
       return res;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['GET', 'USER'] });
+    },
   });
   return mutation;
 }
 
 function useUserCreate() {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (data: CreateUser) => {
       const res = await userServicesCreateUser({ body: data });
       return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['GET', 'USER'] });
     },
   });
   return mutation;

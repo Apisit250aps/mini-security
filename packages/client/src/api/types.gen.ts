@@ -108,9 +108,10 @@ export type CreateRolePermission = {
 export type CreateUser = {
   name: string;
   email: string;
-  emailVerified: boolean;
   image?: string | null;
   isAdmin: boolean;
+  isActive: boolean;
+  password?: string;
 };
 
 export type Permission = {

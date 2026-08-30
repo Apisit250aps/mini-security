@@ -2,11 +2,10 @@ namespace MiniSecurity;
 
 model User is Domain.Entity.User;
 
-model CreateUser
-  is OmitProperties<
-    User,
-    "id" | "isActive" | "lastLogin" | "createdAt" | "updatedAt"
-  > {
+model CreateUser is OmitProperties<
+  User,
+  "id" | "lastLogin" | "createdAt" | "updatedAt" | "emailVerified"
+> {
   password?: string;
 }
 

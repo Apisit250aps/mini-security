@@ -23,6 +23,7 @@ export const createUserSchema = userSchema
     createdAt: true,
     updatedAt: true,
     lastLogin: true,
+    emailVerified: true,
   })
   .extend({
     password: StringField({ required: false, min: 8, nullable: true }),

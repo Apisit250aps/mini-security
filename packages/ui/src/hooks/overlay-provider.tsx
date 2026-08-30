@@ -5,11 +5,18 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react';
 import {
   Dialog,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '#components/dialog';
-import { Button } from '#components/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '#components/alert-dialog';
 import { cn } from '#lib/utils';
 
 // ---------------------------------------------------------------------------
@@ -29,7 +36,7 @@ type DialogSize =
 
 export interface ModalProps {
   title: string;
-  description: string;
+  description?: string;
   children?: React.ReactNode;
   size?: DialogSize;
   closeOnClickOutside?: boolean;
@@ -38,9 +45,16 @@ export interface ModalProps {
 
 export interface AlertDialogProps {
   title: string;
-  description: string;
+  description?: string;
   confirmText?: string;
   cancelText?: string;
+  confirmVariant?:
+    | 'default'
+    | 'destructive'
+    | 'outline'
+    | 'secondary'
+    | 'ghost'
+    | 'link';
   onConfirm: () => void;
   onCancel?: () => void;
 }
@@ -83,7 +97,7 @@ const keyStore = () => {
 const getKey = keyStore();
 
 // ---------------------------------------------------------------------------
-// NiceModal components — react-aria-components compatible
+// NiceModal components — react-aria-components / shadcn compatible
 // ---------------------------------------------------------------------------
 
 /** Dialog with title + description in the header */
@@ -110,21 +124,23 @@ const ModalTitle = NiceModal.create<ModalProps>(
         isOpen={modal.visible}
         onOpenChange={handleOpenChange}
         isDismissable={closeOnClickOutside}
-        className={cn(DIALOG_SIZE[size], 'flex max-h-[90vh] flex-col')}
+        className={cn(DIALOG_SIZE[size], 'max-h-[90vh]')}
       >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <div
-          className={cn(
-            'flex-1 overflow-y-auto overflow-x-hidden px-2',
-            stickyFooter &&
-              '[&_#footer]:sticky [&_#footer]:bottom-0 [&_#footer]:z-10 [&_#footer]:bg-card',
-          )}
-        >
-          {children}
-        </div>
+        {children && (
+          <div
+            className={cn(
+              'flex-1 overflow-y-auto overflow-x-hidden',
+              stickyFooter &&
+                '[&_#footer]:sticky [&_#footer]:bottom-0 [&_#footer]:z-10 [&_#footer]:bg-card',
+            )}
+          >
+            {children}
+          </div>
+        )}
       </Dialog>
     );
   },
@@ -148,16 +164,24 @@ const ModalContent = NiceModal.create<
       isOpen={modal.visible}
       onOpenChange={handleOpenChange}
       isDismissable={closeOnClickOutside}
-      className={cn(DIALOG_SIZE[size], 'flex max-h-[90vh] flex-col')}
+      className={cn(DIALOG_SIZE[size], 'max-h-[90vh]')}
     >
       {children}
     </Dialog>
   );
 });
 
-/** Confirmation dialog (replaces AlertDialog) */
+/** Confirmation dialog (AlertDialog) */
 const ConfirmModal = NiceModal.create<AlertDialogProps>(
-  ({ title, description, confirmText, cancelText, onConfirm, onCancel }) => {
+  ({
+    title,
+    description,
+    confirmText = 'ยืนยัน',
+    cancelText = 'ยกเลิก',
+    confirmVariant = 'default',
+    onConfirm,
+    onCancel,
+  }) => {
     const modal = useModal();
 
     const handleOpenChange = (open: boolean) => {
@@ -180,25 +204,27 @@ const ConfirmModal = NiceModal.create<AlertDialogProps>(
     };
 
     return (
-      <Dialog
+      <AlertDialog
         isOpen={modal.visible}
         onOpenChange={handleOpenChange}
         isDismissable={false}
         className="sm:max-w-md"
       >
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onPress={handleCancel}>
-            {cancelText ?? 'ยกเลิก'}
-          </Button>
-          <Button variant="default" onPress={handleConfirm}>
-            {confirmText ?? 'ยืนยัน'}
-          </Button>
-        </DialogFooter>
-      </Dialog>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          {description && (
+            <AlertDialogDescription>{description}</AlertDialogDescription>
+          )}
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onPress={handleCancel}>
+            {cancelText}
+          </AlertDialogCancel>
+          <AlertDialogAction variant={confirmVariant} onPress={handleConfirm}>
+            {confirmText}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialog>
     );
   },
 );

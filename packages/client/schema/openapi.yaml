@@ -1324,21 +1324,23 @@ components:
       required:
         - name
         - email
-        - emailVerified
         - isAdmin
+        - isActive
       properties:
         name:
           type: string
         email:
           type: string
-        emailVerified:
-          type: boolean
         image:
           anyOf:
             - type: string
             - type: 'null'
         isAdmin:
           type: boolean
+        isActive:
+          type: boolean
+        password:
+          type: string
       description: The template for omitting properties.
     Permission:
       type: object

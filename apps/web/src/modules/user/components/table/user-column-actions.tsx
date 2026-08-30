@@ -5,6 +5,8 @@ import { useCallback } from 'react';
 import { useUserDelete } from '../../hooks/user-mutations';
 import { useOverlay } from '@repo/ui/hooks';
 
+import UserEditForm from '../form/user-edit-form';
+
 function UserColumnActions<T extends User>(cell: CellContext<T, unknown>) {
   const ui = useOverlay();
   const deleteMutation = useUserDelete();
@@ -19,16 +21,19 @@ function UserColumnActions<T extends User>(cell: CellContext<T, unknown>) {
     ui.alert.open({
       title: 'Confirm Delete',
       description: 'Are you sure you want to delete this user?',
+      confirmVariant: 'destructive',
       onConfirm: async () => {
         await handleDelete(cell.row.original.id);
+        ui.hideAll();
       },
     });
   };
 
   const actionEdit = () => {
     ui.dialog.open({
-      title: 'Edit User',
-      description: 'Edit the details of the user.',
+      title: 'แก้ไขผู้ใช้',
+      description: 'แก้ไขข้อมูลผู้ใช้และสิทธิ์การใช้งาน',
+      children: <UserEditForm user={cell.row.original} />,
     });
   };
 

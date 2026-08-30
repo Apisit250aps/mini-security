@@ -12,33 +12,14 @@ import {
   type ModalOverlayProps as ModalOverlayPrimitiveProps,
 } from 'react-aria-components';
 
-import { cn } from '../lib/utils';
-import { Button } from '../components/button';
-import { XIcon } from 'lucide-react';
+import { cn } from '#lib/utils';
+import { Button } from '#components/button';
 
-function DialogTrigger({ ...props }: DialogTriggerPrimitiveProps) {
-  return <DialogTriggerPrimitive data-slot="dialog-trigger" {...props} />;
+function AlertDialogTrigger({ ...props }: DialogTriggerPrimitiveProps) {
+  return <DialogTriggerPrimitive data-slot="alert-dialog-trigger" {...props} />;
 }
 
-function DialogClose({
-  className,
-  variant = 'outline',
-  size = 'default',
-  ...props
-}: React.ComponentProps<typeof Button>) {
-  return (
-    <Button
-      slot="close"
-      data-slot="dialog-close"
-      variant={variant}
-      size={size}
-      className={cn(className)}
-      {...props}
-    />
-  );
-}
-
-function DialogOverlay({
+function AlertDialogOverlay({
   className,
   children,
   ...props
@@ -48,7 +29,7 @@ function DialogOverlay({
 }) {
   return (
     <ModalOverlayPrimitive
-      data-slot="dialog-overlay"
+      data-slot="alert-dialog-overlay"
       className={cn(
         'fixed inset-0 isolate z-50 bg-black/10 duration-100 data-entering:animate-in data-entering:fade-in-0 data-exiting:animate-out data-exiting:fade-out-0 supports-backdrop-filter:backdrop-blur-xs',
         className,
@@ -60,89 +41,74 @@ function DialogOverlay({
   );
 }
 
-function Dialog({
+function AlertDialog({
   className,
   children,
-  showCloseButton = true,
-  isDismissable = true,
+  isDismissable = false,
   ...props
 }: Omit<ModalOverlayPrimitiveProps, 'className' | 'children'> &
   Pick<React.ComponentProps<typeof ModalPrimitive>, 'isDismissable'> & {
     className?: string;
     children: React.ReactNode;
-    showCloseButton?: boolean;
   }) {
   return (
-    <DialogOverlay isDismissable={isDismissable} {...props}>
+    <AlertDialogOverlay isDismissable={isDismissable} {...props}>
       <ModalPrimitive
-        data-slot="dialog-content"
+        data-slot="alert-dialog-content"
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 flex w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none data-entering:animate-in data-entering:fade-in-0 data-entering:zoom-in-95 data-exiting:animate-out data-exiting:fade-out-0 data-exiting:zoom-out-95 sm:max-w-sm',
+          'fixed top-1/2 left-1/2 z-50 flex w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none data-entering:animate-in data-entering:fade-in-0 data-entering:zoom-in-95 data-exiting:animate-out data-exiting:fade-out-0 data-exiting:zoom-out-95 sm:max-w-md',
           className,
         )}
       >
         <DialogPrimitive
-          data-slot="dialog"
+          role="alertdialog"
+          data-slot="alert-dialog"
           className="relative flex flex-1 flex-col gap-4 p-4 outline-none"
         >
           {children}
-          {showCloseButton && (
-            <DialogClose
-              variant="ghost"
-              className="absolute top-2 right-2"
-              size="icon-sm"
-            >
-              <XIcon />
-              <span className="sr-only">Close</span>
-            </DialogClose>
-          )}
         </DialogPrimitive>
       </ModalPrimitive>
-    </DialogOverlay>
+    </AlertDialogOverlay>
   );
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
+function AlertDialogHeader({
+  className,
+  ...props
+}: React.ComponentProps<'div'>) {
   return (
     <div
-      data-slot="dialog-header"
+      data-slot="alert-dialog-header"
       className={cn('flex flex-col gap-2', className)}
       {...props}
     />
   );
 }
 
-function DialogFooter({
+function AlertDialogFooter({
   className,
-  showCloseButton = false,
-  children,
   ...props
-}: React.ComponentProps<'div'> & {
-  showCloseButton?: boolean;
-}) {
+}: React.ComponentProps<'div'>) {
   return (
     <div
-      data-slot="dialog-footer"
+      data-slot="alert-dialog-footer"
       className={cn(
         '-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end',
         className,
       )}
       {...props}
-    >
-      {children}
-      {showCloseButton && <DialogClose variant="outline">Close</DialogClose>}
-    </div>
+    />
   );
 }
 
-function DialogTitle({
+function AlertDialogTitle({
   className,
   ...props
 }: Omit<React.ComponentProps<typeof Heading>, 'slot'>) {
   return (
     <Heading
       slot="title"
-      data-slot="dialog-title"
+      data-slot="alert-dialog-title"
       className={cn(
         'font-heading text-base leading-none font-medium',
         className,
@@ -152,13 +118,13 @@ function DialogTitle({
   );
 }
 
-function DialogDescription({
+function AlertDialogDescription({
   className,
   ...props
 }: Omit<React.ComponentProps<'div'>, 'slot'>) {
   return (
     <div
-      data-slot="dialog-description"
+      data-slot="alert-dialog-description"
       className={cn(
         'text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground',
         className,
@@ -168,15 +134,51 @@ function DialogDescription({
   );
 }
 
+function AlertDialogAction({
+  className,
+  variant = 'default',
+  size = 'default',
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      data-slot="alert-dialog-action"
+      variant={variant}
+      size={size}
+      className={cn(className)}
+      {...props}
+    />
+  );
+}
+
+function AlertDialogCancel({
+  className,
+  variant = 'outline',
+  size = 'default',
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      slot="close"
+      data-slot="alert-dialog-cancel"
+      variant={variant}
+      size={size}
+      className={cn(className)}
+      {...props}
+    />
+  );
+}
+
 export {
   type DialogPrimitiveProps,
   type DialogTriggerPrimitiveProps,
-  Dialog,
-  DialogClose,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogOverlay,
-  DialogTitle,
-  DialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 };
