@@ -77,6 +77,7 @@ export default function CompanyEmployeeNewView() {
         </CardHeader>
         <CardContent>
           <UserCreateForm
+            companyId={activeCompany.id}
             onSuccess={() => router.push(buildPageUrl('companyEmployee'))}
           />
         </CardContent>

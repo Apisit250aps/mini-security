@@ -1,4 +1,5 @@
 import {
+  roleServicesGetCompanyRoles,
   roleServicesGetSystemDefaultRoles,
   roleServicesGetRole,
   roleServicesGetRolePermissions,
@@ -16,6 +17,22 @@ function useRoleListQueries() {
         'No data returned from roleServicesGetSystemDefaultRoles',
       );
     },
+  });
+  return query;
+}
+
+function useCompanyRolesQueries(companyId: string) {
+  const query = useQuery({
+    queryKey: roleKeys.company(companyId),
+    queryFn: async ({ signal }) => {
+      const response = await roleServicesGetCompanyRoles({
+        signal,
+        path: { companyId },
+      });
+      if (response.data) return response.data.data;
+      throw new Error('No data returned from roleServicesGetCompanyRoles');
+    },
+    enabled: Boolean(companyId),
   });
   return query;
 }
@@ -52,4 +69,9 @@ function useRolePermissionsQueries(roleId: string) {
   return query;
 }
 
-export { useRoleListQueries, useRoleDetailQueries, useRolePermissionsQueries };
+export {
+  useRoleListQueries,
+  useCompanyRolesQueries,
+  useRoleDetailQueries,
+  useRolePermissionsQueries,
+};

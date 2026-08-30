@@ -15,6 +15,7 @@ import {
   companyMemberRepository,
   companyRepository,
 } from '../repositories/company.repository';
+import { roleRepository } from '../repositories/permission.repository';
 
 export const createCompanyUseCase = new CreateCompanyUseCase(companyRepository);
 export const updateCompanyUseCase = new UpdateCompanyUseCase(companyRepository);
@@ -28,12 +29,15 @@ export const getCompaniesUseCase = new GetCompaniesUseCase(companyRepository);
 export const addCompanyMemberUseCase = new AddCompanyMemberUseCase(
   companyMemberRepository,
   companyRepository,
+  roleRepository,
 );
 export const updateCompanyMemberUseCase = new UpdateCompanyMemberUseCase(
   companyMemberRepository,
+  roleRepository,
 );
 export const removeCompanyMemberUseCase = new RemoveCompanyMemberUseCase(
   companyMemberRepository,
+  roleRepository,
 );
 export const getCompanyMembersUseCase = new GetCompanyMembersUseCase(
   companyMemberRepository,

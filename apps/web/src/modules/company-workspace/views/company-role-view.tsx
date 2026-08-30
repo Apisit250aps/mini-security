@@ -15,7 +15,7 @@ import { Spinner } from '@repo/ui/components/spinner';
 import { ShieldCheck } from 'lucide-react';
 
 export default function CompanyRoleView() {
-  const { activeCompany, isLoading } = useActiveCompany();
+  const { activeCompany, activeCompanyId, isLoading } = useActiveCompany();
 
   if (isLoading) {
     return (
@@ -49,18 +49,18 @@ export default function CompanyRoleView() {
             {activeCompany.name}
           </p>
         </div>
-        <RoleCreateAction />
+        <RoleCreateAction companyId={activeCompanyId} />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>บทบาททั้งหมด (Roles)</CardTitle>
           <CardDescription>
-            รายการบทบาทมาตรฐานและบทบาทที่กำหนดขึ้นเอง พร้อมปุ่มจัดการสิทธิ์
+            รายการบทบาทและตำแหน่งพนักงานเฉพาะสำหรับองค์กร {activeCompany.name}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <RoleDataTable />
+          <RoleDataTable companyId={activeCompanyId} />
         </CardContent>
       </Card>
     </div>

@@ -5,7 +5,7 @@ import companyMemberListColumns from './company-member-data-columns';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { useCompanyMembersQueries } from '../../hooks/company-queries';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
-import { useRoleListQueries } from '@/modules/role/hooks/role-queries';
+import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import type { User } from '@repo/domains/entities';
 
 export default function CompanyMemberDataTable({
@@ -15,7 +15,7 @@ export default function CompanyMemberDataTable({
 }) {
   const membersQuery = useCompanyMembersQueries(companyId);
   const usersQuery = useUserListQueries();
-  const rolesQuery = useRoleListQueries();
+  const rolesQuery = useCompanyRolesQueries(companyId);
 
   const usersMap = useMemo(() => {
     const map = new Map<string, User>();

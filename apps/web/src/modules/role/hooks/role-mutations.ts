@@ -23,7 +23,7 @@ function useRoleDelete() {
     },
     onSuccess: () => {
       toast.success('ลบบทบาทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: roleKeys.all });
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบบทบาท'));
@@ -50,7 +50,7 @@ function useRoleUpdate() {
     },
     onSuccess: () => {
       toast.success('บันทึกข้อมูลบทบาทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: roleKeys.all });
     },
     onError: (error: unknown) => {
       toast.error(
@@ -70,7 +70,7 @@ function useRoleCreate() {
     },
     onSuccess: () => {
       toast.success('สร้างบทบาทใหม่สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: roleKeys.all });
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการสร้างบทบาท'));

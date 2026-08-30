@@ -11,7 +11,7 @@ import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useCompanyMemberAdd } from '../../hooks/company-mutations';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
-import { useRoleListQueries } from '@/modules/role/hooks/role-queries';
+import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import {
   Tabs,
@@ -34,7 +34,7 @@ export default function CompanyMemberAddForm({
   const addMutation = useCompanyMemberAdd(companyId);
 
   const usersQuery = useUserListQueries();
-  const rolesQuery = useRoleListQueries();
+  const rolesQuery = useCompanyRolesQueries(companyId);
 
   const userOptions = useMemo(() => {
     return (usersQuery.data || []).map((u) => ({
@@ -44,11 +44,18 @@ export default function CompanyMemberAddForm({
   }, [usersQuery.data]);
 
   const roleOptions = useMemo(() => {
-    return (rolesQuery.data || []).map((r) => ({
-      value: r.id,
-      label: r.name,
-    }));
-  }, [rolesQuery.data]);
+    return (rolesQuery.data || [])
+      .filter(
+        (r) =>
+          !r.isSystemDefault &&
+          !r.name.toLowerCase().includes('super admin') &&
+          (!r.companyId || r.companyId === companyId),
+      )
+      .map((r) => ({
+        value: r.id,
+        label: r.name,
+      }));
+  }, [rolesQuery.data, companyId]);
 
   const methods = useForm<CompanyMemberAddFormValues>({
     resolver: zodResolver(createCompanyMemberSchema as never),
@@ -78,7 +85,7 @@ export default function CompanyMemberAddForm({
       </TabsList>
 
       <TabsContent id="new">
-        <UserCreateForm />
+        <UserCreateForm companyId={companyId} />
       </TabsContent>
 
       <TabsContent id="existing">

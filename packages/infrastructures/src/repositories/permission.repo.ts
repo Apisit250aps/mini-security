@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNull, ne, or } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
 import { permission, role, rolePermission } from '@repo/database/schema';
@@ -29,7 +29,12 @@ export class RoleRepository
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(role.companyId, companyId));
+      .where(
+        or(
+          eq(role.companyId, companyId),
+          and(eq(role.isSystemDefault, true), ne(role.name, 'Super Admin')),
+        ),
+      );
     return results.map((r) => new Role(r as unknown as Role));
   }
 

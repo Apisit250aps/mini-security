@@ -55,9 +55,6 @@ import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
 export class CreateRoleUseCase implements ICreateRoleUseCase {
   constructor(private readonly roleRepository: IRoleRepository) {}
 
-  @RequirePermission('role:create', (ctx) => ({
-    companyId: ctx.data.companyId ?? undefined,
-  }))
   async execute(context: ICreateRoleContext): Promise<Role> {
     const parsed = await createRoleSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -74,7 +71,14 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
       );
     }
 
-    return this.roleRepository.create(parsed.data);
+    const roleData = {
+      ...parsed.data,
+      isSystemDefault: parsed.data.companyId
+        ? false
+        : (parsed.data.isSystemDefault ?? false),
+    };
+
+    return this.roleRepository.create(roleData);
   }
 }
 
@@ -108,6 +112,12 @@ export class DeleteRoleUseCase implements IDeleteRoleUseCase {
     const existing = await this.roleRepository.findById(context.id);
     if (!existing) {
       throw new NotFoundError(`Role with id ${context.id} not found`);
+    }
+
+    if (existing.isSystemDefault) {
+      throw new ValidationError(
+        'ไม่สามารถลบบทบาทมาตรฐานของระบบ (System Default) ได้',
+      );
     }
 
     await this.roleRepository.delete(context.id);

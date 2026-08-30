@@ -14,11 +14,16 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
 export type RoleFormValues = z.infer<typeof createRoleSchema>;
 
+type RoleFormProps = FormProps<RoleFormValues> & {
+  hideSystemDefault?: boolean;
+};
+
 export default function RoleForm({
   onSubmit,
   defaultValues,
   isLoading,
-}: FormProps<RoleFormValues>) {
+  hideSystemDefault = false,
+}: RoleFormProps) {
   const methods = useForm<RoleFormValues>({
     resolver: zodResolver(createRoleSchema as never),
     defaultValues: defaultValues ?? {
@@ -40,7 +45,7 @@ export default function RoleForm({
         <InputField
           name="name"
           label="ชื่อบทบาท"
-          placeholder="เช่น Admin, Manager, Editor"
+          placeholder="เช่น Manager, Staff, Accountant"
           control={methods.control}
           required
         />
@@ -52,14 +57,16 @@ export default function RoleForm({
           control={methods.control}
         />
 
-        <div className="flex flex-col gap-3 rounded-lg border p-3">
-          <SwitchField
-            name="isSystemDefault"
-            label="บทบาทเริ่มต้นของระบบ (System Default)"
-            description="กำหนดให้เป็นบทบาทมาตรฐานสำหรับทุกองค์กร"
-            control={methods.control}
-          />
-        </div>
+        {!hideSystemDefault && (
+          <div className="flex flex-col gap-3 rounded-lg border p-3">
+            <SwitchField
+              name="isSystemDefault"
+              label="บทบาทเริ่มต้นของระบบ (System Default)"
+              description="กำหนดให้เป็นบทบาทมาตรฐานสำหรับทุกองค์กร"
+              control={methods.control}
+            />
+          </div>
+        )}
       </FieldGroup>
 
       <div className="flex justify-end">

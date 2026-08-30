@@ -67,7 +67,11 @@ export const companyMemberListColumns = ({
       id: 'actions',
       header: 'จัดการ',
       cell: (cell) => (
-        <CompanyMemberColumnActions cell={cell} companyId={companyId} />
+        <CompanyMemberColumnActions
+          cell={cell}
+          companyId={companyId}
+          roles={roles}
+        />
       ),
     },
   ];
