@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@repo/ui/components/card';
-import { Field, FieldDescription, FieldGroup } from '@repo/ui/components/field';
+import { FieldDescription, FieldGroup } from '@repo/ui/components/field';
 import {
   InputField,
   PasswordField,
@@ -107,7 +107,7 @@ export default function SignInForm({
                 control={methods.control}
               />
 
-              <Field>
+              <div className="flex flex-col gap-3 pt-2">
                 <ButtonLoading type="submit" isLoading={isSubmitting}>
                   Sign In
                 </ButtonLoading>
@@ -118,11 +118,16 @@ export default function SignInForm({
                 >
                   Sign in with Google
                 </Button>
-                <FieldDescription className="text-center">
+                <FieldDescription className="text-center pt-1">
                   Don&apos;t have an account?{' '}
-                  <Link href={buildPageUrl('signUp')}>Sign up</Link>
+                  <Link
+                    href={buildPageUrl('signUp')}
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    Sign up
+                  </Link>
                 </FieldDescription>
-              </Field>
+              </div>
             </FieldGroup>
           </form>
         </CardContent>

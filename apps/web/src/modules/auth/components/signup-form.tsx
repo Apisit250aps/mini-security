@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@repo/ui/components/card';
-import { Field, FieldDescription, FieldGroup } from '@repo/ui/components/field';
+import { FieldDescription, FieldGroup } from '@repo/ui/components/field';
 import {
   InputField,
   PasswordField,
@@ -123,24 +123,27 @@ export default function SignUpForm({
               name="confirmPassword"
               control={methods.control}
             />
-            <FieldGroup>
-              <Field>
-                <ButtonLoading type="submit" isLoading={isSubmitting}>
-                  Create Account
-                </ButtonLoading>
-                <Button
-                  variant="outline"
-                  type="button"
-                  onPress={handleGoogleSignUp}
+            <div className="flex flex-col gap-3 pt-2">
+              <ButtonLoading type="submit" isLoading={isSubmitting}>
+                Create Account
+              </ButtonLoading>
+              <Button
+                variant="outline"
+                type="button"
+                onPress={handleGoogleSignUp}
+              >
+                Sign up with Google
+              </Button>
+              <FieldDescription className="px-6 text-center pt-1">
+                Already have an account?{' '}
+                <Link
+                  href={buildPageUrl('signIn')}
+                  className="text-primary underline-offset-4 hover:underline"
                 >
-                  Sign up with Google
-                </Button>
-                <FieldDescription className="px-6 text-center">
-                  Already have an account?{' '}
-                  <Link href={buildPageUrl('signIn')}>Sign in</Link>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
+                  Sign in
+                </Link>
+              </FieldDescription>
+            </div>
           </FieldGroup>
         </form>
       </CardContent>

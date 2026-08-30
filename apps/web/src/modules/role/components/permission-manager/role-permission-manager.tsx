@@ -9,7 +9,11 @@ import {
 import { RolePermissionModuleGroup } from './role-permission-module-group';
 import { Badge } from '@repo/ui/components/badge';
 import { Spinner } from '@repo/ui/components/spinner';
-import { Input } from '@repo/ui/components/input';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@repo/ui/components/input-group';
 import { SearchIcon, ShieldCheckIcon } from 'lucide-react';
 
 function RolePermissionManagerContent() {
@@ -90,15 +94,16 @@ function RolePermissionManagerContent() {
       </div>
 
       {/* Search Filter Input */}
-      <div className="relative">
-        <Input
+      <InputGroup className="w-full">
+        <InputGroupAddon align="inline-start">
+          <SearchIcon className="size-4 text-muted-foreground" />
+        </InputGroupAddon>
+        <InputGroupInput
           placeholder="ค้นหาสิทธิ์ (เช่น user:read, create)..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-8"
         />
-        <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-      </div>
+      </InputGroup>
 
       {/* Module Groups */}
       {totalFilteredCount === 0 ? (

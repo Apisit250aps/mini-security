@@ -65,9 +65,9 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative rounded-md border border-border">
+      <div className="relative rounded-lg border border-border bg-card overflow-hidden">
         {isLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-sm">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-xs">
             <Spinner className="size-6 text-primary" />
           </div>
         )}
@@ -90,8 +90,8 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody
             renderEmptyState={() => (
-              <div className="flex h-24 w-full items-center justify-center text-sm text-muted-foreground">
-                No results.
+              <div className="flex h-28 w-full items-center justify-center text-sm text-muted-foreground">
+                ไม่พบข้อมูล
               </div>
             )}
           >
@@ -108,19 +108,21 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between px-2">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-1">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium text-muted-foreground">
-            Rows per page
-          </p>
+          <span className="text-sm font-medium text-muted-foreground">
+            แสดงต่อหน้า
+          </span>
           <Select
-            aria-label="Rows per page"
-            key={String(table.getState().pagination.pageSize)}
-            onChange={(key) => {
-              table.setPageSize(Number(key));
+            aria-label="จำนวนแถวต่อหน้า"
+            selectedKey={String(table.getState().pagination.pageSize)}
+            onSelectionChange={(key) => {
+              if (key) {
+                table.setPageSize(Number(key));
+              }
             }}
           >
-            <SelectTrigger className="h-8 w-17.5">
+            <SelectTrigger className="h-8 w-18">
               <SelectValue />
             </SelectTrigger>
             <SelectContent placement="top">
@@ -138,48 +140,48 @@ export function DataTable<TData, TValue>({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex w-25 items-center justify-center text-sm font-medium text-muted-foreground">
-            Page {table.getState().pagination.pageIndex + 1} of{' '}
+          <div className="flex items-center justify-center text-sm font-medium text-muted-foreground">
+            หน้า {table.getState().pagination.pageIndex + 1} จาก{' '}
             {table.getPageCount() || 1}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
-              size="icon"
-              className="hidden lg:flex"
+              size="icon-sm"
+              className="hidden sm:inline-flex"
+              aria-label="ไปยังหน้าแรก"
               onPress={() => table.setPageIndex(0)}
               isDisabled={!table.getCanPreviousPage()}
             >
-              <span className="sr-only">Go to first page</span>
-              <ChevronsLeftIcon />
+              <ChevronsLeftIcon className="size-4" />
             </Button>
             <Button
               variant="outline"
-              size="icon"
+              size="icon-sm"
+              aria-label="ไปยังหน้าก่อนหน้า"
               onPress={() => table.previousPage()}
               isDisabled={!table.getCanPreviousPage()}
             >
-              <span className="sr-only">Go to previous page</span>
-              <ChevronLeftIcon />
+              <ChevronLeftIcon className="size-4" />
             </Button>
             <Button
               variant="outline"
-              size="icon"
+              size="icon-sm"
+              aria-label="ไปยังหน้าถัดไป"
               onPress={() => table.nextPage()}
               isDisabled={!table.getCanNextPage()}
             >
-              <span className="sr-only">Go to next page</span>
-              <ChevronRightIcon />
+              <ChevronRightIcon className="size-4" />
             </Button>
             <Button
               variant="outline"
-              size="icon"
-              className="hidden lg:flex"
+              size="icon-sm"
+              className="hidden sm:inline-flex"
+              aria-label="ไปยังหน้าสุดท้าย"
               onPress={() => table.setPageIndex(table.getPageCount() - 1)}
               isDisabled={!table.getCanNextPage()}
             >
-              <span className="sr-only">Go to last page</span>
-              <ChevronsRightIcon />
+              <ChevronsRightIcon className="size-4" />
             </Button>
           </div>
         </div>

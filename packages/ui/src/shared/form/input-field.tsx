@@ -18,9 +18,11 @@ const InputField = <T extends FieldValues>({
   name,
   label,
   required,
+  id,
   ...props
 }: BaseFieldProps<T> &
   Omit<React.ComponentProps<typeof Input>, 'name'>): React.ReactElement => {
+  const inputId = id ?? name;
   return (
     <Controller
       name={name}
@@ -28,13 +30,13 @@ const InputField = <T extends FieldValues>({
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
           {label && (
-            <FieldLabel htmlFor={name}>
+            <FieldLabel htmlFor={inputId}>
               {label}
-              {required && <span className="text-red-500">*</span>}
+              {required && <span className="text-destructive ml-0.5">*</span>}
             </FieldLabel>
           )}
           <Input
-            id={name}
+            id={inputId}
             aria-invalid={fieldState.invalid}
             {...field}
             {...props}
@@ -54,9 +56,12 @@ const PasswordField = <T extends FieldValues>({
   name,
   label,
   required,
+  id,
   ...props
 }: BaseFieldProps<T> & React.ComponentProps<'input'>): React.ReactElement => {
   const [showPassword, setShowPassword] = React.useState(false);
+  const inputId = id ?? `password-${name}`;
+
   return (
     <Controller
       name={name}
@@ -64,26 +69,32 @@ const PasswordField = <T extends FieldValues>({
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
           {label && (
-            <FieldLabel htmlFor={`form-rhf-demo-${name}`}>
+            <FieldLabel htmlFor={inputId}>
               {label}
-              {required && <span className="text-red-500">*</span>}
+              {required && <span className="text-destructive ml-0.5">*</span>}
             </FieldLabel>
           )}
           <InputGroup>
             <InputGroupInput
-              id={`form-rhf-demo-${name}`}
+              id={inputId}
               {...props}
               {...field}
               type={showPassword ? 'text' : 'password'}
               aria-invalid={fieldState.invalid}
+              value={field.value ?? ''}
             />
             <InputGroupButton
               variant="ghost"
-              size="sm"
-              className="ml-auto"
-              onClick={() => setShowPassword(!showPassword)}
+              size="icon-xs"
+              aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
+              className="mr-1 text-muted-foreground hover:text-foreground"
+              onPress={() => setShowPassword((prev) => !prev)}
             >
-              {showPassword ? <Eye /> : <EyeClosed />}
+              {showPassword ? (
+                <Eye className="size-4" />
+              ) : (
+                <EyeClosed className="size-4" />
+              )}
             </InputGroupButton>
           </InputGroup>
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

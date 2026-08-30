@@ -1,7 +1,10 @@
-import { FieldContent } from '@repo/ui/components/field';
-import { Field, FieldLabel, FieldDescription } from '@repo/ui/components/field';
-import { BaseFieldProps } from '#types/form';
-
+import {
+  Field,
+  FieldLabel,
+  FieldDescription,
+  FieldContent,
+} from '@repo/ui/components/field';
+import type { BaseFieldProps } from '#types/form';
 import { FieldValues, Controller } from 'react-hook-form';
 import { Switch } from '@repo/ui/components/switch';
 
@@ -10,21 +13,28 @@ export const SwitchField = <T extends FieldValues>({
   name,
   label,
   description,
-}: BaseFieldProps<T> & { description?: string }) => {
+  id,
+}: BaseFieldProps<T> & { description?: string; id?: string }) => {
+  const switchId = id ?? `switch-${name}`;
+
   return (
     <Controller
       control={control}
       name={name}
       render={({ field }) => (
-        <Field orientation="horizontal" className="max-w-sm">
+        <Field
+          orientation="horizontal"
+          className="max-w-sm items-center justify-between"
+        >
           <FieldContent>
-            <FieldLabel htmlFor={`form-rhf-demo-${name}`}>{label}</FieldLabel>
+            {label && <FieldLabel htmlFor={switchId}>{label}</FieldLabel>}
             {description && <FieldDescription>{description}</FieldDescription>}
           </FieldContent>
           <Switch
-            id={`form-rhf-demo-${name}`}
-            isSelected={field.value}
+            id={switchId}
+            isSelected={Boolean(field.value)}
             onChange={(checked) => field.onChange(checked)}
+            aria-label={label ?? name}
           />
         </Field>
       )}

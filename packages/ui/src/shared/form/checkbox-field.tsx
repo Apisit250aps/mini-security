@@ -5,9 +5,19 @@ import {
   FieldLabel,
   FieldContent,
   FieldError,
+  FieldSet,
+  FieldLegend,
 } from '@repo/ui/components/field';
 import { cn } from '@repo/ui/lib/utils';
-import { CheckboxGroupProps } from '#types/form';
+import type { CheckboxGroupProps } from '#types/form';
+
+const columnClasses: Record<number, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4',
+};
+
 export function CheckboxGroup<T extends FieldValues>({
   control,
   name,
@@ -26,16 +36,17 @@ export function CheckboxGroup<T extends FieldValues>({
           ? field.value.map(String)
           : [];
         return (
-          <Field className={cn('flex flex-col gap-2', className)}>
+          <FieldSet className={cn('flex flex-col gap-2.5', className)}>
             {label && (
-              <FieldLabel className="text-base font-semibold">
+              <FieldLegend variant="label" className="font-medium text-sm">
                 {label}
-              </FieldLabel>
+              </FieldLegend>
             )}
 
             <div
               className={cn(
-                `grid grid-cols-${columns} gap-2`,
+                'grid gap-2.5',
+                columnClasses[columns] || 'grid-cols-1',
                 containerClassName,
               )}
             >
@@ -44,7 +55,11 @@ export function CheckboxGroup<T extends FieldValues>({
                 const domId = `${name}-${optionId}`;
                 const isChecked = valueArray.includes(optionId);
                 return (
-                  <Field key={optionId} orientation="horizontal">
+                  <Field
+                    key={optionId}
+                    orientation="horizontal"
+                    className="items-center"
+                  >
                     <Checkbox
                       id={domId}
                       isSelected={isChecked}
@@ -61,7 +76,7 @@ export function CheckboxGroup<T extends FieldValues>({
                     <FieldContent className="font-normal cursor-pointer select-none">
                       <FieldLabel
                         htmlFor={domId}
-                        className="text-base cursor-pointer"
+                        className="text-sm font-normal cursor-pointer"
                       >
                         {option.label}
                       </FieldLabel>
@@ -71,7 +86,7 @@ export function CheckboxGroup<T extends FieldValues>({
               })}
             </div>
             {error && <FieldError errors={[error]} />}
-          </Field>
+          </FieldSet>
         );
       }}
     />

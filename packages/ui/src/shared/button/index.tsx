@@ -18,10 +18,11 @@ function ButtonLoading({
   return (
     <Button
       aria-disabled={isLoading}
+      aria-busy={isLoading}
       isDisabled={isLoading || isDisabled}
       {...props}
     >
-      {isLoading && <Spinner className="size-4" />}
+      {isLoading && <Spinner data-icon="inline-start" className="size-4" />}
       {isLoading && loadingText ? loadingText : children}
     </Button>
   );
