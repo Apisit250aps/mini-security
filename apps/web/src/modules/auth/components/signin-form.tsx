@@ -1,8 +1,13 @@
 'use client';
 
+import React, { useCallback } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod';
 import { cn } from '@repo/ui/lib/utils';
 import { Button } from '@repo/ui/components/button';
-import { useForm } from 'react-hook-form';
 import {
   Card,
   CardContent,
@@ -11,19 +16,14 @@ import {
   CardTitle,
 } from '@repo/ui/components/card';
 import { Field, FieldDescription, FieldGroup } from '@repo/ui/components/field';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { zodResolver } from '@hookform/resolvers/zod';
-import z from 'zod';
 import {
   InputField,
   PasswordField,
 } from '@repo/ui/components/shared/form/input-field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { useCallback } from 'react';
 import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';
-import { getCallbackUrl, getErrorMessage } from '@/shared/utils';
+import { getCallbackUrl, getErrorMessage, buildPageUrl } from '@/shared/utils';
 
 export default function SignInForm({
   className,
@@ -50,17 +50,18 @@ export default function SignInForm({
 
   const handleSignIn = useCallback(
     async (data: { email: string; password: string }) => {
+      const redirectUrl = buildPageUrl('adminDashboard');
       const res = await signIn.email({
         email: data.email,
         password: data.password,
-        callbackURL: getCallbackUrl('/admin/user'),
+        callbackURL: getCallbackUrl(redirectUrl),
       });
       if (res?.error) {
         toast.error(getErrorMessage(res.error, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'));
         return;
       }
       toast.success('เข้าสู่ระบบสำเร็จ');
-      router.push('/admin/user');
+      router.push(redirectUrl);
     },
     [signIn, router],
   );
@@ -69,7 +70,7 @@ export default function SignInForm({
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: getCallbackUrl('/admin/user'),
+        callbackURL: getCallbackUrl(buildPageUrl('adminDashboard')),
       });
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, 'ไม่สามารถเข้าสู่ระบบด้วย Google ได้'));
@@ -119,7 +120,7 @@ export default function SignInForm({
                 </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{' '}
-                  <Link href="/signup">Sign up</Link>
+                  <Link href={buildPageUrl('signUp')}>Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

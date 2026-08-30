@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { NavMain } from '@/shared/components/app/nav-main';
 import { NavUser } from '@/shared/components/app/nav-user';
-import type { NavItem } from '@/shared/utils';
+import { buildPageUrl, type NavItem } from '@/shared/utils';
 import {
   Sidebar,
   SidebarContent,
@@ -26,17 +26,22 @@ export function AppSidebar({
   brandTitle = 'Mini Security',
   ...props
 }: AppSidebarProps) {
+  const brandUrl =
+    brandTitle === 'Super Admin'
+      ? buildPageUrl('adminDashboard')
+      : buildPageUrl('companyDashboard');
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              href="/"
+              href={brandUrl}
               render={({ ref, ...linkProps }) => (
                 <Link
                   ref={ref as React.Ref<HTMLAnchorElement>}
-                  href="/"
+                  href={brandUrl}
                   {...linkProps}
                 />
               )}

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import {
   Avatar,
@@ -29,9 +30,9 @@ import {
 } from 'lucide-react';
 import { toast } from '@repo/ui/components/sonner';
 import { useRouter } from 'next/navigation';
-import { getInitials, getErrorMessage } from '@/shared/utils';
+import { getInitials, getErrorMessage, buildPageUrl } from '@/shared/utils';
 
-export function NavUser() {
+export default function NavUser() {
   const router = useRouter();
   const { isMobile } = useSidebar();
   const session = useSession();
@@ -107,11 +108,17 @@ export function NavUser() {
             {session.isSuperAdmin && (
               <>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onAction={() => router.push('/admin/user')}>
+                  <DropdownMenuItem
+                    onAction={() => router.push(buildPageUrl('adminDashboard'))}
+                  >
                     <ShieldCheckIcon />
                     ไปหน้า Super Admin
                   </DropdownMenuItem>
-                  <DropdownMenuItem onAction={() => router.push('/company')}>
+                  <DropdownMenuItem
+                    onAction={() =>
+                      router.push(buildPageUrl('companyDashboard'))
+                    }
+                  >
                     <Building2Icon />
                     ไปหน้า Company Workspace
                   </DropdownMenuItem>
@@ -126,7 +133,7 @@ export function NavUser() {
                 try {
                   await session.signOut();
                   toast.success('ออกจากระบบสำเร็จ');
-                  router.push('/signin');
+                  router.push(buildPageUrl('signIn'));
                 } catch (error) {
                   toast.error(
                     getErrorMessage(error, 'เกิดข้อผิดพลาดในการออกจากระบบ'),
@@ -143,3 +150,5 @@ export function NavUser() {
     </SidebarMenu>
   );
 }
+
+export { NavUser };

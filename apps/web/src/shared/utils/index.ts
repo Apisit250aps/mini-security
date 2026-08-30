@@ -4,3 +4,4 @@ export * from './error';
 export * from './url';
 export * from './query';
 export * from './sidebar';
+export * from './path';

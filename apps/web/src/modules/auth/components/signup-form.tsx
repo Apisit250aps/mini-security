@@ -1,5 +1,11 @@
 'use client';
 
+import React, { useCallback } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod';
 import { Button } from '@repo/ui/components/button';
 import {
   Card,
@@ -9,20 +15,14 @@ import {
   CardTitle,
 } from '@repo/ui/components/card';
 import { Field, FieldDescription, FieldGroup } from '@repo/ui/components/field';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   InputField,
   PasswordField,
 } from '@repo/ui/components/shared/form/input-field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import z from 'zod';
 import { useSession } from '../hooks/session-provider';
-import { useCallback } from 'react';
 import { toast } from '@repo/ui/components/sonner';
-import { getCallbackUrl, getErrorMessage } from '@/shared/utils';
+import { getCallbackUrl, getErrorMessage, buildPageUrl } from '@/shared/utils';
 
 export default function SignUpForm({
   ...props
@@ -53,18 +53,19 @@ export default function SignUpForm({
 
   const handleSignUp = useCallback(
     async (data: { name: string; email: string; password: string }) => {
+      const redirectUrl = buildPageUrl('adminDashboard');
       const res = await signUp.email({
         name: data.name,
         email: data.email,
         password: data.password,
-        callbackURL: getCallbackUrl('/admin/user'),
+        callbackURL: getCallbackUrl(redirectUrl),
       });
       if (res?.error) {
         toast.error(getErrorMessage(res.error, 'ไม่สามารถสร้างบัญชีผู้ใช้ได้'));
         return;
       }
       toast.success('สร้างบัญชีผู้ใช้สำเร็จ');
-      router.push('/admin/user');
+      router.push(redirectUrl);
     },
     [signUp, router],
   );
@@ -73,7 +74,7 @@ export default function SignUpForm({
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: getCallbackUrl('/admin/user'),
+        callbackURL: getCallbackUrl(buildPageUrl('adminDashboard')),
       });
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, 'ไม่สามารถสมัครสมาชิกด้วย Google ได้'));
@@ -135,7 +136,8 @@ export default function SignUpForm({
                   Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 text-center">
-                  Already have an account? <Link href="/signin">Sign in</Link>
+                  Already have an account?{' '}
+                  <Link href={buildPageUrl('signIn')}>Sign in</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

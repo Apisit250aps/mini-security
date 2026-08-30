@@ -14,6 +14,7 @@ import {
 import { Button } from '@repo/ui/components/button';
 import { Spinner } from '@repo/ui/components/spinner';
 import { UserPlus, Users } from 'lucide-react';
+import { buildPageUrl } from '@/shared/utils';
 
 export default function CompanyEmployeeView() {
   const { activeCompany, activeCompanyId, isLoading } = useActiveCompany();
@@ -52,7 +53,7 @@ export default function CompanyEmployeeView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/company/employee/new">
+          <Link href={buildPageUrl('companyEmployeeNew')}>
             <Button className="gap-2">
               <UserPlus className="size-4" />
               เพิ่มพนักงานใหม่

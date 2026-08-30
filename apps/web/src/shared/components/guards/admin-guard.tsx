@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from '@repo/ui/components/card';
 import { ShieldAlert, ArrowRight, LogIn } from 'lucide-react';
+import { buildPageUrl } from '@/shared/utils';
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { status, isSuperAdmin } = useSession();
@@ -43,7 +44,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
             </CardDescription>
           </CardHeader>
           <CardFooter className="flex justify-center">
-            <Link href="/signin">
+            <Link href={buildPageUrl('signIn')}>
               <Button className="gap-2">
                 <LogIn className="size-4" />
                 เข้าสู่ระบบ
@@ -76,7 +77,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
             คุณสามารถเข้าใช้งานในส่วนของบริษัทได้
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Link href="/company">
+            <Link href={buildPageUrl('companyDashboard')}>
               <Button variant="outline" className="gap-2">
                 ไปยังหน้าบริษัท
                 <ArrowRight className="size-4" />

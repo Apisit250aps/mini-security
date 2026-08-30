@@ -27,7 +27,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
-import { formatDate } from '@/shared/utils';
+import { buildPageUrl } from '@/shared/utils';
 
 export default function AdminDashboardView() {
   const usersQuery = useUserListQueries();
@@ -112,7 +112,7 @@ export default function AdminDashboardView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href="/company">
+          <Link href={buildPageUrl('companyDashboard')}>
             <Button variant="outline" className="gap-2">
               <Building2 className="size-4" />
               ไปยัง Company Workspace
@@ -142,7 +142,7 @@ export default function AdminDashboardView() {
               </span>
             </div>
             <Link
-              href="/admin/user"
+              href={buildPageUrl('user')}
               className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
             >
               จัดการผู้ใช้
@@ -165,7 +165,7 @@ export default function AdminDashboardView() {
               <span>เปิดใช้งาน {activeCompaniesCount} บริษัท</span>
             </div>
             <Link
-              href="/admin/company"
+              href={buildPageUrl('company')}
               className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
             >
               จัดการบริษัท
@@ -188,7 +188,7 @@ export default function AdminDashboardView() {
               <span>บทบาทและระดับสิทธิ์</span>
             </div>
             <Link
-              href="/admin/role"
+              href={buildPageUrl('role')}
               className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
             >
               จัดการบทบาท
@@ -211,7 +211,7 @@ export default function AdminDashboardView() {
               <span>ครอบคลุม {permissionModulesCount} โมดูล</span>
             </div>
             <Link
-              href="/admin/permission"
+              href={buildPageUrl('permission')}
               className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
             >
               จัดการสิทธิ์
@@ -233,7 +233,7 @@ export default function AdminDashboardView() {
               </CardDescription>
             </div>
             <CardAction>
-              <Link href="/admin/company">
+              <Link href={buildPageUrl('company')}>
                 <Button variant="ghost" size="sm" className="gap-1 text-xs">
                   ดูทั้งหมด
                   <ArrowRight className="size-3.5" />
@@ -259,7 +259,7 @@ export default function AdminDashboardView() {
                       </div>
                       <div className="flex flex-col">
                         <Link
-                          href={`/admin/company/${c.id}`}
+                          href={buildPageUrl('company', [c.id])}
                           className="font-medium text-sm hover:underline hover:text-primary transition-colors"
                         >
                           {c.name}
@@ -279,7 +279,7 @@ export default function AdminDashboardView() {
                           ปิดใช้งาน
                         </Badge>
                       )}
-                      <Link href={`/admin/company/${c.id}`}>
+                      <Link href={buildPageUrl('company', [c.id])}>
                         <Button variant="outline" size="sm" className="text-xs">
                           จัดการ
                         </Button>
@@ -302,7 +302,7 @@ export default function AdminDashboardView() {
               </CardDescription>
             </div>
             <CardAction>
-              <Link href="/admin/user">
+              <Link href={buildPageUrl('user')}>
                 <Button variant="ghost" size="sm" className="gap-1 text-xs">
                   ดูทั้งหมด
                   <ArrowRight className="size-3.5" />
@@ -323,8 +323,8 @@ export default function AdminDashboardView() {
                     className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary font-medium text-xs">
-                        {u.name.slice(0, 2).toUpperCase()}
+                      <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-xs">
+                        {u.name ? u.name.slice(0, 2).toUpperCase() : 'US'}
                       </div>
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{u.name}</span>
@@ -335,13 +335,15 @@ export default function AdminDashboardView() {
                     </div>
                     <div className="flex items-center gap-2">
                       {u.isAdmin && (
-                        <Badge variant="default" className="text-[11px]">
-                          Admin
+                        <Badge variant="secondary" className="text-[11px]">
+                          Super Admin
                         </Badge>
                       )}
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(u.createdAt)}
-                      </span>
+                      {u.isActive ? (
+                        <span className="flex size-2 rounded-full bg-emerald-500" />
+                      ) : (
+                        <span className="flex size-2 rounded-full bg-destructive" />
+                      )}
                     </div>
                   </div>
                 ))}
@@ -351,38 +353,29 @@ export default function AdminDashboardView() {
         </Card>
       </div>
 
-      {/* System Status Banner */}
-      <Card className="border-emerald-500/20 bg-emerald-500/5">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="size-5 text-emerald-600" />
-            <CardTitle className="text-base text-emerald-700 dark:text-emerald-400">
-              สถานะระบบความปลอดภัยและการควบคุมสิทธิ์ (Security & RBAC Status)
-            </CardTitle>
+      {/* Security Health / RBAC Banner */}
+      <Card className="bg-primary/5 border-primary/20">
+        <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <CheckCircle2 className="size-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm">
+                ระบบจัดการสิทธิ์ RBAC ทำงานเต็มประสิทธิภาพ
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                สิทธิ์ทั้งหมดถูกควบคุมผ่าน Role-Based Access Control
+                และเชื่อมกับ API Gateway แบบเรียลไทม์
+              </p>
+            </div>
           </div>
-          <CardDescription>
-            ระบบยืนยันตัวตน (Authentication) และการบังคับใช้นโยบายสิทธิ์
-            (Authorization Guards) ทำงานปกติทุกส่วน
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-3 text-xs">
-            <div className="flex items-center gap-2 rounded-md bg-background/80 p-2.5 border">
-              <div className="size-2 rounded-full bg-emerald-500" />
-              <span className="font-medium">Better Auth Session: Active</span>
-            </div>
-            <div className="flex items-center gap-2 rounded-md bg-background/80 p-2.5 border">
-              <div className="size-2 rounded-full bg-emerald-500" />
-              <span className="font-medium">
-                Guard Policy: Super Admin Enforced
-              </span>
-            </div>
-            <div className="flex items-center gap-2 rounded-md bg-background/80 p-2.5 border">
-              <div className="size-2 rounded-full bg-emerald-500" />
-              <span className="font-medium">
-                Multi-tenant Isolation: Scoped
-              </span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Link href={buildPageUrl('permission')}>
+              <Button variant="outline" size="sm" className="text-xs">
+                ตรวจสอบ Matrix สิทธิ์
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

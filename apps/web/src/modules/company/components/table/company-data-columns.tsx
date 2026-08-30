@@ -1,8 +1,9 @@
+import React from 'react';
 import Link from 'next/link';
-import { ColumnDef } from '@tanstack/react-table';
-import { Company } from '@repo/domains/entities';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { Company } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
-import { formatDate } from '@/shared/utils';
+import { formatDate, buildPageUrl } from '@/shared/utils';
 import CompanyColumnActions from './company-column-actions';
 
 const companyListColumns = (): ColumnDef<Company>[] => {
@@ -12,7 +13,7 @@ const companyListColumns = (): ColumnDef<Company>[] => {
       header: 'ชื่อบริษัท',
       cell: ({ row, getValue }) => (
         <Link
-          href={`/admin/company/${row.original.id}`}
+          href={buildPageUrl('company', [row.original.id])}
           className="font-medium hover:underline hover:text-primary transition-colors"
         >
           {getValue<string>()}

@@ -15,6 +15,7 @@ import {
 import { Button } from '@repo/ui/components/button';
 import { Spinner } from '@repo/ui/components/spinner';
 import { ArrowLeft, UserPlus } from 'lucide-react';
+import { buildPageUrl } from '@/shared/utils';
 
 export default function CompanyEmployeeNewView() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function CompanyEmployeeNewView() {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
         <p className="text-muted-foreground">ไม่พบข้อมูลบริษัท</p>
-        <Link href="/company">
+        <Link href={buildPageUrl('companyDashboard')}>
           <Button variant="outline">กลับหน้าหลัก</Button>
         </Link>
       </div>
@@ -45,7 +46,7 @@ export default function CompanyEmployeeNewView() {
   return (
     <div className="flex flex-col gap-4 max-w-2xl">
       <div className="flex items-center gap-2">
-        <Link href="/company/employee">
+        <Link href={buildPageUrl('companyEmployee')}>
           <Button
             variant="ghost"
             size="sm"
@@ -75,7 +76,9 @@ export default function CompanyEmployeeNewView() {
           </div>
         </CardHeader>
         <CardContent>
-          <UserCreateForm onSuccess={() => router.push('/company/employee')} />
+          <UserCreateForm
+            onSuccess={() => router.push(buildPageUrl('companyEmployee'))}
+          />
         </CardContent>
       </Card>
     </div>

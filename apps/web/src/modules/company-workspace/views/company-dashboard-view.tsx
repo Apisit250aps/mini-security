@@ -22,6 +22,7 @@ import {
   UserPlus,
   ArrowRight,
 } from 'lucide-react';
+import { buildPageUrl } from '@/shared/utils';
 
 export default function CompanyDashboardView() {
   const { activeCompany, activeCompanyId, isLoading } = useActiveCompany();
@@ -81,7 +82,7 @@ export default function CompanyDashboardView() {
         </div>
 
         <div className="flex gap-2">
-          <Link href="/company/employee/new">
+          <Link href={buildPageUrl('companyEmployeeNew')}>
             <Button className="gap-2">
               <UserPlus className="size-4" />
               เพิ่มพนักงานใหม่
@@ -150,7 +151,7 @@ export default function CompanyDashboardView() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-end">
-            <Link href="/company/employee">
+            <Link href={buildPageUrl('companyEmployee')}>
               <Button variant="outline" className="gap-2">
                 ดูรายชื่อพนักงาน
                 <ArrowRight className="size-4" />
@@ -167,7 +168,7 @@ export default function CompanyDashboardView() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-end">
-            <Link href="/company/role">
+            <Link href={buildPageUrl('companyRole')}>
               <Button variant="outline" className="gap-2">
                 จัดการสิทธิ์และบทบาท
                 <ArrowRight className="size-4" />

@@ -24,6 +24,7 @@ import { Badge } from '@repo/ui/components/badge';
 import { Spinner } from '@repo/ui/components/spinner';
 import { Button } from '@repo/ui/components/button';
 import { ArrowLeft, Building2, Users2 } from 'lucide-react';
+import { buildPageUrl } from '@/shared/utils';
 
 export default function CompanyDetailView({
   companyId,
@@ -50,7 +51,7 @@ export default function CompanyDetailView({
         <p className="text-lg text-muted-foreground">
           ไม่พบข้อมูลบริษัทที่ระบุ
         </p>
-        <Link href="/admin/company">
+        <Link href={buildPageUrl('company')}>
           <Button variant="outline">
             <ArrowLeft />
             กลับหน้ารายการบริษัท
@@ -65,7 +66,7 @@ export default function CompanyDetailView({
       {/* Top Navigation & Header */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
-          <Link href="/admin/company">
+          <Link href={buildPageUrl('company')}>
             <Button
               variant="ghost"
               size="sm"
