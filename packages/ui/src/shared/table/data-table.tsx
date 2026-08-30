@@ -74,7 +74,11 @@ export function DataTable<TData, TValue>({
         <Table aria-label="Data Table">
           <TableHeader>
             {table.getFlatHeaders().map((header, index) => (
-              <TableHead key={header.id} id={header.id} isRowHeader={index === 0}>
+              <TableHead
+                key={header.id}
+                id={header.id}
+                isRowHeader={index === 0}
+              >
                 {header.isPlaceholder
                   ? null
                   : flexRender(

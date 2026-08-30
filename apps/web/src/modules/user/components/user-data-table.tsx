@@ -57,7 +57,8 @@ const userListColumns: ColumnDef<User>[] = [
   {
     accessorKey: 'createdAt',
     header: 'วันที่สร้าง',
-    cell: ({ getValue }) => new Date(getValue<Date>()).toLocaleDateString('th-TH'),
+    cell: ({ getValue }) =>
+      new Date(getValue<Date>()).toLocaleDateString('th-TH'),
   },
 ];
 

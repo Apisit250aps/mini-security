@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Kanit } from 'next/font/google';
 import './globals.css';
-import { SessionProvider } from '@/modules/auth/hooks/session-provider';
 import ClientProvider from '@/shared/hooks/client-provider';
+import { SessionProvider } from '@/modules/auth/hooks/session-provider';
+import { OverlayProvider } from '@repo/ui/hooks';
 
 const kanit = Kanit({
   subsets: ['latin', 'thai'],
@@ -24,7 +25,9 @@ export default function RootLayout({
     <html lang="th" className={`h-full antialiased ${kanit.variable}`}>
       <body className="min-h-full flex flex-col">
         <ClientProvider>
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <OverlayProvider>{children}</OverlayProvider>
+          </SessionProvider>
         </ClientProvider>
       </body>
     </html>
