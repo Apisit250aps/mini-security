@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type {
   ICreateUserContext,
   ICreateUserUseCase,
@@ -14,13 +13,18 @@ import type {
   IUpdateUserUseCase,
 } from '@repo/domains/applications/user';
 import type { User } from '@repo/domains/entities/user';
+import type { IAccountRepository } from '@repo/domains/repositories/auth';
 import type { IUserRepository } from '@repo/domains/repositories/user';
 import { createUserSchema, updateUserSchema } from '@repo/domains/schema/user';
 import { RequirePermission } from '../decorators/permission.decorator';
 import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
 
 export class CreateUserUseCase implements ICreateUserUseCase {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly accountRepository?: IAccountRepository,
+    private readonly passwordHasher?: (password: string) => Promise<string>,
+  ) {}
 
   @RequirePermission('user:create')
   async execute(context: ICreateUserContext): Promise<User> {
@@ -29,12 +33,32 @@ export class CreateUserUseCase implements ICreateUserUseCase {
       throw new ValidationError('Invalid user data', parsed.error.format());
     }
 
-    const existing = await this.userRepository.findByEmail(parsed.data.email);
+    const email = parsed.data.email.toLowerCase().trim();
+    const existing = await this.userRepository.findByEmail(email);
     if (existing) {
       throw new DuplicateError('User with this email already exists');
     }
 
-    return this.userRepository.create(parsed.data);
+    const { password, ...userData } = parsed.data;
+    const user = await this.userRepository.create({
+      ...userData,
+      email,
+    });
+
+    if (password && this.accountRepository) {
+      const hashedPassword = this.passwordHasher
+        ? await this.passwordHasher(password)
+        : password;
+
+      await this.accountRepository.create({
+        userId: user.id,
+        accountId: user.id,
+        providerId: 'credential',
+        password: hashedPassword,
+      });
+    }
+
+    return user;
   }
 }
 

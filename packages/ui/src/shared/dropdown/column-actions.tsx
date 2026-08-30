@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '#components/dropdown-menu';
-import { Eye, MoreHorizontal, Pen, Trash2 } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 type ActionItem = {
@@ -14,13 +14,11 @@ type ActionItem = {
   variant?: 'destructive' | 'default';
 };
 
-export interface ColumnActionsProps<T> {
+export interface ColumnActionsProps {
   actions: Record<string, ActionItem>;
 }
 
-function ColumnActions<T extends { id: string }>({
-  actions,
-}: ColumnActionsProps<T>) {
+function ColumnActions({ actions }: ColumnActionsProps) {
   return (
     <DropdownMenuTrigger>
       <Button variant="ghost" size="icon-sm" aria-label="Open actions menu">

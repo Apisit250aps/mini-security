@@ -1,3 +1,4 @@
+import { hash } from '@repo/infrastructures';
 import {
   CreateUserUseCase,
   DeleteUserUseCase,
@@ -6,9 +7,14 @@ import {
   GetUsersUseCase,
   UpdateUserUseCase,
 } from '@repo/applications';
+import { accountRepository } from '../repositories/auth.repository';
 import { userRepository } from '../repositories/user.repository';
 
-export const createUserUseCase = new CreateUserUseCase(userRepository);
+export const createUserUseCase = new CreateUserUseCase(
+  userRepository,
+  accountRepository,
+  hash,
+);
 export const updateUserUseCase = new UpdateUserUseCase(userRepository);
 export const deleteUserUseCase = new DeleteUserUseCase(userRepository);
 export const getUserUseCase = new GetUserUseCase(userRepository);

@@ -17,11 +17,16 @@ export const userSchema = BaseEntity({
   lastLogin: DateField({ required: false, nullable: true }),
 });
 
-export const createUserSchema = userSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createUserSchema = userSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    lastLogin: true,
+  })
+  .extend({
+    password: StringField({ required: false, min: 8, nullable: true }),
+  });
 
 export const updateUserSchema = userSchema
   .partial()

@@ -14,11 +14,21 @@ export default class UserRepository
     super(db, user);
   }
 
+  override async create(entity: CreateUser): Promise<User> {
+    const userData = { ...entity };
+    delete (userData as { password?: string }).password;
+    const [result] = await this.db
+      .insert(this.table)
+      .values(userData)
+      .returning();
+    return new User(result as unknown as User);
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const [result] = await this.db
       .select()
       .from(this.table)
-      .where(eq(user.email, email));
+      .where(eq(user.email, email.toLowerCase().trim()));
     return result ? new User(result as unknown as User) : null;
   }
 

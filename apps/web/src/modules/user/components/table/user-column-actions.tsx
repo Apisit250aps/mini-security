@@ -33,7 +33,7 @@ function UserColumnActions<T extends User>(cell: CellContext<T, unknown>) {
   };
 
   return (
-    <ColumnActions<User>
+    <ColumnActions
       actions={{
         แก้ไข: {
           onAction: actionEdit,

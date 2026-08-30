@@ -14,7 +14,8 @@
     "#components/*": "./src/components/*.tsx",
     "#lib/*": "./src/lib/*.ts",
     "#shared/*": "./src/shared/*.tsx",
-    "#hooks/*": "./src/hooks/*",
+    "#hooks/*": "./src/hooks/*.tsx",
+    "#hooks": "./src/hooks/index.ts",
     "#types/*": "./src/types/*.d.ts"
   },
   "scripts": {

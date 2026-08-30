@@ -6,7 +6,9 @@ model CreateUser
   is OmitProperties<
     User,
     "id" | "isActive" | "lastLogin" | "createdAt" | "updatedAt"
-  >;
+  > {
+  password?: string;
+}
 
 model UpdateUser
   is OptionalProperties<OmitProperties<User, "id" | "createdAt" | "updatedAt">>;
