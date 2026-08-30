@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
 import { Company } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
@@ -9,6 +10,14 @@ const companyListColumns = (): ColumnDef<Company>[] => {
     {
       accessorKey: 'name',
       header: 'ชื่อบริษัท',
+      cell: ({ row, getValue }) => (
+        <Link
+          href={`/admin/company/${row.original.id}`}
+          className="font-medium hover:underline hover:text-primary transition-colors"
+        >
+          {getValue<string>()}
+        </Link>
+      ),
     },
     {
       accessorKey: 'slug',

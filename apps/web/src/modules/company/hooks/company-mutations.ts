@@ -1,9 +1,17 @@
 import {
+  companyServicesAddCompanyMember,
   companyServicesCreateCompany,
   companyServicesDeleteCompany,
+  companyServicesRemoveCompanyMember,
   companyServicesUpdateCompany,
+  companyServicesUpdateCompanyMember,
 } from '@repo/client';
-import type { CreateCompany, UpdateCompany } from '@repo/client';
+import type {
+  CreateCompany,
+  CreateCompanyMember,
+  UpdateCompany,
+  UpdateCompanyMember,
+} from '@repo/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@repo/ui/components/sonner';
 import { companyKeys, getErrorMessage } from '@/shared/utils';
@@ -44,9 +52,12 @@ function useCompanyUpdate() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success('บันทึกข้อมูลบริษัทสำเร็จ');
       queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: companyKeys.detail(variables.companyId),
+      });
     },
     onError: (error: unknown) => {
       toast.error(
@@ -75,4 +86,82 @@ function useCompanyCreate() {
   return mutation;
 }
 
-export { useCompanyDelete, useCompanyUpdate, useCompanyCreate };
+function useCompanyMemberAdd(companyId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (data: CreateCompanyMember) => {
+      const res = await companyServicesAddCompanyMember({ body: data });
+      return res;
+    },
+    onSuccess: () => {
+      toast.success('เพิ่มสมาชิกในบริษัทสำเร็จ');
+      queryClient.invalidateQueries({
+        queryKey: [...companyKeys.detail(companyId), 'members'],
+      });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการเพิ่มสมาชิก'));
+    },
+  });
+  return mutation;
+}
+
+function useCompanyMemberUpdate(companyId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: UpdateCompanyMember;
+    }) => {
+      const res = await companyServicesUpdateCompanyMember({
+        path: { id },
+        body: data,
+      });
+      return res;
+    },
+    onSuccess: () => {
+      toast.success('อัปเดตข้อมูลสมาชิกสำเร็จ');
+      queryClient.invalidateQueries({
+        queryKey: [...companyKeys.detail(companyId), 'members'],
+      });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการแก้ไขสมาชิก'));
+    },
+  });
+  return mutation;
+}
+
+function useCompanyMemberRemove(companyId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      const res = await companyServicesRemoveCompanyMember({
+        path: { id: memberId },
+      });
+      return res;
+    },
+    onSuccess: () => {
+      toast.success('ลบสมาชิกออกจากบริษัทสำเร็จ');
+      queryClient.invalidateQueries({
+        queryKey: [...companyKeys.detail(companyId), 'members'],
+      });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบสมาชิก'));
+    },
+  });
+  return mutation;
+}
+
+export {
+  useCompanyDelete,
+  useCompanyUpdate,
+  useCompanyCreate,
+  useCompanyMemberAdd,
+  useCompanyMemberUpdate,
+  useCompanyMemberRemove,
+};

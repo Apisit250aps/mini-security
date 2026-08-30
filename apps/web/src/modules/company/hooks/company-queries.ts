@@ -1,6 +1,7 @@
 import {
   companyServicesGetCompanies,
   companyServicesGetCompany,
+  companyServicesGetCompanyMembers,
 } from '@repo/client';
 import { useQuery } from '@tanstack/react-query';
 import { companyKeys } from '@/shared/utils';
@@ -33,4 +34,24 @@ function useCompanyDetailQueries(companyId: string) {
   return query;
 }
 
-export { useCompanyListQueries, useCompanyDetailQueries };
+function useCompanyMembersQueries(companyId: string) {
+  const query = useQuery({
+    queryKey: [...companyKeys.detail(companyId), 'members'] as const,
+    queryFn: async ({ signal }) => {
+      const response = await companyServicesGetCompanyMembers({
+        signal,
+        path: { companyId },
+      });
+      if (response.data) return response.data.data;
+      throw new Error('No data returned from companyServicesGetCompanyMembers');
+    },
+    enabled: Boolean(companyId),
+  });
+  return query;
+}
+
+export {
+  useCompanyListQueries,
+  useCompanyDetailQueries,
+  useCompanyMembersQueries,
+};
