@@ -4,7 +4,7 @@ import {
   type PageConfigId,
 } from '@/configs/contains/page-configs';
 
-interface PageLayoutProps extends React.ComponentProps<'section'> {
+interface PageLayoutProps extends React.ComponentProps<'div'> {
   pageId?: PageConfigId | '';
   children?: React.ReactNode;
   title?: string;
@@ -17,6 +17,7 @@ export default function PageLayout({
   children,
   title,
   description,
+  actions,
   ...props
 }: PageLayoutProps) {
   const page = pageId ? pageConfigs[pageId] : undefined;
@@ -30,7 +31,7 @@ export default function PageLayout({
             </h1>
           </div>
           <div id="page-actions" className="flex items-center gap-2">
-            {props.actions}
+            {actions}
           </div>
         </div>
         <p className="text-sm text-muted-foreground">

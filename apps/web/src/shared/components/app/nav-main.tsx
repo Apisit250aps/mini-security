@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { NavItem } from '@/shared/utils';
 
@@ -34,13 +33,6 @@ export function NavMain({ items }: { items: NavItem[] }) {
                         <SidebarMenuButton
                           href={sub.url}
                           tooltip={sub.name}
-                          render={({ ref, ...props }) => (
-                            <Link
-                              ref={ref as React.Ref<HTMLAnchorElement>}
-                              href={sub.url}
-                              {...props}
-                            />
-                          )}
                           isActive={isActive}
                         >
                           {sub.icon}
@@ -63,15 +55,8 @@ export function NavMain({ items }: { items: NavItem[] }) {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    href={item.url}
+                    href={item.url || '#'}
                     tooltip={item.name}
-                    render={({ ref, ...props }) => (
-                      <Link
-                        ref={ref as React.Ref<HTMLAnchorElement>}
-                        href={item.url}
-                        {...props}
-                      />
-                    )}
                     isActive={isActive}
                   >
                     {item.icon}

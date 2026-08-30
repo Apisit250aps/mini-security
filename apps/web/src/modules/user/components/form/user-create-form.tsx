@@ -1,22 +1,21 @@
 'use client';
 
 import React from 'react';
-
-import UserForm, { UserFormValues } from './user-form';
+import UserForm, { type UserFormValues } from './user-form';
 import { useUserCreate } from '../../hooks/user-mutations';
 import { useOverlay } from '@repo/ui/hooks';
-import { useSession } from '@/modules/auth/hooks/session-provider';
 
 export default function UserCreateForm() {
   const ui = useOverlay();
   const createMutation = useUserCreate();
-  const session = useSession();
+
   const handleSubmit = async (data: UserFormValues) => {
-    await session.signUp.email({
+    await createMutation.mutateAsync({
       name: data.name,
       email: data.email,
-      password: data.password!,
-      callbackURL: window.location.origin,
+      password: data.password || undefined,
+      isAdmin: Boolean(data.isAdmin),
+      isActive: Boolean(data.isActive),
     });
     ui.hideAll();
   };

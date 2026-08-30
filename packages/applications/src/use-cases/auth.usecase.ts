@@ -87,7 +87,6 @@ export class SignUpEmailUseCase implements ISignUpEmailUseCase {
     const user = await this.userRepository.create({
       name: context.name,
       email: context.email,
-      emailVerified: false,
       isAdmin: false,
       isActive: true,
     });
@@ -130,7 +129,6 @@ export class SocialLoginUseCase implements ISocialLoginUseCase {
       user = await this.userRepository.create({
         name: context.name,
         email: context.email,
-        emailVerified: true,
         image: context.image,
         isAdmin: false,
         isActive: true,
