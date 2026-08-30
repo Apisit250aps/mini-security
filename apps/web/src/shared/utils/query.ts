@@ -27,3 +27,6 @@ export function createQueryKeys<TEntity extends string>(entity: TEntity) {
  * Pre-defined query keys for entities in the app.
  */
 export const userKeys = createQueryKeys('USER');
+export const companyKeys = createQueryKeys('COMPANY');
+export const roleKeys = createQueryKeys('ROLE');
+export const permissionKeys = createQueryKeys('PERMISSION');

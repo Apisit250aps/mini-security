@@ -1,5 +1,7 @@
-import PageLayout from '@/shared/components/layouts/page-layout';
+'use client';
+
+import CompanyListView from '@/modules/company/views/company-list-view';
 
 export default function CompanyPage() {
-  return <PageLayout pageId="company"></PageLayout>;
+  return <CompanyListView />;
 }

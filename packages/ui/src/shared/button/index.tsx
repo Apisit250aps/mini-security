@@ -28,4 +28,3 @@ function ButtonLoading({
 }
 
 export { ButtonLoading };
-

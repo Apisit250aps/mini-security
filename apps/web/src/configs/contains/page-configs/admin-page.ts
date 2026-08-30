@@ -13,4 +13,16 @@ export const adminPageConfigs: PageConfigs = {
     description: 'จัดการข้อมูลบริษัท',
     url: '/admin/company',
   },
+  role: {
+    name: 'บทบาท',
+    title: 'บทบาทและหน้าที่',
+    description: 'จัดการบทบาทผู้ใช้งานและกำหนดระดับสิทธิ์',
+    url: '/admin/role',
+  },
+  permission: {
+    name: 'สิทธิ์การใช้งาน',
+    title: 'สิทธิ์การใช้งานระบบ',
+    description: 'จัดการรายการสิทธิ์และขอบเขตการเข้าถึง',
+    url: '/admin/permission',
+  },
 } as const satisfies PageConfigs;
