@@ -6,7 +6,6 @@ import RoleDataTable from '@/modules/role/components/table/role-data-table';
 import RoleCreateAction from '@/modules/role/components/role-create-action';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -54,16 +53,11 @@ export default function CompanyRoleView() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>บทบาททั้งหมด (Roles)</CardTitle>
-            <CardDescription>
-              รายการบทบาทมาตรฐานและบทบาทที่กำหนดขึ้นเอง พร้อมปุ่มจัดการสิทธิ์
-            </CardDescription>
-          </div>
-          <CardAction>
-            <RoleCreateAction />
-          </CardAction>
+        <CardHeader>
+          <CardTitle>บทบาททั้งหมด (Roles)</CardTitle>
+          <CardDescription>
+            รายการบทบาทมาตรฐานและบทบาทที่กำหนดขึ้นเอง พร้อมปุ่มจัดการสิทธิ์
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <RoleDataTable />

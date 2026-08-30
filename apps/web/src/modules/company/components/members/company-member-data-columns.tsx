@@ -1,24 +1,26 @@
-import { ColumnDef } from '@tanstack/react-table';
-import { CompanyMember, Role, User } from '@repo/domains/entities';
+import React from 'react';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { CompanyMember, Role, User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
 import CompanyMemberColumnActions from './company-member-column-actions';
+import CompanyMemberRoleSelect from './company-member-role-select';
 
 interface CompanyMemberColumnsOptions {
   companyId: string;
   usersMap: Map<string, User>;
-  rolesMap: Map<string, Role>;
+  roles: Role[];
 }
 
 export const companyMemberListColumns = ({
   companyId,
   usersMap,
-  rolesMap,
+  roles,
 }: CompanyMemberColumnsOptions): ColumnDef<CompanyMember>[] => {
   return [
     {
       id: 'userName',
-      header: 'ชื่อสมาชิก',
+      header: 'ชื่อสมาชิก / พนักงาน',
       cell: ({ row }) => {
         const user = usersMap.get(row.original.userId);
         return user ? (
@@ -34,18 +36,15 @@ export const companyMemberListColumns = ({
       },
     },
     {
-      id: 'roleName',
-      header: 'บทบาท (Role)',
+      id: 'roleSelect',
+      header: 'มอบหมายบทบาท (Role)',
       cell: ({ row }) => {
-        const role = rolesMap.get(row.original.roleId);
-        return role ? (
-          <Badge variant="outline" className="font-medium">
-            {role.name}
-          </Badge>
-        ) : (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.roleId}
-          </span>
+        return (
+          <CompanyMemberRoleSelect
+            member={row.original}
+            companyId={companyId}
+            roles={roles}
+          />
         );
       },
     },

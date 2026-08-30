@@ -4,10 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { useActiveCompany } from '../hooks/use-active-company';
 import CompanyMemberDataTable from '@/modules/company/components/members/company-member-data-table';
-import CompanyMemberAddAction from '@/modules/company/components/members/company-member-add-action';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -54,27 +52,21 @@ export default function CompanyEmployeeView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <CompanyMemberAddAction companyId={activeCompanyId} />
           <Link href="/company/employee/new">
-            <Button variant="outline" className="gap-2">
+            <Button className="gap-2">
               <UserPlus className="size-4" />
-              หน้าฟอร์มเพิ่มพนักงาน
+              เพิ่มพนักงานใหม่
             </Button>
           </Link>
         </div>
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>พนักงานทั้งหมด</CardTitle>
-            <CardDescription>
-              รายการพนักงานและบทบาทหน้าที่ในบริษัทปัจจุบัน
-            </CardDescription>
-          </div>
-          <CardAction>
-            <CompanyMemberAddAction companyId={activeCompanyId} />
-          </CardAction>
+        <CardHeader>
+          <CardTitle>พนักงานทั้งหมด</CardTitle>
+          <CardDescription>
+            รายการพนักงานและบทบาทหน้าที่ในบริษัทปัจจุบัน
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <CompanyMemberDataTable companyId={activeCompanyId} />

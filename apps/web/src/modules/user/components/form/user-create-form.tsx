@@ -2,25 +2,35 @@
 
 import React from 'react';
 import UserForm, { type UserFormValues } from './user-form';
-import { useUserCreate } from '../../hooks/user-mutations';
 import { useOverlay } from '@repo/ui/hooks';
+import { toast } from '@repo/ui/components/sonner';
+import { useSession } from '@/modules/auth/hooks/session-provider';
 
-export default function UserCreateForm() {
+export default function UserCreateForm({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+} = {}) {
   const ui = useOverlay();
-  const createMutation = useUserCreate();
+  const session = useSession();
 
   const handleSubmit = async (data: UserFormValues) => {
-    await createMutation.mutateAsync({
+    const res = await session.signUp.email({
       name: data.name,
       email: data.email,
-      password: data.password || undefined,
-      isAdmin: Boolean(data.isAdmin),
-      isActive: Boolean(data.isActive),
+      password: data.password!,
     });
+    if (res.data) {
+      toast.success('User created successfully');
+      ui.hideAll();
+      onSuccess?.();
+      return;
+    }
+    if (res.error) {
+      toast.error(res.error.message || 'Failed to create user');
+    }
     ui.hideAll();
   };
 
-  return (
-    <UserForm onSubmit={handleSubmit} isLoading={createMutation.isPending} />
-  );
+  return <UserForm onSubmit={handleSubmit} isLoading={false} />;
 }

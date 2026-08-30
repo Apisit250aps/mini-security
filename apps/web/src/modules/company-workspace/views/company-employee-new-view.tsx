@@ -2,8 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useActiveCompany } from '../hooks/use-active-company';
-import CompanyMemberAddForm from '@/modules/company/components/members/company-member-add-form';
+import UserCreateForm from '@/modules/user/components/form/user-create-form';
 import {
   Card,
   CardContent,
@@ -16,7 +17,8 @@ import { Spinner } from '@repo/ui/components/spinner';
 import { ArrowLeft, UserPlus } from 'lucide-react';
 
 export default function CompanyEmployeeNewView() {
-  const { activeCompany, activeCompanyId, isLoading } = useActiveCompany();
+  const router = useRouter();
+  const { activeCompany, isLoading } = useActiveCompany();
 
   if (isLoading) {
     return (
@@ -63,16 +65,17 @@ export default function CompanyEmployeeNewView() {
             </div>
             <div>
               <CardTitle>
-                เพิ่มพนักงานใหม่เข้าสู่ {activeCompany.name}
+                สร้างบัญชีพนักงานใหม่ ({activeCompany.name})
               </CardTitle>
               <CardDescription>
-                เลือกบัญชีผู้ใช้ในระบบ กำหนดบทบาทหน้าที่ และเปิดใช้งานในองค์กร
+                กรอกข้อมูลบัญชีผู้ใช้สำหรับพนักงาน
+                โดยสามารถกำหนดบทบาทและสิทธิ์เพิ่มเติมได้ในภายหลัง
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <CompanyMemberAddForm companyId={activeCompanyId} />
+          <UserCreateForm onSuccess={() => router.push('/company/employee')} />
         </CardContent>
       </Card>
     </div>

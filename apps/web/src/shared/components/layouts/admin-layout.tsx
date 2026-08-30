@@ -23,7 +23,11 @@ export default function AdminLayout({
           } as React.CSSProperties
         }
       >
-        <AppSidebar variant="inset" items={adminSidebarConfig} />
+        <AppSidebar
+          variant="inset"
+          brandTitle="Super Admin"
+          items={adminSidebarConfig}
+        />
         <SidebarInset>
           <SiteHeader />
           <div className="flex flex-1 flex-col">

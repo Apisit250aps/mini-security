@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-
+import Link from 'next/link';
 import { NavMain } from '@/shared/components/app/nav-main';
 import { NavUser } from '@/shared/components/app/nav-user';
 import type { NavItem } from '@/shared/utils';
@@ -32,7 +32,14 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              href="#"
+              href="/"
+              render={({ ref, ...linkProps }) => (
+                <Link
+                  ref={ref as React.Ref<HTMLAnchorElement>}
+                  href="/"
+                  {...linkProps}
+                />
+              )}
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <Shield className="size-5 text-primary" />

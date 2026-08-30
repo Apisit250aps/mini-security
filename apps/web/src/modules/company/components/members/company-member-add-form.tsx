@@ -13,6 +13,13 @@ import { useCompanyMemberAdd } from '../../hooks/company-mutations';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import { useRoleListQueries } from '@/modules/role/hooks/role-queries';
 import { useOverlay } from '@repo/ui/hooks';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@repo/ui/components/tabs';
+import UserCreateForm from '@/modules/user/components/form/user-create-form';
 
 export type CompanyMemberAddFormValues = z.infer<
   typeof createCompanyMemberSchema
@@ -64,44 +71,57 @@ export default function CompanyMemberAddForm({
   };
 
   return (
-    <form
-      onSubmit={methods.handleSubmit(handleSubmit)}
-      className="flex flex-col gap-4"
-    >
-      <FieldGroup className="flex flex-col gap-3">
-        <SelectField
-          name="userId"
-          label="เลือกผู้ใช้งาน (User / Owner)"
-          placeholder="เลือกผู้ใช้งาน..."
-          options={userOptions}
-          control={methods.control}
-          required
-        />
+    <Tabs defaultSelectedKey="new" className="w-full">
+      <TabsList className="grid w-full grid-cols-2 mb-4">
+        <TabsTrigger id="new">สร้างบัญชีพนักงานใหม่</TabsTrigger>
+        <TabsTrigger id="existing">เลือกจากผู้ใช้เดิม</TabsTrigger>
+      </TabsList>
 
-        <SelectField
-          name="roleId"
-          label="มอบหมายบทบาท (Role)"
-          placeholder="เลือกบทบาท..."
-          options={roleOptions}
-          control={methods.control}
-          required
-        />
+      <TabsContent id="new">
+        <UserCreateForm />
+      </TabsContent>
 
-        <div className="flex flex-col gap-3 rounded-lg border p-3">
-          <SwitchField
-            name="isActive"
-            label="เปิดใช้งานในองค์กร (Active)"
-            description="อนุญาตให้ผู้ใช้นี้เข้าปฏิบัติงานในนามบริษัทได้"
-            control={methods.control}
-          />
-        </div>
-      </FieldGroup>
+      <TabsContent id="existing">
+        <form
+          onSubmit={methods.handleSubmit(handleSubmit)}
+          className="flex flex-col gap-4"
+        >
+          <FieldGroup className="flex flex-col gap-3">
+            <SelectField
+              name="userId"
+              label="เลือกผู้ใช้งานในระบบ"
+              placeholder="เลือกผู้ใช้งาน..."
+              options={userOptions}
+              control={methods.control}
+              required
+            />
 
-      <div className="flex justify-end">
-        <ButtonLoading type="submit" isLoading={addMutation.isPending}>
-          เพิ่มสมาชิก
-        </ButtonLoading>
-      </div>
-    </form>
+            <SelectField
+              name="roleId"
+              label="มอบหมายบทบาท (Role)"
+              placeholder="เลือกบทบาท..."
+              options={roleOptions}
+              control={methods.control}
+              required
+            />
+
+            <div className="flex flex-col gap-3 rounded-lg border p-3">
+              <SwitchField
+                name="isActive"
+                label="เปิดใช้งานในองค์กร (Active)"
+                description="อนุญาตให้ผู้ใช้นี้เข้าปฏิบัติงานในนามบริษัทได้"
+                control={methods.control}
+              />
+            </div>
+          </FieldGroup>
+
+          <div className="flex justify-end">
+            <ButtonLoading type="submit" isLoading={addMutation.isPending}>
+              เพิ่มเป็นสมาชิก
+            </ButtonLoading>
+          </div>
+        </form>
+      </TabsContent>
+    </Tabs>
   );
 }

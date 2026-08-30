@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   BuildingIcon,
   KeyIcon,
@@ -6,14 +7,33 @@ import {
   UsersIcon,
 } from 'lucide-react';
 
-import { sidebarItemBuilder, type NavItem } from '@/shared/utils';
+import { sidebarGroupBuilder, type NavItem } from '@/shared/utils';
 
-const adminSidebarConfig: NavItem[] = [
-  sidebarItemBuilder('adminDashboard', <LayoutDashboardIcon />),
-  sidebarItemBuilder('user', <UsersIcon />),
-  sidebarItemBuilder('company', <BuildingIcon />),
-  sidebarItemBuilder('role', <ShieldIcon />),
-  sidebarItemBuilder('permission', <KeyIcon />),
+export const adminSidebarConfig: NavItem[] = [
+  sidebarGroupBuilder('overview', 'ภาพรวมระบบ', [
+    {
+      id: 'adminDashboard',
+      icon: <LayoutDashboardIcon />,
+    },
+  ]),
+  sidebarGroupBuilder('management', 'การจัดการข้อมูล', [
+    {
+      id: 'user',
+      icon: <UsersIcon />,
+    },
+    {
+      id: 'company',
+      icon: <BuildingIcon />,
+    },
+  ]),
+  sidebarGroupBuilder('security', 'ระบบความปลอดภัย & RBAC', [
+    {
+      id: 'role',
+      icon: <ShieldIcon />,
+    },
+    {
+      id: 'permission',
+      icon: <KeyIcon />,
+    },
+  ]),
 ];
-
-export { adminSidebarConfig };

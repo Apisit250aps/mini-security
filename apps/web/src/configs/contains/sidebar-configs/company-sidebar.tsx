@@ -3,7 +3,6 @@ import {
   Building2Icon,
   LayoutDashboardIcon,
   ShieldCheckIcon,
-  UserPlusIcon,
   UsersIcon,
 } from 'lucide-react';
 import { sidebarGroupBuilder, type NavItem } from '@/shared/utils';
@@ -19,10 +18,6 @@ export const companySidebarConfig: NavItem[] = [
     {
       id: 'companyEmployee',
       icon: <UsersIcon />,
-    },
-    {
-      id: 'companyEmployeeNew',
-      icon: <UserPlusIcon />,
     },
     {
       id: 'companyRole',

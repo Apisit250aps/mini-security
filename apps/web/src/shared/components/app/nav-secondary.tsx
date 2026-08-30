@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Link from 'next/link';
 
 import {
   SidebarGroup,
@@ -24,7 +25,16 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton href={item.url}>
+              <SidebarMenuButton
+                href={item.url}
+                render={({ ref, ...linkProps }) => (
+                  <Link
+                    ref={ref as React.Ref<HTMLAnchorElement>}
+                    href={item.url}
+                    {...linkProps}
+                  />
+                )}
+              >
                 {item.icon}
                 <span>{item.title}</span>
               </SidebarMenuButton>
