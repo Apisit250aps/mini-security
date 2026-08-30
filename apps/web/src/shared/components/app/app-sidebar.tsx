@@ -16,12 +16,6 @@ import {
 } from '@repo/ui/components/sidebar';
 import { CommandIcon } from 'lucide-react';
 
-const defaultUser = {
-  name: 'shadcn',
-  email: 'm@example.com',
-  avatar: '/avatars/shadcn.jpg',
-};
-
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   items?: NavItem[];
 };
@@ -52,7 +46,7 @@ export function AppSidebar({ items = [], ...props }: AppSidebarProps) {
         <NavMain items={navMainItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={defaultUser} />
+        <NavUser  />
       </SidebarFooter>
     </Sidebar>
   );
