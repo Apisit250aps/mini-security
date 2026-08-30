@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { NavMain } from '@/shared/components/app/nav-main';
 import { NavUser } from '@/shared/components/app/nav-user';
-import type { NavItem } from '@/shared/utils/side-bar';
+import type { NavItem } from '@/shared/utils';
 import {
   Sidebar,
   SidebarContent,

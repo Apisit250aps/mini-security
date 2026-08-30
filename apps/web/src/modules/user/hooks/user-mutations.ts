@@ -6,6 +6,7 @@ import {
 import type { CreateUser, UpdateUser } from '@repo/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@repo/ui/components/sonner';
+import { userKeys, getErrorMessage } from '@/shared/utils';
 
 function useUserDelete() {
   const queryClient = useQueryClient();
@@ -16,10 +17,10 @@ function useUserDelete() {
     },
     onSuccess: () => {
       toast.success('ลบผู้ใช้สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: ['GET', 'USER'] });
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
-    onError: (error: Error) => {
-      toast.error(error.message || 'เกิดข้อผิดพลาดในการลบผู้ใช้');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบผู้ใช้'));
     },
   });
   return mutation;
@@ -43,10 +44,12 @@ function useUserUpdate() {
     },
     onSuccess: () => {
       toast.success('บันทึกข้อมูลผู้ใช้สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: ['GET', 'USER'] });
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
-    onError: (error: Error) => {
-      toast.error(error.message || 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ใช้');
+    onError: (error: unknown) => {
+      toast.error(
+        getErrorMessage(error, 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ใช้'),
+      );
     },
   });
   return mutation;
@@ -61,10 +64,10 @@ function useUserCreate() {
     },
     onSuccess: () => {
       toast.success('สร้างผู้ใช้ใหม่สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: ['GET', 'USER'] });
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
-    onError: (error: Error) => {
-      toast.error(error.message || 'เกิดข้อผิดพลาดในการสร้างผู้ใช้');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการสร้างผู้ใช้'));
     },
   });
   return mutation;

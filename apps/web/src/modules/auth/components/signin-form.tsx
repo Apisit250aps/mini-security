@@ -22,6 +22,7 @@ import {
 import { useCallback } from 'react';
 import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';
+import { getCallbackUrl, getErrorMessage } from '@/shared/utils';
 
 export default function SignInForm({
   className,
@@ -51,10 +52,10 @@ export default function SignInForm({
       const res = await signIn.email({
         email: data.email,
         password: data.password,
-        callbackURL: `${window.location.origin}/admin/user`,
+        callbackURL: getCallbackUrl('/admin/user'),
       });
       if (res?.error) {
-        toast.error(res.error.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+        toast.error(getErrorMessage(res.error, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'));
         return;
       }
       toast.success('เข้าสู่ระบบสำเร็จ');
@@ -67,11 +68,10 @@ export default function SignInForm({
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: `${window.location.origin}/admin/user`,
+        callbackURL: getCallbackUrl('/admin/user'),
       });
     } catch (err: unknown) {
-      const error = err as Error;
-      toast.error(error?.message || 'ไม่สามารถเข้าสู่ระบบด้วย Google ได้');
+      toast.error(getErrorMessage(err, 'ไม่สามารถเข้าสู่ระบบด้วย Google ได้'));
     }
   }, [signIn]);
 

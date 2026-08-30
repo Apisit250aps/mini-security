@@ -6,7 +6,9 @@
     "DATABASE_URL",
     "PORT",
     "BETTER_AUTH_*",
-    "BACKEND_*"
+    "BACKEND_*",
+    "NEXT_PUBLIC_*",
+    "VERCEL_URL"
   ],
   "tasks": {
     "build": {

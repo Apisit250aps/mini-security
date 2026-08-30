@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import UserDataTable from '../components/user-data-table';
+import UserDataTable from '../components/table/user-data-table';
 import UserCreateForm from '../components/form/user-create-form';
 import PageLayout from '@/shared/components/layouts/page-layout';
 import { useOverlay } from '@repo/ui/hooks';

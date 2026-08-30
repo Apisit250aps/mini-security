@@ -24,16 +24,7 @@ import {
 import { EllipsisVerticalIcon, LogOutIcon } from 'lucide-react';
 import { toast } from '@repo/ui/components/sonner';
 import { useRouter } from 'next/navigation';
-
-function getInitials(name?: string | null): string {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
+import { getInitials, getErrorMessage } from '@/shared/utils';
 
 export function NavUser() {
   const router = useRouter();
@@ -113,8 +104,10 @@ export function NavUser() {
                   await session.signOut();
                   toast.success('ออกจากระบบสำเร็จ');
                   router.push('/signin');
-                } catch {
-                  toast.error('เกิดข้อผิดพลาดในการออกจากระบบ');
+                } catch (error) {
+                  toast.error(
+                    getErrorMessage(error, 'เกิดข้อผิดพลาดในการออกจากระบบ'),
+                  );
                 }
               }}
             >

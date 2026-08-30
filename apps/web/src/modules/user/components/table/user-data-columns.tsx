@@ -1,6 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
+import { formatDate, formatDateTime } from '@/shared/utils';
 import UserColumnActions from './user-column-actions';
 
 const userListColumns = (): ColumnDef<User>[] => {
@@ -49,14 +50,13 @@ const userListColumns = (): ColumnDef<User>[] => {
       cell: ({ getValue }) => {
         const val = getValue<Date | null>();
         if (!val) return <span className="text-muted-foreground">-</span>;
-        return new Date(val).toLocaleString('th-TH');
+        return formatDateTime(val);
       },
     },
     {
       accessorKey: 'createdAt',
       header: 'วันที่สร้าง',
-      cell: ({ getValue }) =>
-        new Date(getValue<Date>()).toLocaleDateString('th-TH'),
+      cell: ({ getValue }) => formatDate(getValue<Date>()),
     },
     {
       id: 'actions',

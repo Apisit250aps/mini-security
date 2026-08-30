@@ -21,6 +21,7 @@ import z from 'zod';
 import { useSession } from '../hooks/session-provider';
 import { useCallback } from 'react';
 import { toast } from '@repo/ui/components/sonner';
+import { getCallbackUrl, getErrorMessage } from '@/shared/utils';
 
 export default function SignUpForm({
   ...props
@@ -55,10 +56,10 @@ export default function SignUpForm({
         name: data.name,
         email: data.email,
         password: data.password,
-        callbackURL: `${window.location.origin}/admin/user`,
+        callbackURL: getCallbackUrl('/admin/user'),
       });
       if (res?.error) {
-        toast.error(res.error.message || 'ไม่สามารถสร้างบัญชีผู้ใช้ได้');
+        toast.error(getErrorMessage(res.error, 'ไม่สามารถสร้างบัญชีผู้ใช้ได้'));
         return;
       }
       toast.success('สร้างบัญชีผู้ใช้สำเร็จ');
@@ -71,11 +72,10 @@ export default function SignUpForm({
     try {
       await signIn.social({
         provider: 'google',
-        callbackURL: `${window.location.origin}/admin/user`,
+        callbackURL: getCallbackUrl('/admin/user'),
       });
     } catch (err: unknown) {
-      const error = err as Error;
-      toast.error(error?.message || 'ไม่สามารถสมัครสมาชิกด้วย Google ได้');
+      toast.error(getErrorMessage(err, 'ไม่สามารถสมัครสมาชิกด้วย Google ได้'));
     }
   }, [signIn]);
 

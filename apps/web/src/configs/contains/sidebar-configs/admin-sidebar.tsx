@@ -1,6 +1,6 @@
 import { BuildingIcon, UsersIcon } from 'lucide-react';
 
-import { sidebarItemBuilder, type NavItem } from '@/shared/utils/side-bar';
+import { sidebarItemBuilder, type NavItem } from '@/shared/utils';
 
 const adminSidebarConfig: NavItem[] = [
   sidebarItemBuilder('user', <UsersIcon />),
