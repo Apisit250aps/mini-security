@@ -806,7 +806,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/RolePermission'
+                      $ref: '#/components/schemas/Permission'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED

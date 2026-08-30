@@ -12,6 +12,7 @@ export default function RoleCreateAction() {
     ui.dialog.open({
       title: 'เพิ่มบทบาทใหม่',
       description: 'กรุณากรอกข้อมูลบทบาทใหม่',
+      size: 'lg',
       children: <RoleCreateForm />,
     });
   };

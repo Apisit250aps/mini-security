@@ -111,9 +111,7 @@ export function RequirePermission<TContext = any>(
         companyId = companyId ?? defaults.companyId;
 
         const customChecker: ICheckUserPermissionUseCase | undefined =
-          this?.checkUserPermissionUseCase ??
-          this?.permissionChecker ??
-          this?.rolePermissionRepository;
+          this?.checkUserPermissionUseCase ?? this?.permissionChecker;
 
         await PermissionGuard.requirePermission(
           action,
@@ -156,9 +154,7 @@ export function RequirePermission<TContext = any>(
         companyId = companyId ?? defaults.companyId;
 
         const customChecker: ICheckUserPermissionUseCase | undefined =
-          this?.checkUserPermissionUseCase ??
-          this?.permissionChecker ??
-          this?.rolePermissionRepository;
+          this?.checkUserPermissionUseCase ?? this?.permissionChecker;
 
         await PermissionGuard.requirePermission(
           action,

@@ -32,7 +32,10 @@ export class PermissionGuard {
     context: ICheckUserPermissionContext,
     customChecker?: ICheckUserPermissionUseCase,
   ): Promise<boolean> {
-    const checker = customChecker ?? PermissionGuard.checkerInstance;
+    const checker =
+      customChecker && typeof customChecker.execute === 'function'
+        ? customChecker
+        : PermissionGuard.checkerInstance;
     if (!checker) {
       throw new InternalError(
         'Permission checker is not configured. Call PermissionGuard.setChecker(...) during application startup.',

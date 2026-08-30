@@ -907,7 +907,7 @@ export type RoleServicesGetRolePermissionsResponses = {
   200: {
     success: boolean;
     message: string;
-    data?: Array<RolePermission>;
+    data?: Array<Permission>;
   };
 };
 

@@ -214,7 +214,7 @@ export const roleServicesGetRolePermissionsResponseTransformer = async (
 ): Promise<RoleServicesGetRolePermissionsResponse> => {
   if (data.data) {
     data.data = data.data.map((item: any) =>
-      rolePermissionSchemaResponseTransformer(item),
+      permissionSchemaResponseTransformer(item),
     );
   }
   return data;

@@ -98,9 +98,10 @@ interface RoleServices {
   @route("/{roleId}/permissions")
   @summary("Get role permissions")
   getRolePermissions(@path roleId: string):
-    | ApiOkResponse<RolePermission[]>
+    | ApiOkResponse<Permission[]>
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;
+
 
   @post
   @route("/permissions")
