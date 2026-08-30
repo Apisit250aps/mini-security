@@ -1,8 +1,11 @@
 'use client';
 import React from 'react';
+import UserDataTable from '../components/user-data-table';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useUserListQueries } from '../hooks/user-queries';
+
 export default function UserListView() {
-  const query = useUserListQueries();
-  return <PageLayout pageId="user">UserListView</PageLayout>;
+  
+  return <PageLayout pageId="user">
+    <UserDataTable />
+  </PageLayout>;
 }
