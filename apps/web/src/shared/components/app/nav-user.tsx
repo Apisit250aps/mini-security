@@ -21,13 +21,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@repo/ui/components/sidebar';
-import {
-  EllipsisVerticalIcon,
-  CircleUserRoundIcon,
-  CreditCardIcon,
-  BellIcon,
-  LogOutIcon,
-} from 'lucide-react';
+import { EllipsisVerticalIcon, LogOutIcon } from 'lucide-react';
 
 function getInitials(name?: string | null): string {
   if (!name) return '?';
@@ -66,7 +60,10 @@ export function NavUser() {
         <DropdownMenuTrigger>
           <SidebarMenuButton size="lg" className="aria-expanded:bg-muted">
             <Avatar className="size-8 rounded-lg grayscale">
-              <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? ''} />
+              <AvatarImage
+                src={user?.image ?? undefined}
+                alt={user?.name ?? ''}
+              />
               <AvatarFallback className="rounded-lg">
                 {getInitials(user?.name)}
               </AvatarFallback>
@@ -88,7 +85,10 @@ export function NavUser() {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="size-8 rounded-lg">
-                    <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? ''} />
+                    <AvatarImage
+                      src={user?.image ?? undefined}
+                      alt={user?.name ?? ''}
+                    />
                     <AvatarFallback className="rounded-lg">
                       {getInitials(user?.name)}
                     </AvatarFallback>
