@@ -61,7 +61,7 @@ export default function CompanyDetailView({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {/* Top Navigation & Header */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">

@@ -21,7 +21,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@repo/ui/components/sidebar';
-import { EllipsisVerticalIcon, LogOutIcon } from 'lucide-react';
+import {
+  Building2Icon,
+  EllipsisVerticalIcon,
+  LogOutIcon,
+  ShieldCheckIcon,
+} from 'lucide-react';
 import { toast } from '@repo/ui/components/sonner';
 import { useRouter } from 'next/navigation';
 import { getInitials, getErrorMessage } from '@/shared/utils';
@@ -96,7 +101,25 @@ export function NavUser() {
                 </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
+
+            {session.isSuperAdmin && (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onAction={() => router.push('/admin/user')}>
+                    <ShieldCheckIcon />
+                    ไปหน้า Super Admin
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onAction={() => router.push('/company')}>
+                    <Building2Icon />
+                    ไปหน้า Company Workspace
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+              </>
+            )}
+
             <DropdownMenuItem
               variant="destructive"
               onAction={async () => {

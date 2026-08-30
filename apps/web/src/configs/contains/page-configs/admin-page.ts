@@ -1,6 +1,12 @@
 import type { PageConfigs } from '../page-configs';
 
 export const adminPageConfigs: PageConfigs = {
+  adminDashboard: {
+    name: 'แดชบอร์ด',
+    title: 'ภาพรวมระบบส่วนกลาง',
+    description: 'สถิติภาพรวมและการจัดการระบบความปลอดภัยส่วนกลาง',
+    url: '/admin',
+  },
   user: {
     name: 'บัญชีผู้ใช้',
     title: 'บัญชีผู้ใช้',

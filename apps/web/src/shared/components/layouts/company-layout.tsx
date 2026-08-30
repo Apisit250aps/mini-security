@@ -1,20 +1,19 @@
 'use client';
 
 import React from 'react';
-
 import { SidebarInset, SidebarProvider } from '@repo/ui/components/sidebar';
-import { adminSidebarConfig } from '@/configs/contains/sidebar-configs/admin-sidebar';
+import { companySidebarConfig } from '@/configs/contains/sidebar-configs/company-sidebar';
 import { AppSidebar } from '@/shared/components/app/app-sidebar';
 import { SiteHeader } from '@/shared/components/app/site-header';
-import { AdminGuard } from '@/shared/components/guards/admin-guard';
+import { CompanyGuard } from '@/shared/components/guards/company-guard';
 
-export default function AdminLayout({
+export default function CompanyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <AdminGuard>
+    <CompanyGuard>
       <SidebarProvider
         style={
           {
@@ -23,7 +22,11 @@ export default function AdminLayout({
           } as React.CSSProperties
         }
       >
-        <AppSidebar variant="inset" items={adminSidebarConfig} />
+        <AppSidebar
+          variant="inset"
+          brandTitle="Company Space"
+          items={companySidebarConfig}
+        />
         <SidebarInset>
           <SiteHeader />
           <div className="flex flex-1 flex-col">
@@ -33,6 +36,6 @@ export default function AdminLayout({
           </div>
         </SidebarInset>
       </SidebarProvider>
-    </AdminGuard>
+    </CompanyGuard>
   );
 }

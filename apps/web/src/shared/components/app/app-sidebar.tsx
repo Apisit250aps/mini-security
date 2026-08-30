@@ -14,19 +14,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@repo/ui/components/sidebar';
-import { CommandIcon } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   items?: NavItem[];
+  brandTitle?: string;
 };
 
-export function AppSidebar({ items = [], ...props }: AppSidebarProps) {
-  const navMainItems = items.map((item) => ({
-    title: item.name,
-    url: 'url' in item ? (item.url ?? '#') : '#',
-    icon: item.icon,
-  }));
-
+export function AppSidebar({
+  items = [],
+  brandTitle = 'Mini Security',
+  ...props
+}: AppSidebarProps) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -36,14 +35,14 @@ export function AppSidebar({ items = [], ...props }: AppSidebarProps) {
               href="#"
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <CommandIcon className="size-5!" />
-              <span className="text-base font-semibold">Acme Inc.</span>
+              <Shield className="size-5 text-primary" />
+              <span className="text-base font-semibold">{brandTitle}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMainItems} />
+        <NavMain items={items} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

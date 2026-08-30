@@ -11,11 +11,12 @@ export type NavItemSingle = {
 };
 
 export type NavSubItem = {
-  id: PageConfigId;
+  id: PageConfigId | string;
   name: string;
   title: string;
   description?: string;
   url: string;
+  icon?: React.ReactNode;
 };
 
 export type NavItemGroup = {
@@ -33,7 +34,7 @@ export type NavItem = NavItemSingle | NavItemGroup;
 export const sidebarGroupBuilder = (
   groupId: string,
   groupTitle: string,
-  items: PageConfigId[],
+  items: Array<PageConfigId | { id: PageConfigId; icon?: React.ReactNode }>,
   icon?: React.ReactNode,
   isActive: boolean = false,
 ): NavItemGroup => {
@@ -44,7 +45,9 @@ export const sidebarGroupBuilder = (
     url: '#',
     icon,
     isActive,
-    items: items.map((itemId) => {
+    items: items.map((item) => {
+      const itemId = typeof item === 'string' ? item : item.id;
+      const itemIcon = typeof item === 'object' ? item.icon : undefined;
       const page = PAGE_CONFIGS[itemId];
 
       if (!page) {
@@ -54,6 +57,7 @@ export const sidebarGroupBuilder = (
       return {
         id: itemId,
         ...page,
+        icon: itemIcon,
       };
     }),
   };

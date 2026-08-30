@@ -1,5 +1,8 @@
 import React from 'react';
-import { pageConfigs, PageConfigId } from '@/configs/contains/page-configs';
+import {
+  pageConfigs,
+  type PageConfigId,
+} from '@/configs/contains/page-configs';
 
 interface PageLayoutProps extends React.ComponentProps<'section'> {
   pageId?: PageConfigId | '';
@@ -18,23 +21,23 @@ export default function PageLayout({
 }: PageLayoutProps) {
   const page = pageId ? pageConfigs[pageId] : undefined;
   return (
-    <section>
-      <div className="flex flex-col gap-2 mb-2 lg:mb-4">
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-4">
-          <div id="page-header" className="space-y-2 lg:space-y-4 ">
-            <h1 className="text-2xl lg:text-4xl font-semibold">
+          <div id="page-header">
+            <h1 className="text-2xl lg:text-3xl font-semibold tracking-tight">
               {page?.title || title}
             </h1>
           </div>
-          <div id="page-actions" className="">
+          <div id="page-actions" className="flex items-center gap-2">
             {props.actions}
           </div>
         </div>
-        <p className="text-md lg:text-lg text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {description || page?.description}
         </p>
       </div>
-      <section {...props}>{children}</section>
+      <div {...props}>{children}</div>
     </section>
   );
 }
