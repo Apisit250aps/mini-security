@@ -28,6 +28,7 @@ const auth = betterAuth({
   trustedOrigins: config.backend.corsOrigins.split(','),
   emailAndPassword: {
     enabled: true,
+    autoSignIn: false,
     password: {
       hash,
       verify,
