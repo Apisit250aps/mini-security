@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@repo/ui/components/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createUserSchema } from '@repo/domains/schema/user';
@@ -13,6 +12,7 @@ import {
 } from '@repo/ui/components/shared/form/input-field';
 import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
 import { FieldGroup } from '@repo/ui/components/field';
+import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
 export type UserFormValues = z.infer<typeof createUserSchema>;
 
@@ -106,13 +106,9 @@ export default function UserForm({
       </FieldGroup>
 
       <div className="flex justify-end">
-        <Button type="submit" aria-disabled={isLoading}>
-          {isLoading
-            ? 'กำลังบันทึก...'
-            : isEdit
-              ? 'บันทึกการแก้ไข'
-              : 'สร้างผู้ใช้'}
-        </Button>
+        <ButtonLoading type="submit" isLoading={isLoading}>
+          บันทึก
+        </ButtonLoading>
       </div>
     </form>
   );

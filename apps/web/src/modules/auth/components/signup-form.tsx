@@ -17,6 +17,7 @@ import {
   InputField,
   PasswordField,
 } from '@repo/ui/components/shared/form/input-field';
+import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import z from 'zod';
 import { useSession } from '../hooks/session-provider';
 import { useCallback } from 'react';
@@ -123,9 +124,9 @@ export default function SignUpForm({
             />
             <FieldGroup>
               <Field>
-                <Button type="submit" aria-disabled={isSubmitting}>
-                  {isSubmitting ? 'Creating account...' : 'Create Account'}
-                </Button>
+                <ButtonLoading type="submit" isLoading={isSubmitting}>
+                  Create Account
+                </ButtonLoading>
                 <Button
                   variant="outline"
                   type="button"

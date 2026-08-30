@@ -19,6 +19,7 @@ import {
   InputField,
   PasswordField,
 } from '@repo/ui/components/shared/form/input-field';
+import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useCallback } from 'react';
 import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';
@@ -106,9 +107,9 @@ export default function SignInForm({
               />
 
               <Field>
-                <Button type="submit" aria-disabled={isSubmitting}>
-                  {isSubmitting ? 'Signing in...' : 'Sign In'}
-                </Button>
+                <ButtonLoading type="submit" isLoading={isSubmitting}>
+                  Sign In
+                </ButtonLoading>
                 <Button
                   variant="outline"
                   type="button"
