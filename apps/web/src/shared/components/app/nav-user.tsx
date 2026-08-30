@@ -22,6 +22,8 @@ import {
   useSidebar,
 } from '@repo/ui/components/sidebar';
 import { EllipsisVerticalIcon, LogOutIcon } from 'lucide-react';
+import { toast } from '@repo/ui/components/sonner';
+import { useRouter } from 'next/navigation';
 
 function getInitials(name?: string | null): string {
   if (!name) return '?';
@@ -34,6 +36,7 @@ function getInitials(name?: string | null): string {
 }
 
 export function NavUser() {
+  const router = useRouter();
   const { isMobile } = useSidebar();
   const session = useSession();
   const user = session.data?.user;
@@ -105,7 +108,15 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
-              onAction={() => session.signOut()}
+              onAction={async () => {
+                try {
+                  await session.signOut();
+                  toast.success('ออกจากระบบสำเร็จ');
+                  router.push('/signin');
+                } catch {
+                  toast.error('เกิดข้อผิดพลาดในการออกจากระบบ');
+                }
+              }}
             >
               <LogOutIcon />
               Log out

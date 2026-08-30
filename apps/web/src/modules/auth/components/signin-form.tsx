@@ -1,4 +1,5 @@
 'use client';
+
 import { cn } from '@repo/ui/lib/utils';
 import { Button } from '@repo/ui/components/button';
 import { useForm } from 'react-hook-form';
@@ -11,6 +12,7 @@ import {
 } from '@repo/ui/components/card';
 import { Field, FieldDescription, FieldGroup } from '@repo/ui/components/field';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import {
@@ -19,19 +21,21 @@ import {
 } from '@repo/ui/components/shared/form/input-field';
 import { useCallback } from 'react';
 import { useSession } from '../hooks/session-provider';
+import { toast } from '@repo/ui/components/sonner';
 
 export default function SignInForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const router = useRouter();
   const { signIn } = useSession();
   const methods = useForm({
     resolver: zodResolver(
       z.object({
-        email: z.email('Invalid email address'),
+        email: z.email('รูปแบบอีเมลไม่ถูกต้อง'),
         password: z
           .string()
-          .min(8, 'Password must be at least 8 characters long'),
+          .min(8, 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'),
       }),
     ),
     defaultValues: {
@@ -39,19 +43,38 @@ export default function SignInForm({
       password: '',
     },
   });
+
+  const isSubmitting = methods.formState.isSubmitting;
+
   const handleSignIn = useCallback(
     async (data: { email: string; password: string }) => {
       const res = await signIn.email({
         email: data.email,
         password: data.password,
-        callbackURL: window.location.origin,
+        callbackURL: `${window.location.origin}/admin/user`,
       });
-      if (res) {
-        console.error(res);
+      if (res?.error) {
+        toast.error(res.error.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+        return;
       }
+      toast.success('เข้าสู่ระบบสำเร็จ');
+      router.push('/admin/user');
     },
-    [signIn],
+    [signIn, router],
   );
+
+  const handleGoogleSignIn = useCallback(async () => {
+    try {
+      await signIn.social({
+        provider: 'google',
+        callbackURL: `${window.location.origin}/admin/user`,
+      });
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error?.message || 'ไม่สามารถเข้าสู่ระบบด้วย Google ได้');
+    }
+  }, [signIn]);
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -83,8 +106,14 @@ export default function SignInForm({
               />
 
               <Field>
-                <Button type="submit">Sign In</Button>
-                <Button variant="outline" type="button">
+                <Button type="submit" aria-disabled={isSubmitting}>
+                  {isSubmitting ? 'Signing in...' : 'Sign In'}
+                </Button>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onPress={handleGoogleSignIn}
+                >
                   Sign in with Google
                 </Button>
                 <FieldDescription className="text-center">
