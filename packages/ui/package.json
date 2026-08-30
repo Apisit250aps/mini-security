@@ -6,7 +6,11 @@
     "./globals.css": "./src/styles/globals.css",
     "./components/*": "./src/components/*.tsx",
     "./components/shared/*": "./src/shared/*.tsx",
-    "./form/*": "./src/form/*.tsx",
+    "./shared/*": "./src/shared/*.tsx",
+    "./shared/form": "./src/shared/form/index.ts",
+    "./shared/form/*": "./src/shared/form/*.tsx",
+    "./form": "./src/shared/form/index.ts",
+    "./form/*": "./src/shared/form/*.tsx",
     "./lib/*": "./src/lib/*.ts",
     "./hooks": "./src/hooks/index.ts"
   },
@@ -14,6 +18,8 @@
     "#components/*": "./src/components/*.tsx",
     "#lib/*": "./src/lib/*.ts",
     "#shared/*": "./src/shared/*.tsx",
+    "#form": "./src/shared/form/index.ts",
+    "#form/*": "./src/shared/form/*.tsx",
     "#hooks/*": "./src/hooks/*.tsx",
     "#hooks": "./src/hooks/index.ts",
     "#types/*": "./src/types/*.d.ts"
