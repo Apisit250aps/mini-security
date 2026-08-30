@@ -6,13 +6,16 @@ import {
   DropdownMenuTrigger,
 } from '#components/dropdown-menu';
 import { Eye, MoreHorizontal, Pen, Trash2 } from 'lucide-react';
+import type { ReactNode } from 'react';
+
+type ActionItem = {
+  onAction: () => void;
+  icon?: ReactNode;
+  variant?: 'destructive' | 'default';
+};
 
 export interface ColumnActionsProps<T> {
-  actions?: {
-    view?: (data: T) => void;
-    edit?: (id: string, data: T) => void;
-    delete?: (id: string) => void;
-  };
+  actions: Record<string, ActionItem>;
 }
 
 function ColumnActions<T extends { id: string }>({
@@ -23,29 +26,19 @@ function ColumnActions<T extends { id: string }>({
       <Button variant="ghost" size="icon-sm" aria-label="Open actions menu">
         <MoreHorizontal className="size-4" />
       </Button>
+
       <DropdownMenu placement="bottom end">
-        {actions?.view && (
-          <DropdownMenuItem textValue="ดู" onAction={() => actions.view}>
-            <Eye className="size-4" />
-            <span>ดู</span>
-          </DropdownMenuItem>
-        )}
-        {actions?.edit && (
-          <DropdownMenuItem textValue="แก้ไข" onAction={() => actions.edit}>
-            <Pen className="size-4" />
-            <span>แก้ไข</span>
-          </DropdownMenuItem>
-        )}
-        {actions?.delete && (
+        {Object.entries(actions).map(([label, action]) => (
           <DropdownMenuItem
-            variant="destructive"
-            textValue="ลบ"
-            onAction={() => actions.delete}
+            key={label}
+            textValue={label}
+            variant={action.variant}
+            onAction={action.onAction}
           >
-            <Trash2 className="size-4" />
-            <span>ลบ</span>
+            {action.icon}
+            <span>{label}</span>
           </DropdownMenuItem>
-        )}
+        ))}
       </DropdownMenu>
     </DropdownMenuTrigger>
   );

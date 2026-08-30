@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import userListColumns from './user-data-columns';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
-import { useUserListQueries } from '../hooks/user-queries';
+import { useUserListQueries } from '../../hooks/user-queries';
 
 export default function UserDataTable() {
   const query = useUserListQueries();
