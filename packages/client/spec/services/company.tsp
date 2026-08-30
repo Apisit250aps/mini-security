@@ -7,7 +7,7 @@ using TypeSpec.Rest;
 
 namespace MiniSecurity;
 
-@route("/api/companies")
+@route("/companies")
 @tag("Company")
 interface CompanyServices {
   @get

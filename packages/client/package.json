@@ -10,7 +10,8 @@
     "lint": "eslint ."
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./gen": "./src/api/client.gen.ts"
   },
   "dependencies": {
     "@hey-api/client-axios": "^0.9.1",
@@ -22,8 +23,8 @@
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.98.1",
-    "@tanstack/react-query": "^5.0.0",
     "@repo/configs": "*",
+    "@tanstack/react-query": "^5.102.8",
     "typescript": "^5.8.2"
   }
 }

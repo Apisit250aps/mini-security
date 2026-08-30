@@ -7,7 +7,7 @@ using TypeSpec.Rest;
 
 namespace MiniSecurity;
 
-@route("/api/permissions")
+@route("/permissions")
 @tag("Permission")
 interface PermissionServices {
   // ─── Permissions CRUD ───────────────────────────────────────────────────────
@@ -42,7 +42,7 @@ interface PermissionServices {
     | ApiUnauthorizedResponse;
 }
 
-@route("/api/permissions/roles")
+@route("/permissions/roles")
 @tag("Role")
 interface RoleServices {
   // ─── System Default Roles ──────────────────────────────────────────────────

@@ -131,7 +131,7 @@ export const companyServicesGetCompanies = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/',
+    url: '/companies/',
     ...options,
   });
 
@@ -153,7 +153,7 @@ export const companyServicesCreateCompany = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/',
+    url: '/companies/',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ export const companyServicesAddCompanyMember = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/members',
+    url: '/companies/members',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -205,7 +205,7 @@ export const companyServicesRemoveCompanyMember = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/members/{id}',
+    url: '/companies/members/{id}',
     ...options,
   });
 
@@ -227,7 +227,7 @@ export const companyServicesUpdateCompanyMember = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/members/{id}',
+    url: '/companies/members/{id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -253,7 +253,7 @@ export const companyServicesGetCompanyBySlug = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/slug/{slug}',
+    url: '/companies/slug/{slug}',
     ...options,
   });
 
@@ -275,7 +275,7 @@ export const companyServicesGetCompanyMembers = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/{companyId}/members',
+    url: '/companies/{companyId}/members',
     ...options,
   });
 
@@ -297,7 +297,7 @@ export const companyServicesDeleteCompany = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/{id}',
+    url: '/companies/{id}',
     ...options,
   });
 
@@ -317,7 +317,7 @@ export const companyServicesGetCompany = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/{id}',
+    url: '/companies/{id}',
     ...options,
   });
 
@@ -339,7 +339,7 @@ export const companyServicesUpdateCompany = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/companies/{id}',
+    url: '/companies/{id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -365,7 +365,7 @@ export const permissionServicesGetPermissions = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/',
+    url: '/permissions/',
     ...options,
   });
 
@@ -387,7 +387,7 @@ export const permissionServicesCreatePermission = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/',
+    url: '/permissions/',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -411,7 +411,7 @@ export const roleServicesCreateRole = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/',
+    url: '/permissions/roles/',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -437,7 +437,7 @@ export const roleServicesGetCompanyRoles = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/company/{companyId}',
+    url: '/permissions/roles/company/{companyId}',
     ...options,
   });
 
@@ -459,7 +459,7 @@ export const roleServicesAssignPermissionToRole = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/permissions',
+    url: '/permissions/roles/permissions',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -485,7 +485,7 @@ export const roleServicesGetSystemDefaultRoles = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/system-defaults',
+    url: '/permissions/roles/system-defaults',
     ...options,
   });
 
@@ -505,7 +505,7 @@ export const roleServicesDeleteRole = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/{id}',
+    url: '/permissions/roles/{id}',
     ...options,
   });
 
@@ -525,7 +525,7 @@ export const roleServicesGetRole = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/{id}',
+    url: '/permissions/roles/{id}',
     ...options,
   });
 
@@ -545,7 +545,7 @@ export const roleServicesUpdateRole = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/{id}',
+    url: '/permissions/roles/{id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -571,7 +571,7 @@ export const roleServicesGetRolePermissions = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/{roleId}/permissions',
+    url: '/permissions/roles/{roleId}/permissions',
     ...options,
   });
 
@@ -593,7 +593,7 @@ export const roleServicesRevokePermissionFromRole = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/roles/{roleId}/permissions/{permissionId}',
+    url: '/permissions/roles/{roleId}/permissions/{permissionId}',
     ...options,
   });
 
@@ -615,7 +615,7 @@ export const permissionServicesDeletePermission = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/{id}',
+    url: '/permissions/{id}',
     ...options,
   });
 
@@ -637,7 +637,7 @@ export const permissionServicesUpdatePermission = <
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/permissions/{id}',
+    url: '/permissions/{id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -661,7 +661,7 @@ export const userServicesGetUsers = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/users/',
+    url: '/users/',
     ...options,
   });
 
@@ -681,7 +681,7 @@ export const userServicesCreateUser = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/users/',
+    url: '/users/',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -705,7 +705,7 @@ export const userServicesDeleteUser = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/users/{id}',
+    url: '/users/{id}',
     ...options,
   });
 
@@ -725,7 +725,7 @@ export const userServicesGetUser = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/users/{id}',
+    url: '/users/{id}',
     ...options,
   });
 
@@ -745,7 +745,7 @@ export const userServicesUpdateUser = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: 'json',
-    url: '/api/users/{id}',
+    url: '/users/{id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',

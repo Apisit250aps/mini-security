@@ -209,7 +209,7 @@ export type CompanyServicesGetCompaniesData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/companies/';
+  url: '/companies/';
 };
 
 export type CompanyServicesGetCompaniesErrors = {
@@ -240,7 +240,7 @@ export type CompanyServicesCreateCompanyData = {
   body: CreateCompany;
   path?: never;
   query?: never;
-  url: '/api/companies/';
+  url: '/companies/';
 };
 
 export type CompanyServicesCreateCompanyErrors = {
@@ -275,7 +275,7 @@ export type CompanyServicesAddCompanyMemberData = {
   body: CreateCompanyMember;
   path?: never;
   query?: never;
-  url: '/api/companies/members';
+  url: '/companies/members';
 };
 
 export type CompanyServicesAddCompanyMemberErrors = {
@@ -312,7 +312,7 @@ export type CompanyServicesRemoveCompanyMemberData = {
     id: string;
   };
   query?: never;
-  url: '/api/companies/members/{id}';
+  url: '/companies/members/{id}';
 };
 
 export type CompanyServicesRemoveCompanyMemberErrors = {
@@ -345,7 +345,7 @@ export type CompanyServicesUpdateCompanyMemberData = {
     id: string;
   };
   query?: never;
-  url: '/api/companies/members/{id}';
+  url: '/companies/members/{id}';
 };
 
 export type CompanyServicesUpdateCompanyMemberErrors = {
@@ -386,7 +386,7 @@ export type CompanyServicesGetCompanyBySlugData = {
     slug: string;
   };
   query?: never;
-  url: '/api/companies/slug/{slug}';
+  url: '/companies/slug/{slug}';
 };
 
 export type CompanyServicesGetCompanyBySlugErrors = {
@@ -423,7 +423,7 @@ export type CompanyServicesGetCompanyMembersData = {
     companyId: string;
   };
   query?: never;
-  url: '/api/companies/{companyId}/members';
+  url: '/companies/{companyId}/members';
 };
 
 export type CompanyServicesGetCompanyMembersErrors = {
@@ -460,7 +460,7 @@ export type CompanyServicesDeleteCompanyData = {
     id: string;
   };
   query?: never;
-  url: '/api/companies/{id}';
+  url: '/companies/{id}';
 };
 
 export type CompanyServicesDeleteCompanyErrors = {
@@ -493,7 +493,7 @@ export type CompanyServicesGetCompanyData = {
     id: string;
   };
   query?: never;
-  url: '/api/companies/{id}';
+  url: '/companies/{id}';
 };
 
 export type CompanyServicesGetCompanyErrors = {
@@ -530,7 +530,7 @@ export type CompanyServicesUpdateCompanyData = {
     id: string;
   };
   query?: never;
-  url: '/api/companies/{id}';
+  url: '/companies/{id}';
 };
 
 export type CompanyServicesUpdateCompanyErrors = {
@@ -569,7 +569,7 @@ export type PermissionServicesGetPermissionsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/permissions/';
+  url: '/permissions/';
 };
 
 export type PermissionServicesGetPermissionsErrors = {
@@ -600,7 +600,7 @@ export type PermissionServicesCreatePermissionData = {
   body: CreatePermission;
   path?: never;
   query?: never;
-  url: '/api/permissions/';
+  url: '/permissions/';
 };
 
 export type PermissionServicesCreatePermissionErrors = {
@@ -635,7 +635,7 @@ export type RoleServicesCreateRoleData = {
   body: CreateRole;
   path?: never;
   query?: never;
-  url: '/api/permissions/roles/';
+  url: '/permissions/roles/';
 };
 
 export type RoleServicesCreateRoleErrors = {
@@ -672,7 +672,7 @@ export type RoleServicesGetCompanyRolesData = {
     companyId: string;
   };
   query?: never;
-  url: '/api/permissions/roles/company/{companyId}';
+  url: '/permissions/roles/company/{companyId}';
 };
 
 export type RoleServicesGetCompanyRolesErrors = {
@@ -703,7 +703,7 @@ export type RoleServicesAssignPermissionToRoleData = {
   body: CreateRolePermission;
   path?: never;
   query?: never;
-  url: '/api/permissions/roles/permissions';
+  url: '/permissions/roles/permissions';
 };
 
 export type RoleServicesAssignPermissionToRoleErrors = {
@@ -738,7 +738,7 @@ export type RoleServicesGetSystemDefaultRolesData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/permissions/roles/system-defaults';
+  url: '/permissions/roles/system-defaults';
 };
 
 export type RoleServicesGetSystemDefaultRolesErrors = {
@@ -771,7 +771,7 @@ export type RoleServicesDeleteRoleData = {
     id: string;
   };
   query?: never;
-  url: '/api/permissions/roles/{id}';
+  url: '/permissions/roles/{id}';
 };
 
 export type RoleServicesDeleteRoleErrors = {
@@ -804,7 +804,7 @@ export type RoleServicesGetRoleData = {
     id: string;
   };
   query?: never;
-  url: '/api/permissions/roles/{id}';
+  url: '/permissions/roles/{id}';
 };
 
 export type RoleServicesGetRoleErrors = {
@@ -841,7 +841,7 @@ export type RoleServicesUpdateRoleData = {
     id: string;
   };
   query?: never;
-  url: '/api/permissions/roles/{id}';
+  url: '/permissions/roles/{id}';
 };
 
 export type RoleServicesUpdateRoleErrors = {
@@ -882,7 +882,7 @@ export type RoleServicesGetRolePermissionsData = {
     roleId: string;
   };
   query?: never;
-  url: '/api/permissions/roles/{roleId}/permissions';
+  url: '/permissions/roles/{roleId}/permissions';
 };
 
 export type RoleServicesGetRolePermissionsErrors = {
@@ -920,7 +920,7 @@ export type RoleServicesRevokePermissionFromRoleData = {
     permissionId: string;
   };
   query?: never;
-  url: '/api/permissions/roles/{roleId}/permissions/{permissionId}';
+  url: '/permissions/roles/{roleId}/permissions/{permissionId}';
 };
 
 export type RoleServicesRevokePermissionFromRoleErrors = {
@@ -953,7 +953,7 @@ export type PermissionServicesDeletePermissionData = {
     id: string;
   };
   query?: never;
-  url: '/api/permissions/{id}';
+  url: '/permissions/{id}';
 };
 
 export type PermissionServicesDeletePermissionErrors = {
@@ -986,7 +986,7 @@ export type PermissionServicesUpdatePermissionData = {
     id: string;
   };
   query?: never;
-  url: '/api/permissions/{id}';
+  url: '/permissions/{id}';
 };
 
 export type PermissionServicesUpdatePermissionErrors = {
@@ -1025,7 +1025,7 @@ export type UserServicesGetUsersData = {
   body?: never;
   path?: never;
   query?: never;
-  url: '/api/users/';
+  url: '/users/';
 };
 
 export type UserServicesGetUsersErrors = {
@@ -1056,7 +1056,7 @@ export type UserServicesCreateUserData = {
   body: CreateUser;
   path?: never;
   query?: never;
-  url: '/api/users/';
+  url: '/users/';
 };
 
 export type UserServicesCreateUserErrors = {
@@ -1093,7 +1093,7 @@ export type UserServicesDeleteUserData = {
     id: string;
   };
   query?: never;
-  url: '/api/users/{id}';
+  url: '/users/{id}';
 };
 
 export type UserServicesDeleteUserErrors = {
@@ -1126,7 +1126,7 @@ export type UserServicesGetUserData = {
     id: string;
   };
   query?: never;
-  url: '/api/users/{id}';
+  url: '/users/{id}';
 };
 
 export type UserServicesGetUserErrors = {
@@ -1163,7 +1163,7 @@ export type UserServicesUpdateUserData = {
     id: string;
   };
   query?: never;
-  url: '/api/users/{id}';
+  url: '/users/{id}';
 };
 
 export type UserServicesUpdateUserErrors = {

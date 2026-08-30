@@ -8,7 +8,7 @@ tags:
   - name: Permission
   - name: Role
 paths:
-  /api/companies/:
+  /companies/:
     get:
       operationId: CompanyServices_getCompanies
       summary: Get all companies
@@ -83,7 +83,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateCompany'
-  /api/companies/members:
+  /companies/members:
     post:
       operationId: CompanyServices_addCompanyMember
       summary: Add company member
@@ -126,7 +126,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateCompanyMember'
-  /api/companies/members/{id}:
+  /companies/members/{id}:
     put:
       operationId: CompanyServices_updateCompanyMember
       summary: Update company member
@@ -210,7 +210,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Company
-  /api/companies/slug/{slug}:
+  /companies/slug/{slug}:
     get:
       operationId: CompanyServices_getCompanyBySlug
       summary: Get company by slug
@@ -252,7 +252,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Company
-  /api/companies/{companyId}/members:
+  /companies/{companyId}/members:
     get:
       operationId: CompanyServices_getCompanyMembers
       summary: Get company members
@@ -296,7 +296,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Company
-  /api/companies/{id}:
+  /companies/{id}:
     get:
       operationId: CompanyServices_getCompany
       summary: Get company by ID
@@ -421,7 +421,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Company
-  /api/permissions/:
+  /permissions/:
     get:
       operationId: PermissionServices_getPermissions
       summary: Get all permissions
@@ -496,7 +496,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreatePermission'
-  /api/permissions/roles/:
+  /permissions/roles/:
     post:
       operationId: RoleServices_createRole
       summary: Create role
@@ -539,7 +539,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateRole'
-  /api/permissions/roles/company/{companyId}:
+  /permissions/roles/company/{companyId}:
     get:
       operationId: RoleServices_getCompanyRoles
       summary: Get roles by company
@@ -577,7 +577,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Role
-  /api/permissions/roles/permissions:
+  /permissions/roles/permissions:
     post:
       operationId: RoleServices_assignPermissionToRole
       summary: Assign permission to role
@@ -620,7 +620,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateRolePermission'
-  /api/permissions/roles/system-defaults:
+  /permissions/roles/system-defaults:
     get:
       operationId: RoleServices_getSystemDefaultRoles
       summary: Get system default roles
@@ -653,7 +653,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Role
-  /api/permissions/roles/{id}:
+  /permissions/roles/{id}:
     get:
       operationId: RoleServices_getRole
       summary: Get role by ID
@@ -778,7 +778,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Role
-  /api/permissions/roles/{roleId}/permissions:
+  /permissions/roles/{roleId}/permissions:
     get:
       operationId: RoleServices_getRolePermissions
       summary: Get role permissions
@@ -822,7 +822,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Role
-  /api/permissions/roles/{roleId}/permissions/{permissionId}:
+  /permissions/roles/{roleId}/permissions/{permissionId}:
     delete:
       operationId: RoleServices_revokePermissionFromRole
       summary: Revoke permission from role
@@ -858,7 +858,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Role
-  /api/permissions/{id}:
+  /permissions/{id}:
     put:
       operationId: PermissionServices_updatePermission
       summary: Update permission
@@ -942,7 +942,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Permission
-  /api/users/:
+  /users/:
     get:
       operationId: UserServices_getUsers
       summary: Get all users
@@ -1017,7 +1017,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateUser'
-  /api/users/{id}:
+  /users/{id}:
     get:
       operationId: UserServices_getUser
       summary: Get user by ID
