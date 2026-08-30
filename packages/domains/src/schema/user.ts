@@ -23,9 +23,9 @@ export const createUserSchema = userSchema
     createdAt: true,
     updatedAt: true,
     lastLogin: true,
-    emailVerified: true,
   })
   .extend({
+    emailVerified: BooleanField({ default: () => false }),
     password: StringField({ required: false, min: 8, nullable: true }),
   });
 

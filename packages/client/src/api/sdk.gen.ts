@@ -45,6 +45,9 @@ import type {
   PermissionServicesDeletePermissionData,
   PermissionServicesDeletePermissionErrors,
   PermissionServicesDeletePermissionResponses,
+  PermissionServicesGetMyPermissionsData,
+  PermissionServicesGetMyPermissionsErrors,
+  PermissionServicesGetMyPermissionsResponses,
   PermissionServicesGetPermissionsData,
   PermissionServicesGetPermissionsErrors,
   PermissionServicesGetPermissionsResponses,
@@ -393,6 +396,28 @@ export const permissionServicesCreatePermission = <
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Get current user permissions
+ */
+export const permissionServicesGetMyPermissions = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<PermissionServicesGetMyPermissionsData, ThrowOnError>,
+): RequestResult<
+  PermissionServicesGetMyPermissionsResponses,
+  PermissionServicesGetMyPermissionsErrors,
+  ThrowOnError
+> =>
+  (options?.client ?? client).get<
+    PermissionServicesGetMyPermissionsResponses,
+    PermissionServicesGetMyPermissionsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/permissions/me',
+    ...options,
   });
 
 /**

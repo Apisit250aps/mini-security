@@ -38,7 +38,7 @@ function useRoleDetailQueries(roleId: string) {
 
 function useRolePermissionsQueries(roleId: string) {
   const query = useQuery({
-    queryKey: [...roleKeys.detail(roleId), 'permissions'] as const,
+    queryKey: roleKeys.permissions(roleId),
     queryFn: async ({ signal }) => {
       const response = await roleServicesGetRolePermissions({
         signal,

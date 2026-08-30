@@ -45,6 +45,9 @@ export type ICheckUserPermissionContext = {
   companyId?: string;
   action: string;
 };
+export type IGetMyPermissionsContext = ISecurityContext & {
+  companyId?: string;
+};
 
 // Use Case Contracts
 export type ICreateRoleUseCase = BaseUseCase<ICreateRoleContext, Role>;
@@ -92,4 +95,8 @@ export type IGetRolePermissionsUseCase = BaseUseCase<
 export type ICheckUserPermissionUseCase = BaseUseCase<
   ICheckUserPermissionContext,
   boolean
+>;
+export type IGetMyPermissionsUseCase = BaseUseCase<
+  IGetMyPermissionsContext,
+  Permission[]
 >;

@@ -1,32 +1,53 @@
 /**
- * Factory function for generating standard, type-safe TanStack Query key hierarchies.
+ * Factory function for generating standard, type-safe TanStack Query key hierarchies with UPPERCASE keys.
  * Example:
- *   const userKeys = createQueryKeys('users');
- *   userKeys.all           => ['users']
- *   userKeys.lists()       => ['users', 'list']
- *   userKeys.list(filters) => ['users', 'list', { ... }]
- *   userKeys.details()     => ['users', 'detail']
- *   userKeys.detail(id)    => ['users', 'detail', '123']
+ *   const userKeys = createQueryKeys('USER');
+ *   userKeys.all           => ['USER']
+ *   userKeys.lists()       => ['USER', 'LIST']
+ *   userKeys.list(filters) => ['USER', 'LIST', { ... }]
+ *   userKeys.details()     => ['USER', 'DETAIL']
+ *   userKeys.detail(id)    => ['USER', 'DETAIL', '123']
  */
 export function createQueryKeys<TEntity extends string>(entity: TEntity) {
   const all = [entity] as const;
 
   return {
     all,
-    lists: () => [...all, 'list'] as const,
+    lists: () => [...all, 'LIST'] as const,
     list: (filters?: Record<string, unknown>) =>
       filters
-        ? ([...all, 'list', filters] as const)
-        : ([...all, 'list'] as const),
-    details: () => [...all, 'detail'] as const,
-    detail: (id: string | number) => [...all, 'detail', id] as const,
+        ? ([...all, 'LIST', filters] as const)
+        : ([...all, 'LIST'] as const),
+    details: () => [...all, 'DETAIL'] as const,
+    detail: (id: string | number) => [...all, 'DETAIL', id] as const,
   };
 }
 
 /**
- * Pre-defined query keys for entities in the app.
+ * Pre-defined uppercase query keys for entities in the app.
  */
 export const userKeys = createQueryKeys('USER');
-export const companyKeys = createQueryKeys('COMPANY');
-export const roleKeys = createQueryKeys('ROLE');
-export const permissionKeys = createQueryKeys('PERMISSION');
+
+export const companyKeys = {
+  ...createQueryKeys('COMPANY'),
+  members: (companyId: string) =>
+    ['COMPANY', 'DETAIL', companyId, 'MEMBERS'] as const,
+};
+
+export const roleKeys = {
+  ...createQueryKeys('ROLE'),
+  permissions: (roleId: string) =>
+    ['ROLE', 'DETAIL', roleId, 'PERMISSIONS'] as const,
+};
+
+export const permissionKeys = {
+  ...createQueryKeys('PERMISSION'),
+  my: (companyId?: string) =>
+    ['PERMISSION', 'MY', companyId || 'GLOBAL'] as const,
+};
+
+export const sessionKeys = {
+  all: ['SESSION'] as const,
+  myPermissions: (companyId?: string) =>
+    ['SESSION', 'PERMISSIONS', companyId || 'GLOBAL'] as const,
+};

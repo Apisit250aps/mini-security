@@ -5,6 +5,7 @@ import {
   CreateRoleUseCase,
   DeletePermissionUseCase,
   DeleteRoleUseCase,
+  GetMyPermissionsUseCase,
   GetPermissionsUseCase,
   GetRolePermissionsUseCase,
   GetRolesByCompanyUseCase,
@@ -56,6 +57,12 @@ export const revokePermissionFromRoleUseCase =
   new RevokePermissionFromRoleUseCase(rolePermissionRepository);
 export const getRolePermissionsUseCase = new GetRolePermissionsUseCase(
   rolePermissionRepository,
+);
+export const getMyPermissionsUseCase = new GetMyPermissionsUseCase(
+  userRepository,
+  companyMemberRepository,
+  rolePermissionRepository,
+  permissionRepository,
 );
 export const checkUserPermissionUseCase = new CheckUserPermissionUseCase(
   rolePermissionRepository,

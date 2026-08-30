@@ -13,6 +13,8 @@ import type {
   IDeleteRoleUseCase,
   IGetPermissionsContext,
   IGetPermissionsUseCase,
+  IGetMyPermissionsContext,
+  IGetMyPermissionsUseCase,
   IGetRoleContext,
   IGetRolePermissionsContext,
   IGetRolePermissionsUseCase,
@@ -345,5 +347,49 @@ export class CheckUserPermissionUseCase implements ICheckUserPermissionUseCase {
         p.action === '*' ||
         p.action === `${context.action.split(':')[0]}:*`,
     );
+  }
+}
+
+export class GetMyPermissionsUseCase implements IGetMyPermissionsUseCase {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly rolePermissionRepository: IRolePermissionRepository,
+    private readonly permissionRepository: IPermissionRepository,
+  ) {}
+
+  async execute(context: IGetMyPermissionsContext): Promise<Permission[]> {
+    if (!context.userId) return [];
+
+    const user = await this.userRepository.findById(context.userId);
+    if (!user || !user.isActive) return [];
+
+    // 1. Super admin has full access to all system permissions
+    if (user.isAdmin) {
+      return this.permissionRepository.findAll();
+    }
+
+    // 2. When scoped to a specific company
+    if (context.companyId) {
+      const member = await this.companyMemberRepository.findByCompanyAndUser(
+        context.companyId,
+        context.userId,
+      );
+      if (!member || !member.isActive) return [];
+
+      return this.rolePermissionRepository.findPermissionsByRoleId(
+        member.roleId,
+      );
+    }
+
+    // 3. Unscoped: aggregate permissions across all active company memberships
+    const userMemberships = await this.companyMemberRepository.findByUserId(
+      context.userId,
+    );
+    const activeMemberships = userMemberships.filter((m) => m.isActive);
+    if (activeMemberships.length === 0) return [];
+
+    const roleIds = [...new Set(activeMemberships.map((m) => m.roleId))];
+    return this.rolePermissionRepository.findPermissionsByRoleIds(roleIds);
   }
 }

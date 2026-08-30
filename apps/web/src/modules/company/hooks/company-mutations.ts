@@ -96,7 +96,7 @@ function useCompanyMemberAdd(companyId: string) {
     onSuccess: () => {
       toast.success('เพิ่มสมาชิกในบริษัทสำเร็จ');
       queryClient.invalidateQueries({
-        queryKey: [...companyKeys.detail(companyId), 'members'],
+        queryKey: companyKeys.members(companyId),
       });
     },
     onError: (error: unknown) => {
@@ -125,7 +125,7 @@ function useCompanyMemberUpdate(companyId: string) {
     onSuccess: () => {
       toast.success('อัปเดตข้อมูลสมาชิกสำเร็จ');
       queryClient.invalidateQueries({
-        queryKey: [...companyKeys.detail(companyId), 'members'],
+        queryKey: companyKeys.members(companyId),
       });
     },
     onError: (error: unknown) => {
@@ -147,9 +147,10 @@ function useCompanyMemberRemove(companyId: string) {
     onSuccess: () => {
       toast.success('ลบสมาชิกออกจากบริษัทสำเร็จ');
       queryClient.invalidateQueries({
-        queryKey: [...companyKeys.detail(companyId), 'members'],
+        queryKey: companyKeys.members(companyId),
       });
     },
+
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบสมาชิก'));
     },

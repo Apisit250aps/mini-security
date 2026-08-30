@@ -632,6 +632,39 @@ export type PermissionServicesCreatePermissionResponses = {
 export type PermissionServicesCreatePermissionResponse =
   PermissionServicesCreatePermissionResponses[keyof PermissionServicesCreatePermissionResponses];
 
+export type PermissionServicesGetMyPermissionsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    companyId?: string;
+  };
+  url: '/permissions/me';
+};
+
+export type PermissionServicesGetMyPermissionsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type PermissionServicesGetMyPermissionsError =
+  PermissionServicesGetMyPermissionsErrors[keyof PermissionServicesGetMyPermissionsErrors];
+
+export type PermissionServicesGetMyPermissionsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<Permission>;
+  };
+};
+
+export type PermissionServicesGetMyPermissionsResponse =
+  PermissionServicesGetMyPermissionsResponses[keyof PermissionServicesGetMyPermissionsResponses];
+
 export type RoleServicesCreateRoleData = {
   body: CreateRole;
   path?: never;

@@ -13,6 +13,7 @@ import type {
   CreateRoleUseCase,
   DeletePermissionUseCase,
   DeleteRoleUseCase,
+  GetMyPermissionsUseCase,
   GetPermissionsUseCase,
   GetRolePermissionsUseCase,
   GetRolesByCompanyUseCase,
@@ -56,6 +57,7 @@ export class PermissionController extends Controller {
     private readonly assignPermissionToRoleUseCase: AssignPermissionToRoleUseCase,
     private readonly revokePermissionFromRoleUseCase: RevokePermissionFromRoleUseCase,
     private readonly getRolePermissionsUseCase: GetRolePermissionsUseCase,
+    private readonly getMyPermissionsUseCase: GetMyPermissionsUseCase,
   ) {
     super();
   }
@@ -130,6 +132,19 @@ export class PermissionController extends Controller {
     });
     return this.success(c, 'Permissions retrieved successfully', permissions);
   };
+
+  public getMyPermissions = this.validator(
+    { query: z.object({ companyId: z.string().uuid().optional() }).optional() },
+    async (c) => {
+      const user = (c as any).get('user');
+      const query = c.get('query') as { companyId?: string } | undefined;
+      const permissions = await this.getMyPermissionsUseCase.execute({
+        userId: user?.id,
+        companyId: query?.companyId,
+      });
+      return this.success(c, 'Current user permissions retrieved', permissions);
+    },
+  );
 
   public createPermission = this.validator(
     { body: createPermissionSchema },

@@ -496,6 +496,45 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreatePermission'
+  /permissions/me:
+    get:
+      operationId: PermissionServices_getMyPermissions
+      summary: Get current user permissions
+      parameters:
+        - name: companyId
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Permission'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Permission
   /permissions/roles/:
     post:
       operationId: RoleServices_createRole

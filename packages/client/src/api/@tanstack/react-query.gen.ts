@@ -18,6 +18,7 @@ import {
   type Options,
   permissionServicesCreatePermission,
   permissionServicesDeletePermission,
+  permissionServicesGetMyPermissions,
   permissionServicesGetPermissions,
   permissionServicesUpdatePermission,
   roleServicesAssignPermissionToRole,
@@ -72,6 +73,9 @@ import type {
   PermissionServicesDeletePermissionData,
   PermissionServicesDeletePermissionError,
   PermissionServicesDeletePermissionResponse,
+  PermissionServicesGetMyPermissionsData,
+  PermissionServicesGetMyPermissionsError,
+  PermissionServicesGetMyPermissionsResponse,
   PermissionServicesGetPermissionsData,
   PermissionServicesGetPermissionsError,
   PermissionServicesGetPermissionsResponse,
@@ -490,6 +494,34 @@ export const permissionServicesCreatePermissionMutation = (
   };
   return mutationOptions;
 };
+
+export const permissionServicesGetMyPermissionsQueryKey = (
+  options?: Options<PermissionServicesGetMyPermissionsData>,
+) => createQueryKey('permissionServicesGetMyPermissions', options);
+
+/**
+ * Get current user permissions
+ */
+export const permissionServicesGetMyPermissionsOptions = (
+  options?: Options<PermissionServicesGetMyPermissionsData>,
+) =>
+  queryOptions<
+    PermissionServicesGetMyPermissionsResponse,
+    AxiosError<PermissionServicesGetMyPermissionsError>,
+    PermissionServicesGetMyPermissionsResponse,
+    ReturnType<typeof permissionServicesGetMyPermissionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await permissionServicesGetMyPermissions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: permissionServicesGetMyPermissionsQueryKey(options),
+  });
 
 /**
  * Create role

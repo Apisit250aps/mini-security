@@ -16,6 +16,14 @@ interface PermissionServices {
   @summary("Get all permissions")
   getPermissions(): ApiOkResponse<Permission[]> | ApiUnauthorizedResponse;
 
+  @get
+  @route("/me")
+  @summary("Get current user permissions")
+  getMyPermissions(@query companyId?: string):
+    | ApiOkResponse<Permission[]>
+    | ApiUnauthorizedResponse;
+
+
   @post
   @route("/")
   @summary("Create permission")

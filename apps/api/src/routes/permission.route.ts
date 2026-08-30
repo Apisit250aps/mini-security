@@ -5,6 +5,7 @@ import {
   createRoleUseCase,
   deletePermissionUseCase,
   deleteRoleUseCase,
+  getMyPermissionsUseCase,
   getPermissionsUseCase,
   getRolePermissionsUseCase,
   getRolesByCompanyUseCase,
@@ -31,11 +32,15 @@ const permissionController = new PermissionController(
   assignPermissionToRoleUseCase,
   revokePermissionFromRoleUseCase,
   getRolePermissionsUseCase,
+  getMyPermissionsUseCase,
 );
 
 const permissionRoutes = new Hono<AuthContext>();
 
 permissionRoutes.use('*', authMiddleware);
+
+// Current User Permissions
+permissionRoutes.get('/me', permissionController.getMyPermissions);
 
 // Roles
 permissionRoutes.get(

@@ -36,7 +36,7 @@ function useCompanyDetailQueries(companyId: string) {
 
 function useCompanyMembersQueries(companyId: string) {
   const query = useQuery({
-    queryKey: [...companyKeys.detail(companyId), 'members'] as const,
+    queryKey: companyKeys.members(companyId),
     queryFn: async ({ signal }) => {
       const response = await companyServicesGetCompanyMembers({
         signal,

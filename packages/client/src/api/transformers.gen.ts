@@ -10,6 +10,7 @@ import type {
   CompanyServicesUpdateCompanyMemberResponse,
   CompanyServicesUpdateCompanyResponse,
   PermissionServicesCreatePermissionResponse,
+  PermissionServicesGetMyPermissionsResponse,
   PermissionServicesGetPermissionsResponse,
   PermissionServicesUpdatePermissionResponse,
   RoleServicesAssignPermissionToRoleResponse,
@@ -135,6 +136,17 @@ export const permissionServicesCreatePermissionResponseTransformer = async (
 ): Promise<PermissionServicesCreatePermissionResponse> => {
   if (data.data) {
     data.data = permissionSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const permissionServicesGetMyPermissionsResponseTransformer = async (
+  data: any,
+): Promise<PermissionServicesGetMyPermissionsResponse> => {
+  if (data.data) {
+    data.data = data.data.map((item: any) =>
+      permissionSchemaResponseTransformer(item),
+    );
   }
   return data;
 };
