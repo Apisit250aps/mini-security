@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
+import { Kanit } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from '../modules/auth/hooks/session-provider';
+
+const kanit = Kanit({
+  subsets: ['latin', 'thai'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-kanit',
+});
 
 export const metadata: Metadata = {
   title: 'Mini Security',
@@ -13,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="th" className={`h-full antialiased ${kanit.variable}`}>
       <body className="min-h-full flex flex-col">
         <SessionProvider>{children}</SessionProvider>
       </body>

@@ -1,6 +1,5 @@
-import React from 'react';
-import AdminLayout from '@/shared/components/layouts/admin-layout';
+import PageLayout from '@/shared/components/layouts/page-layout';
 
-export default function Page() {
-  return <AdminLayout>Page</AdminLayout>;
+export default function AdminPage() {
+  return <PageLayout pageId="admin"></PageLayout>;
 }
