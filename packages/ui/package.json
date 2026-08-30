@@ -5,6 +5,7 @@
   "exports": {
     "./globals.css": "./src/styles/globals.css",
     "./components/*": "./src/components/*.tsx",
+    "./components/shared/*": "./src/shared/*.tsx",
     "./form/*": "./src/form/*.tsx",
     "./lib/*": "./src/lib/*.ts",
     "./hooks/*": "./src/hooks/*.ts"
@@ -12,6 +13,7 @@
   "imports": {
     "#components/*": "./src/components/*.tsx",
     "#lib/*": "./src/lib/*.ts",
+    "#shared/*": "./src/shared/*.tsx",
     "#hooks/*": "./src/hooks/*.ts",
     "#types/*": "./src/types/*.d.ts"
   },

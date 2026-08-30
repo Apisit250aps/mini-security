@@ -12,7 +12,10 @@ import { Field, FieldDescription, FieldGroup } from '@repo/ui/components/field';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { InputField, PasswordField } from '@repo/ui/form/input-field';
+import {
+  InputField,
+  PasswordField,
+} from '@repo/ui/components/shared/form/input-field';
 import z from 'zod';
 import { useSession } from '../hooks/session-provider';
 import { useCallback } from 'react';
