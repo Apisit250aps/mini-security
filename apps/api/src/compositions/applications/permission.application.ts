@@ -16,13 +16,13 @@ import {
   UpdatePermissionUseCase,
   UpdateRoleUseCase,
 } from '@repo/applications';
-import { companyMemberRepository } from '../repositories/company.repository';
 import {
+  companyMemberRepository,
   permissionRepository,
   rolePermissionRepository,
   roleRepository,
-} from '../repositories/permission.repository';
-import { userRepository } from '../repositories/user.repository';
+  userRepository,
+} from '../repositories';
 
 export const createRoleUseCase = new CreateRoleUseCase(roleRepository);
 export const updateRoleUseCase = new UpdateRoleUseCase(roleRepository);

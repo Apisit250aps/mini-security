@@ -8,8 +8,8 @@ import {
 import {
   accountRepository,
   sessionRepository,
-} from '../repositories/auth.repository';
-import { userRepository } from '../repositories/user.repository';
+  userRepository,
+} from '../repositories';
 
 export const signInEmailUseCase = new SignInEmailUseCase(
   userRepository,

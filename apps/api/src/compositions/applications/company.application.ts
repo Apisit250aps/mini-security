@@ -14,8 +14,8 @@ import {
 import {
   companyMemberRepository,
   companyRepository,
-} from '../repositories/company.repository';
-import { roleRepository } from '../repositories/permission.repository';
+  roleRepository,
+} from '../repositories';
 
 export const createCompanyUseCase = new CreateCompanyUseCase(companyRepository);
 export const updateCompanyUseCase = new UpdateCompanyUseCase(companyRepository);

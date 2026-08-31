@@ -6,7 +6,7 @@ import {
   getUserUseCase,
   getUsersUseCase,
   updateUserUseCase,
-} from '../applications/user.application';
+} from '../compositions/applications/user.application';
 import { UserController } from '../controllers/user.controller';
 import { authMiddleware, type AuthContext } from '../middleware';
 

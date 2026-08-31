@@ -11,7 +11,7 @@ import {
   removeCompanyMemberUseCase,
   updateCompanyMemberUseCase,
   updateCompanyUseCase,
-} from '../applications/company.application';
+} from '../compositions/applications/company.application';
 import { CompanyController } from '../controllers/company.controller';
 import { authMiddleware, type AuthContext } from '../middleware';
 
