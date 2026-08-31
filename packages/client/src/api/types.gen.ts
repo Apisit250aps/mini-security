@@ -91,6 +91,7 @@ export type CreateRole = {
   companyId?: string | null;
   name: string;
   description?: string | null;
+  roleType: DomainEntityRoleType;
   isSystemDefault: boolean;
 };
 
@@ -114,6 +115,13 @@ export type CreateUser = {
   password?: string;
 };
 
+export type DomainEntityRoleType =
+  | 'SUPER_ADMIN'
+  | 'OWNER'
+  | 'ADMIN'
+  | 'MEMBER'
+  | 'VIEWER';
+
 export type Permission = {
   id: string;
   createdAt: Date;
@@ -130,6 +138,7 @@ export type Role = {
   companyId?: string | null;
   name: string;
   description?: string | null;
+  roleType: DomainEntityRoleType;
   isSystemDefault: boolean;
 };
 
@@ -177,6 +186,7 @@ export type UpdateRole = {
   companyId?: string | null;
   name?: string;
   description?: string | null;
+  roleType?: DomainEntityRoleType;
   isSystemDefault?: boolean;
 };
 

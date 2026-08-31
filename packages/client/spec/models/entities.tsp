@@ -1,106 +1,105 @@
 namespace Domain.Entity;
 
-  model BaseEntity {
-    id: string;
-    createdAt: utcDateTime;
-    updatedAt: utcDateTime;
-  }
+enum RoleType {
+  SUPER_ADMIN: "SUPER_ADMIN",
+  OWNER: "OWNER",
+  ADMIN: "ADMIN",
+  MEMBER: "MEMBER",
+  VIEWER: "VIEWER",
+}
 
-  model Session {
-    ...BaseEntity;
+model BaseEntity {
+  id: string;
+  createdAt: utcDateTime;
+  updatedAt: utcDateTime;
+}
 
-    userId: string;
-    token: string;
-    expiresAt: utcDateTime;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-    activeCompanyId?: string | null;
-  }
+model Session {
+  ...BaseEntity;
+  userId: string;
+  token: string;
+  expiresAt: utcDateTime;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  activeCompanyId?: string | null;
+}
 
-  model Account {
-    ...BaseEntity;
+model Account {
+  ...BaseEntity;
+  userId: string;
+  accountId: string;
+  providerId: string;
+  issuer?: string | null;
+  accessToken?: string | null;
+  refreshToken?: string | null;
+  idToken?: string | null;
+  accessTokenExpiresAt?: utcDateTime | null;
+  refreshTokenExpiresAt?: utcDateTime | null;
+  scope?: string | null;
+  password?: string | null;
+}
 
-    userId: string;
-    accountId: string;
-    providerId: string;
-    issuer?: string | null;
-    accessToken?: string | null;
-    refreshToken?: string | null;
-    idToken?: string | null;
-    accessTokenExpiresAt?: utcDateTime | null;
-    refreshTokenExpiresAt?: utcDateTime | null;
-    scope?: string | null;
-    password?: string | null;
-  }
+model Verification {
+  ...BaseEntity;
+  identifier: string;
+  value: string;
+  expiresAt: utcDateTime;
+}
 
-  model Verification {
-    ...BaseEntity;
+model Jwks {
+  ...BaseEntity;
+  publicKey: string;
+  privateKey: string;
+  expiresAt?: utcDateTime | null;
+  alg?: string | null;
+  crv?: string | null;
+}
 
-    identifier: string;
-    value: string;
-    expiresAt: utcDateTime;
-  }
+model Company {
+  ...BaseEntity;
+  name: string;
+  slug: string;
+  logo?: string | null;
+  isActive: boolean;
+}
 
-  model Jwks {
-    ...BaseEntity;
+model CompanyMember {
+  ...BaseEntity;
+  companyId: string;
+  userId: string;
+  roleId: string;
+  isActive: boolean;
+}
 
-    publicKey: string;
-    privateKey: string;
-    expiresAt?: utcDateTime | null;
-    alg?: string | null;
-    crv?: string | null;
-  }
+model Role {
+  ...BaseEntity;
+  companyId?: string | null;
+  name: string;
+  description?: string | null;
+  roleType: RoleType;
+  isSystemDefault: boolean;
+}
 
-  model Company {
-    ...BaseEntity;
+model Permission {
+  ...BaseEntity;
+  action: string;
+  module: string;
+  description?: string | null;
+}
 
-    name: string;
-    slug: string;
-    logo?: string | null;
-    isActive: boolean;
-  }
+model RolePermission {
+  ...BaseEntity;
+  roleId: string;
+  permissionId: string;
+}
 
-  model CompanyMember {
-    ...BaseEntity;
-
-    companyId: string;
-    userId: string;
-    roleId: string;
-    isActive: boolean;
-  }
-
-  model Role {
-    ...BaseEntity;
-
-    companyId?: string | null;
-    name: string;
-    description?: string | null;
-    isSystemDefault: boolean;
-  }
-
-  model Permission {
-    ...BaseEntity;
-
-    action: string;
-    module: string;
-    description?: string | null;
-  }
-
-  model RolePermission {
-    ...BaseEntity;
-
-    roleId: string;
-    permissionId: string;
-  }
-
-  model User {
-    ...BaseEntity;
-
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    image?: string | null;
-    isAdmin: boolean;
-    isActive: boolean;
-    lastLogin?: utcDateTime | null;
-  }
+model User {
+  ...BaseEntity;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  image?: string | null;
+  isAdmin: boolean;
+  isActive: boolean;
+  lastLogin?: utcDateTime | null;
+}

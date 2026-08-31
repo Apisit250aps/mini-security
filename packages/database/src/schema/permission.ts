@@ -1,10 +1,25 @@
-import { boolean, index, pgTable, text, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
 import { company } from './company';
+
+export const roleTypeEnum = pgEnum('role_type', [
+  'SUPER_ADMIN',
+  'OWNER',
+  'ADMIN',
+  'MEMBER',
+  'VIEWER',
+]);
 
 export const role = pgTable(
   'role',
@@ -15,6 +30,7 @@ export const role = pgTable(
     }),
     name: text('name').notNull(),
     description: text('description'),
+    roleType: roleTypeEnum('role_type').default('MEMBER').notNull(),
     isSystemDefault: boolean('is_system_default').default(false).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
@@ -22,6 +38,7 @@ export const role = pgTable(
   (table) => [
     index('role_company_id_idx').on(table.companyId),
     index('role_is_system_default_idx').on(table.isSystemDefault),
+    index('role_role_type_idx').on(table.roleType),
   ],
 );
 

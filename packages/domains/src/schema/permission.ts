@@ -1,11 +1,29 @@
 import { z } from 'zod';
-import { BaseEntity, BooleanField, StringField, UUIDField } from '#lib/entity';
+import {
+  BaseEntity,
+  BooleanField,
+  EnumField,
+  StringField,
+  UUIDField,
+} from '#lib/entity';
+
+// --- Role Type Enum ---
+export const ROLE_TYPES = [
+  'SUPER_ADMIN',
+  'OWNER',
+  'ADMIN',
+  'MEMBER',
+  'VIEWER',
+] as const satisfies readonly string[];
+
+export type RoleType = (typeof ROLE_TYPES)[number];
 
 // --- Role Schema ---
 export const roleSchema = BaseEntity({
   companyId: UUIDField({ required: false, nullable: true }),
   name: StringField({ required: true }),
   description: StringField({ required: false, nullable: true }),
+  roleType: EnumField(ROLE_TYPES, { default: () => 'MEMBER' as RoleType }),
   isSystemDefault: BooleanField({ default: () => false }),
 });
 

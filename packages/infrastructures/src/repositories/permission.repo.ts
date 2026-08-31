@@ -32,7 +32,7 @@ export class RoleRepository
       .where(
         or(
           eq(role.companyId, companyId),
-          and(eq(role.isSystemDefault, true), ne(role.name, 'Super Admin')),
+          and(eq(role.isSystemDefault, true), ne(role.roleType, 'SUPER_ADMIN')),
         ),
       );
     return results.map((r) => new Role(r as unknown as Role));

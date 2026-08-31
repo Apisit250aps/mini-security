@@ -96,6 +96,7 @@ export type {
   CreateRole,
   CreateRolePermission,
   CreateUser,
+  DomainEntityRoleType,
   Permission,
   PermissionServicesCreatePermissionData,
   PermissionServicesCreatePermissionError,

@@ -1332,6 +1332,7 @@ components:
       type: object
       required:
         - name
+        - roleType
         - isSystemDefault
       properties:
         companyId:
@@ -1344,6 +1345,8 @@ components:
           anyOf:
             - type: string
             - type: 'null'
+        roleType:
+          $ref: '#/components/schemas/Domain.Entity.RoleType'
         isSystemDefault:
           type: boolean
       description: The template for omitting properties.
@@ -1381,6 +1384,14 @@ components:
         password:
           type: string
       description: The template for omitting properties.
+    Domain.Entity.RoleType:
+      type: string
+      enum:
+        - SUPER_ADMIN
+        - OWNER
+        - ADMIN
+        - MEMBER
+        - VIEWER
     Permission:
       type: object
       required:
@@ -1413,6 +1424,7 @@ components:
         - createdAt
         - updatedAt
         - name
+        - roleType
         - isSystemDefault
       properties:
         id:
@@ -1433,6 +1445,8 @@ components:
           anyOf:
             - type: string
             - type: 'null'
+        roleType:
+          $ref: '#/components/schemas/Domain.Entity.RoleType'
         isSystemDefault:
           type: boolean
     RolePermission:
@@ -1507,6 +1521,8 @@ components:
           anyOf:
             - type: string
             - type: 'null'
+        roleType:
+          $ref: '#/components/schemas/Domain.Entity.RoleType'
         isSystemDefault:
           type: boolean
       description: The template for adding optional properties.

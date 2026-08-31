@@ -1,5 +1,5 @@
--- Migration: 20260829045318_seed_auth_permissions
--- Description: Seed initial system permissions, default roles, and role_permission mappings
+-- Migration: 20260831082653_seed_auth_permissions
+-- Description: Seed initial system permissions, default roles (with role_type), and role_permission mappings
 
 -- 1. Seed Permissions
 INSERT INTO "permission" ("id", "action", "module", "description", "created_at", "updated_at")
@@ -35,8 +35,8 @@ VALUES
   (gen_random_uuid(), 'permission:delete', 'permission', 'Delete permissions', now(), now()),
   (gen_random_uuid(), 'permission:assign', 'permission', 'Assign permissions to roles', now(), now()),
   (gen_random_uuid(), 'permission:revoke', 'permission', 'Revoke permissions from roles', now(), now())
-ON CONFLICT ("action") DO UPDATE 
-SET 
+ON CONFLICT ("action") DO UPDATE
+SET
   "module" = EXCLUDED."module",
   "description" = EXCLUDED."description",
   "updated_at" = now();
@@ -44,33 +44,42 @@ SET
 --> statement-breakpoint
 
 -- 2. Seed System Default Roles (company_id is NULL for global system default roles)
-INSERT INTO "role" ("id", "company_id", "name", "description", "is_system_default", "created_at", "updated_at")
-SELECT gen_random_uuid(), NULL, 'Super Admin', 'Full system access across all tenants and operations', true, now(), now()
+INSERT INTO "role" ("id", "company_id", "name", "description", "role_type", "is_system_default", "created_at", "updated_at")
+SELECT gen_random_uuid(), NULL, 'Super Admin', 'Full system access across all tenants and operations', 'SUPER_ADMIN', true, now(), now()
 WHERE NOT EXISTS (SELECT 1 FROM "role" WHERE "name" = 'Super Admin' AND "company_id" IS NULL AND "is_system_default" = true);
 
 --> statement-breakpoint
 
-INSERT INTO "role" ("id", "company_id", "name", "description", "is_system_default", "created_at", "updated_at")
-SELECT gen_random_uuid(), NULL, 'Owner', 'Full administrative access to the company and organization resources', true, now(), now()
+INSERT INTO "role" ("id", "company_id", "name", "description", "role_type", "is_system_default", "created_at", "updated_at")
+SELECT gen_random_uuid(), NULL, 'Owner', 'Full administrative access to the company and organization resources', 'OWNER', true, now(), now()
 WHERE NOT EXISTS (SELECT 1 FROM "role" WHERE "name" = 'Owner' AND "company_id" IS NULL AND "is_system_default" = true);
 
 --> statement-breakpoint
 
-INSERT INTO "role" ("id", "company_id", "name", "description", "is_system_default", "created_at", "updated_at")
-SELECT gen_random_uuid(), NULL, 'Admin', 'Administrative access with member management and view privileges', true, now(), now()
+INSERT INTO "role" ("id", "company_id", "name", "description", "role_type", "is_system_default", "created_at", "updated_at")
+SELECT gen_random_uuid(), NULL, 'Admin', 'Administrative access with member management and view privileges', 'ADMIN', true, now(), now()
 WHERE NOT EXISTS (SELECT 1 FROM "role" WHERE "name" = 'Admin' AND "company_id" IS NULL AND "is_system_default" = true);
 
 --> statement-breakpoint
 
-INSERT INTO "role" ("id", "company_id", "name", "description", "is_system_default", "created_at", "updated_at")
-SELECT gen_random_uuid(), NULL, 'Member', 'Standard member access with read and operational privileges', true, now(), now()
+INSERT INTO "role" ("id", "company_id", "name", "description", "role_type", "is_system_default", "created_at", "updated_at")
+SELECT gen_random_uuid(), NULL, 'Member', 'Standard member access with read and operational privileges', 'MEMBER', true, now(), now()
 WHERE NOT EXISTS (SELECT 1 FROM "role" WHERE "name" = 'Member' AND "company_id" IS NULL AND "is_system_default" = true);
 
 --> statement-breakpoint
 
-INSERT INTO "role" ("id", "company_id", "name", "description", "is_system_default", "created_at", "updated_at")
-SELECT gen_random_uuid(), NULL, 'Viewer', 'Read-only access to company resources and members', true, now(), now()
+INSERT INTO "role" ("id", "company_id", "name", "description", "role_type", "is_system_default", "created_at", "updated_at")
+SELECT gen_random_uuid(), NULL, 'Viewer', 'Read-only access to company resources and members', 'VIEWER', true, now(), now()
 WHERE NOT EXISTS (SELECT 1 FROM "role" WHERE "name" = 'Viewer' AND "company_id" IS NULL AND "is_system_default" = true);
+
+--> statement-breakpoint
+
+-- 2.1 Backfill role_type for any pre-existing default roles missing it (safety net for repeated runs)
+UPDATE "role" SET "role_type" = 'SUPER_ADMIN' WHERE "name" = 'Super Admin' AND "company_id" IS NULL AND "is_system_default" = true;
+UPDATE "role" SET "role_type" = 'OWNER' WHERE "name" = 'Owner' AND "company_id" IS NULL AND "is_system_default" = true;
+UPDATE "role" SET "role_type" = 'ADMIN' WHERE "name" = 'Admin' AND "company_id" IS NULL AND "is_system_default" = true;
+UPDATE "role" SET "role_type" = 'MEMBER' WHERE "name" = 'Member' AND "company_id" IS NULL AND "is_system_default" = true;
+UPDATE "role" SET "role_type" = 'VIEWER' WHERE "name" = 'Viewer' AND "company_id" IS NULL AND "is_system_default" = true;
 
 --> statement-breakpoint
 

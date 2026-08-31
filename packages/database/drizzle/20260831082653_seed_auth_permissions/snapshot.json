@@ -1,9 +1,15 @@
 {
-  "id": "5463e9ca-0954-4adb-ad07-e3affcc0310d",
-  "prevIds": ["edc2dd77-453d-46a8-b2f9-24c6fca43db4"],
+  "id": "59e1f30d-ab01-4487-870f-99224bf41011",
+  "prevIds": ["bfee0911-2407-484c-bd55-18fb7ed80e12"],
   "version": "8",
   "dialect": "postgres",
   "ddl": [
+    {
+      "values": ["SUPER_ADMIN", "OWNER", "ADMIN", "MEMBER", "VIEWER"],
+      "name": "role_type",
+      "entityType": "enums",
+      "schema": "public"
+    },
     {
       "isRlsEnabled": false,
       "name": "user",
@@ -975,6 +981,19 @@
       "table": "role"
     },
     {
+      "type": "role_type",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'MEMBER'",
+      "generated": null,
+      "identity": null,
+      "name": "role_type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "role"
+    },
+    {
       "type": "boolean",
       "typeSchema": null,
       "notNull": true,
@@ -1424,6 +1443,27 @@
       "method": "btree",
       "concurrently": false,
       "name": "role_is_system_default_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "role"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "role_type",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "role_role_type_idx",
       "entityType": "indexes",
       "schema": "public",
       "table": "role"

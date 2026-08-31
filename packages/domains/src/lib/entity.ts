@@ -140,6 +140,20 @@ const BooleanField = <
   return createField(z.boolean(), options);
 };
 
+const EnumField = <
+  TValues extends readonly [string, ...string[]],
+  TRequired extends boolean = true,
+  TNullable extends boolean = false,
+>(
+  values: TValues,
+  options: BaseFieldOptions<TValues[number]> & {
+    required?: TRequired;
+    nullable?: TNullable;
+  } = {},
+) => {
+  return createField(z.enum(values), options);
+};
+
 const BaseEntity = <T extends z.ZodRawShape>(schema: T) => {
   return z.object({
     id: UUIDField({ default: () => uuidv7() }),
@@ -157,6 +171,7 @@ export {
   NumberField,
   DateField,
   BooleanField,
+  EnumField,
   TimestampField,
   uuidv7 as uuid,
 };

@@ -14,6 +14,7 @@ export default function RoleCreateForm({ companyId }: { companyId?: string }) {
       name: data.name,
       description: data.description || null,
       companyId: companyId || data.companyId || null,
+      roleType: data.roleType,
       isSystemDefault: companyId ? false : (data.isSystemDefault ?? false),
     });
     ui.hideAll();
@@ -28,6 +29,7 @@ export default function RoleCreateForm({ companyId }: { companyId?: string }) {
         name: '',
         description: '',
         companyId: companyId || null,
+        roleType: 'MEMBER',
         isSystemDefault: false,
       }}
     />

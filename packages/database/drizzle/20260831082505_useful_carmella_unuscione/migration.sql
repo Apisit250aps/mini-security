@@ -1,3 +1,4 @@
+CREATE TYPE "role_type" AS ENUM('SUPER_ADMIN', 'OWNER', 'ADMIN', 'MEMBER', 'VIEWER');--> statement-breakpoint
 CREATE TABLE "user" (
 	"id" uuid PRIMARY KEY,
 	"name" text NOT NULL,
@@ -16,6 +17,7 @@ CREATE TABLE "account" (
 	"user_id" uuid NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
+	"issuer" text,
 	"access_token" text,
 	"refresh_token" text,
 	"id_token" text,
@@ -25,6 +27,16 @@ CREATE TABLE "account" (
 	"password" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "jwks" (
+	"id" uuid PRIMARY KEY,
+	"public_key" text NOT NULL,
+	"private_key" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"expires_at" timestamp,
+	"alg" text,
+	"crv" text
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -82,6 +94,7 @@ CREATE TABLE "role" (
 	"company_id" uuid,
 	"name" text NOT NULL,
 	"description" text,
+	"role_type" "role_type" DEFAULT 'MEMBER'::"role_type" NOT NULL,
 	"is_system_default" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp NOT NULL
@@ -111,6 +124,7 @@ CREATE INDEX "permission_action_idx" ON "permission" ("action");--> statement-br
 CREATE INDEX "permission_module_idx" ON "permission" ("module");--> statement-breakpoint
 CREATE INDEX "role_company_id_idx" ON "role" ("company_id");--> statement-breakpoint
 CREATE INDEX "role_is_system_default_idx" ON "role" ("is_system_default");--> statement-breakpoint
+CREATE INDEX "role_role_type_idx" ON "role" ("role_type");--> statement-breakpoint
 CREATE INDEX "role_permission_role_id_idx" ON "role_permission" ("role_id");--> statement-breakpoint
 CREATE INDEX "role_permission_permission_id_idx" ON "role_permission" ("permission_id");--> statement-breakpoint
 CREATE INDEX "role_permission_unique_idx" ON "role_permission" ("role_id","permission_id");--> statement-breakpoint

@@ -2,6 +2,7 @@ import type {
   PermissionEntity,
   RoleEntity,
   RolePermissionEntity,
+  RoleType,
 } from '#schema/permission';
 
 export class Role implements RoleEntity {
@@ -9,6 +10,7 @@ export class Role implements RoleEntity {
   companyId?: string | null;
   name: string;
   description?: string | null;
+  roleType: RoleType;
   isSystemDefault: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +20,7 @@ export class Role implements RoleEntity {
     this.companyId = data.companyId;
     this.name = data.name;
     this.description = data.description;
+    this.roleType = data.roleType;
     this.isSystemDefault = data.isSystemDefault;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;

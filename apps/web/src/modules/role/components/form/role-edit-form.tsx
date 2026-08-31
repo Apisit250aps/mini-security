@@ -16,6 +16,7 @@ export default function RoleEditForm({ role }: { role: Role }) {
       data: {
         name: data.name,
         description: data.description || null,
+        roleType: data.roleType,
         isSystemDefault: data.isSystemDefault,
       },
     });
@@ -28,6 +29,7 @@ export default function RoleEditForm({ role }: { role: Role }) {
         name: role.name,
         description: role.description ?? '',
         companyId: role.companyId ?? null,
+        roleType: role.roleType,
         isSystemDefault: role.isSystemDefault,
       }}
       onSubmit={handleSubmit}

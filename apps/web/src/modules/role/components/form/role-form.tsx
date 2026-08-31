@@ -9,10 +9,19 @@ import { z } from 'zod';
 import { InputField } from '@repo/ui/components/shared/form/input-field';
 import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
 import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+import { SelectField } from '@repo/ui/components/shared/form/select-field';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
 export type RoleFormValues = z.infer<typeof createRoleSchema>;
+
+const ROLE_TYPE_OPTIONS = [
+  { value: 'SUPER_ADMIN', label: 'Super Admin' },
+  { value: 'OWNER', label: 'Owner' },
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'MEMBER', label: 'Member' },
+  { value: 'VIEWER', label: 'Viewer' },
+];
 
 type RoleFormProps = FormProps<RoleFormValues> & {
   hideSystemDefault?: boolean;
@@ -30,6 +39,7 @@ export default function RoleForm({
       name: '',
       description: '',
       companyId: null,
+      roleType: 'MEMBER',
       isSystemDefault: false,
     },
   });
@@ -55,6 +65,15 @@ export default function RoleForm({
           label="คำอธิบาย"
           placeholder="ระบุหน้าที่หรือขอบเขตสิทธิ์ของบทบาทนี้"
           control={methods.control}
+        />
+
+        <SelectField
+          name="roleType"
+          label="ประเภทบทบาท (Role Type)"
+          placeholder="เลือกประเภทบทบาท..."
+          options={ROLE_TYPE_OPTIONS}
+          control={methods.control}
+          required
         />
 
         {!hideSystemDefault && (
