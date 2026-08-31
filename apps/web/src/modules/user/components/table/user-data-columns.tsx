@@ -29,9 +29,9 @@ const userListColumns = (): ColumnDef<User>[] => {
       header: 'บทบาท',
       cell: ({ getValue }) =>
         getValue<boolean>() ? (
-          <Badge variant="default">Admin</Badge>
+          <Badge variant="default">ผู้ดูแลระบบ</Badge>
         ) : (
-          <Badge variant="secondary">User</Badge>
+          <Badge variant="secondary">ผู้ใช้งาน</Badge>
         ),
     },
     {

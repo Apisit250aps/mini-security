@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { Button } from '@repo/ui/components/button';
 import {
   Card,
   CardContent,
@@ -28,7 +27,7 @@ export default function SignUpForm({
   ...props
 }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
-  const { signUp, signIn } = useSession();
+  const { signUp } = useSession();
   const methods = useForm({
     resolver: zodResolver(
       z
@@ -70,23 +69,12 @@ export default function SignUpForm({
     [signUp, router],
   );
 
-  const handleGoogleSignUp = useCallback(async () => {
-    try {
-      await signIn.social({
-        provider: 'google',
-        callbackURL: getCallbackUrl(buildPageUrl('adminDashboard')),
-      });
-    } catch (err: unknown) {
-      toast.error(getErrorMessage(err, 'ไม่สามารถสมัครสมาชิกด้วย Google ได้'));
-    }
-  }, [signIn]);
-
   return (
     <Card {...props}>
       <CardHeader>
-        <CardTitle>Create an account</CardTitle>
+        <CardTitle>สร้างบัญชีผู้ใช้</CardTitle>
         <CardDescription>
-          Enter your information below to create your account
+          กรอกข้อมูลของคุณด้านล่างเพื่อสร้างบัญชีผู้ใช้
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -94,15 +82,15 @@ export default function SignUpForm({
           <FieldGroup>
             <InputField
               id="name"
-              label="Full Name"
-              placeholder="John Doe"
+              label="ชื่อ-นามสกุล"
+              placeholder="สมชาย ใจดี"
               required
               name="name"
               control={methods.control}
             />
             <InputField
               id="email"
-              label="Email"
+              label="อีเมล"
               type="email"
               placeholder="m@example.com"
               required
@@ -111,36 +99,29 @@ export default function SignUpForm({
             />
             <PasswordField
               id="password"
-              label="Password"
+              label="รหัสผ่าน"
               required
               name="password"
               control={methods.control}
             />
             <PasswordField
               id="confirm-password"
-              label="Confirm Password"
+              label="ยืนยันรหัสผ่าน"
               required
               name="confirmPassword"
               control={methods.control}
             />
             <div className="flex flex-col gap-3 pt-2">
               <ButtonLoading type="submit" isLoading={isSubmitting}>
-                Create Account
+                สร้างบัญชี
               </ButtonLoading>
-              <Button
-                variant="outline"
-                type="button"
-                onPress={handleGoogleSignUp}
-              >
-                Sign up with Google
-              </Button>
               <FieldDescription className="px-6 text-center pt-1">
-                Already have an account?{' '}
+                มีบัญชีอยู่แล้ว?{' '}
                 <Link
                   href={buildPageUrl('signIn')}
                   className="text-primary underline-offset-4 hover:underline"
                 >
-                  Sign in
+                  เข้าสู่ระบบ
                 </Link>
               </FieldDescription>
             </div>

@@ -20,7 +20,7 @@ function PermissionColumnActions<T extends Permission>(
 
   const actionDelete = () => {
     ui.alert.open({
-      title: 'Confirm Delete',
+      title: 'ยืนยันการลบ',
       description: 'คุณแน่ใจหรือไม่ว่าต้องการลบสิทธิ์นี้?',
       confirmVariant: 'destructive',
       onConfirm: async () => {

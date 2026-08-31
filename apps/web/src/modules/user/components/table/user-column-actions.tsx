@@ -19,8 +19,8 @@ function UserColumnActions<T extends User>(cell: CellContext<T, unknown>) {
 
   const actionDelete = () => {
     ui.alert.open({
-      title: 'Confirm Delete',
-      description: 'Are you sure you want to delete this user?',
+      title: 'ยืนยันการลบ',
+      description: 'คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้นี้?',
       confirmVariant: 'destructive',
       onConfirm: async () => {
         await handleDelete(cell.row.original.id);

@@ -7,7 +7,7 @@ export default function Page() {
   const { data, status } = useSession();
   return (
     <div>
-      <Button className="mt-auto btn">Bottom Content</Button>
+      <Button className="mt-auto btn">เนื้อหาด้านล่าง</Button>
       <pre>{JSON.stringify({ data, status }, null, 2)}</pre>
     </div>
   );

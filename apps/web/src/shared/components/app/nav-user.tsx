@@ -112,7 +112,7 @@ export default function NavUser() {
                     onAction={() => router.push(buildPageUrl('adminDashboard'))}
                   >
                     <ShieldCheckIcon />
-                    ไปหน้า Super Admin
+                    ไปหน้าผู้ดูแลระบบสูงสุด
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onAction={() =>
@@ -120,7 +120,7 @@ export default function NavUser() {
                     }
                   >
                     <Building2Icon />
-                    ไปหน้า Company Workspace
+                    ไปหน้าพื้นที่ทำงานบริษัท
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -142,7 +142,7 @@ export default function NavUser() {
               }}
             >
               <LogOutIcon />
-              Log out
+              ออกจากระบบ
             </DropdownMenuItem>
           </DropdownMenu>
         </DropdownMenuTrigger>

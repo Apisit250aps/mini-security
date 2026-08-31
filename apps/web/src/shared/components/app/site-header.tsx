@@ -10,12 +10,12 @@ export function SiteHeader() {
 
   const sectionTitle = React.useMemo(() => {
     if (pathname.startsWith('/admin')) {
-      return 'Super Admin Console';
+      return 'ศูนย์ควบคุมผู้ดูแลระบบสูงสุด';
     }
     if (pathname.startsWith('/company')) {
-      return 'Company Workspace';
+      return 'พื้นที่ทำงานบริษัท';
     }
-    return 'Security Hub';
+    return 'ศูนย์กลางความปลอดภัย';
   }, [pathname]);
 
   return (

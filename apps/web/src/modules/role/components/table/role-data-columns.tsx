@@ -23,9 +23,9 @@ const roleListColumns = (): ColumnDef<Role>[] => {
       header: 'ประเภท',
       cell: ({ getValue }) =>
         getValue<boolean>() ? (
-          <Badge variant="default">System Default</Badge>
+          <Badge variant="default">ค่าเริ่มต้นระบบ</Badge>
         ) : (
-          <Badge variant="secondary">Custom</Badge>
+          <Badge variant="secondary">กำหนดเอง</Badge>
         ),
     },
     {

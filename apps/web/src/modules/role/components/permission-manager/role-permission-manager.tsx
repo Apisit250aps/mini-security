@@ -88,7 +88,7 @@ function RolePermissionManagerContent() {
             รายการ
           </Badge>
           {role.isSystemDefault && (
-            <Badge variant="secondary">System Default</Badge>
+            <Badge variant="secondary">ค่าเริ่มต้นระบบ</Badge>
           )}
         </div>
       </div>

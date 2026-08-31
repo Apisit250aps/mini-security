@@ -22,7 +22,7 @@ function CompanyColumnActions<T extends Company>(
 
   const actionDelete = () => {
     ui.alert.open({
-      title: 'Confirm Delete',
+      title: 'ยืนยันการลบ',
       description: 'คุณแน่ใจหรือไม่ว่าต้องการลบบริษัทนี้?',
       confirmVariant: 'destructive',
       onConfirm: async () => {

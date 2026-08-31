@@ -24,7 +24,7 @@ export default function CompanyLayout({
       >
         <AppSidebar
           variant="inset"
-          brandTitle="Company Space"
+          brandTitle="พื้นที่ทำงานบริษัท"
           items={companySidebarConfig}
         />
         <SidebarInset>

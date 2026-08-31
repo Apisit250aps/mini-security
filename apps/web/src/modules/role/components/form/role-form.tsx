@@ -16,11 +16,11 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 export type RoleFormValues = z.infer<typeof createRoleSchema>;
 
 const ROLE_TYPE_OPTIONS = [
-  { value: 'SUPER_ADMIN', label: 'Super Admin' },
-  { value: 'OWNER', label: 'Owner' },
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'MEMBER', label: 'Member' },
-  { value: 'VIEWER', label: 'Viewer' },
+  { value: 'SUPER_ADMIN', label: 'ผู้ดูแลระบบสูงสุด (Super Admin)' },
+  { value: 'OWNER', label: 'เจ้าของ (Owner)' },
+  { value: 'ADMIN', label: 'ผู้ดูแลระบบ (Admin)' },
+  { value: 'MEMBER', label: 'สมาชิก (Member)' },
+  { value: 'VIEWER', label: 'ผู้เยี่ยมชม (Viewer)' },
 ];
 
 type RoleFormProps = FormProps<RoleFormValues> & {

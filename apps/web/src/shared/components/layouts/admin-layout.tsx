@@ -25,7 +25,7 @@ export default function AdminLayout({
       >
         <AppSidebar
           variant="inset"
-          brandTitle="Super Admin"
+          brandTitle="ผู้ดูแลระบบสูงสุด"
           items={adminSidebarConfig}
         />
         <SidebarInset>

@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { cn } from '@repo/ui/lib/utils';
-import { Button } from '@repo/ui/components/button';
 import {
   Card,
   CardContent,
@@ -66,24 +65,13 @@ export default function SignInForm({
     [signIn, router],
   );
 
-  const handleGoogleSignIn = useCallback(async () => {
-    try {
-      await signIn.social({
-        provider: 'google',
-        callbackURL: getCallbackUrl(buildPageUrl('adminDashboard')),
-      });
-    } catch (err: unknown) {
-      toast.error(getErrorMessage(err, 'ไม่สามารถเข้าสู่ระบบด้วย Google ได้'));
-    }
-  }, [signIn]);
-
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Sign in to your account</CardTitle>
+          <CardTitle>เข้าสู่ระบบบัญชีของคุณ</CardTitle>
           <CardDescription>
-            Enter your email below to sign in to your account
+            กรอกอีเมลด้านล่างเพื่อเข้าสู่ระบบบัญชีของคุณ
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,7 +79,7 @@ export default function SignInForm({
             <FieldGroup>
               <InputField
                 id="email"
-                label="Email"
+                label="อีเมล"
                 type="email"
                 placeholder="m@example.com"
                 required
@@ -101,7 +89,7 @@ export default function SignInForm({
 
               <PasswordField
                 id="password"
-                label="Password"
+                label="รหัสผ่าน"
                 required
                 name="password"
                 control={methods.control}
@@ -109,22 +97,15 @@ export default function SignInForm({
 
               <div className="flex flex-col gap-3 pt-2">
                 <ButtonLoading type="submit" isLoading={isSubmitting}>
-                  Sign In
+                  เข้าสู่ระบบ
                 </ButtonLoading>
-                <Button
-                  variant="outline"
-                  type="button"
-                  onPress={handleGoogleSignIn}
-                >
-                  Sign in with Google
-                </Button>
                 <FieldDescription className="text-center pt-1">
-                  Don&apos;t have an account?{' '}
+                  ยังไม่มีบัญชี?{' '}
                   <Link
                     href={buildPageUrl('signUp')}
                     className="text-primary underline-offset-4 hover:underline"
                   >
-                    Sign up
+                    สมัครสมาชิก
                   </Link>
                 </FieldDescription>
               </div>

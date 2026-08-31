@@ -27,7 +27,7 @@ export function AppSidebar({
   ...props
 }: AppSidebarProps) {
   const brandUrl =
-    brandTitle === 'Super Admin'
+    brandTitle === 'ผู้ดูแลระบบสูงสุด'
       ? buildPageUrl('adminDashboard')
       : buildPageUrl('companyDashboard');
 

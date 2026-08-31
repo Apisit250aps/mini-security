@@ -19,7 +19,7 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
 
   const actionDelete = () => {
     ui.alert.open({
-      title: 'Confirm Delete',
+      title: 'ยืนยันการลบ',
       description: 'คุณแน่ใจหรือไม่ว่าต้องการลบบทบาทนี้?',
       confirmVariant: 'destructive',
       onConfirm: async () => {
