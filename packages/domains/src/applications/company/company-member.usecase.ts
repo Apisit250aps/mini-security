@@ -1,4 +1,4 @@
-import type { BaseUseCase } from '../index';
+import type { BaseUseCase } from '../../index';
 import type { ISecurityContext } from '#constants/permissions';
 import type { CompanyMember } from '#entities/company';
 import type { CreateCompanyMember, UpdateCompanyMember } from '#schema/company';

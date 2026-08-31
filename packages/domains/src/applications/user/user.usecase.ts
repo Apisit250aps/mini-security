@@ -1,8 +1,9 @@
-import type { BaseUseCase } from '../index';
+import type { BaseUseCase } from '../../index';
 import type { ISecurityContext } from '#constants/permissions';
 import type { User } from '#entities/user';
 import type { CreateUser, UpdateUser } from '#schema/user';
 
+// Context Types
 export type ICreateUserContext = ISecurityContext & { data: CreateUser };
 export type IUpdateUserContext = ISecurityContext & {
   id: string;
@@ -11,10 +12,9 @@ export type IUpdateUserContext = ISecurityContext & {
 export type IDeleteUserContext = ISecurityContext & { id: string };
 export type IGetUserContext = ISecurityContext & { id: string };
 export type IGetUserByEmailContext = ISecurityContext & { email: string };
-export type IGetUsersContext = ISecurityContext & {
-  filter?: Record<string, unknown>;
-};
+export type IGetUsersContext = ISecurityContext | void;
 
+// Use Case Contracts
 export type ICreateUserUseCase = BaseUseCase<ICreateUserContext, User>;
 export type IUpdateUserUseCase = BaseUseCase<IUpdateUserContext, User>;
 export type IDeleteUserUseCase = BaseUseCase<IDeleteUserContext, void>;

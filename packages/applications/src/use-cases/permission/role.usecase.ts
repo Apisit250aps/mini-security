@@ -11,7 +11,7 @@ import type {
   IGetSystemDefaultRolesUseCase,
   IUpdateRoleContext,
   IUpdateRoleUseCase,
-} from '@repo/domains/applications/role';
+} from '@repo/domains/applications/permission';
 import type { Role } from '@repo/domains/entities/permission';
 import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import type { IUserRepository } from '@repo/domains/repositories/user';

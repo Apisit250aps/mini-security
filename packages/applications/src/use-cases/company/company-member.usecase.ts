@@ -9,7 +9,7 @@ import type {
   IRemoveCompanyMemberUseCase,
   IUpdateCompanyMemberContext,
   IUpdateCompanyMemberUseCase,
-} from '@repo/domains/applications/company-member';
+} from '@repo/domains/applications/company';
 import type { CompanyMember } from '@repo/domains/entities/company';
 import type {
   ICompanyMemberRepository,

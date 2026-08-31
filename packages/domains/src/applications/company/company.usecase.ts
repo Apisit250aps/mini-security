@@ -1,4 +1,4 @@
-import type { BaseUseCase } from '../index';
+import type { BaseUseCase } from '../../index';
 import type { ISecurityContext } from '#constants/permissions';
 import type { Company } from '#entities/company';
 import type { CreateCompany, UpdateCompany } from '#schema/company';
@@ -35,6 +35,3 @@ export type IGetCompaniesUseCase = BaseUseCase<
   IGetCompaniesContext | void,
   Company[]
 >;
-
-// Re-exports for backward compatibility
-export * from './company-member.usecase';

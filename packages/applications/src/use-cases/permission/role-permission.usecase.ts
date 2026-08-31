@@ -9,7 +9,7 @@ import type {
   IGetRolePermissionsUseCase,
   IRevokePermissionFromRoleContext,
   IRevokePermissionFromRoleUseCase,
-} from '@repo/domains/applications/role-permission';
+} from '@repo/domains/applications/permission';
 import type {
   Permission,
   RolePermission,

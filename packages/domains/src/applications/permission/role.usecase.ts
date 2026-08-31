@@ -1,4 +1,4 @@
-import type { BaseUseCase } from '../index';
+import type { BaseUseCase } from '../../index';
 import type { ISecurityContext } from '#constants/permissions';
 import type { Role } from '#entities/permission';
 import type { CreateRole, UpdateRole } from '#schema/permission';

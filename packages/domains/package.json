@@ -15,7 +15,8 @@
     "./entities": "./src/entities/index.ts",
     "./entities/*": "./src/entities/*.ts",
     "./repositories/*": "./src/repositories/*.repo.ts",
-    "./applications/*": "./src/applications/*.usecase.ts"
+    "./applications": "./src/applications/index.ts",
+    "./applications/*": "./src/applications/*/index.ts"
   },
   "imports": {
     "#constants/*": "./src/constants/*.ts",
@@ -23,7 +24,7 @@
     "#schema/*": "./src/schema/*.ts",
     "#entities/*": "./src/entities/*.ts",
     "#repositories/*": "./src/repositories/*.repo.ts",
-    "#applications/*": "./src/applications/*.usecase.ts"
+    "#applications/*": "./src/applications/*/index.ts"
   },
   "dependencies": {
     "uuid": "^14.0.2",

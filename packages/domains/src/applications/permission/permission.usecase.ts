@@ -1,4 +1,4 @@
-import type { BaseUseCase } from '../index';
+import type { BaseUseCase } from '../../index';
 import type { ISecurityContext } from '#constants/permissions';
 import type { Permission } from '#entities/permission';
 import type { CreatePermission, UpdatePermission } from '#schema/permission';
@@ -31,7 +31,3 @@ export type IGetPermissionsUseCase = BaseUseCase<
   IGetPermissionsContext | void,
   Permission[]
 >;
-
-// Re-exports for backward compatibility
-export * from './role.usecase';
-export * from './role-permission.usecase';
