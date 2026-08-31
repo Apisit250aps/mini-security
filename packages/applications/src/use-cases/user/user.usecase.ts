@@ -16,8 +16,12 @@ import type { User } from '@repo/domains/entities/user';
 import type { IAccountRepository } from '@repo/domains/repositories/auth';
 import type { IUserRepository } from '@repo/domains/repositories/user';
 import { createUserSchema, updateUserSchema } from '@repo/domains/schema/user';
-import { RequirePermission } from '../decorators/permission.decorator';
-import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
+import { RequirePermission } from '../../decorators/permission.decorator';
+import {
+  DuplicateError,
+  NotFoundError,
+  ValidationError,
+} from '../../lib/error';
 
 export class CreateUserUseCase implements ICreateUserUseCase {
   constructor(

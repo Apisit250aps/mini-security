@@ -8,13 +8,14 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./use-cases/*": "./src/use-cases/*.ts",
+    "./use-cases": "./src/use-cases/index.ts",
+    "./use-cases/*": "./src/use-cases/*/index.ts",
     "./lib/*": "./src/lib/*.ts",
     "./decorators/*": "./src/decorators/*.ts"
   },
   "imports": {
     "#lib/*": "./src/lib/*.ts",
-    "#use-cases/*": "./src/use-cases/*.ts",
+    "#use-cases/*": "./src/use-cases/*/index.ts",
     "#decorators/*": "./src/decorators/*.ts"
   },
   "dependencies": {

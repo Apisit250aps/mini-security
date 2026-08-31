@@ -7,7 +7,7 @@ import {
   GetUsersUseCase,
   UpdateUserUseCase,
 } from '@repo/applications';
-import { accountRepository, userRepository } from '../repositories';
+import { accountRepository, userRepository } from '../../repositories';
 
 export const createUserUseCase = new CreateUserUseCase(
   userRepository,

@@ -20,7 +20,7 @@ import {
   NotFoundError,
   UnauthorizedError,
   ValidationError,
-} from '../lib/error';
+} from '../../lib/error';
 
 export class SignInEmailUseCase implements ISignInEmailUseCase {
   constructor(
@@ -61,8 +61,6 @@ export class SignInEmailUseCase implements ISignInEmailUseCase {
     return {
       user,
       session,
-      account: credentialAccount,
-      token: session.token,
     };
   }
 }
@@ -72,30 +70,32 @@ export class SignUpEmailUseCase implements ISignUpEmailUseCase {
     private readonly userRepository: IUserRepository,
     private readonly accountRepository: IAccountRepository,
     private readonly sessionRepository: ISessionRepository,
+    private readonly passwordHasher?: (password: string) => Promise<string>,
   ) {}
 
   async execute(context: ISignUpEmailContext): Promise<IAuthResponse> {
-    if (!context.email || !context.password || !context.name) {
-      throw new ValidationError('Name, email and password are required');
-    }
-
-    const existing = await this.userRepository.findByEmail(context.email);
+    const email = context.email.toLowerCase().trim();
+    const existing = await this.userRepository.findByEmail(email);
     if (existing) {
-      throw new ValidationError('Email is already registered');
+      throw new ValidationError('Email already registered');
     }
 
     const user = await this.userRepository.create({
       name: context.name,
-      email: context.email,
+      email,
       isAdmin: false,
       isActive: true,
     });
 
-    const account = await this.accountRepository.create({
+    const hashedPassword = this.passwordHasher
+      ? await this.passwordHasher(context.password)
+      : context.password;
+
+    await this.accountRepository.create({
       userId: user.id,
       accountId: user.id,
       providerId: 'credential',
-      password: context.password,
+      password: hashedPassword,
     });
 
     const session = await this.sessionRepository.create({
@@ -109,8 +109,6 @@ export class SignUpEmailUseCase implements ISignUpEmailUseCase {
     return {
       user,
       session,
-      account,
-      token: session.token,
     };
   }
 }
@@ -123,57 +121,48 @@ export class SocialLoginUseCase implements ISocialLoginUseCase {
   ) {}
 
   async execute(context: ISocialLoginContext): Promise<IAuthResponse> {
-    let user = await this.userRepository.findByEmail(context.email);
-
-    if (!user) {
-      user = await this.userRepository.create({
-        name: context.name,
-        email: context.email,
-        image: context.image,
-        isAdmin: false,
-        isActive: true,
-      });
-    }
-
-    let account = await this.accountRepository.findByUserIdAndProvider(
-      user.id,
+    const existingAccount = await this.accountRepository.findByProvider(
       context.providerId,
+      context.accountId,
     );
 
-    if (!account) {
-      account = await this.accountRepository.create({
-        userId: user.id,
-        accountId: context.accountId,
-        providerId: context.providerId,
-        accessToken: context.accessToken,
-        refreshToken: context.refreshToken,
-        idToken: context.idToken,
-        scope: context.scope,
-      });
+    let user = existingAccount
+      ? await this.userRepository.findById(existingAccount.userId)
+      : null;
+
+    if (!user) {
+      const email = context.email.toLowerCase().trim();
+      user = await this.userRepository.findByEmail(email);
+
+      if (!user) {
+        user = await this.userRepository.create({
+          name: context.name,
+          email,
+          image: context.image,
+          isAdmin: false,
+          isActive: true,
+        });
+      }
+
+      if (!existingAccount) {
+        await this.accountRepository.create({
+          userId: user.id,
+          accountId: context.accountId,
+          providerId: context.providerId,
+        });
+      }
     }
 
     const session = await this.sessionRepository.create({
       userId: user.id,
       token: crypto.randomUUID(),
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
     });
 
     return {
       user,
       session,
-      account,
-      token: session.token,
     };
-  }
-}
-
-export class SignOutUseCase implements ISignOutUseCase {
-  constructor(private readonly sessionRepository: ISessionRepository) {}
-
-  async execute(context: ISignOutContext): Promise<void> {
-    await this.sessionRepository.deleteByToken(context.token);
   }
 }
 
@@ -189,20 +178,31 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
     const session = await this.sessionRepository.findByToken(context.token);
     if (!session) return null;
 
-    if (new Date() > session.expiresAt) {
+    if (new Date() > new Date(session.expiresAt)) {
       await this.sessionRepository.deleteByToken(context.token);
       return null;
     }
 
     const user = await this.userRepository.findById(session.userId);
-    if (!user) {
-      throw new NotFoundError('User associated with session not found');
+    if (!user || !user.isActive) {
+      return null;
     }
 
     return {
       user,
       session,
-      token: session.token,
     };
+  }
+}
+
+export class SignOutUseCase implements ISignOutUseCase {
+  constructor(private readonly sessionRepository: ISessionRepository) {}
+
+  async execute(context: ISignOutContext): Promise<void> {
+    const session = await this.sessionRepository.findByToken(context.token);
+    if (!session) {
+      throw new NotFoundError('Session not found');
+    }
+    await this.sessionRepository.deleteByToken(context.token);
   }
 }

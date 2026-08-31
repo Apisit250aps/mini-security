@@ -14,7 +14,7 @@ import {
   revokePermissionFromRoleUseCase,
   updatePermissionUseCase,
   updateRoleUseCase,
-} from '../compositions/applications/permission.application';
+} from '../compositions/applications/permission';
 import { PermissionController } from '../controllers/permission.controller';
 import { authMiddleware, type AuthContext } from '../middleware';
 

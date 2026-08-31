@@ -1,12 +1,7 @@
 import type { BaseUseCase } from '../index';
 import type { ISecurityContext } from '#constants/permissions';
-import type { Company, CompanyMember } from '#entities/company';
-import type {
-  CreateCompany,
-  CreateCompanyMember,
-  UpdateCompany,
-  UpdateCompanyMember,
-} from '#schema/company';
+import type { Company } from '#entities/company';
+import type { CreateCompany, UpdateCompany } from '#schema/company';
 
 // Context Types
 export type ICreateCompanyContext = ISecurityContext & {
@@ -23,19 +18,6 @@ export type IGetCompanyBySlugContext = ISecurityContext & { slug: string };
 export type IGetCompaniesContext = ISecurityContext & {
   filter?: Record<string, unknown>;
 };
-
-export type IAddCompanyMemberContext = ISecurityContext & {
-  data: CreateCompanyMember;
-};
-export type IUpdateCompanyMemberContext = ISecurityContext & {
-  id: string;
-  data: UpdateCompanyMember;
-};
-export type IRemoveCompanyMemberContext = ISecurityContext & { id: string };
-export type IGetCompanyMembersContext = ISecurityContext & {
-  companyId: string;
-};
-export type IGetUserCompaniesContext = ISecurityContext & { userId: string };
 
 // Use Case Contracts
 export type ICreateCompanyUseCase = BaseUseCase<ICreateCompanyContext, Company>;
@@ -54,23 +36,5 @@ export type IGetCompaniesUseCase = BaseUseCase<
   Company[]
 >;
 
-export type IAddCompanyMemberUseCase = BaseUseCase<
-  IAddCompanyMemberContext,
-  CompanyMember
->;
-export type IUpdateCompanyMemberUseCase = BaseUseCase<
-  IUpdateCompanyMemberContext,
-  CompanyMember
->;
-export type IRemoveCompanyMemberUseCase = BaseUseCase<
-  IRemoveCompanyMemberContext,
-  void
->;
-export type IGetCompanyMembersUseCase = BaseUseCase<
-  IGetCompanyMembersContext,
-  CompanyMember[]
->;
-export type IGetUserCompaniesUseCase = BaseUseCase<
-  IGetUserCompaniesContext,
-  CompanyMember[]
->;
+// Re-exports for backward compatibility
+export * from './company-member.usecase';

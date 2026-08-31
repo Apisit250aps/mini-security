@@ -9,7 +9,7 @@ import {
   accountRepository,
   sessionRepository,
   userRepository,
-} from '../repositories';
+} from '../../repositories';
 
 export const signInEmailUseCase = new SignInEmailUseCase(
   userRepository,
