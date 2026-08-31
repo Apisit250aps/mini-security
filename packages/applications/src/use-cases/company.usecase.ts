@@ -185,7 +185,7 @@ export class AddCompanyMemberUseCase implements IAddCompanyMemberUseCase {
         throw new NotFoundError(`Role with id ${parsed.data.roleId} not found`);
       }
       if (
-        targetRole.isSystemDefault ||
+        targetRole.roleType === 'SUPER_ADMIN' ||
         (targetRole.companyId && targetRole.companyId !== parsed.data.companyId)
       ) {
         throw new ValidationError(
@@ -229,14 +229,14 @@ export class UpdateCompanyMemberUseCase implements IUpdateCompanyMemberUseCase {
       );
     }
 
-    // Role verification: ensure new role belongs to this company and is not super admin/system default
+    // Role verification: ensure new role belongs to this company and is not super admin/cross-company
     if (parsed.data.roleId && this.roleRepository) {
       const targetRole = await this.roleRepository.findById(parsed.data.roleId);
       if (!targetRole) {
         throw new NotFoundError(`Role with id ${parsed.data.roleId} not found`);
       }
       if (
-        targetRole.isSystemDefault ||
+        targetRole.roleType === 'SUPER_ADMIN' ||
         (targetRole.companyId && targetRole.companyId !== existing.companyId)
       ) {
         throw new ValidationError(

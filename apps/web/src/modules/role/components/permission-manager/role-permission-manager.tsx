@@ -19,6 +19,7 @@ import { SearchIcon, ShieldCheckIcon } from 'lucide-react';
 function RolePermissionManagerContent() {
   const {
     role,
+    readOnly,
     allPermissions,
     assignedPermissions,
     groupedPermissions,
@@ -68,6 +69,15 @@ function RolePermissionManagerContent() {
 
   return (
     <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
+          <span className="font-semibold">
+            บทบาทมาตรฐานของระบบ (System Default):
+          </span>{' '}
+          แสดงรายการสิทธิ์ในโหมดดูข้อมูลเท่านั้น ไม่สามารถเปลี่ยนแปลงสิทธิ์ได้
+        </div>
+      )}
+
       {/* Header Summary Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 p-3">
         <div className="flex items-center gap-2">
@@ -127,9 +137,15 @@ function RolePermissionManagerContent() {
   );
 }
 
-export function RolePermissionManager({ role }: { role: Role }) {
+export function RolePermissionManager({
+  role,
+  readOnly = false,
+}: {
+  role: Role;
+  readOnly?: boolean;
+}) {
   return (
-    <RolePermissionProvider role={role}>
+    <RolePermissionProvider role={role} readOnly={readOnly}>
       <RolePermissionManagerContent />
     </RolePermissionProvider>
   );

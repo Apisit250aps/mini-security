@@ -18,6 +18,7 @@ export function RolePermissionModuleGroup({
   permissions,
 }: RolePermissionModuleGroupProps) {
   const {
+    readOnly,
     assignedPermissionIds,
     isModuleAllSelected,
     toggleModuleAll,
@@ -32,7 +33,7 @@ export function RolePermissionModuleGroup({
   }, [permissions, assignedPermissionIds]);
 
   const handleToggleAll = (checked: boolean) => {
-    if (isModulePending) return;
+    if (readOnly || isModulePending) return;
     toggleModuleAll(moduleName, checked);
   };
 
@@ -49,21 +50,23 @@ export function RolePermissionModuleGroup({
           </Badge>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground hidden sm:inline">
-            เลือกทั้งหมด
-          </span>
-          {isModulePending ? (
-            <Spinner className="size-4 text-primary" />
-          ) : (
-            <Switch
-              size="sm"
-              isSelected={isAllSelected}
-              onChange={handleToggleAll}
-              aria-label={`Toggle all permissions for ${moduleName}`}
-            />
-          )}
-        </div>
+        {!readOnly && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground hidden sm:inline">
+              เลือกทั้งหมด
+            </span>
+            {isModulePending ? (
+              <Spinner className="size-4 text-primary" />
+            ) : (
+              <Switch
+                size="sm"
+                isSelected={isAllSelected}
+                onChange={handleToggleAll}
+                aria-label={`Toggle all permissions for ${moduleName}`}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">

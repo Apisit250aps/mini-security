@@ -53,12 +53,31 @@ import { RequirePermission } from '../decorators/permission.decorator';
 import { DuplicateError, NotFoundError, ValidationError } from '../lib/error';
 
 export class CreateRoleUseCase implements ICreateRoleUseCase {
-  constructor(private readonly roleRepository: IRoleRepository) {}
+  constructor(
+    private readonly roleRepository: IRoleRepository,
+    private readonly userRepository?: IUserRepository,
+  ) {}
 
   async execute(context: ICreateRoleContext): Promise<Role> {
     const parsed = await createRoleSchema.safeParseAsync(context.data);
     if (!parsed.success) {
       throw new ValidationError('Invalid role data', parsed.error.format());
+    }
+
+    let isAdmin = false;
+    if (context.userId && this.userRepository) {
+      const user = await this.userRepository.findById(context.userId);
+      isAdmin = Boolean(user?.isAdmin);
+    }
+
+    if (!isAdmin && parsed.data.roleType === 'SUPER_ADMIN') {
+      throw new ValidationError('ไม่อนุญาตให้สร้างบทบาทประเภท Super Admin');
+    }
+
+    if (parsed.data.companyId && parsed.data.roleType === 'SUPER_ADMIN') {
+      throw new ValidationError(
+        'บทบาทเฉพาะบริษัทไม่สามารถเป็นประเภท Super Admin ได้',
+      );
     }
 
     const existing = await this.roleRepository.findByNameAndCompany(
@@ -73,9 +92,10 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
 
     const roleData = {
       ...parsed.data,
-      isSystemDefault: parsed.data.companyId
-        ? false
-        : (parsed.data.isSystemDefault ?? false),
+      isSystemDefault:
+        isAdmin && !parsed.data.companyId
+          ? (parsed.data.isSystemDefault ?? false)
+          : false,
     };
 
     return this.roleRepository.create(roleData);
@@ -83,13 +103,28 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
 }
 
 export class UpdateRoleUseCase implements IUpdateRoleUseCase {
-  constructor(private readonly roleRepository: IRoleRepository) {}
+  constructor(
+    private readonly roleRepository: IRoleRepository,
+    private readonly userRepository?: IUserRepository,
+  ) {}
 
   @RequirePermission('role:update')
   async execute(context: IUpdateRoleContext): Promise<Role> {
     const existing = await this.roleRepository.findById(context.id);
     if (!existing) {
       throw new NotFoundError(`Role with id ${context.id} not found`);
+    }
+
+    let isAdmin = false;
+    if (context.userId && this.userRepository) {
+      const user = await this.userRepository.findById(context.userId);
+      isAdmin = Boolean(user?.isAdmin);
+    }
+
+    if (existing.isSystemDefault && !isAdmin) {
+      throw new ValidationError(
+        'ไม่สามารถแก้ไขบทบาทมาตรฐานของระบบ (System Default) ได้',
+      );
     }
 
     const parsed = await updateRoleSchema.safeParseAsync(context.data);
@@ -100,12 +135,28 @@ export class UpdateRoleUseCase implements IUpdateRoleUseCase {
       );
     }
 
+    if (!isAdmin && parsed.data.roleType === 'SUPER_ADMIN') {
+      throw new ValidationError('ไม่อนุญาตให้กำหนดบทบาทเป็นประเภท Super Admin');
+    }
+
+    if (
+      (existing.companyId || parsed.data.companyId) &&
+      parsed.data.roleType === 'SUPER_ADMIN'
+    ) {
+      throw new ValidationError(
+        'บทบาทเฉพาะบริษัทไม่สามารถเป็นประเภท Super Admin ได้',
+      );
+    }
+
     return this.roleRepository.update(context.id, parsed.data);
   }
 }
 
 export class DeleteRoleUseCase implements IDeleteRoleUseCase {
-  constructor(private readonly roleRepository: IRoleRepository) {}
+  constructor(
+    private readonly roleRepository: IRoleRepository,
+    private readonly userRepository?: IUserRepository,
+  ) {}
 
   @RequirePermission('role:delete')
   async execute(context: IDeleteRoleContext): Promise<void> {
@@ -114,7 +165,13 @@ export class DeleteRoleUseCase implements IDeleteRoleUseCase {
       throw new NotFoundError(`Role with id ${context.id} not found`);
     }
 
-    if (existing.isSystemDefault) {
+    let isAdmin = false;
+    if (context.userId && this.userRepository) {
+      const user = await this.userRepository.findById(context.userId);
+      isAdmin = Boolean(user?.isAdmin);
+    }
+
+    if (existing.isSystemDefault && !isAdmin) {
       throw new ValidationError(
         'ไม่สามารถลบบทบาทมาตรฐานของระบบ (System Default) ได้',
       );
@@ -138,24 +195,40 @@ export class GetRoleUseCase implements IGetRoleUseCase {
 }
 
 export class GetRolesByCompanyUseCase implements IGetRolesByCompanyUseCase {
-  constructor(private readonly roleRepository: IRoleRepository) {}
+  constructor(
+    private readonly roleRepository: IRoleRepository,
+    private readonly userRepository?: IUserRepository,
+  ) {}
 
   @RequirePermission('role:read', (ctx) => ({
     companyId: ctx.companyId,
   }))
   async execute(context: IGetRolesByCompanyContext): Promise<Role[]> {
-    return this.roleRepository.findByCompanyId(context.companyId);
+    let isAdmin = false;
+    if (context.userId && this.userRepository) {
+      const user = await this.userRepository.findById(context.userId);
+      isAdmin = Boolean(user?.isAdmin);
+    }
+    return this.roleRepository.findByCompanyId(context.companyId, isAdmin);
   }
 }
 
 export class GetSystemDefaultRolesUseCase
   implements IGetSystemDefaultRolesUseCase
 {
-  constructor(private readonly roleRepository: IRoleRepository) {}
+  constructor(
+    private readonly roleRepository: IRoleRepository,
+    private readonly userRepository?: IUserRepository,
+  ) {}
 
   @RequirePermission('role:read')
-  async execute(_context?: IGetSystemDefaultRolesContext): Promise<Role[]> {
-    return this.roleRepository.findSystemDefaultRoles();
+  async execute(context?: IGetSystemDefaultRolesContext): Promise<Role[]> {
+    let isAdmin = false;
+    if (context?.userId && this.userRepository) {
+      const user = await this.userRepository.findById(context.userId);
+      isAdmin = Boolean(user?.isAdmin);
+    }
+    return this.roleRepository.findSystemDefaultRoles(isAdmin);
   }
 }
 
@@ -238,6 +311,7 @@ export class AssignPermissionToRoleUseCase
     private readonly rolePermissionRepository: IRolePermissionRepository,
     private readonly roleRepository: IRoleRepository,
     private readonly permissionRepository: IPermissionRepository,
+    private readonly userRepository?: IUserRepository,
   ) {}
 
   @RequirePermission('permission:assign')
@@ -259,6 +333,18 @@ export class AssignPermissionToRoleUseCase
       throw new NotFoundError(`Role with id ${parsed.data.roleId} not found`);
     }
 
+    let isAdmin = false;
+    if (context.userId && this.userRepository) {
+      const user = await this.userRepository.findById(context.userId);
+      isAdmin = Boolean(user?.isAdmin);
+    }
+
+    if (role.isSystemDefault && !isAdmin) {
+      throw new ValidationError(
+        'ไม่สามารถแก้ไขสิทธิ์ของบทบาทมาตรฐานของระบบ (System Default) ได้',
+      );
+    }
+
     const perm = await this.permissionRepository.findById(
       parsed.data.permissionId,
     );
@@ -277,10 +363,28 @@ export class RevokePermissionFromRoleUseCase
 {
   constructor(
     private readonly rolePermissionRepository: IRolePermissionRepository,
+    private readonly roleRepository?: IRoleRepository,
+    private readonly userRepository?: IUserRepository,
   ) {}
 
   @RequirePermission('permission:revoke')
   async execute(context: IRevokePermissionFromRoleContext): Promise<void> {
+    if (this.roleRepository) {
+      const role = await this.roleRepository.findById(context.roleId);
+      if (role) {
+        let isAdmin = false;
+        if (context.userId && this.userRepository) {
+          const user = await this.userRepository.findById(context.userId);
+          isAdmin = Boolean(user?.isAdmin);
+        }
+        if (role.isSystemDefault && !isAdmin) {
+          throw new ValidationError(
+            'ไม่สามารถแก้ไขสิทธิ์ของบทบาทมาตรฐานของระบบ (System Default) ได้',
+          );
+        }
+      }
+    }
+
     await this.rolePermissionRepository.deleteByRoleAndPermission(
       context.roleId,
       context.permissionId,

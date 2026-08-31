@@ -5,6 +5,7 @@ export type BaseFieldProps<T extends FieldValues> = {
   name: Path<T>;
   label?: string;
   required?: boolean;
+  disabled?: boolean;
 };
 
 export type Option = {

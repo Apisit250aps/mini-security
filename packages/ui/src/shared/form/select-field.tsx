@@ -19,6 +19,7 @@ export const SelectField = <T extends FieldValues>({
   required,
   valueAsNumber = false,
   id,
+  disabled,
 }: BaseFieldProps<T> & {
   options: Option[];
   placeholder?: string;
@@ -31,6 +32,7 @@ export const SelectField = <T extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      disabled={disabled}
       render={({ field, fieldState }) => {
         const selectedKey =
           field.value != null && field.value !== ''

@@ -18,6 +18,7 @@ import { usePermissionListQueries } from '@/modules/permission/hooks/permission-
 
 interface RolePermissionContextValue {
   role: Role;
+  readOnly: boolean;
   allPermissions: Permission[];
   assignedPermissions: Permission[];
   assignedPermissionIds: Set<string>;
@@ -37,9 +38,11 @@ const RolePermissionContext = createContext<RolePermissionContextValue | null>(
 
 export function RolePermissionProvider({
   role,
+  readOnly = false,
   children,
 }: {
   role: Role;
+  readOnly?: boolean;
   children: React.ReactNode;
 }) {
   const [mutatingPermissionId, setMutatingPermissionId] = useState<
@@ -96,6 +99,7 @@ export function RolePermissionProvider({
 
   const togglePermission = useCallback(
     async (permissionId: string) => {
+      if (readOnly) return;
       setMutatingPermissionId(permissionId);
       try {
         if (assignedPermissionIds.has(permissionId)) {
@@ -113,11 +117,12 @@ export function RolePermissionProvider({
         setMutatingPermissionId(null);
       }
     },
-    [assignedPermissionIds, assignMutation, revokeMutation, role.id],
+    [readOnly, assignedPermissionIds, assignMutation, revokeMutation, role.id],
   );
 
   const toggleModuleAll = useCallback(
     async (moduleName: string, selectAll: boolean) => {
+      if (readOnly) return;
       const perms = groupedPermissions[moduleName] || [];
       if (perms.length === 0) return;
 
@@ -147,6 +152,7 @@ export function RolePermissionProvider({
       }
     },
     [
+      readOnly,
       groupedPermissions,
       assignedPermissionIds,
       assignMutation,
@@ -161,6 +167,7 @@ export function RolePermissionProvider({
   const value = useMemo<RolePermissionContextValue>(
     () => ({
       role,
+      readOnly,
       allPermissions,
       assignedPermissions,
       assignedPermissionIds,
@@ -175,6 +182,7 @@ export function RolePermissionProvider({
     }),
     [
       role,
+      readOnly,
       allPermissions,
       assignedPermissions,
       assignedPermissionIds,

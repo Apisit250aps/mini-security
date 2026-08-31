@@ -14,6 +14,7 @@ export const SwitchField = <T extends FieldValues>({
   label,
   description,
   id,
+  disabled,
 }: BaseFieldProps<T> & { description?: string; id?: string }) => {
   const switchId = id ?? `switch-${name}`;
 
@@ -21,6 +22,7 @@ export const SwitchField = <T extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      disabled={disabled}
       render={({ field }) => (
         <Field
           orientation="horizontal"
@@ -34,6 +36,7 @@ export const SwitchField = <T extends FieldValues>({
             id={switchId}
             isSelected={Boolean(field.value)}
             onChange={(checked) => field.onChange(checked)}
+            isDisabled={field.disabled}
             aria-label={label ?? name}
           />
         </Field>

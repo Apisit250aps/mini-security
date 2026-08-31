@@ -33,11 +33,11 @@ export default function CompanyMemberRoleSelect({
     [currentRole],
   );
 
-  // Filter out system default roles (Super Admin) - only allow company-scoped roles
+  // Filter out Super Admin - allow company-scoped and valid system default roles
   const companyRoles = useMemo(() => {
     return roles.filter(
       (r) =>
-        !r.isSystemDefault &&
+        r.roleType !== 'SUPER_ADMIN' &&
         (!r.companyId || r.companyId === companyId) &&
         !r.name.toLowerCase().includes('super admin'),
     );

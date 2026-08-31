@@ -19,8 +19,30 @@ const roleListColumns = (): ColumnDef<Role>[] => {
       },
     },
     {
+      accessorKey: 'roleType',
+      header: 'ประเภทบทบาท',
+      cell: ({ getValue }) => {
+        const type = getValue<string>();
+        switch (type) {
+          case 'SUPER_ADMIN':
+            return <Badge variant="destructive">Super Admin</Badge>;
+          case 'OWNER':
+            return (
+              <Badge className="bg-amber-500 hover:bg-amber-600">Owner</Badge>
+            );
+          case 'ADMIN':
+            return <Badge variant="default">Admin</Badge>;
+          case 'VIEWER':
+            return <Badge variant="outline">Viewer</Badge>;
+          case 'MEMBER':
+          default:
+            return <Badge variant="secondary">Member</Badge>;
+        }
+      },
+    },
+    {
       accessorKey: 'isSystemDefault',
-      header: 'ประเภท',
+      header: 'ขอบเขต',
       cell: ({ getValue }) =>
         getValue<boolean>() ? (
           <Badge variant="default">ค่าเริ่มต้นระบบ</Badge>

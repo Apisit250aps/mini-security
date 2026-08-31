@@ -25,24 +25,27 @@ export class RoleRepository
     super(db, role);
   }
 
-  async findByCompanyId(companyId: string): Promise<Role[]> {
-    const results = await this.db
-      .select()
-      .from(this.table)
-      .where(
-        or(
-          eq(role.companyId, companyId),
+  async findByCompanyId(
+    companyId: string,
+    includeSuperAdmin = false,
+  ): Promise<Role[]> {
+    const condition = includeSuperAdmin
+      ? or(eq(role.companyId, companyId), eq(role.isSystemDefault, true))
+      : or(
+          and(eq(role.companyId, companyId), ne(role.roleType, 'SUPER_ADMIN')),
           and(eq(role.isSystemDefault, true), ne(role.roleType, 'SUPER_ADMIN')),
-        ),
-      );
+        );
+
+    const results = await this.db.select().from(this.table).where(condition);
     return results.map((r) => new Role(r as unknown as Role));
   }
 
-  async findSystemDefaultRoles(): Promise<Role[]> {
-    const results = await this.db
-      .select()
-      .from(this.table)
-      .where(eq(role.isSystemDefault, true));
+  async findSystemDefaultRoles(includeSuperAdmin = false): Promise<Role[]> {
+    const condition = includeSuperAdmin
+      ? eq(role.isSystemDefault, true)
+      : and(eq(role.isSystemDefault, true), ne(role.roleType, 'SUPER_ADMIN'));
+
+    const results = await this.db.select().from(this.table).where(condition);
     return results.map((r) => new Role(r as unknown as Role));
   }
 

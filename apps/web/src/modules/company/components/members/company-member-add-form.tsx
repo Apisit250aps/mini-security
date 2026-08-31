@@ -47,8 +47,7 @@ export default function CompanyMemberAddForm({
     return (rolesQuery.data || [])
       .filter(
         (r) =>
-          !r.isSystemDefault &&
-          !r.name.toLowerCase().includes('super admin') &&
+          r.roleType !== 'SUPER_ADMIN' &&
           (!r.companyId || r.companyId === companyId),
       )
       .map((r) => ({

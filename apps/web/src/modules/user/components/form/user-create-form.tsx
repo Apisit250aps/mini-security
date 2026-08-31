@@ -43,11 +43,15 @@ export default function UserCreateForm({
             roleId ||
             availableRoles.find(
               (r) =>
-                !r.isSystemDefault &&
+                r.roleType !== 'SUPER_ADMIN' &&
                 r.name.toLowerCase() !== 'owner' &&
                 (!r.companyId || r.companyId === companyId),
             )?.id ||
-            availableRoles.find((r) => r.name.toLowerCase() !== 'owner')?.id ||
+            availableRoles.find(
+              (r) =>
+                r.roleType !== 'SUPER_ADMIN' &&
+                r.name.toLowerCase() !== 'owner',
+            )?.id ||
             availableRoles[0]?.id;
 
           if (targetRoleId) {

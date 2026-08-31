@@ -6,11 +6,18 @@ import RoleForm, { RoleFormValues } from './role-form';
 import { useRoleUpdate } from '../../hooks/role-mutations';
 import { useOverlay } from '@repo/ui/hooks';
 
-export default function RoleEditForm({ role }: { role: Role }) {
+export default function RoleEditForm({
+  role,
+  readOnly = false,
+}: {
+  role: Role;
+  readOnly?: boolean;
+}) {
   const ui = useOverlay();
   const updateMutation = useRoleUpdate();
 
   const handleSubmit = async (data: RoleFormValues) => {
+    if (readOnly) return;
     await updateMutation.mutateAsync({
       roleId: role.id,
       data: {
@@ -34,6 +41,7 @@ export default function RoleEditForm({ role }: { role: Role }) {
       }}
       onSubmit={handleSubmit}
       isLoading={updateMutation.isPending}
+      readOnly={readOnly}
     />
   );
 }

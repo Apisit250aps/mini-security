@@ -24,15 +24,26 @@ import {
   userRepository,
 } from '../repositories';
 
-export const createRoleUseCase = new CreateRoleUseCase(roleRepository);
-export const updateRoleUseCase = new UpdateRoleUseCase(roleRepository);
-export const deleteRoleUseCase = new DeleteRoleUseCase(roleRepository);
+export const createRoleUseCase = new CreateRoleUseCase(
+  roleRepository,
+  userRepository,
+);
+export const updateRoleUseCase = new UpdateRoleUseCase(
+  roleRepository,
+  userRepository,
+);
+export const deleteRoleUseCase = new DeleteRoleUseCase(
+  roleRepository,
+  userRepository,
+);
 export const getRoleUseCase = new GetRoleUseCase(roleRepository);
 export const getRolesByCompanyUseCase = new GetRolesByCompanyUseCase(
   roleRepository,
+  userRepository,
 );
 export const getSystemDefaultRolesUseCase = new GetSystemDefaultRolesUseCase(
   roleRepository,
+  userRepository,
 );
 
 export const createPermissionUseCase = new CreatePermissionUseCase(
@@ -52,9 +63,14 @@ export const assignPermissionToRoleUseCase = new AssignPermissionToRoleUseCase(
   rolePermissionRepository,
   roleRepository,
   permissionRepository,
+  userRepository,
 );
 export const revokePermissionFromRoleUseCase =
-  new RevokePermissionFromRoleUseCase(rolePermissionRepository);
+  new RevokePermissionFromRoleUseCase(
+    rolePermissionRepository,
+    roleRepository,
+    userRepository,
+  );
 export const getRolePermissionsUseCase = new GetRolePermissionsUseCase(
   rolePermissionRepository,
 );

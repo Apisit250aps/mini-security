@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createRoleSchema } from '@repo/domains/schema/permission';
@@ -25,6 +25,7 @@ const ROLE_TYPE_OPTIONS = [
 
 type RoleFormProps = FormProps<RoleFormValues> & {
   hideSystemDefault?: boolean;
+  readOnly?: boolean;
 };
 
 export default function RoleForm({
@@ -32,7 +33,15 @@ export default function RoleForm({
   defaultValues,
   isLoading,
   hideSystemDefault = false,
+  readOnly = false,
 }: RoleFormProps) {
+  const roleTypeOptions = useMemo(() => {
+    if (hideSystemDefault) {
+      return ROLE_TYPE_OPTIONS.filter((opt) => opt.value !== 'SUPER_ADMIN');
+    }
+    return ROLE_TYPE_OPTIONS;
+  }, [hideSystemDefault]);
+
   const methods = useForm<RoleFormValues>({
     resolver: zodResolver(createRoleSchema as never),
     defaultValues: defaultValues ?? {
@@ -51,12 +60,22 @@ export default function RoleForm({
       })}
       className="flex flex-col gap-4"
     >
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
+          <span className="font-semibold">
+            บทบาทมาตรฐานของระบบ (System Default):
+          </span>{' '}
+          แสดงในโหมดดูข้อมูลเท่านั้น ไม่สามารถแก้ไขได้
+        </div>
+      )}
+
       <FieldGroup className="flex flex-col gap-3">
         <InputField
           name="name"
           label="ชื่อบทบาท"
           placeholder="เช่น Manager, Staff, Accountant"
           control={methods.control}
+          disabled={readOnly}
           required
         />
 
@@ -65,14 +84,16 @@ export default function RoleForm({
           label="คำอธิบาย"
           placeholder="ระบุหน้าที่หรือขอบเขตสิทธิ์ของบทบาทนี้"
           control={methods.control}
+          disabled={readOnly}
         />
 
         <SelectField
           name="roleType"
           label="ประเภทบทบาท (Role Type)"
           placeholder="เลือกประเภทบทบาท..."
-          options={ROLE_TYPE_OPTIONS}
+          options={roleTypeOptions}
           control={methods.control}
+          disabled={readOnly}
           required
         />
 
@@ -83,16 +104,19 @@ export default function RoleForm({
               label="บทบาทเริ่มต้นของระบบ (System Default)"
               description="กำหนดให้เป็นบทบาทมาตรฐานสำหรับทุกองค์กร"
               control={methods.control}
+              disabled={readOnly}
             />
           </div>
         )}
       </FieldGroup>
 
-      <div className="flex justify-end">
-        <ButtonLoading type="submit" isLoading={isLoading}>
-          บันทึก
-        </ButtonLoading>
-      </div>
+      {!readOnly && (
+        <div className="flex justify-end">
+          <ButtonLoading type="submit" isLoading={isLoading}>
+            บันทึก
+          </ButtonLoading>
+        </div>
+      )}
     </form>
   );
 }
