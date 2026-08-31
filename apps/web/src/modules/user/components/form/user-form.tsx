@@ -53,9 +53,7 @@ export default function UserForm({
 
   return (
     <form
-      onSubmit={methods.handleSubmit(onSubmit, (errors) => {
-        console.log(errors);
-      })}
+      onSubmit={methods.handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">

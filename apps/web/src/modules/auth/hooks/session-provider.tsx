@@ -2,6 +2,7 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { createAuthClient, jwtClient } from '@repo/infrastructures/auth/client';
+import type auth from '@repo/infrastructures/auth';
 import type { Permission } from '@repo/domains/entities';
 import { useMyPermissionsQueries } from '@/modules/permission/hooks/permission-queries';
 
@@ -10,17 +11,17 @@ export const authClient = createAuthClient({
   plugins: [jwtClient()],
 });
 
-const { signIn, signUp, useSession: useAuthSession, signOut } = authClient;
+const { signIn, signUp, signOut } = authClient;
 
-type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
+export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
+export type SessionData = typeof auth.$Infer.Session | null;
 
-type SessionContextProps = {
+export type SessionContextProps = {
   signIn: typeof signIn;
   signUp: typeof signUp;
   signOut: typeof signOut;
-  data: ReturnType<typeof useAuthSession>['data'];
+  data: SessionData;
   status: SessionStatus;
-  getToken: () => Promise<string | null>;
   permissions: Permission[];
   hasPermission: (action: string) => boolean;
   isSuperAdmin: boolean;
@@ -30,20 +31,15 @@ type SessionContextProps = {
 
 const sessionContext = React.createContext<SessionContextProps | null>(null);
 
-export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const query = useAuthSession();
-
-  const { status, data } = useMemo<
-    Pick<SessionContextProps, 'status' | 'data'>
-  >(() => {
-    if (query.isPending) {
-      return { status: 'loading', data: null };
-    }
-    if (query.data) {
-      return { status: 'authenticated', data: query.data };
-    }
-    return { status: 'unauthenticated', data: null };
-  }, [query.isPending, query.data]);
+export function SessionProvider({
+  children,
+  session = null,
+}: {
+  children: React.ReactNode;
+  session?: SessionData;
+}) {
+  const data = session;
+  const status: SessionStatus = session ? 'authenticated' : 'unauthenticated';
 
   const isSuperAdmin = Boolean((data?.user as { isAdmin?: boolean })?.isAdmin);
   const activeCompanyId =
@@ -78,15 +74,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     [isSuperAdmin, permissionActionsSet],
   );
 
-  const getToken = React.useCallback(async (): Promise<string | null> => {
-    try {
-      const res = await authClient.$fetch<{ token: string }>('/api/auth/token');
-      return res.data?.token ?? null;
-    } catch {
-      return null;
-    }
-  }, []);
-
   const value = useMemo<SessionContextProps>(
     () => ({
       signIn,
@@ -94,7 +81,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       signOut,
       data,
       status,
-      getToken,
       permissions,
       hasPermission,
       isSuperAdmin,
@@ -103,15 +89,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         permissionsQuery.refetch();
       },
     }),
-    [
-      data,
-      status,
-      getToken,
-      permissions,
-      hasPermission,
-      isSuperAdmin,
-      permissionsQuery,
-    ],
+    [data, status, permissions, hasPermission, isSuperAdmin, permissionsQuery],
   );
 
   return (

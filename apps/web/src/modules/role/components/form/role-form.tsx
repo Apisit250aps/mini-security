@@ -55,9 +55,7 @@ export default function RoleForm({
 
   return (
     <form
-      onSubmit={methods.handleSubmit(onSubmit, (errors) => {
-        console.log(errors);
-      })}
+      onSubmit={methods.handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
       {readOnly && (
