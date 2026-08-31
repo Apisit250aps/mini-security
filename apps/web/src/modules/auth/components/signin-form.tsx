@@ -24,21 +24,21 @@ import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';
 import { getCallbackUrl, getErrorMessage, buildPageUrl } from '@/shared/utils';
 
+const signInSchema = z.object({
+  email: z.email('รูปแบบอีเมลไม่ถูกต้อง'),
+  password: z.string().min(8, 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'),
+});
+
+type SignInFormProps = z.infer<typeof signInSchema>;
+
 export default function SignInForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const router = useRouter();
   const { signIn } = useSession();
-  const methods = useForm({
-    resolver: zodResolver(
-      z.object({
-        email: z.email('รูปแบบอีเมลไม่ถูกต้อง'),
-        password: z
-          .string()
-          .min(8, 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'),
-      }),
-    ),
+  const methods = useForm<SignInFormProps>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -48,7 +48,7 @@ export default function SignInForm({
   const isSubmitting = methods.formState.isSubmitting;
 
   const handleSignIn = useCallback(
-    async (data: { email: string; password: string }) => {
+    async (data: SignInFormProps) => {
       const redirectUrl = buildPageUrl('adminDashboard');
       const res = await signIn.email({
         email: data.email,

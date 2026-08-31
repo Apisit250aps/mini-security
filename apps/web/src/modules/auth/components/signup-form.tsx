@@ -23,35 +23,35 @@ import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';
 import { getCallbackUrl, getErrorMessage, buildPageUrl } from '@/shared/utils';
 
+const signUpSchema = z
+  .object({
+    name: z.string().min(1, 'กรุณาระบุชื่อ-นามสกุล'),
+    email: z.email('รูปแบบอีเมลไม่ถูกต้อง'),
+    password: z.string().min(8, 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'),
+    confirmPassword: z
+      .string()
+      .min(8, 'ยืนยันรหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน',
+    path: ['confirmPassword'],
+  });
+
+type SignUpFormProps = z.infer<typeof signUpSchema>;
+
 export default function SignUpForm({
   ...props
 }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
   const { signUp } = useSession();
-  const methods = useForm({
-    resolver: zodResolver(
-      z
-        .object({
-          name: z.string().min(1, 'กรุณาระบุชื่อ-นามสกุล'),
-          email: z.email('รูปแบบอีเมลไม่ถูกต้อง'),
-          password: z
-            .string()
-            .min(8, 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'),
-          confirmPassword: z
-            .string()
-            .min(8, 'ยืนยันรหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'),
-        })
-        .refine((data) => data.password === data.confirmPassword, {
-          message: 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน',
-          path: ['confirmPassword'],
-        }),
-    ),
+  const methods = useForm<SignUpFormProps>({
+    resolver: zodResolver(signUpSchema),
   });
 
   const isSubmitting = methods.formState.isSubmitting;
 
   const handleSignUp = useCallback(
-    async (data: { name: string; email: string; password: string }) => {
+    async (data: SignUpFormProps) => {
       const redirectUrl = buildPageUrl('adminDashboard');
       const res = await signUp.email({
         name: data.name,
