@@ -1,105 +1,115 @@
 namespace Domain.Entity;
 
-enum RoleType {
-  SUPER_ADMIN: "SUPER_ADMIN",
-  OWNER: "OWNER",
-  ADMIN: "ADMIN",
-  MEMBER: "MEMBER",
-  VIEWER: "VIEWER",
-}
+  model BaseEntity {
+    id: string;
+    createdAt: utcDateTime;
+    updatedAt: utcDateTime;
+  }
 
-model BaseEntity {
-  id: string;
-  createdAt: utcDateTime;
-  updatedAt: utcDateTime;
-}
+  model Session {
+    ...BaseEntity;
 
-model Session {
-  ...BaseEntity;
-  userId: string;
-  token: string;
-  expiresAt: utcDateTime;
-  ipAddress?: string | null;
-  userAgent?: string | null;
-  activeCompanyId?: string | null;
-}
+    userId: string;
+    token: string;
+    expiresAt: utcDateTime;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+    activeCompanyId?: string | null;
+  }
 
-model Account {
-  ...BaseEntity;
-  userId: string;
-  accountId: string;
-  providerId: string;
-  issuer?: string | null;
-  accessToken?: string | null;
-  refreshToken?: string | null;
-  idToken?: string | null;
-  accessTokenExpiresAt?: utcDateTime | null;
-  refreshTokenExpiresAt?: utcDateTime | null;
-  scope?: string | null;
-  password?: string | null;
-}
+  model Account {
+    ...BaseEntity;
 
-model Verification {
-  ...BaseEntity;
-  identifier: string;
-  value: string;
-  expiresAt: utcDateTime;
-}
+    userId: string;
+    accountId: string;
+    providerId: string;
+    issuer?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
+    idToken?: string | null;
+    accessTokenExpiresAt?: utcDateTime | null;
+    refreshTokenExpiresAt?: utcDateTime | null;
+    scope?: string | null;
+    password?: string | null;
+  }
 
-model Jwks {
-  ...BaseEntity;
-  publicKey: string;
-  privateKey: string;
-  expiresAt?: utcDateTime | null;
-  alg?: string | null;
-  crv?: string | null;
-}
+  model Verification {
+    ...BaseEntity;
 
-model Company {
-  ...BaseEntity;
-  name: string;
-  slug: string;
-  logo?: string | null;
-  isActive: boolean;
-}
+    identifier: string;
+    value: string;
+    expiresAt: utcDateTime;
+  }
 
-model CompanyMember {
-  ...BaseEntity;
-  companyId: string;
-  userId: string;
-  roleId: string;
-  isActive: boolean;
-}
+  model Jwks {
+    ...BaseEntity;
 
-model Role {
-  ...BaseEntity;
-  companyId?: string | null;
-  name: string;
-  description?: string | null;
-  roleType: RoleType;
-  isSystemDefault: boolean;
-}
+    publicKey: string;
+    privateKey: string;
+    expiresAt?: utcDateTime | null;
+    alg?: string | null;
+    crv?: string | null;
+  }
 
-model Permission {
-  ...BaseEntity;
-  action: string;
-  module: string;
-  description?: string | null;
-}
+  model Company {
+    ...BaseEntity;
 
-model RolePermission {
-  ...BaseEntity;
-  roleId: string;
-  permissionId: string;
-}
+    name: string;
+    slug: string;
+    logo?: string | null;
+    isActive: boolean;
+  }
 
-model User {
-  ...BaseEntity;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image?: string | null;
-  isAdmin: boolean;
-  isActive: boolean;
-  lastLogin?: utcDateTime | null;
-}
+  model CompanyMember {
+    ...BaseEntity;
+
+    companyId: string;
+    userId: string;
+    roleId: string;
+    isActive: boolean;
+  }
+
+  model Role {
+    ...BaseEntity;
+
+    companyId?: string | null;
+    name: string;
+    description?: string | null;
+    roleType: RoleType;
+    isSystemDefault: boolean;
+  }
+
+  model Permission {
+    ...BaseEntity;
+
+    action: string;
+    module: string;
+    description?: string | null;
+  }
+
+  model RolePermission {
+    ...BaseEntity;
+
+    roleId: string;
+    permissionId: string;
+  }
+
+  model User {
+    ...BaseEntity;
+
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    image?: string | null;
+    isAdmin: boolean;
+    isActive: boolean;
+    lastLogin?: utcDateTime | null;
+  }
+
+  enum RoleType {
+    SUPER_ADMIN: "SUPER_ADMIN",
+    OWNER: "OWNER",
+    ADMIN: "ADMIN",
+    MEMBER: "MEMBER",
+    VIEWER: "VIEWER",
+  }

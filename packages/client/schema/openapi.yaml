@@ -421,6 +421,48 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Company
+  /companies/{id}/switch:
+    post:
+      operationId: CompanyServices_switchActiveCompany
+      summary: Switch active company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/SwitchCompanyResult'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
   /permissions/:
     get:
       operationId: PermissionServices_getPermissions
@@ -1470,6 +1512,16 @@ components:
           type: string
         permissionId:
           type: string
+    SwitchCompanyResult:
+      type: object
+      required:
+        - activeCompanyId
+        - company
+      properties:
+        activeCompanyId:
+          type: string
+        company:
+          $ref: '#/components/schemas/Company'
     UpdateCompany:
       type: object
       properties:
