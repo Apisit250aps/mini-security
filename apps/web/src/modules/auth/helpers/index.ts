@@ -1,5 +1,5 @@
 'use server';
-import { getMyPermissionsUseCase } from '@/shared/compositions/applications/permission/role-permission.application';
+import { getMyPermissionsUseCase } from '@repo/infrastructures/compositions';
 import type { Permission } from '@repo/domains/entities';
 import { Session } from '../hooks/session-provider';
 

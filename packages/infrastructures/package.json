@@ -8,18 +8,25 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./repositories": "./src/repositories/index.ts",
     "./repositories/*": "./src/repositories/*.repo.ts",
     "./lib/*": "./src/lib/*.ts",
     "./auth": "./src/auth/index.ts",
-    "./auth/client": "./src/auth/client.ts"
+    "./auth/client": "./src/auth/client.ts",
+    "./compositions": "./src/compositions/index.ts",
+    "./compositions/*": "./src/compositions/*"
   },
   "imports": {
     "#lib/*": "./src/lib/*.ts",
+    "#repositories": "./src/repositories/index.ts",
     "#repositories/*": "./src/repositories/*.repo.ts",
     "#auth/*": "./src/auth/*.ts",
-    "#auth/client": "./src/auth/client.ts"
+    "#auth/client": "./src/auth/client.ts",
+    "#compositions": "./src/compositions/index.ts",
+    "#compositions/*": "./src/compositions/*"
   },
   "dependencies": {
+    "@repo/applications": "*",
     "@repo/configs": "*",
     "@repo/database": "*",
     "@repo/domains": "*",

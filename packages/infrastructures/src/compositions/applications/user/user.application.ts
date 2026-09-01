@@ -1,4 +1,4 @@
-import { hash } from '@repo/infrastructures';
+import { hash } from '#lib/password';
 import {
   CreateUserUseCase,
   DeleteUserUseCase,

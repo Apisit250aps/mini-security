@@ -8,7 +8,7 @@ import {
   RoleRepository,
   SessionRepository,
   UserRepository,
-} from '@repo/infrastructures';
+} from '#repositories';
 
 export const userRepository = new UserRepository(db);
 
