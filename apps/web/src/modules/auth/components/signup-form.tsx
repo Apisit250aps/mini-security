@@ -21,7 +21,7 @@ import {
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';
-import { getCallbackUrl, getErrorMessage, buildPageUrl } from '@/shared/utils';
+import { getErrorMessage, buildPageUrl } from '@/shared/utils';
 
 const signUpSchema = z
   .object({
@@ -52,19 +52,17 @@ export default function SignUpForm({
 
   const handleSignUp = useCallback(
     async (data: SignUpFormProps) => {
-      const redirectUrl = buildPageUrl('adminDashboard');
       const res = await signUp.email({
         name: data.name,
         email: data.email,
         password: data.password,
-        callbackURL: getCallbackUrl(redirectUrl),
       });
       if (res?.error) {
         toast.error(getErrorMessage(res.error, 'ไม่สามารถสร้างบัญชีผู้ใช้ได้'));
         return;
       }
       toast.success('สร้างบัญชีผู้ใช้สำเร็จ');
-      router.push(redirectUrl);
+      router.refresh();
     },
     [signUp, router],
   );

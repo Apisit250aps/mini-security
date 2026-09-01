@@ -22,7 +22,7 @@ import {
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';
-import { getCallbackUrl, getErrorMessage, buildPageUrl } from '@/shared/utils';
+import { getErrorMessage, buildPageUrl } from '@/shared/utils';
 
 const signInSchema = z.object({
   email: z.email('รูปแบบอีเมลไม่ถูกต้อง'),
@@ -49,18 +49,16 @@ export default function SignInForm({
 
   const handleSignIn = useCallback(
     async (data: SignInFormProps) => {
-      const redirectUrl = buildPageUrl('adminDashboard');
       const res = await signIn.email({
         email: data.email,
         password: data.password,
-        callbackURL: getCallbackUrl(redirectUrl),
       });
       if (res?.error) {
         toast.error(getErrorMessage(res.error, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'));
         return;
       }
       toast.success('เข้าสู่ระบบสำเร็จ');
-      router.push(redirectUrl);
+      router.refresh();
     },
     [signIn, router],
   );

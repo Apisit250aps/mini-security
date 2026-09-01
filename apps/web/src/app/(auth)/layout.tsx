@@ -12,6 +12,10 @@ export default async function Layout({
     headers: await headers(),
   });
 
+  if (session?.user.isAdmin) {
+    redirect('/admin');
+  }
+
   if (session) {
     redirect('/');
   }
