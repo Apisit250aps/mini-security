@@ -1,0 +1,30 @@
+{
+  "name": "@repo/client",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "generate:spec": "tsp compile ./spec/main.tsp",
+    "generate:client": "openapi-ts",
+    "generate": "npm run generate:spec && npm run generate:client",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./gen": "./src/api/client.gen.ts"
+  },
+  "dependencies": {
+    "@hey-api/client-axios": "^0.9.1",
+    "@typespec/compiler": "^1.12.0",
+    "@typespec/http": "^1.12.0",
+    "@typespec/openapi": "^1.12.0",
+    "@typespec/openapi3": "^1.12.0",
+    "@typespec/rest": "^0.82.0"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "^0.98.1",
+    "@repo/configs": "*",
+    "@tanstack/react-query": "^5.102.8",
+    "typescript": "^5.8.2"
+  }
+}

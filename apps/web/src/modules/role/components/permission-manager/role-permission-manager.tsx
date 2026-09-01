@@ -1,0 +1,154 @@
+'use client';
+
+import React, { useMemo, useState } from 'react';
+import type { Role } from '@repo/domains/entities';
+import {
+  RolePermissionProvider,
+  useRolePermissionContext,
+} from '../../context/role-permission-context';
+import { RolePermissionModuleGroup } from './role-permission-module-group';
+import { Badge } from '@repo/ui/components/badge';
+import { Spinner } from '@repo/ui/components/spinner';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@repo/ui/components/input-group';
+import { SearchIcon, ShieldCheckIcon } from 'lucide-react';
+
+function RolePermissionManagerContent() {
+  const {
+    role,
+    readOnly,
+    allPermissions,
+    assignedPermissions,
+    groupedPermissions,
+    isLoading,
+  } = useRolePermissionContext();
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredGroupedPermissions = useMemo(() => {
+    if (!searchTerm.trim()) return groupedPermissions;
+
+    const term = searchTerm.toLowerCase();
+    const result: typeof groupedPermissions = {};
+
+    for (const [moduleName, perms] of Object.entries(groupedPermissions)) {
+      const filtered = perms.filter(
+        (p) =>
+          p.action.toLowerCase().includes(term) ||
+          p.module.toLowerCase().includes(term) ||
+          (p.description && p.description.toLowerCase().includes(term)),
+      );
+      if (filtered.length > 0) {
+        result[moduleName] = filtered;
+      }
+    }
+
+    return result;
+  }, [groupedPermissions, searchTerm]);
+
+  const totalFilteredCount = useMemo(() => {
+    return Object.values(filteredGroupedPermissions).reduce(
+      (acc, list) => acc + list.length,
+      0,
+    );
+  }, [filteredGroupedPermissions]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <Spinner className="size-6 text-primary" />
+        <span className="text-sm text-muted-foreground">
+          กำลังโหลดข้อมูลสิทธิ์...
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
+          <span className="font-semibold">
+            บทบาทมาตรฐานของระบบ (System Default):
+          </span>{' '}
+          แสดงรายการสิทธิ์ในโหมดดูข้อมูลเท่านั้น ไม่สามารถเปลี่ยนแปลงสิทธิ์ได้
+        </div>
+      )}
+
+      {/* Header Summary Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 p-3">
+        <div className="flex items-center gap-2">
+          <ShieldCheckIcon className="size-5 text-primary" />
+          <div className="flex flex-col">
+            <span className="font-semibold text-sm">{role.name}</span>
+            {role.description && (
+              <span className="text-xs text-muted-foreground">
+                {role.description}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">
+            ได้รับสิทธิ์ {assignedPermissions.length} / {allPermissions.length}{' '}
+            รายการ
+          </Badge>
+          {role.isSystemDefault && (
+            <Badge variant="secondary">ค่าเริ่มต้นระบบ</Badge>
+          )}
+        </div>
+      </div>
+
+      {/* Search Filter Input */}
+      <InputGroup className="w-full">
+        <InputGroupAddon align="inline-start">
+          <SearchIcon className="size-4 text-muted-foreground" />
+        </InputGroupAddon>
+        <InputGroupInput
+          placeholder="ค้นหาสิทธิ์ (เช่น user:read, create)..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </InputGroup>
+
+      {/* Module Groups */}
+      {totalFilteredCount === 0 ? (
+        <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+          <p className="text-sm">ไม่พบรายการสิทธิ์ที่ตรงกับคำค้นหา</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {Object.entries(filteredGroupedPermissions).map(
+            ([moduleName, perms]) => (
+              <RolePermissionModuleGroup
+                key={moduleName}
+                moduleName={moduleName}
+                permissions={perms}
+              />
+            ),
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function RolePermissionManager({
+  role,
+  readOnly = false,
+}: {
+  role: Role;
+  readOnly?: boolean;
+}) {
+  return (
+    <RolePermissionProvider role={role} readOnly={readOnly}>
+      <RolePermissionManagerContent />
+    </RolePermissionProvider>
+  );
+}
+
+export default RolePermissionManager;

@@ -1,0 +1,27 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@repo/applications": "*",
+    "@repo/configs": "*",
+    "@repo/database": "*",
+    "@repo/domains": "*",
+    "@repo/infrastructures": "*",
+    "hono": "^4.13.5"
+  },
+  "devDependencies": {
+    "@repo/configs": "*",
+    "@types/node": "^22.13.10",
+    "eslint": "^9.22.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

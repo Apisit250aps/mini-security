@@ -1,0 +1,42 @@
+{
+  "name": "@repo/domains",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "generate": "tsx scripts/generate.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./constants": "./src/constants/index.ts",
+    "./constants/*": "./src/constants/*.ts",
+    "./schema/*": "./src/schema/*.ts",
+    "./entities": "./src/entities/index.ts",
+    "./entities/*": "./src/entities/*.ts",
+    "./repositories/*": "./src/repositories/*.repo.ts",
+    "./applications": "./src/applications/index.ts",
+    "./applications/*": "./src/applications/*/index.ts"
+  },
+  "imports": {
+    "#constants/*": "./src/constants/*.ts",
+    "#lib/*": "./src/lib/*.ts",
+    "#schema/*": "./src/schema/*.ts",
+    "#entities/*": "./src/entities/*.ts",
+    "#repositories/*": "./src/repositories/*.repo.ts",
+    "#applications/*": "./src/applications/*/index.ts"
+  },
+  "dependencies": {
+    "uuid": "^14.0.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@repo/configs": "*",
+    "@types/node": "^22",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9",
+    "ts-morph": "^25.0.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

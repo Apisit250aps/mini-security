@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "skills": {
+    "better-auth-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/best-practices/SKILL.md",
+      "computedHash": "61ba0ef64ed2e7c424401cc848ca33dd6d790a720c44727717dc0c5cba5fc122"
+    },
+    "better-auth-security-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "security/SKILL.md",
+      "computedHash": "7a230edf3a24ce18162cb4379f59b6a19b8d24ca04db530609d0f15cede556dc"
+    },
+    "clean-architecture-application": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-application/SKILL.md",
+      "computedHash": "fb0ac4ccb2c79ac9a732d01399228a55eb24db72424f79528fee7cf258f25572"
+    },
+    "clean-architecture-database-drizzle": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-database-drizzle/SKILL.md",
+      "computedHash": "217edd199c12ce792afafe2cdc225f21e803d0b2528732b2a393f365633a7944"
+    },
+    "clean-architecture-domain": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-domain/SKILL.md",
+      "computedHash": "2ce83609cd9f71b05e42aa6527ed70a909986afb5284c9b2e9a78a32836f76df"
+    },
+    "clean-architecture-feature": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-feature/SKILL.md",
+      "computedHash": "21e83dd6d0f9569d30321bd2e7470be5f2d485b8ddd25b5fb9dac6b02282b746"
+    },
+    "clean-architecture-format": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-format/SKILL.md",
+      "computedHash": "01f2e7437fa2542699cf66e1d265ce58434c5055698f1547fb0282a4ffbf0397"
+    },
+    "clean-architecture-frontend": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-frontend/SKILL.md",
+      "computedHash": "425831fbac2e568e126959bf935a140e2df188bfad68eeeffd76e796f4fb3cd1"
+    },
+    "clean-architecture-infrastructure": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-infrastructure/SKILL.md",
+      "computedHash": "b10af8f423813fd5c6f997e174a95f9b565cd25197c195a5d177ab111c73ba06"
+    },
+    "clean-architecture-monorepo": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-monorepo/SKILL.md",
+      "computedHash": "866cc41e50e5f559076070f59c74922c6ea877f67670b953e2300ac3b3833b4a"
+    },
+    "clean-architecture-presentation": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-presentation/SKILL.md",
+      "computedHash": "20373503cb2dc1afe0859a3cf7397fb92d0c873e4efdd8f4a8dc655459b87780"
+    },
+    "clean-architecture-setup": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-setup/SKILL.md",
+      "computedHash": "e1b3ec1bd4c0ae0477f349af297aaee170884fbe0d86c5de3444580f9820c65b"
+    },
+    "clean-architecture-typespec": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-typespec/SKILL.md",
+      "computedHash": "11340554a3a6e58468d64a222e309d38c5a12250a7e1751768ebd9ef7b09b996"
+    },
+    "clean-architecture-validator": {
+      "source": "Apisit250aps/wayu-clean-architecture",
+      "ref": "v0.5.0",
+      "sourceType": "github",
+      "skillPath": "skills/clean-architecture-validator/SKILL.md",
+      "computedHash": "6a6be2f580d072c2d4cf70caa9ab7fbb6240f39c7b7f884ecdc3d24ca0f8033d"
+    },
+    "create-auth": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/create-auth/SKILL.md",
+      "computedHash": "4e261efac2ae9a2321c4495c846ef97cf239818fc8bd2ab7e92ed1f9d25470f7"
+    },
+    "email-and-password-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/emailAndPassword/SKILL.md",
+      "computedHash": "747d7f73bd9e2ec5317b8ef88dc70f97df716d00e3d02de4051feebaa48b062d"
+    },
+    "minimalist-ui": {
+      "source": "leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/minimalist-skill/SKILL.md",
+      "computedHash": "08873a3131d3be27bef9bf3304b310b16b44ca6e3561aebe532797be3443f6bd"
+    },
+    "react-aria": {
+      "source": "react-aria.adobe.com",
+      "sourceUrl": "https://react-aria.adobe.com",
+      "sourceType": "well-known",
+      "computedHash": "69a333ca4abfc4c5fd674ef3d505bc74014ee8b1be6e89b44eaa855c81536661",
+      "wellKnownDigest": "sha256:ffc7cd806e4e648bf353d5a5538946bbc882560444a5fae24176e68f239337a3"
+    },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "c1a68ee06a668aced9ab2b5fbdea5f989864123794eb2e056b339a072dbb7f10"
+    }
+  }
+}

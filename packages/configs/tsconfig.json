@@ -1,0 +1,6 @@
+{
+  "extends": "./typescript/base.json",
+  "compilerOptions": {},
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
