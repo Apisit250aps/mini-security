@@ -27,21 +27,31 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
-import { buildPageUrl } from '@/shared/utils';
+import {
+  buildPageUrl,
+  roleKeys,
+  userKeys,
+  companyKeys,
+  permissionKeys,
+} from '@/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function AdminDashboardView() {
   const client = useQueryClient();
-  console.log('isFetching:', client.isFetching());
+
   const usersQuery = useUserListQueries();
   const rolesQuery = useRoleListQueries();
   const companiesQuery = useCompanyListQueries();
   const permissionsQuery = usePermissionListQueries();
   const isLoading =
-    usersQuery.isLoading ||
-    companiesQuery.isLoading ||
-    rolesQuery.isLoading ||
-    permissionsQuery.isLoading;
+    client.isFetching({
+      queryKey: [
+        ...userKeys.lists(),
+        ...roleKeys.lists(),
+        ...companyKeys.lists(),
+        ...permissionKeys.lists(),
+      ],
+    }) > 0;
 
   const users = useMemo(() => usersQuery.data || [], [usersQuery.data]);
   const companies = useMemo(
