@@ -47,4 +47,7 @@ companyRoutes.post('/members', companyController.addMember);
 companyRoutes.put('/members/:id', companyController.updateMember);
 companyRoutes.delete('/members/:id', companyController.removeMember);
 
+// Switch Active Company
+companyRoutes.post('/:id/switch', companyController.switchActiveCompany);
+
 export default companyRoutes;

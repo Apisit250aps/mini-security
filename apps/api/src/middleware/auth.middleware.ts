@@ -1,4 +1,7 @@
 import type { MiddlewareHandler } from 'hono';
+import { and, eq } from 'drizzle-orm';
+import db from '@repo/database/db';
+import * as schema from '@repo/database/schema';
 import auth from '@repo/infrastructures/auth';
 import { UnauthorizedError } from '@repo/applications';
 
@@ -67,6 +70,47 @@ async function resolveAuth(
   // 1. Session-based authentication (Cookie or Bearer session token)
   const session = await auth.api.getSession({ headers });
   if (session) {
+    let activeCompanyId = (
+      session.session as { activeCompanyId?: string | null }
+    )?.activeCompanyId;
+
+    if (!activeCompanyId && session.user.id) {
+      // Heal session: auto-resolve activeCompanyId if null
+      const [member] = await db
+        .select({ companyId: schema.companyMember.companyId })
+        .from(schema.companyMember)
+        .where(
+          and(
+            eq(schema.companyMember.userId, session.user.id),
+            eq(schema.companyMember.isActive, true),
+          ),
+        )
+        .limit(1);
+
+      if (member?.companyId) {
+        activeCompanyId = member.companyId;
+      } else if (session.user.isAdmin) {
+        const [firstCompany] = await db
+          .select({ id: schema.company.id })
+          .from(schema.company)
+          .where(eq(schema.company.isActive, true))
+          .limit(1);
+        if (firstCompany?.id) {
+          activeCompanyId = firstCompany.id;
+        }
+      }
+
+      if (activeCompanyId) {
+        (
+          session.session as { activeCompanyId?: string | null }
+        ).activeCompanyId = activeCompanyId;
+        await db
+          .update(schema.session)
+          .set({ activeCompanyId })
+          .where(eq(schema.session.id, session.session.id));
+      }
+    }
+
     return {
       user: session.user,
       session: session.session,

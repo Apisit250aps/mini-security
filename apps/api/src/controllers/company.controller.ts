@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import db from '@repo/database/db';
+import * as schema from '@repo/database/schema';
 import {
   createCompanyMemberSchema,
   createCompanySchema,
   updateCompanyMemberSchema,
   updateCompanySchema,
 } from '@repo/domains/schema/company';
-import type {
+import {
   AddCompanyMemberUseCase,
   CreateCompanyUseCase,
   DeleteCompanyUseCase,
@@ -15,7 +18,9 @@ import type {
   GetCompanyMembersUseCase,
   GetCompanyUseCase,
   GetUserCompaniesUseCase,
+  NotFoundError,
   RemoveCompanyMemberUseCase,
+  UnauthorizedError,
   UpdateCompanyMemberUseCase,
   UpdateCompanyUseCase,
 } from '@repo/applications';
@@ -177,4 +182,37 @@ export class CompanyController extends Controller {
     });
     return this.success(c, 'Company member removed successfully');
   });
+
+  public switchActiveCompany = this.validator(
+    { params: idParamSchema },
+    async (c) => {
+      const { id } = c.get('params');
+      const user = (c as any).get('user');
+      const currentSession = (c as any).get('session');
+
+      if (!currentSession?.id) {
+        throw new UnauthorizedError('Session not found');
+      }
+
+      const company = await this.getCompanyUseCase.execute({
+        id,
+        userId: user?.id,
+        companyId: id,
+      });
+
+      if (!company || !company.isActive) {
+        throw new NotFoundError('Company not found or inactive');
+      }
+
+      await db
+        .update(schema.session)
+        .set({ activeCompanyId: id, updatedAt: new Date() })
+        .where(eq(schema.session.id, currentSession.id));
+
+      return this.success(c, 'Active company switched successfully', {
+        activeCompanyId: id,
+        company,
+      });
+    },
+  );
 }

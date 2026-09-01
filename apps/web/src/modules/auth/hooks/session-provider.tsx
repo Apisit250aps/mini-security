@@ -4,9 +4,8 @@ import React, { useCallback, useMemo } from 'react';
 import { createAuthClient, jwtClient } from '@repo/infrastructures/auth/client';
 import type auth from '@repo/infrastructures/auth';
 import type { Permission } from '@repo/domains/entities';
-import { useMyPermissionsQueries } from '@/modules/permission/hooks/permission-queries';
 
-export const authClient = createAuthClient({
+const authClient = createAuthClient({
   baseURL: typeof window !== 'undefined' ? window.location.origin : '',
   plugins: [jwtClient()],
 });
@@ -14,48 +13,33 @@ export const authClient = createAuthClient({
 const { signIn, signUp, signOut } = authClient;
 
 export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
-export type SessionData = typeof auth.$Infer.Session | null;
+export type Session = typeof auth.$Infer.Session | null;
 
-export type SessionContextProps = {
+export type SessionContext = {
   signIn: typeof signIn;
   signUp: typeof signUp;
   signOut: typeof signOut;
-  data: SessionData;
+  data: Session;
   status: SessionStatus;
   permissions: Permission[];
   hasPermission: (action: string) => boolean;
   isSuperAdmin: boolean;
-  isPermissionsLoading: boolean;
-  refetchPermissions: () => void;
 };
 
-const sessionContext = React.createContext<SessionContextProps | null>(null);
+const sessionContext = React.createContext<SessionContext | null>(null);
 
 export function SessionProvider({
   children,
   session = null,
+  permissions = [],
 }: {
   children: React.ReactNode;
-  session?: SessionData;
+  session?: Session;
+  permissions: Permission[];
 }) {
   const data = session;
   const status: SessionStatus = session ? 'authenticated' : 'unauthenticated';
-
   const isSuperAdmin = Boolean((data?.user as { isAdmin?: boolean })?.isAdmin);
-  const activeCompanyId =
-    (data?.session as { activeCompanyId?: string | null })?.activeCompanyId ||
-    undefined;
-
-  const permissionsQuery = useMyPermissionsQueries(
-    activeCompanyId,
-    status === 'authenticated',
-  );
-
-  const permissions = useMemo<Permission[]>(
-    () => permissionsQuery.data || [],
-    [permissionsQuery.data],
-  );
-
   const permissionActionsSet = useMemo(() => {
     return new Set(permissions.map((p) => p.action));
   }, [permissions]);
@@ -73,8 +57,7 @@ export function SessionProvider({
     },
     [isSuperAdmin, permissionActionsSet],
   );
-
-  const value = useMemo<SessionContextProps>(
+  const value = useMemo<SessionContext>(
     () => ({
       signIn,
       signUp,
@@ -84,12 +67,8 @@ export function SessionProvider({
       permissions,
       hasPermission,
       isSuperAdmin,
-      isPermissionsLoading: permissionsQuery.isLoading,
-      refetchPermissions: () => {
-        permissionsQuery.refetch();
-      },
     }),
-    [data, status, permissions, hasPermission, isSuperAdmin, permissionsQuery],
+    [data, status, permissions, hasPermission, isSuperAdmin],
   );
 
   return (
