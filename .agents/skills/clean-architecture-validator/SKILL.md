@@ -28,6 +28,7 @@ When asked to *"Audit codebase"*, *"Check Clean Architecture rules"*, or *"Find 
 5. **Untyped Generic Errors**: Throwing raw `new Error()` instead of typed application errors (`NotFoundError`, `ValidationError`, `DuplicateError`, `UnauthorizedError`, `ForbiddenError`).
 6. **Persistence Leaks into Domain**: Importing Drizzle ORM, table schemas, or DB connection inside `packages/domains`.
 7. **Frontend Design System Pollution**: `packages/ui` importing business logic, `react-hook-form`, or backend packages.
+8. **Module View Layout Non-Compliance**: Views in `apps/web/src/modules/**/views/**` failing to use `PageLayout` (`@/shared/components/layouts/page-layout`).
 
 ---
 
@@ -41,7 +42,7 @@ When asked to *"Audit codebase"*, *"Check Clean Architecture rules"*, or *"Find 
 | **`packages/infrastructures`**| `@<project>/domains`, `@<project>/database`, `drizzle-orm`, `argon2`. | `@<project>/applications`, `@<project>/ui`, `@<project>/client`. | Re-implementing base CRUD methods already in `Repository<T, C, U>`; reading `process.env` inside repos. |
 | **`packages/client`** | `@typespec/*`, `@hey-api/*`, `Domain.Entity.*`. | Direct usage of `Domain.Entity.<Model>` in services (must alias in `spec/models/`). | Rewriting request DTO properties manually instead of using `OmitProperties`/`OptionalProperties`. |
 | **`packages/ui`** | Pure React, Tailwind CSS, Lucide icons, clsx. | `@<project>/domains`, `@<project>/database`, `@<project>/applications`, `@<project>/infrastructures`, `react-hook-form`, TanStack Table. | Putting compound forms or domain-aware components inside `packages/ui`. |
-| **`apps/web`** | All `@<project>/*` packages. | Direct DB queries bypassing use cases. | Controller calling Repository directly; Controller missing Ponytail grouping. |
+| **`apps/web`** | All `@<project>/*` packages. | Direct DB queries bypassing use cases. | Controller calling Repository directly; Controller missing Ponytail grouping; Views missing `PageLayout`. |
 
 ---
 
@@ -70,6 +71,9 @@ Search for illegal bypasses across all packages:
 - Verify controllers inject Use Cases from `shared/applications/<module>.usecase.ts`.
 - Verify no controller injects or calls a Repository directly.
 - Verify endpoints follow the **Ponytail Principle** (grouped by domain module, not over-fragmented into single-method files).
+
+### 5. Check Module Views (`apps/web`)
+- Verify all view files in `apps/web/src/modules/**/views/**` wrap their content in `<PageLayout ...>` from `@/shared/components/layouts/page-layout`.
 
 ---
 

@@ -56,6 +56,16 @@ Use this skill when building, composing, or refactoring Frontend UI components i
 
 ---
 
+### 3. Module Views (`apps/web/src/modules/**/views/**`)
+- **Role**: Feature view screens consumed by Next.js app routes (`apps/web/src/app/**/page.tsx`).
+- **Rules**:
+  - **MANDATORY**: Every view screen in `apps/web/src/modules/**/views/**` **MUST** be wrapped in `<PageLayout pageId="...">` or `<PageLayout title="..." description="...">` from `@/shared/components/layouts/page-layout`.
+  - **Loading State (`isLoading`)**: Pass query loading states directly to `<PageLayout isLoading={query.isLoading} loadingText="...">` to automatically display a minimalist, non-distracting loading state for the content section while preserving header consistency.
+  - **Action Injection**: Action triggers/buttons (such as create modal dialogs or navigation links) MUST be passed into the `actions` prop: `actions={<ModuleCreateAction />}`.
+  - **Page Route Delegation**: Next.js route `page.tsx` files should be lightweight delegates rendering the View component (e.g. `return <ModuleListView />;`).
+
+---
+
 ## 📝 Example: Building a Form Component
 
 ```tsx
@@ -77,6 +87,28 @@ export function InputField({ name, label }: { name: string; label: string }) {
         </div>
       )}
     />
+  );
+}
+```
+
+---
+
+## 📝 Example: Building a Module View with `PageLayout`
+
+```tsx
+// apps/web/src/modules/product/views/product-list-view.tsx
+'use client';
+
+import React from 'react';
+import PageLayout from '@/shared/components/layouts/page-layout';
+import ProductDataTable from '../components/table/product-data-table';
+import ProductCreateAction from '../components/product-create-action';
+
+export default function ProductListView() {
+  return (
+    <PageLayout pageId="product" actions={<ProductCreateAction />}>
+      <ProductDataTable />
+    </PageLayout>
   );
 }
 ```

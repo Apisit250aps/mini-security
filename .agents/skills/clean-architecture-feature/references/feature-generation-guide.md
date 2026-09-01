@@ -14,5 +14,9 @@
    - Use `#lib/*`, `#schema/*`, `#entities/*` internally within the layer package.
    - Use `@<project>/domains/...` when importing from outside packages.
 
-4. **Zero Tolerance Quality Check**:
+4. **View Standard (`PageLayout`)**:
+   - Every view in `apps/web/src/modules/**/views/**` **MUST** be wrapped in `<PageLayout pageId="...">` or `<PageLayout title="..." description="...">` from `@/shared/components/layouts/page-layout`.
+   - Never render a view without `PageLayout`. Action buttons should be passed into the `actions` prop.
+
+5. **Zero Tolerance Quality Check**:
    - Do not stop until `npm run check-types` and `npm run lint` pass with 0 errors and 0 warnings.

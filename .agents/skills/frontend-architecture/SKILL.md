@@ -35,3 +35,23 @@ If you are asked to create a new generic form component (e.g., `ColorPickerField
 1. **Check primitives**: Do we have a base color picker in `packages/ui`? If not, create/add a dumb `color-picker.tsx` primitive in `packages/ui/src/components`.
 2. **Create Combined Component**: Go to `apps/web/src/shared/components/form/` and create `color-picker-field.tsx`.
 3. **Orchestrate**: In `color-picker-field.tsx`, import `ColorPicker` from `@shop/ui/components/color-picker` and wrap it with `react-hook-form`'s `Controller`.
+
+## 4. Module Views Standard (`PageLayout`)
+All view components in `apps/web/src/modules/**/views/**` **MUST** use `PageLayout` from `@/shared/components/layouts/page-layout`:
+```tsx
+import PageLayout from '@/shared/components/layouts/page-layout';
+
+export default function ModuleListView() {
+  const query = useModuleListQueries();
+  return (
+    <PageLayout
+      pageId="<pageId>"
+      isLoading={query.isLoading}
+      actions={<ModuleCreateAction />}
+    >
+      <ModuleDataTable />
+    </PageLayout>
+  );
+}
+```
+Next.js page files in `apps/web/src/app/**/page.tsx` simply delegate and render the View component.

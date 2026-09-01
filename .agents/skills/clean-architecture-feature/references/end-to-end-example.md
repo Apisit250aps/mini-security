@@ -303,3 +303,32 @@ app.onError(onApiError);
 
 export default app;
 ```
+
+### `apps/web/src/modules/product/views/product-list-view.tsx`
+```tsx
+'use client';
+
+import React from 'react';
+import PageLayout from '@/shared/components/layouts/page-layout';
+import ProductDataTable from '../components/table/product-data-table';
+import ProductCreateAction from '../components/product-create-action';
+
+export default function ProductListView() {
+  return (
+    <PageLayout pageId="product" actions={<ProductCreateAction />}>
+      <ProductDataTable />
+    </PageLayout>
+  );
+}
+```
+
+### `apps/web/src/app/(admin)/admin/product/page.tsx`
+```tsx
+'use client';
+
+import ProductListView from '@/modules/product/views/product-list-view';
+
+export default function ProductPage() {
+  return <ProductListView />;
+}
+```

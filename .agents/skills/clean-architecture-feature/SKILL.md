@@ -96,6 +96,10 @@ In summary:
    - Use `this.validator({ body, query, params })` for input parsing.
    - Use `this.success(c, message, data)` for responses.
 3. **Mount router** in `apps/web/src/api/index.ts` under `/api/<module>`.
+4. **Module Views (`apps/web/src/modules/<module>/views/`)**:
+   - **MANDATORY**: Always wrap view screens with `<PageLayout pageId="...">` or `<PageLayout title="..." description="...">` from `@/shared/components/layouts/page-layout`.
+   - Embed actions via the `actions={<ActionComponent />}` prop.
+   - Next.js route `page.tsx` simply renders the View component (e.g. `return <ProductListView />;`).
 
 ---
 
