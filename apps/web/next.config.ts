@@ -4,6 +4,9 @@ import config from '@repo/configs';
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  experimental: {
+    authInterrupts: true,
+  },
   async rewrites() {
     return [
       {

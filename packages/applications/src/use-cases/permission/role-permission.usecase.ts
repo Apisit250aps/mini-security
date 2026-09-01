@@ -195,7 +195,7 @@ export class GetMyPermissionsUseCase implements IGetMyPermissionsUseCase {
   @RequirePermission('permission:read')
   async execute(context: IGetMyPermissionsContext): Promise<Permission[]> {
     if (!context.userId) return [];
-    
+
     const user = await this.userRepository.findById(context.userId);
     if (!user || !user.isActive) return [];
 

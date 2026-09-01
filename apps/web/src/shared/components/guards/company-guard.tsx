@@ -3,8 +3,7 @@
 import React from 'react';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { Spinner } from '@repo/ui/components/spinner';
-import { buildPageUrl } from '@/shared/utils';
-import { redirect } from 'next/navigation';
+import { unauthorized } from 'next/navigation';
 
 export function CompanyGuard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
@@ -18,6 +17,8 @@ export function CompanyGuard({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  if (status === 'unauthenticated') redirect(buildPageUrl('signIn'));
+  if (status === 'unauthenticated') {
+    unauthorized();
+  }
   return <>{children}</>;
 }
