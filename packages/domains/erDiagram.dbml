@@ -238,8 +238,384 @@ TableGroup auth_management {
 
 TableGroup organization_and_rbac {
   company
+  company_branch
   company_member
   role
   permission
   role_permission
+}
+
+// ==========================================
+// Attendance Module
+// ==========================================
+
+// --- Enums ---
+
+Enum check_type {
+  CHECK_IN   [note: 'เข้างาน']
+  CHECK_OUT  [note: 'ออกงาน']
+  BREAK_IN   [note: 'กลับจากพัก']
+  BREAK_OUT  [note: 'เริ่มพัก']
+  CUSTOM     [note: 'กำหนดเองตาม checkpoint']
+}
+
+Enum attendance_status {
+  PENDING    [note: 'รอการตรวจสอบ']
+  APPROVED   [note: 'อนุมัติแล้ว']
+  REJECTED   [note: 'ถูกปฏิเสธ']
+  LATE       [note: 'มาสาย']
+  ABSENT     [note: 'ขาดงาน']
+}
+
+Enum location_type {
+  FIXED      [note: 'สถานที่คงที่']
+  RADIUS     [note: 'รัศมีจากพิกัด GPS']
+  BRANCH     [note: 'ตามที่อยู่ branch']
+}
+
+Enum leave_type {
+  SICK_LEAVE        [note: 'ลาป่วย']
+  ANNUAL_LEAVE      [note: 'ลาพักร้อน']
+  PERSONAL_LEAVE    [note: 'ลากิจ']
+  MATERNITY_LEAVE   [note: 'ลาคลอด']
+  ABSENT_NO_REASON  [note: 'ขาดงานไม่มีเหตุผล']
+}
+
+Enum leave_status {
+  PENDING   [note: 'รอการอนุมัติ']
+  APPROVED  [note: 'อนุมัติแล้ว']
+  REJECTED  [note: 'ไม่อนุมัติ']
+  CANCELLED [note: 'ยกเลิก']
+}
+
+// ==========================================
+// MODULE 1: Work Schedule & Shift
+// ── กำหนดตารางงาน, กะ, และประเภทวันทำงาน
+// ==========================================
+
+Table work_schedule {
+  id               uuid      [pk, note: 'UUIDv7 Primary Key']
+  company_id       uuid      [not null]
+  name             text      [not null, note: 'ชื่อตารางงาน เช่น "ตารางงาน Office 2025"']
+  description      text
+  is_active        boolean   [not null, default: true]
+  created_at       timestamp [not null, default: `now()`]
+  updated_at       timestamp [not null]
+
+  Indexes {
+    company_id [name: 'work_schedule_company_id_idx']
+  }
+
+  Note: 'ตารางงานหลักของบริษัท สามารถมีได้หลายตาราง เพื่อรองรับหลาย department'
+}
+
+Table work_shift {
+  id               uuid      [pk, note: 'UUIDv7 Primary Key']
+  work_schedule_id uuid      [not null]
+  company_id       uuid      [not null]
+  name             text      [not null, note: 'เช่น กะเช้า, กะบ่าย, กะดึก']
+  start_time       time      [not null, note: 'เวลาเริ่มงาน']
+  end_time         time      [not null, note: 'เวลาเลิกงาน']
+  is_overnight     boolean   [not null, default: false, note: 'ข้ามคืนหรือไม่']
+  color            text      [note: 'สีสำหรับ UI Calendar']
+  created_at       timestamp [not null, default: `now()`]
+  updated_at       timestamp [not null]
+
+  Indexes {
+    work_schedule_id [name: 'work_shift_schedule_id_idx']
+    company_id       [name: 'work_shift_company_id_idx']
+  }
+
+  Note: 'กะการทำงาน ผูกกับตารางงาน สามารถมีหลายกะต่อตาราง'
+}
+
+// ==========================================
+// MODULE 2: Attendance Checkpoint Policy
+// ── กำหนดแบบ dynamic ว่า role ไหน ต้องเช็คอะไรบ้าง
+// ==========================================
+
+Table attendance_policy {
+  id          uuid      [pk, note: 'UUIDv7 Primary Key']
+  company_id  uuid      [not null]
+  name        text      [not null, note: 'ชื่อ policy เช่น "นโยบายพนักงานทั่วไป"']
+  description text
+  is_active   boolean   [not null, default: true]
+  created_at  timestamp [not null, default: `now()`]
+  updated_at  timestamp [not null]
+
+  Indexes {
+    company_id [name: 'attendance_policy_company_id_idx']
+  }
+
+  Note: 'Policy การเช็คชื่อระดับบริษัท ใช้กำหนดว่าแต่ละ role ต้องทำอะไรบ้าง'
+}
+
+Table attendance_checkpoint {
+  id                uuid       [pk, note: 'UUIDv7 Primary Key']
+  policy_id         uuid       [not null]
+  check_type        check_type [not null]
+  label             text       [not null, note: 'ชื่อแสดงผล เช่น "เช็คชื่อเช้า", "พักกลางวัน"']
+  order_index       integer    [not null, default: 0, note: 'ลำดับการแสดงผล']
+  is_required       boolean    [not null, default: true, note: 'บังคับเช็คหรือไม่']
+  window_start      time       [note: 'เริ่มเช็คได้เมื่อไหร่']
+  window_end        time       [note: 'เช็คได้ถึงเมื่อไหร่']
+  grace_minutes     integer    [default: 0, note: 'จำนวนนาทีผ่อนผัน']
+  require_photo     boolean    [not null, default: true, note: 'บังคับถ่ายรูปหรือไม่']
+  require_location  boolean    [not null, default: true, note: 'บังคับตรวจสอบพิกัดหรือไม่']
+  created_at        timestamp  [not null, default: `now()`]
+  updated_at        timestamp  [not null]
+
+  Indexes {
+    policy_id  [name: 'checkpoint_policy_id_idx']
+    check_type [name: 'checkpoint_type_idx']
+  }
+
+  Note: 'กำหนด checkpoint แต่ละจุด เช่น เช้า กลางวัน เย็น ภายใต้ policy'
+}
+
+Table role_attendance_policy {
+  id          uuid      [pk, note: 'UUIDv7 Primary Key']
+  role_id     uuid      [not null]
+  policy_id   uuid      [not null]
+  company_id  uuid      [not null]
+  created_at  timestamp [not null, default: `now()`]
+  updated_at  timestamp [not null]
+
+  Indexes {
+    role_id   [name: 'role_att_policy_role_idx']
+    policy_id [name: 'role_att_policy_policy_idx']
+    (role_id, policy_id) [unique, name: 'role_att_policy_unique_idx']
+  }
+
+  Note: 'ผูก Role กับ Attendance Policy (many-to-many) — กำหนดว่า role ใช้ policy ไหน'
+}
+
+// ==========================================
+// MODULE 3: Attendance Location
+// ── กำหนดสถานที่และรัศมีที่อนุญาตให้เช็ค
+// ==========================================
+
+Table attendance_location {
+  id             uuid          [pk, note: 'UUIDv7 Primary Key']
+  company_id     uuid          [not null]
+  branch_id      uuid          [note: 'ผูกกับ branch (optional)']
+  name           text          [not null, note: 'ชื่อสถานที่ เช่น "สำนักงานใหญ่"']
+  location_type  location_type [not null, default: 'RADIUS']
+  latitude       decimal(10,8) [note: 'พิกัด GPS Latitude']
+  longitude      decimal(11,8) [note: 'พิกัด GPS Longitude']
+  radius_meters  integer       [note: 'รัศมีที่อนุญาต (เมตร) สำหรับ RADIUS type']
+  address        text          [note: 'ที่อยู่แบบ text']
+  is_active      boolean       [not null, default: true]
+  created_at     timestamp     [not null, default: `now()`]
+  updated_at     timestamp     [not null]
+
+  Indexes {
+    company_id [name: 'att_location_company_id_idx']
+    branch_id  [name: 'att_location_branch_id_idx']
+  }
+
+  Note: 'ตำแหน่งที่อนุญาตให้เช็คชื่อ รองรับทั้งแบบ Fixed, Radius GPS และตาม Branch'
+}
+
+Table checkpoint_location {
+  id            uuid      [pk, note: 'UUIDv7 Primary Key']
+  checkpoint_id uuid      [not null]
+  location_id   uuid      [not null]
+  created_at    timestamp [not null, default: `now()`]
+  updated_at    timestamp [not null]
+
+  Indexes {
+    checkpoint_id [name: 'chk_loc_checkpoint_idx']
+    location_id   [name: 'chk_loc_location_idx']
+    (checkpoint_id, location_id) [unique, name: 'chk_loc_unique_idx']
+  }
+
+  Note: 'ผูก Checkpoint กับ Location ที่อนุญาต (1 checkpoint มีได้หลาย location)'
+}
+
+// ==========================================
+// MODULE 4: Member Schedule Assignment
+// ── กำหนดว่า member คนไหน ใช้ตารางงานอะไร
+// ==========================================
+
+Table member_work_schedule {
+  id                uuid      [pk, note: 'UUIDv7 Primary Key']
+  company_member_id uuid      [not null]
+  work_shift_id     uuid      [not null]
+  effective_date    date      [not null, note: 'วันที่เริ่มใช้งาน']
+  end_date          date      [note: 'วันที่สิ้นสุด (null = ยังใช้งานอยู่)']
+  created_at        timestamp [not null, default: `now()`]
+  updated_at        timestamp [not null]
+
+  Indexes {
+    company_member_id [name: 'member_schedule_member_idx']
+    work_shift_id     [name: 'member_schedule_shift_idx']
+    effective_date    [name: 'member_schedule_date_idx']
+  }
+
+  Note: 'กำหนดกะการทำงานให้ member รองรับการเปลี่ยนกะในอนาคต'
+}
+
+// ==========================================
+// MODULE 5: Daily Attendance Record
+// ── บันทึกการเข้างานรายวัน (header)
+// ==========================================
+
+Table attendance_record {
+  id                   uuid              [pk, note: 'UUIDv7 Primary Key']
+  company_id           uuid              [not null]
+  company_member_id    uuid              [not null]
+  work_shift_id        uuid              [not null, note: 'กะที่ทำงานวันนี้']
+  work_date            date              [not null, note: 'วันที่ทำงาน']
+  status               attendance_status [not null, default: 'PENDING']
+  total_work_minutes   integer           [note: 'จำนวนนาทีที่ทำงานทั้งหมด สำหรับคำนวณเงินเดือน']
+  overtime_minutes     integer           [default: 0, note: 'นาที OT']
+  late_minutes         integer           [default: 0, note: 'นาทีที่มาสาย']
+  note                 text              [note: 'หมายเหตุเพิ่มเติม']
+  approved_by          uuid              [note: 'manager/admin ที่อนุมัติ']
+  approved_at          timestamp
+  created_at           timestamp         [not null, default: `now()`]
+  updated_at           timestamp         [not null]
+
+  Indexes {
+    company_id        [name: 'att_record_company_idx']
+    company_member_id [name: 'att_record_member_idx']
+    work_date         [name: 'att_record_date_idx']
+    (company_member_id, work_date) [unique, name: 'att_record_member_date_unique']
+  }
+
+  Note: 'บันทึกการเข้างานรายวัน 1 row = 1 คน/วัน รวมข้อมูลสำหรับคำนวณเงินเดือน'
+}
+
+// ==========================================
+// MODULE 6: Attendance Log (Check-in/out Events)
+// ── บันทึก event การเช็คชื่อแต่ละครั้ง
+// ==========================================
+
+Table attendance_log {
+  id                   uuid          [pk, note: 'UUIDv7 Primary Key']
+  attendance_record_id uuid          [not null]
+  checkpoint_id        uuid          [not null, note: 'checkpoint ที่เช็ค']
+  check_type           check_type    [not null]
+  checked_at           timestamp     [not null, note: 'เวลาจริงที่เช็ค']
+  latitude             decimal(10,8) [note: 'พิกัดที่เช็ค']
+  longitude            decimal(11,8) [note: 'พิกัดที่เช็ค']
+  accuracy_meters      decimal(6,2)  [note: 'ความแม่นยำของ GPS (เมตร)']
+  location_id          uuid          [note: 'สถานที่ที่ตรงกัน (ถ้า match ได้)']
+  is_location_valid    boolean       [not null, default: false]
+  photo_url            text          [note: 'URL รูปถ่าย']
+  photo_verified       boolean       [not null, default: false, note: 'ผ่านการตรวจสอบรูปแล้วหรือไม่']
+  device_id            text          [note: 'Device identifier']
+  ip_address           text          [note: 'IP ที่เช็ค']
+  is_manual            boolean       [not null, default: false, note: 'เช็คโดย admin แทนหรือไม่']
+  manual_reason        text          [note: 'เหตุผลถ้าเป็นการเช็คแทน']
+  created_at           timestamp     [not null, default: `now()`]
+  updated_at           timestamp     [not null]
+
+  Indexes {
+    attendance_record_id [name: 'att_log_record_idx']
+    checkpoint_id        [name: 'att_log_checkpoint_idx']
+    checked_at           [name: 'att_log_checked_at_idx']
+    (attendance_record_id, checkpoint_id) [unique, name: 'att_log_record_checkpoint_unique']
+  }
+
+  Note: 'บันทึก event การเช็คแต่ละ checkpoint พร้อม GPS, รูปถ่าย, device info'
+}
+
+// ==========================================
+// MODULE 7: Leave & Absence
+// ── บันทึกการลา เพื่อใช้คำนวณเงินเดือน
+// ==========================================
+
+Table leave_request {
+  id                uuid         [pk, note: 'UUIDv7 Primary Key']
+  company_id        uuid         [not null]
+  company_member_id uuid         [not null]
+  leave_type        leave_type   [not null]
+  status            leave_status [not null, default: 'PENDING']
+  start_date        date         [not null]
+  end_date          date         [not null]
+  total_days        decimal(4,1) [not null, note: 'จำนวนวันลา รองรับครึ่งวัน']
+  reason            text
+  attachment_url    text         [note: 'URL เอกสารประกอบ เช่น ใบรับรองแพทย์']
+  reviewed_by       uuid         [note: 'ผู้อนุมัติ']
+  reviewed_at       timestamp
+  review_note       text
+  created_at        timestamp    [not null, default: `now()`]
+  updated_at        timestamp    [not null]
+
+  Indexes {
+    company_id        [name: 'leave_req_company_idx']
+    company_member_id [name: 'leave_req_member_idx']
+    start_date        [name: 'leave_req_start_date_idx']
+    status            [name: 'leave_req_status_idx']
+  }
+
+  Note: 'คำขอลา เชื่อมกับ attendance_record เพื่อคำนวณวันลาในเงินเดือน'
+}
+
+// --- Foreign Key Relationships (Attendance Module) ---
+
+// Work Schedule
+Ref: work_schedule.company_id > company.id [delete: cascade]
+Ref: work_shift.work_schedule_id > work_schedule.id [delete: cascade]
+Ref: work_shift.company_id > company.id [delete: cascade]
+
+// Policy & Checkpoint
+Ref: attendance_policy.company_id > company.id [delete: cascade]
+Ref: attendance_checkpoint.policy_id > attendance_policy.id [delete: cascade]
+Ref: role_attendance_policy.role_id > role.id [delete: cascade]
+Ref: role_attendance_policy.policy_id > attendance_policy.id [delete: cascade]
+Ref: role_attendance_policy.company_id > company.id [delete: cascade]
+
+// Location
+Ref: attendance_location.company_id > company.id [delete: cascade]
+Ref: attendance_location.branch_id > company_branch.id
+Ref: checkpoint_location.checkpoint_id > attendance_checkpoint.id [delete: cascade]
+Ref: checkpoint_location.location_id > attendance_location.id [delete: cascade]
+
+// Member Schedule
+Ref: member_work_schedule.company_member_id > company_member.id [delete: cascade]
+Ref: member_work_schedule.work_shift_id > work_shift.id
+
+// Attendance Record & Log
+Ref: attendance_record.company_id > company.id
+Ref: attendance_record.company_member_id > company_member.id [delete: cascade]
+Ref: attendance_record.work_shift_id > work_shift.id
+Ref: attendance_record.approved_by > user.id
+Ref: attendance_log.attendance_record_id > attendance_record.id [delete: cascade]
+Ref: attendance_log.checkpoint_id > attendance_checkpoint.id
+Ref: attendance_log.location_id > attendance_location.id
+
+// Leave
+Ref: leave_request.company_id > company.id [delete: cascade]
+Ref: leave_request.company_member_id > company_member.id [delete: cascade]
+Ref: leave_request.reviewed_by > user.id
+
+// --- Attendance Table Groups ---
+
+TableGroup attendance_schedule {
+  work_schedule
+  work_shift
+  member_work_schedule
+}
+
+TableGroup attendance_policy_config {
+  attendance_policy
+  attendance_checkpoint
+  role_attendance_policy
+}
+
+TableGroup attendance_location_config {
+  attendance_location
+  checkpoint_location
+}
+
+TableGroup attendance_tracking {
+  attendance_record
+  attendance_log
+}
+
+TableGroup leave_management {
+  leave_request
 }
