@@ -1,16 +1,19 @@
 import { and, eq } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
-import { company, companyMember } from '@repo/database/schema';
-import { Company, CompanyMember } from '@repo/domains/entities';
+import { company, companyBranch, companyMember } from '@repo/database/schema';
+import { Company, CompanyBranch, CompanyMember } from '@repo/domains/entities';
 import type {
+  ICompanyBranchRepository,
   ICompanyMemberRepository,
   ICompanyRepository,
 } from '@repo/domains/repositories/company';
 import type {
   CreateCompany,
+  CreateCompanyBranch,
   CreateCompanyMember,
   UpdateCompany,
+  UpdateCompanyBranch,
   UpdateCompanyMember,
 } from '@repo/domains/schema/company';
 
@@ -39,6 +42,59 @@ export class CompanyRepository
   }
 }
 
+export class CompanyBranchRepository
+  extends Repository<CompanyBranch, CreateCompanyBranch, UpdateCompanyBranch>
+  implements ICompanyBranchRepository
+{
+  constructor(db: Database) {
+    super(db, companyBranch);
+  }
+
+  async findByCompanyId(companyId: string): Promise<CompanyBranch[]> {
+    const results = await this.db
+      .select()
+      .from(this.table)
+      .where(eq(companyBranch.companyId, companyId));
+    return results.map((r) => new CompanyBranch(r as unknown as CompanyBranch));
+  }
+
+  async findDefaultByCompanyId(
+    companyId: string,
+  ): Promise<CompanyBranch | null> {
+    const [result] = await this.db
+      .select()
+      .from(this.table)
+      .where(
+        and(
+          eq(companyBranch.companyId, companyId),
+          eq(companyBranch.isActive, true),
+        ),
+      )
+      .limit(1);
+    return result
+      ? new CompanyBranch(result as unknown as CompanyBranch)
+      : null;
+  }
+
+  async findByName(
+    companyId: string,
+    name: string,
+  ): Promise<CompanyBranch | null> {
+    const [result] = await this.db
+      .select()
+      .from(this.table)
+      .where(
+        and(
+          eq(companyBranch.companyId, companyId),
+          eq(companyBranch.name, name),
+        ),
+      );
+    return result
+      ? new CompanyBranch(result as unknown as CompanyBranch)
+      : null;
+  }
+}
+
 export class CompanyMemberRepository
   extends Repository<CompanyMember, CreateCompanyMember, UpdateCompanyMember>
   implements ICompanyMemberRepository
@@ -60,6 +116,14 @@ export class CompanyMemberRepository
       .select()
       .from(this.table)
       .where(eq(companyMember.userId, userId));
+    return results.map((r) => new CompanyMember(r as unknown as CompanyMember));
+  }
+
+  async findByBranchId(branchId: string): Promise<CompanyMember[]> {
+    const results = await this.db
+      .select()
+      .from(this.table)
+      .where(eq(companyMember.companyBranchId, branchId));
     return results.map((r) => new CompanyMember(r as unknown as CompanyMember));
   }
 

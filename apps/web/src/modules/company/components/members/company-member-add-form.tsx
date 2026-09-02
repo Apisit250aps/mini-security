@@ -12,6 +12,7 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useCompanyMemberAdd } from '../../hooks/company-mutations';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useCompanyBranchesQueries } from '../../hooks/company-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import {
   Tabs,
@@ -35,6 +36,7 @@ export default function CompanyMemberAddForm({
 
   const usersQuery = useUserListQueries();
   const rolesQuery = useCompanyRolesQueries(companyId);
+  const branchesQuery = useCompanyBranchesQueries(companyId);
 
   const userOptions = useMemo(() => {
     return (usersQuery.data || []).map((u) => ({
@@ -56,19 +58,40 @@ export default function CompanyMemberAddForm({
       }));
   }, [rolesQuery.data, companyId]);
 
+  const branchOptions = useMemo(() => {
+    return (branchesQuery.data || [])
+      .filter((b) => b.isActive)
+      .map((b) => ({
+        value: b.id,
+        label: b.name,
+      }));
+  }, [branchesQuery.data]);
+
+  const defaultBranchId = useMemo(() => {
+    return branchesQuery.data?.[0]?.id || '';
+  }, [branchesQuery.data]);
+
   const methods = useForm<CompanyMemberAddFormValues>({
     resolver: zodResolver(createCompanyMemberSchema as never),
     defaultValues: {
       companyId,
+      companyBranchId: defaultBranchId,
       userId: '',
       roleId: '',
       isActive: true,
     },
   });
 
+  React.useEffect(() => {
+    if (defaultBranchId && !methods.getValues('companyBranchId')) {
+      methods.setValue('companyBranchId', defaultBranchId);
+    }
+  }, [defaultBranchId, methods]);
+
   const handleSubmit = async (data: CompanyMemberAddFormValues) => {
     await addMutation.mutateAsync({
       companyId,
+      companyBranchId: data.companyBranchId || defaultBranchId || undefined,
       userId: data.userId,
       roleId: data.roleId,
       isActive: data.isActive ?? true,
@@ -100,6 +123,14 @@ export default function CompanyMemberAddForm({
               options={userOptions}
               control={methods.control}
               required
+            />
+
+            <SelectField
+              name="companyBranchId"
+              label="สังกัดสาขา (Branch)"
+              placeholder="เลือกสาขา (ค่าเริ่มต้น: สำนักงานใหญ่)..."
+              options={branchOptions}
+              control={methods.control}
             />
 
             <SelectField

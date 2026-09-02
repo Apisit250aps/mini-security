@@ -1,15 +1,20 @@
 import {
   companyServicesAddCompanyMember,
   companyServicesCreateCompany,
+  companyServicesCreateCompanyBranch,
   companyServicesDeleteCompany,
+  companyServicesDeleteCompanyBranch,
   companyServicesRemoveCompanyMember,
   companyServicesUpdateCompany,
+  companyServicesUpdateCompanyBranch,
   companyServicesUpdateCompanyMember,
 } from '@repo/client';
 import type {
   CreateCompany,
+  CreateCompanyBranch,
   CreateCompanyMember,
   UpdateCompany,
+  UpdateCompanyBranch,
   UpdateCompanyMember,
 } from '@repo/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -158,6 +163,78 @@ function useCompanyMemberRemove(companyId: string) {
   return mutation;
 }
 
+function useCompanyBranchCreate(companyId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (data: CreateCompanyBranch) => {
+      const res = await companyServicesCreateCompanyBranch({ body: data });
+      return res;
+    },
+    onSuccess: () => {
+      toast.success('เพิ่มสาขาใหม่สำเร็จ');
+      queryClient.invalidateQueries({
+        queryKey: companyKeys.branches(companyId),
+      });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการเพิ่มสาขา'));
+    },
+  });
+  return mutation;
+}
+
+function useCompanyBranchUpdate(companyId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: UpdateCompanyBranch;
+    }) => {
+      const res = await companyServicesUpdateCompanyBranch({
+        path: { id },
+        body: data,
+      });
+      return res;
+    },
+    onSuccess: () => {
+      toast.success('อัปเดตข้อมูลสาขาสำเร็จ');
+      queryClient.invalidateQueries({
+        queryKey: companyKeys.branches(companyId),
+      });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการแก้ไขสาขา'));
+    },
+  });
+  return mutation;
+}
+
+function useCompanyBranchDelete(companyId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (branchId: string) => {
+      const res = await companyServicesDeleteCompanyBranch({
+        path: { id: branchId },
+        query: { companyId },
+      });
+      return res;
+    },
+    onSuccess: () => {
+      toast.success('ลบข้อมูลสาขาสำเร็จ');
+      queryClient.invalidateQueries({
+        queryKey: companyKeys.branches(companyId),
+      });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบสาขา'));
+    },
+  });
+  return mutation;
+}
+
 export {
   useCompanyDelete,
   useCompanyUpdate,
@@ -165,4 +242,7 @@ export {
   useCompanyMemberAdd,
   useCompanyMemberUpdate,
   useCompanyMemberRemove,
+  useCompanyBranchCreate,
+  useCompanyBranchUpdate,
+  useCompanyBranchDelete,
 };

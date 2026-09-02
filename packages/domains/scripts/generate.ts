@@ -35,6 +35,8 @@ function tsTypeToTsp(typeName: string): string {
       return 'utcDateTime';
     case 'null':
       return 'null';
+    case 'RoleType':
+      return 'RoleType';
     default:
       return t;
   }
@@ -182,6 +184,14 @@ const baseEntityTemplate = `  model BaseEntity {
     id: string;
     createdAt: utcDateTime;
     updatedAt: utcDateTime;
+  }
+
+  enum RoleType {
+    SUPER_ADMIN: "SUPER_ADMIN",
+    OWNER: "OWNER",
+    ADMIN: "ADMIN",
+    MEMBER: "MEMBER",
+    VIEWER: "VIEWER",
   }`;
 
 const finalTspContent = `namespace Domain.Entity;\n\n${baseEntityTemplate}\n\n${blocks.join('\n\n')}\n`;

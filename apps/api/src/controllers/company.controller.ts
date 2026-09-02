@@ -4,16 +4,22 @@ import { eq } from 'drizzle-orm';
 import db from '@repo/database/db';
 import * as schema from '@repo/database/schema';
 import {
+  createCompanyBranchSchema,
   createCompanyMemberSchema,
   createCompanySchema,
+  updateCompanyBranchSchema,
   updateCompanyMemberSchema,
   updateCompanySchema,
 } from '@repo/domains/schema/company';
 import {
   AddCompanyMemberUseCase,
+  CreateCompanyBranchUseCase,
   CreateCompanyUseCase,
+  DeleteCompanyBranchUseCase,
   DeleteCompanyUseCase,
   GetCompaniesUseCase,
+  GetCompanyBranchesUseCase,
+  GetCompanyBranchUseCase,
   GetCompanyBySlugUseCase,
   GetCompanyMembersUseCase,
   GetCompanyUseCase,
@@ -21,6 +27,7 @@ import {
   NotFoundError,
   RemoveCompanyMemberUseCase,
   UnauthorizedError,
+  UpdateCompanyBranchUseCase,
   UpdateCompanyMemberUseCase,
   UpdateCompanyUseCase,
 } from '@repo/applications';
@@ -51,6 +58,11 @@ export class CompanyController extends Controller {
     private readonly removeCompanyMemberUseCase: RemoveCompanyMemberUseCase,
     private readonly getCompanyMembersUseCase: GetCompanyMembersUseCase,
     private readonly getUserCompaniesUseCase: GetUserCompaniesUseCase,
+    private readonly createCompanyBranchUseCase?: CreateCompanyBranchUseCase,
+    private readonly updateCompanyBranchUseCase?: UpdateCompanyBranchUseCase,
+    private readonly deleteCompanyBranchUseCase?: DeleteCompanyBranchUseCase,
+    private readonly getCompanyBranchesUseCase?: GetCompanyBranchesUseCase,
+    private readonly getCompanyBranchUseCase?: GetCompanyBranchUseCase,
   ) {
     super();
   }
@@ -181,6 +193,89 @@ export class CompanyController extends Controller {
       userId: user?.id,
     });
     return this.success(c, 'Company member removed successfully');
+  });
+
+  // ─── Company Branch Endpoints ──────────────────────────────────────────────
+  public getBranches = this.validator(
+    { params: companyMemberParamSchema },
+    async (c) => {
+      const { companyId } = c.get('params');
+      const user = (c as any).get('user');
+      if (!this.getCompanyBranchesUseCase) {
+        throw new Error('GetCompanyBranchesUseCase is not injected');
+      }
+      const branches = await this.getCompanyBranchesUseCase.execute({
+        companyId,
+        userId: user?.id,
+      });
+      return this.success(
+        c,
+        'Company branches retrieved successfully',
+        branches,
+      );
+    },
+  );
+
+  public getBranch = this.validator({ params: idParamSchema }, async (c) => {
+    const { id } = c.get('params');
+    const user = (c as any).get('user');
+    if (!this.getCompanyBranchUseCase) {
+      throw new Error('GetCompanyBranchUseCase is not injected');
+    }
+    const branch = await this.getCompanyBranchUseCase.execute({
+      id,
+      userId: user?.id,
+    });
+    return this.success(c, 'Company branch retrieved successfully', branch);
+  });
+
+  public createBranch = this.validator(
+    { body: createCompanyBranchSchema },
+    async (c) => {
+      const body = c.get('body');
+      const user = (c as any).get('user');
+      if (!this.createCompanyBranchUseCase) {
+        throw new Error('CreateCompanyBranchUseCase is not injected');
+      }
+      const branch = await this.createCompanyBranchUseCase.execute({
+        data: body,
+        userId: user?.id,
+      });
+      return this.created(c, 'Company branch created successfully', branch);
+    },
+  );
+
+  public updateBranch = this.validator(
+    { params: idParamSchema, body: updateCompanyBranchSchema },
+    async (c) => {
+      const { id } = c.get('params');
+      const body = c.get('body');
+      const user = (c as any).get('user');
+      if (!this.updateCompanyBranchUseCase) {
+        throw new Error('UpdateCompanyBranchUseCase is not injected');
+      }
+      const branch = await this.updateCompanyBranchUseCase.execute({
+        id,
+        data: body,
+        userId: user?.id,
+      });
+      return this.success(c, 'Company branch updated successfully', branch);
+    },
+  );
+
+  public deleteBranch = this.validator({ params: idParamSchema }, async (c) => {
+    const { id } = c.get('params');
+    const user = (c as any).get('user');
+    const companyId = c.req.query('companyId') || '';
+    if (!this.deleteCompanyBranchUseCase) {
+      throw new Error('DeleteCompanyBranchUseCase is not injected');
+    }
+    await this.deleteCompanyBranchUseCase.execute({
+      id,
+      companyId,
+      userId: user?.id,
+    });
+    return this.success(c, 'Company branch deleted successfully');
   });
 
   public switchActiveCompany = this.validator(

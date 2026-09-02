@@ -10,7 +10,7 @@ import {
 } from '@repo/ui/components/select';
 import { Badge } from '@repo/ui/components/badge';
 import { useCompanyMemberUpdate } from '../../hooks/company-mutations';
-import type { CompanyMember, Role } from '@repo/domains/entities';
+import type { CompanyMember, Role } from '@repo/client';
 
 export default function CompanyMemberRoleSelect({
   member,

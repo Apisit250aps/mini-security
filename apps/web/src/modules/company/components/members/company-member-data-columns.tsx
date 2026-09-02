@@ -1,21 +1,25 @@
 import React from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { CompanyMember, Role, User } from '@repo/domains/entities';
+import type { CompanyBranch, CompanyMember, Role } from '@repo/client';
+import type { User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
 import CompanyMemberColumnActions from './company-member-column-actions';
 import CompanyMemberRoleSelect from './company-member-role-select';
+import CompanyMemberBranchSelect from './company-member-branch-select';
 
 interface CompanyMemberColumnsOptions {
   companyId: string;
   usersMap: Map<string, User>;
   roles: Role[];
+  branches: CompanyBranch[];
 }
 
 export const companyMemberListColumns = ({
   companyId,
   usersMap,
   roles,
+  branches,
 }: CompanyMemberColumnsOptions): ColumnDef<CompanyMember>[] => {
   return [
     {
@@ -32,6 +36,19 @@ export const companyMemberListColumns = ({
           <span className="font-mono text-xs text-muted-foreground">
             {row.original.userId}
           </span>
+        );
+      },
+    },
+    {
+      id: 'branchSelect',
+      header: 'สาขาสังกัด (Branch)',
+      cell: ({ row }) => {
+        return (
+          <CompanyMemberBranchSelect
+            member={row.original}
+            companyId={companyId}
+            branches={branches}
+          />
         );
       },
     },

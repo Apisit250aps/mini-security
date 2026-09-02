@@ -6,6 +6,7 @@ import {
   UpdateCompanyMemberUseCase,
 } from '@repo/applications';
 import {
+  companyBranchRepository,
   companyMemberRepository,
   companyRepository,
   roleRepository,
@@ -15,10 +16,12 @@ export const addCompanyMemberUseCase = new AddCompanyMemberUseCase(
   companyMemberRepository,
   companyRepository,
   roleRepository,
+  companyBranchRepository,
 );
 export const updateCompanyMemberUseCase = new UpdateCompanyMemberUseCase(
   companyMemberRepository,
   roleRepository,
+  companyBranchRepository,
 );
 export const removeCompanyMemberUseCase = new RemoveCompanyMemberUseCase(
   companyMemberRepository,

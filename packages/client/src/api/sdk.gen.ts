@@ -12,15 +12,27 @@ import type {
   CompanyServicesAddCompanyMemberData,
   CompanyServicesAddCompanyMemberErrors,
   CompanyServicesAddCompanyMemberResponses,
+  CompanyServicesCreateCompanyBranchData,
+  CompanyServicesCreateCompanyBranchErrors,
+  CompanyServicesCreateCompanyBranchResponses,
   CompanyServicesCreateCompanyData,
   CompanyServicesCreateCompanyErrors,
   CompanyServicesCreateCompanyResponses,
+  CompanyServicesDeleteCompanyBranchData,
+  CompanyServicesDeleteCompanyBranchErrors,
+  CompanyServicesDeleteCompanyBranchResponses,
   CompanyServicesDeleteCompanyData,
   CompanyServicesDeleteCompanyErrors,
   CompanyServicesDeleteCompanyResponses,
   CompanyServicesGetCompaniesData,
   CompanyServicesGetCompaniesErrors,
   CompanyServicesGetCompaniesResponses,
+  CompanyServicesGetCompanyBranchData,
+  CompanyServicesGetCompanyBranchErrors,
+  CompanyServicesGetCompanyBranchesData,
+  CompanyServicesGetCompanyBranchesErrors,
+  CompanyServicesGetCompanyBranchesResponses,
+  CompanyServicesGetCompanyBranchResponses,
   CompanyServicesGetCompanyBySlugData,
   CompanyServicesGetCompanyBySlugErrors,
   CompanyServicesGetCompanyBySlugResponses,
@@ -33,9 +45,9 @@ import type {
   CompanyServicesRemoveCompanyMemberData,
   CompanyServicesRemoveCompanyMemberErrors,
   CompanyServicesRemoveCompanyMemberResponses,
-  CompanyServicesSwitchActiveCompanyData,
-  CompanyServicesSwitchActiveCompanyErrors,
-  CompanyServicesSwitchActiveCompanyResponses,
+  CompanyServicesUpdateCompanyBranchData,
+  CompanyServicesUpdateCompanyBranchErrors,
+  CompanyServicesUpdateCompanyBranchResponses,
   CompanyServicesUpdateCompanyData,
   CompanyServicesUpdateCompanyErrors,
   CompanyServicesUpdateCompanyMemberData,
@@ -168,6 +180,102 @@ export const companyServicesCreateCompany = <
   });
 
 /**
+ * Create company branch
+ */
+export const companyServicesCreateCompanyBranch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CompanyServicesCreateCompanyBranchData, ThrowOnError>,
+): RequestResult<
+  CompanyServicesCreateCompanyBranchResponses,
+  CompanyServicesCreateCompanyBranchErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    CompanyServicesCreateCompanyBranchResponses,
+    CompanyServicesCreateCompanyBranchErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/companies/branches',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete company branch
+ */
+export const companyServicesDeleteCompanyBranch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CompanyServicesDeleteCompanyBranchData, ThrowOnError>,
+): RequestResult<
+  CompanyServicesDeleteCompanyBranchResponses,
+  CompanyServicesDeleteCompanyBranchErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    CompanyServicesDeleteCompanyBranchResponses,
+    CompanyServicesDeleteCompanyBranchErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/companies/branches/{id}',
+    ...options,
+  });
+
+/**
+ * Get company branch by ID
+ */
+export const companyServicesGetCompanyBranch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CompanyServicesGetCompanyBranchData, ThrowOnError>,
+): RequestResult<
+  CompanyServicesGetCompanyBranchResponses,
+  CompanyServicesGetCompanyBranchErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    CompanyServicesGetCompanyBranchResponses,
+    CompanyServicesGetCompanyBranchErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/companies/branches/{id}',
+    ...options,
+  });
+
+/**
+ * Update company branch
+ */
+export const companyServicesUpdateCompanyBranch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CompanyServicesUpdateCompanyBranchData, ThrowOnError>,
+): RequestResult<
+  CompanyServicesUpdateCompanyBranchResponses,
+  CompanyServicesUpdateCompanyBranchErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    CompanyServicesUpdateCompanyBranchResponses,
+    CompanyServicesUpdateCompanyBranchErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/companies/branches/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * Add company member
  */
 export const companyServicesAddCompanyMember = <
@@ -264,6 +372,28 @@ export const companyServicesGetCompanyBySlug = <
   });
 
 /**
+ * Get company branches
+ */
+export const companyServicesGetCompanyBranches = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CompanyServicesGetCompanyBranchesData, ThrowOnError>,
+): RequestResult<
+  CompanyServicesGetCompanyBranchesResponses,
+  CompanyServicesGetCompanyBranchesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    CompanyServicesGetCompanyBranchesResponses,
+    CompanyServicesGetCompanyBranchesErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/companies/{companyId}/branches',
+    ...options,
+  });
+
+/**
  * Get company members
  */
 export const companyServicesGetCompanyMembers = <
@@ -351,28 +481,6 @@ export const companyServicesUpdateCompany = <
       'Content-Type': 'application/json',
       ...options.headers,
     },
-  });
-
-/**
- * Switch active company
- */
-export const companyServicesSwitchActiveCompany = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CompanyServicesSwitchActiveCompanyData, ThrowOnError>,
-): RequestResult<
-  CompanyServicesSwitchActiveCompanyResponses,
-  CompanyServicesSwitchActiveCompanyErrors,
-  ThrowOnError
-> =>
-  (options.client ?? client).post<
-    CompanyServicesSwitchActiveCompanyResponses,
-    CompanyServicesSwitchActiveCompanyErrors,
-    ThrowOnError
-  >({
-    responseType: 'json',
-    url: '/companies/{id}/switch',
-    ...options,
   });
 
 /**

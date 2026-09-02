@@ -20,10 +20,29 @@ export const company = pgTable(
   (table) => [index('company_slug_idx').on(table.slug)],
 );
 
+export const companyBranch = pgTable(
+  'company_branch',
+  {
+    id: primaryKeyUuid7('id'),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => company.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    address: text('address'),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: createdAtTimestamp('created_at'),
+    updatedAt: updatedAtTimestamp('updated_at'),
+  },
+  (table) => [index('company_branch_company_id_idx').on(table.companyId)],
+);
+
 export const companyMember = pgTable(
   'company_member',
   {
     id: primaryKeyUuid7('id'),
+    companyBranchId: uuid('company_branch_id')
+      .notNull()
+      .references(() => companyBranch.id, { onDelete: 'cascade' }),
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'cascade' }),
@@ -36,6 +55,7 @@ export const companyMember = pgTable(
     updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
+    index('company_member_company_branch_id_idx').on(table.companyBranchId),
     index('company_member_company_id_idx').on(table.companyId),
     index('company_member_user_id_idx').on(table.userId),
     index('company_member_role_id_idx').on(table.roleId),

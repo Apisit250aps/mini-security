@@ -6,6 +6,14 @@ namespace Domain.Entity;
     updatedAt: utcDateTime;
   }
 
+  enum RoleType {
+    SUPER_ADMIN: "SUPER_ADMIN",
+    OWNER: "OWNER",
+    ADMIN: "ADMIN",
+    MEMBER: "MEMBER",
+    VIEWER: "VIEWER",
+  }
+
   model Session {
     ...BaseEntity;
 
@@ -60,9 +68,19 @@ namespace Domain.Entity;
     isActive: boolean;
   }
 
+  model CompanyBranch {
+    ...BaseEntity;
+
+    companyId: string;
+    name: string;
+    address?: string | null;
+    isActive: boolean;
+  }
+
   model CompanyMember {
     ...BaseEntity;
 
+    companyBranchId: string;
     companyId: string;
     userId: string;
     roleId: string;
@@ -104,12 +122,4 @@ namespace Domain.Entity;
     isAdmin: boolean;
     isActive: boolean;
     lastLogin?: utcDateTime | null;
-  }
-
-  enum RoleType {
-    SUPER_ADMIN: "SUPER_ADMIN",
-    OWNER: "OWNER",
-    ADMIN: "ADMIN",
-    MEMBER: "MEMBER",
-    VIEWER: "VIEWER",
   }

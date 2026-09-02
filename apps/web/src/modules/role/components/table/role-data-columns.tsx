@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Role } from '@repo/domains/entities';
+import type { Role } from '@repo/client';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
 import RoleColumnActions from './role-column-actions';

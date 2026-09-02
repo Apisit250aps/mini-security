@@ -89,4 +89,48 @@ interface CompanyServices {
     | ApiOkBasicResponse
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;
+
+  // ─── Company Branches ──────────────────────────────────────────────────────
+  @get
+  @route("/{companyId}/branches")
+  @summary("Get company branches")
+  getCompanyBranches(@path companyId: string):
+    | ApiOkResponse<CompanyBranch[]>
+    | ApiNotFoundResponse
+    | ApiUnauthorizedResponse;
+
+  @get
+  @route("/branches/{id}")
+  @summary("Get company branch by ID")
+  getCompanyBranch(@path id: string):
+    | ApiOkResponse<CompanyBranch>
+    | ApiNotFoundResponse
+    | ApiUnauthorizedResponse;
+
+  @post
+  @route("/branches")
+  @summary("Create company branch")
+  createCompanyBranch(@body body: CreateCompanyBranch):
+    | ApiCreatedResponse<CompanyBranch>
+    | ApiBadRequestResponse
+    | ApiUnauthorizedResponse;
+
+  @put
+  @route("/branches/{id}")
+  @summary("Update company branch")
+  updateCompanyBranch(@path id: string, @body body: UpdateCompanyBranch):
+    | ApiOkResponse<CompanyBranch>
+    | ApiNotFoundResponse
+    | ApiBadRequestResponse
+    | ApiUnauthorizedResponse;
+
+  @delete
+  @route("/branches/{id}")
+  @summary("Delete company branch")
+  deleteCompanyBranch(@path id: string, @query companyId?: string):
+    | ApiOkBasicResponse
+    | ApiNotFoundResponse
+    | ApiBadRequestResponse
+    | ApiUnauthorizedResponse;
 }
+

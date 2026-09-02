@@ -2,12 +2,15 @@
 
 import type {
   CompanyServicesAddCompanyMemberResponse,
+  CompanyServicesCreateCompanyBranchResponse,
   CompanyServicesCreateCompanyResponse,
   CompanyServicesGetCompaniesResponse,
+  CompanyServicesGetCompanyBranchesResponse,
+  CompanyServicesGetCompanyBranchResponse,
   CompanyServicesGetCompanyBySlugResponse,
   CompanyServicesGetCompanyMembersResponse,
   CompanyServicesGetCompanyResponse,
-  CompanyServicesSwitchActiveCompanyResponse,
+  CompanyServicesUpdateCompanyBranchResponse,
   CompanyServicesUpdateCompanyMemberResponse,
   CompanyServicesUpdateCompanyResponse,
   PermissionServicesCreatePermissionResponse,
@@ -53,6 +56,39 @@ export const companyServicesCreateCompanyResponseTransformer = async (
   return data;
 };
 
+const companyBranchSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+export const companyServicesCreateCompanyBranchResponseTransformer = async (
+  data: any,
+): Promise<CompanyServicesCreateCompanyBranchResponse> => {
+  if (data.data) {
+    data.data = companyBranchSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const companyServicesGetCompanyBranchResponseTransformer = async (
+  data: any,
+): Promise<CompanyServicesGetCompanyBranchResponse> => {
+  if (data.data) {
+    data.data = companyBranchSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const companyServicesUpdateCompanyBranchResponseTransformer = async (
+  data: any,
+): Promise<CompanyServicesUpdateCompanyBranchResponse> => {
+  if (data.data) {
+    data.data = companyBranchSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
 const companyMemberSchemaResponseTransformer = (data: any) => {
   data.createdAt = new Date(data.createdAt);
   data.updatedAt = new Date(data.updatedAt);
@@ -86,6 +122,17 @@ export const companyServicesGetCompanyBySlugResponseTransformer = async (
   return data;
 };
 
+export const companyServicesGetCompanyBranchesResponseTransformer = async (
+  data: any,
+): Promise<CompanyServicesGetCompanyBranchesResponse> => {
+  if (data.data) {
+    data.data = data.data.map((item: any) =>
+      companyBranchSchemaResponseTransformer(item),
+    );
+  }
+  return data;
+};
+
 export const companyServicesGetCompanyMembersResponseTransformer = async (
   data: any,
 ): Promise<CompanyServicesGetCompanyMembersResponse> => {
@@ -111,20 +158,6 @@ export const companyServicesUpdateCompanyResponseTransformer = async (
 ): Promise<CompanyServicesUpdateCompanyResponse> => {
   if (data.data) {
     data.data = companySchemaResponseTransformer(data.data);
-  }
-  return data;
-};
-
-const switchCompanyResultSchemaResponseTransformer = (data: any) => {
-  data.company = companySchemaResponseTransformer(data.company);
-  return data;
-};
-
-export const companyServicesSwitchActiveCompanyResponseTransformer = async (
-  data: any,
-): Promise<CompanyServicesSwitchActiveCompanyResponse> => {
-  if (data.data) {
-    data.data = switchCompanyResultSchemaResponseTransformer(data.data);
   }
   return data;
 };

@@ -9,11 +9,25 @@ model CreateCompany
 model UpdateCompany
   is OptionalProperties<OmitProperties<Company, "id" | "createdAt" | "updatedAt">>;
 
+// ─── Company Branch ─────────────────────────────────────────────────────────
+model CompanyBranch is Domain.Entity.CompanyBranch;
+
+model CreateCompanyBranch
+  is OmitProperties<CompanyBranch, "id" | "createdAt" | "updatedAt">;
+
+model UpdateCompanyBranch
+  is OptionalProperties<OmitProperties<CompanyBranch, "id" | "createdAt" | "updatedAt">>;
+
 // ─── Company Member ───────────────────────────────────────────────────────────
 model CompanyMember is Domain.Entity.CompanyMember;
 
-model CreateCompanyMember
-  is OmitProperties<CompanyMember, "id" | "createdAt" | "updatedAt">;
+model CreateCompanyMember {
+  ...OmitProperties<CompanyMember, "id" | "createdAt" | "updatedAt" | "companyBranchId">;
+  companyBranchId?: string;
+}
+
+
 
 model UpdateCompanyMember
   is OptionalProperties<OmitProperties<CompanyMember, "id" | "createdAt" | "updatedAt">>;
+

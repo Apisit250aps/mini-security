@@ -32,6 +32,8 @@ export const companyKeys = {
   ...createQueryKeys('COMPANY'),
   members: (companyId: string) =>
     ['COMPANY', 'DETAIL', companyId, 'MEMBERS'] as const,
+  branches: (companyId: string) =>
+    ['COMPANY', 'DETAIL', companyId, 'BRANCHES'] as const,
 };
 
 export const roleKeys = {

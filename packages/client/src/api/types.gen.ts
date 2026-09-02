@@ -45,10 +45,21 @@ export type Company = {
   isActive: boolean;
 };
 
+export type CompanyBranch = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyId: string;
+  name: string;
+  address?: string | null;
+  isActive: boolean;
+};
+
 export type CompanyMember = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+  companyBranchId: string;
   companyId: string;
   userId: string;
   roleId: string;
@@ -68,11 +79,19 @@ export type CreateCompany = {
 /**
  * The template for omitting properties.
  */
+export type CreateCompanyBranch = {
+  companyId: string;
+  name: string;
+  address?: string | null;
+  isActive: boolean;
+};
+
 export type CreateCompanyMember = {
   companyId: string;
   userId: string;
   roleId: string;
   isActive: boolean;
+  companyBranchId?: string;
 };
 
 /**
@@ -150,11 +169,6 @@ export type RolePermission = {
   permissionId: string;
 };
 
-export type SwitchCompanyResult = {
-  activeCompanyId: string;
-  company: Company;
-};
-
 /**
  * The template for adding optional properties.
  */
@@ -168,7 +182,18 @@ export type UpdateCompany = {
 /**
  * The template for adding optional properties.
  */
+export type UpdateCompanyBranch = {
+  companyId?: string;
+  name?: string;
+  address?: string | null;
+  isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
 export type UpdateCompanyMember = {
+  companyBranchId?: string;
   companyId?: string;
   userId?: string;
   roleId?: string;
@@ -286,6 +311,158 @@ export type CompanyServicesCreateCompanyResponses = {
 
 export type CompanyServicesCreateCompanyResponse =
   CompanyServicesCreateCompanyResponses[keyof CompanyServicesCreateCompanyResponses];
+
+export type CompanyServicesCreateCompanyBranchData = {
+  body: CreateCompanyBranch;
+  path?: never;
+  query?: never;
+  url: '/companies/branches';
+};
+
+export type CompanyServicesCreateCompanyBranchErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type CompanyServicesCreateCompanyBranchError =
+  CompanyServicesCreateCompanyBranchErrors[keyof CompanyServicesCreateCompanyBranchErrors];
+
+export type CompanyServicesCreateCompanyBranchResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: CompanyBranch;
+  };
+};
+
+export type CompanyServicesCreateCompanyBranchResponse =
+  CompanyServicesCreateCompanyBranchResponses[keyof CompanyServicesCreateCompanyBranchResponses];
+
+export type CompanyServicesDeleteCompanyBranchData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: {
+    companyId?: string;
+  };
+  url: '/companies/branches/{id}';
+};
+
+export type CompanyServicesDeleteCompanyBranchErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type CompanyServicesDeleteCompanyBranchError =
+  CompanyServicesDeleteCompanyBranchErrors[keyof CompanyServicesDeleteCompanyBranchErrors];
+
+export type CompanyServicesDeleteCompanyBranchResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type CompanyServicesDeleteCompanyBranchResponse =
+  CompanyServicesDeleteCompanyBranchResponses[keyof CompanyServicesDeleteCompanyBranchResponses];
+
+export type CompanyServicesGetCompanyBranchData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/companies/branches/{id}';
+};
+
+export type CompanyServicesGetCompanyBranchErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type CompanyServicesGetCompanyBranchError =
+  CompanyServicesGetCompanyBranchErrors[keyof CompanyServicesGetCompanyBranchErrors];
+
+export type CompanyServicesGetCompanyBranchResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: CompanyBranch;
+  };
+};
+
+export type CompanyServicesGetCompanyBranchResponse =
+  CompanyServicesGetCompanyBranchResponses[keyof CompanyServicesGetCompanyBranchResponses];
+
+export type CompanyServicesUpdateCompanyBranchData = {
+  body: UpdateCompanyBranch;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/companies/branches/{id}';
+};
+
+export type CompanyServicesUpdateCompanyBranchErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type CompanyServicesUpdateCompanyBranchError =
+  CompanyServicesUpdateCompanyBranchErrors[keyof CompanyServicesUpdateCompanyBranchErrors];
+
+export type CompanyServicesUpdateCompanyBranchResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: CompanyBranch;
+  };
+};
+
+export type CompanyServicesUpdateCompanyBranchResponse =
+  CompanyServicesUpdateCompanyBranchResponses[keyof CompanyServicesUpdateCompanyBranchResponses];
 
 export type CompanyServicesAddCompanyMemberData = {
   body: CreateCompanyMember;
@@ -432,6 +609,43 @@ export type CompanyServicesGetCompanyBySlugResponses = {
 
 export type CompanyServicesGetCompanyBySlugResponse =
   CompanyServicesGetCompanyBySlugResponses[keyof CompanyServicesGetCompanyBySlugResponses];
+
+export type CompanyServicesGetCompanyBranchesData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: never;
+  url: '/companies/{companyId}/branches';
+};
+
+export type CompanyServicesGetCompanyBranchesErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type CompanyServicesGetCompanyBranchesError =
+  CompanyServicesGetCompanyBranchesErrors[keyof CompanyServicesGetCompanyBranchesErrors];
+
+export type CompanyServicesGetCompanyBranchesResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<CompanyBranch>;
+  };
+};
+
+export type CompanyServicesGetCompanyBranchesResponse =
+  CompanyServicesGetCompanyBranchesResponses[keyof CompanyServicesGetCompanyBranchesResponses];
 
 export type CompanyServicesGetCompanyMembersData = {
   body?: never;
@@ -580,43 +794,6 @@ export type CompanyServicesUpdateCompanyResponses = {
 
 export type CompanyServicesUpdateCompanyResponse =
   CompanyServicesUpdateCompanyResponses[keyof CompanyServicesUpdateCompanyResponses];
-
-export type CompanyServicesSwitchActiveCompanyData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: '/companies/{id}/switch';
-};
-
-export type CompanyServicesSwitchActiveCompanyErrors = {
-  /**
-   * 401 Unauthorized — UNAUTHORIZED
-   */
-  401: ApiErrorResponse;
-  /**
-   * 404 Not Found — NOT_FOUND
-   */
-  404: ApiErrorResponse;
-};
-
-export type CompanyServicesSwitchActiveCompanyError =
-  CompanyServicesSwitchActiveCompanyErrors[keyof CompanyServicesSwitchActiveCompanyErrors];
-
-export type CompanyServicesSwitchActiveCompanyResponses = {
-  /**
-   * Successful response wrapping data payload
-   */
-  200: {
-    success: boolean;
-    message: string;
-    data?: SwitchCompanyResult;
-  };
-};
-
-export type CompanyServicesSwitchActiveCompanyResponse =
-  CompanyServicesSwitchActiveCompanyResponses[keyof CompanyServicesSwitchActiveCompanyResponses];
 
 export type PermissionServicesGetPermissionsData = {
   body?: never;

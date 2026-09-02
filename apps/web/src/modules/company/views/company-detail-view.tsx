@@ -6,6 +6,8 @@ import { useCompanyDetailQueries } from '../hooks/company-queries';
 import CompanyEditForm from '../components/form/company-edit-form';
 import CompanyMemberDataTable from '../components/members/company-member-data-table';
 import CompanyMemberAddAction from '../components/members/company-member-add-action';
+import CompanyBranchDataTable from '../components/branches/company-branch-data-table';
+import CompanyBranchAddAction from '../components/branches/company-branch-add-action';
 import PageLayout from '@/shared/components/layouts/page-layout';
 import {
   Card,
@@ -23,7 +25,7 @@ import {
 } from '@repo/ui/components/tabs';
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
-import { ArrowLeft, Building2, Users2 } from 'lucide-react';
+import { ArrowLeft, Building2, GitBranch, Users2 } from 'lucide-react';
 import { buildPageUrl } from '@/shared/utils';
 
 export default function CompanyDetailView({
@@ -38,7 +40,9 @@ export default function CompanyDetailView({
     <PageLayout
       title={company?.name || 'รายละเอียดบริษัท'}
       description={
-        company ? `Slug: ${company.slug}` : 'จัดการข้อมูลและสมาชิกขององค์กร'
+        company
+          ? `Slug: ${company.slug}`
+          : 'จัดการข้อมูล สมาชิก และสาขาขององค์กร'
       }
       isLoading={companyQuery.isLoading}
       actions={
@@ -77,10 +81,14 @@ export default function CompanyDetailView({
       ) : (
         /* Tabs Layout */
         <Tabs defaultSelectedKey="members" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-xl">
             <TabsTrigger id="members" className="gap-2">
               <Users2 className="size-4" />
               สมาชิกและบทบาท
+            </TabsTrigger>
+            <TabsTrigger id="branches" className="gap-2">
+              <GitBranch className="size-4" />
+              สาขาในองค์กร
             </TabsTrigger>
             <TabsTrigger id="general" className="gap-2">
               <Building2 className="size-4" />
@@ -95,7 +103,7 @@ export default function CompanyDetailView({
                 <div>
                   <CardTitle>สมาชิกในองค์กร (Company Members)</CardTitle>
                   <CardDescription>
-                    จัดการรายชื่อสมาชิก เจ้าของ
+                    จัดการรายชื่อสมาชิก เจ้าของ สาขาสังกัด
                     และการมอบหมายบทบาทการทำงานในบริษัทนี้
                   </CardDescription>
                 </div>
@@ -109,7 +117,27 @@ export default function CompanyDetailView({
             </Card>
           </TabsContent>
 
-          {/* Tab 2: General Info Form */}
+          {/* Tab 2: Branches */}
+          <TabsContent id="branches" className="pt-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>สาขาขององค์กร (Company Branches)</CardTitle>
+                  <CardDescription>
+                    จัดการรายชื่อสาขา สำนักงานใหญ่ และสถานที่ตั้งขององค์กร
+                  </CardDescription>
+                </div>
+                <CardAction>
+                  <CompanyBranchAddAction companyId={company.id} />
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                <CompanyBranchDataTable companyId={company.id} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab 3: General Info Form */}
           <TabsContent id="general" className="pt-4">
             <Card className="max-w-2xl">
               <CardHeader>

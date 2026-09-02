@@ -3,7 +3,10 @@
 import React, { useMemo } from 'react';
 import companyMemberListColumns from './company-member-data-columns';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
-import { useCompanyMembersQueries } from '../../hooks/company-queries';
+import {
+  useCompanyBranchesQueries,
+  useCompanyMembersQueries,
+} from '../../hooks/company-queries';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import type { User } from '@repo/domains/entities';
@@ -14,6 +17,7 @@ export default function CompanyMemberDataTable({
   companyId: string;
 }) {
   const membersQuery = useCompanyMembersQueries(companyId);
+  const branchesQuery = useCompanyBranchesQueries(companyId);
   const usersQuery = useUserListQueries();
   const rolesQuery = useCompanyRolesQueries(companyId);
 
@@ -26,19 +30,30 @@ export default function CompanyMemberDataTable({
   }, [usersQuery.data]);
 
   const roles = useMemo(() => rolesQuery.data || [], [rolesQuery.data]);
+  const branches = useMemo(
+    () => branchesQuery.data || [],
+    [branchesQuery.data],
+  );
 
   const columns = useMemo(() => {
     return companyMemberListColumns({
       companyId,
       usersMap,
       roles,
+      branches,
     });
-  }, [companyId, usersMap, roles]);
+  }, [companyId, usersMap, roles, branches]);
+
+  const isLoading =
+    membersQuery.isLoading ||
+    branchesQuery.isLoading ||
+    usersQuery.isLoading ||
+    rolesQuery.isLoading;
 
   const table = useMemo(() => {
     const data = membersQuery.isLoading ? [] : membersQuery.data || [];
-    return { data, columns, isLoading: membersQuery.isLoading };
-  }, [columns, membersQuery.data, membersQuery.isLoading]);
+    return { data, columns, isLoading };
+  }, [columns, membersQuery.data, membersQuery.isLoading, isLoading]);
 
   return <DataTable {...table} />;
 }

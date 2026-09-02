@@ -7,14 +7,18 @@ import { client } from '../client.gen';
 import {
   companyServicesAddCompanyMember,
   companyServicesCreateCompany,
+  companyServicesCreateCompanyBranch,
   companyServicesDeleteCompany,
+  companyServicesDeleteCompanyBranch,
   companyServicesGetCompanies,
   companyServicesGetCompany,
+  companyServicesGetCompanyBranch,
+  companyServicesGetCompanyBranches,
   companyServicesGetCompanyBySlug,
   companyServicesGetCompanyMembers,
   companyServicesRemoveCompanyMember,
-  companyServicesSwitchActiveCompany,
   companyServicesUpdateCompany,
+  companyServicesUpdateCompanyBranch,
   companyServicesUpdateCompanyMember,
   type Options,
   permissionServicesCreatePermission,
@@ -41,15 +45,27 @@ import type {
   CompanyServicesAddCompanyMemberData,
   CompanyServicesAddCompanyMemberError,
   CompanyServicesAddCompanyMemberResponse,
+  CompanyServicesCreateCompanyBranchData,
+  CompanyServicesCreateCompanyBranchError,
+  CompanyServicesCreateCompanyBranchResponse,
   CompanyServicesCreateCompanyData,
   CompanyServicesCreateCompanyError,
   CompanyServicesCreateCompanyResponse,
+  CompanyServicesDeleteCompanyBranchData,
+  CompanyServicesDeleteCompanyBranchError,
+  CompanyServicesDeleteCompanyBranchResponse,
   CompanyServicesDeleteCompanyData,
   CompanyServicesDeleteCompanyError,
   CompanyServicesDeleteCompanyResponse,
   CompanyServicesGetCompaniesData,
   CompanyServicesGetCompaniesError,
   CompanyServicesGetCompaniesResponse,
+  CompanyServicesGetCompanyBranchData,
+  CompanyServicesGetCompanyBranchError,
+  CompanyServicesGetCompanyBranchesData,
+  CompanyServicesGetCompanyBranchesError,
+  CompanyServicesGetCompanyBranchesResponse,
+  CompanyServicesGetCompanyBranchResponse,
   CompanyServicesGetCompanyBySlugData,
   CompanyServicesGetCompanyBySlugError,
   CompanyServicesGetCompanyBySlugResponse,
@@ -62,9 +78,9 @@ import type {
   CompanyServicesRemoveCompanyMemberData,
   CompanyServicesRemoveCompanyMemberError,
   CompanyServicesRemoveCompanyMemberResponse,
-  CompanyServicesSwitchActiveCompanyData,
-  CompanyServicesSwitchActiveCompanyError,
-  CompanyServicesSwitchActiveCompanyResponse,
+  CompanyServicesUpdateCompanyBranchData,
+  CompanyServicesUpdateCompanyBranchError,
+  CompanyServicesUpdateCompanyBranchResponse,
   CompanyServicesUpdateCompanyData,
   CompanyServicesUpdateCompanyError,
   CompanyServicesUpdateCompanyMemberData,
@@ -226,6 +242,115 @@ export const companyServicesCreateCompanyMutation = (
 };
 
 /**
+ * Create company branch
+ */
+export const companyServicesCreateCompanyBranchMutation = (
+  options?: Partial<Options<CompanyServicesCreateCompanyBranchData>>,
+): UseMutationOptions<
+  CompanyServicesCreateCompanyBranchResponse,
+  AxiosError<CompanyServicesCreateCompanyBranchError>,
+  Options<CompanyServicesCreateCompanyBranchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CompanyServicesCreateCompanyBranchResponse,
+    AxiosError<CompanyServicesCreateCompanyBranchError>,
+    Options<CompanyServicesCreateCompanyBranchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await companyServicesCreateCompanyBranch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete company branch
+ */
+export const companyServicesDeleteCompanyBranchMutation = (
+  options?: Partial<Options<CompanyServicesDeleteCompanyBranchData>>,
+): UseMutationOptions<
+  CompanyServicesDeleteCompanyBranchResponse,
+  AxiosError<CompanyServicesDeleteCompanyBranchError>,
+  Options<CompanyServicesDeleteCompanyBranchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CompanyServicesDeleteCompanyBranchResponse,
+    AxiosError<CompanyServicesDeleteCompanyBranchError>,
+    Options<CompanyServicesDeleteCompanyBranchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await companyServicesDeleteCompanyBranch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const companyServicesGetCompanyBranchQueryKey = (
+  options: Options<CompanyServicesGetCompanyBranchData>,
+) => createQueryKey('companyServicesGetCompanyBranch', options);
+
+/**
+ * Get company branch by ID
+ */
+export const companyServicesGetCompanyBranchOptions = (
+  options: Options<CompanyServicesGetCompanyBranchData>,
+) =>
+  queryOptions<
+    CompanyServicesGetCompanyBranchResponse,
+    AxiosError<CompanyServicesGetCompanyBranchError>,
+    CompanyServicesGetCompanyBranchResponse,
+    ReturnType<typeof companyServicesGetCompanyBranchQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await companyServicesGetCompanyBranch({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: companyServicesGetCompanyBranchQueryKey(options),
+  });
+
+/**
+ * Update company branch
+ */
+export const companyServicesUpdateCompanyBranchMutation = (
+  options?: Partial<Options<CompanyServicesUpdateCompanyBranchData>>,
+): UseMutationOptions<
+  CompanyServicesUpdateCompanyBranchResponse,
+  AxiosError<CompanyServicesUpdateCompanyBranchError>,
+  Options<CompanyServicesUpdateCompanyBranchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CompanyServicesUpdateCompanyBranchResponse,
+    AxiosError<CompanyServicesUpdateCompanyBranchError>,
+    Options<CompanyServicesUpdateCompanyBranchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await companyServicesUpdateCompanyBranch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
  * Add company member
  */
 export const companyServicesAddCompanyMemberMutation = (
@@ -334,6 +459,34 @@ export const companyServicesGetCompanyBySlugOptions = (
     queryKey: companyServicesGetCompanyBySlugQueryKey(options),
   });
 
+export const companyServicesGetCompanyBranchesQueryKey = (
+  options: Options<CompanyServicesGetCompanyBranchesData>,
+) => createQueryKey('companyServicesGetCompanyBranches', options);
+
+/**
+ * Get company branches
+ */
+export const companyServicesGetCompanyBranchesOptions = (
+  options: Options<CompanyServicesGetCompanyBranchesData>,
+) =>
+  queryOptions<
+    CompanyServicesGetCompanyBranchesResponse,
+    AxiosError<CompanyServicesGetCompanyBranchesError>,
+    CompanyServicesGetCompanyBranchesResponse,
+    ReturnType<typeof companyServicesGetCompanyBranchesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await companyServicesGetCompanyBranches({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: companyServicesGetCompanyBranchesQueryKey(options),
+  });
+
 export const companyServicesGetCompanyMembersQueryKey = (
   options: Options<CompanyServicesGetCompanyMembersData>,
 ) => createQueryKey('companyServicesGetCompanyMembers', options);
@@ -434,33 +587,6 @@ export const companyServicesUpdateCompanyMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await companyServicesUpdateCompany({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-/**
- * Switch active company
- */
-export const companyServicesSwitchActiveCompanyMutation = (
-  options?: Partial<Options<CompanyServicesSwitchActiveCompanyData>>,
-): UseMutationOptions<
-  CompanyServicesSwitchActiveCompanyResponse,
-  AxiosError<CompanyServicesSwitchActiveCompanyError>,
-  Options<CompanyServicesSwitchActiveCompanyData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesSwitchActiveCompanyResponse,
-    AxiosError<CompanyServicesSwitchActiveCompanyError>,
-    Options<CompanyServicesSwitchActiveCompanyData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesSwitchActiveCompany({
         ...options,
         ...fnOptions,
         throwOnError: true,

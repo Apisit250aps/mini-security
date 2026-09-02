@@ -12,6 +12,7 @@ import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useCompanyMemberUpdate } from '../../hooks/company-mutations';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useCompanyBranchesQueries } from '../../hooks/company-queries';
 import { useOverlay } from '@repo/ui/hooks';
 
 export type CompanyMemberEditFormValues = z.infer<
@@ -28,6 +29,7 @@ export default function CompanyMemberEditForm({
   const ui = useOverlay();
   const updateMutation = useCompanyMemberUpdate(companyId);
   const rolesQuery = useCompanyRolesQueries(companyId);
+  const branchesQuery = useCompanyBranchesQueries(companyId);
 
   const currentRole = useMemo(
     () => (rolesQuery.data || []).find((r) => r.id === member.roleId),
@@ -52,10 +54,20 @@ export default function CompanyMemberEditForm({
       }));
   }, [rolesQuery.data, companyId]);
 
+  const branchOptions = useMemo(() => {
+    return (branchesQuery.data || [])
+      .filter((b) => b.isActive || b.id === member.companyBranchId)
+      .map((b) => ({
+        value: b.id,
+        label: b.name,
+      }));
+  }, [branchesQuery.data, member.companyBranchId]);
+
   const methods = useForm<CompanyMemberEditFormValues>({
     resolver: zodResolver(updateCompanyMemberSchema as never),
     defaultValues: {
       roleId: member.roleId,
+      companyBranchId: member.companyBranchId,
       isActive: member.isActive,
     },
   });
@@ -65,6 +77,7 @@ export default function CompanyMemberEditForm({
       id: member.id,
       data: {
         roleId: isOwner ? member.roleId : data.roleId,
+        companyBranchId: data.companyBranchId || member.companyBranchId,
         isActive: isOwner ? true : data.isActive,
       },
     });
@@ -83,37 +96,45 @@ export default function CompanyMemberEditForm({
               ผู้ใช้งานนี้เป็น Owner (เจ้าขององค์กร):
             </span>{' '}
             ไม่สามารถเปลี่ยนบทบาทหน้าที่หรือปิดการใช้งานได้
+            แต่สามารถเปลี่ยนสาขาสังกัดได้
           </div>
         ) : (
-          <>
-            <SelectField
-              name="roleId"
-              label="ปรับเปลี่ยนบทบาท (Role)"
-              placeholder="เลือกบทบาท..."
-              options={roleOptions}
-              control={methods.control}
-              required
-            />
+          <SelectField
+            name="roleId"
+            label="ปรับเปลี่ยนบทบาท (Role)"
+            placeholder="เลือกบทบาท..."
+            options={roleOptions}
+            control={methods.control}
+            required
+          />
+        )}
 
-            <div className="flex flex-col gap-3 rounded-lg border p-3">
-              <SwitchField
-                name="isActive"
-                label="สถานะการทำงาน (Active)"
-                description="อนุญาตให้ผู้ใช้นี้เข้าปฏิบัติงานในนามบริษัทได้"
-                control={methods.control}
-              />
-            </div>
-          </>
+        <SelectField
+          name="companyBranchId"
+          label="สาขาสังกัด (Branch)"
+          placeholder="เลือกสาขา..."
+          options={branchOptions}
+          control={methods.control}
+          required
+        />
+
+        {!isOwner && (
+          <div className="flex flex-col gap-3 rounded-lg border p-3">
+            <SwitchField
+              name="isActive"
+              label="สถานะการทำงาน (Active)"
+              description="อนุญาตให้ผู้ใช้นี้เข้าปฏิบัติงานในนามบริษัทได้"
+              control={methods.control}
+            />
+          </div>
         )}
       </FieldGroup>
 
-      {!isOwner && (
-        <div className="flex justify-end">
-          <ButtonLoading type="submit" isLoading={updateMutation.isPending}>
-            บันทึก
-          </ButtonLoading>
-        </div>
-      )}
+      <div className="flex justify-end">
+        <ButtonLoading type="submit" isLoading={updateMutation.isPending}>
+          บันทึก
+        </ButtonLoading>
+      </div>
     </form>
   );
 }

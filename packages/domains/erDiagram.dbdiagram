@@ -66,6 +66,12 @@
         "schemaName": "public",
         "x": 1795.0966796875,
         "y": 314
+      },
+      {
+        "name": "company_branch",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1244
       }
     ],
     "tableGroupCollapseStates": [],
