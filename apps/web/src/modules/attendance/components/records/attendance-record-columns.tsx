@@ -1,12 +1,44 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import type { AttendanceRecord } from '@repo/domains/entities';
+import type {
+  AttendanceRecord,
+  CompanyMember,
+  User,
+} from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
 import AttendanceRecordActions from './attendance-record-actions';
-import { CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, User as UserIcon, XCircle } from 'lucide-react';
 
-export const attendanceRecordColumns = (): ColumnDef<AttendanceRecord>[] => [
+export const attendanceRecordColumns = ({
+  membersMap,
+  usersMap,
+}: {
+  membersMap?: Map<string, CompanyMember>;
+  usersMap?: Map<string, User>;
+} = {}): ColumnDef<AttendanceRecord>[] => [
+  {
+    accessorKey: 'companyMemberId',
+    header: 'พนักงาน',
+    cell: ({ getValue }) => {
+      const memberId = getValue<string>();
+      const member = membersMap?.get(memberId);
+      const user = member ? usersMap?.get(member.userId) : undefined;
+      return (
+        <div className="flex items-center gap-1.5 text-xs">
+          <UserIcon className="size-3.5 text-muted-foreground shrink-0" />
+          <span className="font-semibold text-foreground">
+            {user?.name || memberId.slice(0, 8)}
+          </span>
+          {user?.email && (
+            <span className="text-muted-foreground text-[11px]">
+              ({user.email})
+            </span>
+          )}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: 'workDate',
     header: 'วันที่ทำงาน',

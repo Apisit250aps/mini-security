@@ -4,7 +4,10 @@ import React, { useMemo, useState } from 'react';
 import { attendanceRecordColumns } from './attendance-record-columns';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { useAttendanceRecordsQueries } from '../../hooks/attendance-queries';
+import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import { Button } from '@repo/ui/components/button';
+import type { CompanyMember, User } from '@repo/domains/entities';
 
 const FILTER_BUTTONS = [
   { value: 'ALL', label: 'ทั้งหมด' },
@@ -22,14 +25,39 @@ export default function AttendanceRecordTable({
 }) {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
-  const { data = [], isLoading } = useAttendanceRecordsQueries(companyId);
+  const { data = [], isLoading: isRecordsLoading } =
+    useAttendanceRecordsQueries(companyId);
+  const { data: members = [], isLoading: isMembersLoading } =
+    useCompanyMembersQueries(companyId);
+  const { data: users = [], isLoading: isUsersLoading } = useUserListQueries();
+
+  const membersMap = useMemo(() => {
+    const map = new Map<string, CompanyMember>();
+    for (const m of members) {
+      map.set(m.id, m);
+    }
+    return map;
+  }, [members]);
+
+  const usersMap = useMemo(() => {
+    const map = new Map<string, User>();
+    for (const u of users) {
+      map.set(u.id, u);
+    }
+    return map;
+  }, [users]);
 
   const filteredData = useMemo(() => {
     if (statusFilter === 'ALL') return data;
     return data.filter((r) => r.status === statusFilter);
   }, [data, statusFilter]);
 
-  const columns = useMemo(() => attendanceRecordColumns(), []);
+  const columns = useMemo(
+    () => attendanceRecordColumns({ membersMap, usersMap }),
+    [membersMap, usersMap],
+  );
+
+  const isLoading = isRecordsLoading || isMembersLoading || isUsersLoading;
 
   const table = useMemo(
     () => ({

@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import PolicyForm from './policy-form';
 import CheckpointForm from './checkpoint-form';
+import CheckpointLocationDialog from './checkpoint-location-dialog';
 
 export default function PolicyCard({
   companyId,
@@ -82,6 +83,20 @@ export default function PolicyCard({
       description: 'ปรับปรุงเงื่อนไข เวลา และข้อกำหนดของจุดเช็ค',
       size: 'xl',
       children: <CheckpointForm policyId={policy.id} checkpoint={checkpoint} />,
+    });
+  };
+
+  const handleManageLocations = (checkpoint: AttendanceCheckpoint) => {
+    ui.dialog.open({
+      title: 'ผูกสถานที่สำหรับจุดเช็คชื่อ',
+      description: `จัดการพิกัดสถานที่และรัศมีที่อนุญาตสำหรับ "${checkpoint.label}"`,
+      size: 'lg',
+      children: (
+        <CheckpointLocationDialog
+          companyId={companyId}
+          checkpoint={checkpoint}
+        />
+      ),
     });
   };
 
@@ -226,6 +241,14 @@ export default function PolicyCard({
                 </div>
 
                 <div className="flex items-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-6 text-muted-foreground hover:text-primary"
+                    onPress={() => handleManageLocations(cp)}
+                  >
+                    <MapPin className="size-3" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"

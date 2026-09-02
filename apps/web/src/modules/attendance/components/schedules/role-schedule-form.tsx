@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createRoleWorkScheduleSchema } from '@repo/domains/schema/attendance';
@@ -13,6 +13,7 @@ import {
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import { SelectField } from '@repo/ui/components/shared/form/select-field';
+import { DateField } from '@repo/ui/components/shared/form/field-date';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
 
@@ -27,14 +28,22 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
     schedules[0]?.id || '',
   );
 
+  useEffect(() => {
+    if (!selectedScheduleId && schedules.length > 0) {
+      setSelectedScheduleId(schedules[0]?.id || '');
+    }
+  }, [schedules, selectedScheduleId]);
+
   const { data: shifts = [] } = useWorkShiftsQueries(selectedScheduleId);
 
   const roleOptions = useMemo(
     () =>
-      roles.map((r) => ({
-        value: r.id,
-        label: r.name,
-      })),
+      roles
+        .filter((r) => r.roleType !== 'SUPER_ADMIN')
+        .map((r) => ({
+          value: r.id,
+          label: r.name,
+        })),
     [roles],
   );
 
@@ -69,6 +78,12 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
     },
   });
 
+  useEffect(() => {
+    if (shifts.length > 0 && !methods.getValues('workShiftId')) {
+      methods.setValue('workShiftId', shifts[0]?.id || '');
+    }
+  }, [shifts, methods]);
+
   const handleSubmit = async (data: FormValues) => {
     await assignMutation.mutateAsync({
       roleId: data.roleId,
@@ -101,7 +116,10 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
           </label>
           <select
             value={selectedScheduleId}
-            onChange={(e) => setSelectedScheduleId(e.target.value)}
+            onChange={(e) => {
+              setSelectedScheduleId(e.target.value);
+              methods.setValue('workShiftId', '');
+            }}
             className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <option value="" disabled>
@@ -123,6 +141,21 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
           control={methods.control}
           required
         />
+
+        <div className="grid grid-cols-2 gap-3">
+          <DateField
+            name="effectiveDate"
+            label="วันที่เริ่มมีผล (Effective Date)"
+            placeholder="เลือกวันที่เริ่มใช้งาน"
+            control={methods.control}
+          />
+          <DateField
+            name="endDate"
+            label="วันที่สิ้นสุด (ถ้ามี)"
+            placeholder="ไม่ระบุ = ใช้งานต่อเนื่อง"
+            control={methods.control}
+          />
+        </div>
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

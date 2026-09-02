@@ -19,6 +19,7 @@ import {
 import { useAttendancePoliciesQueries } from '../hooks/attendance-queries';
 import PolicyCard from '../components/policies/policy-card';
 import PolicyCreateAction from '../components/policies/policy-create-action';
+import RolePolicyAction from '../components/policies/role-policy-action';
 import LocationTable from '../components/policies/location-table';
 import LocationCreateAction from '../components/policies/location-create-action';
 import { MapPin, ShieldAlert } from 'lucide-react';
@@ -42,6 +43,7 @@ export default function AttendancePoliciesView() {
       actions={
         activeCompany && (
           <div className="flex items-center gap-2">
+            <RolePolicyAction companyId={activeCompanyId} />
             <LocationCreateAction companyId={activeCompanyId} />
             <PolicyCreateAction companyId={activeCompanyId} />
           </div>

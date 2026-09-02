@@ -1,12 +1,47 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import type { LeaveRequest } from '@repo/domains/entities';
+import type { CompanyMember, LeaveRequest, User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
 import LeaveRequestActions from './leave-request-actions';
-import { Calendar, CheckCircle2, Clock, FileText, XCircle } from 'lucide-react';
+import {
+  Calendar,
+  CheckCircle2,
+  Clock,
+  FileText,
+  User as UserIcon,
+  XCircle,
+} from 'lucide-react';
 
-export const leaveRequestColumns = (): ColumnDef<LeaveRequest>[] => [
+export const leaveRequestColumns = ({
+  membersMap,
+  usersMap,
+}: {
+  membersMap?: Map<string, CompanyMember>;
+  usersMap?: Map<string, User>;
+} = {}): ColumnDef<LeaveRequest>[] => [
+  {
+    accessorKey: 'companyMemberId',
+    header: 'พนักงาน',
+    cell: ({ getValue }) => {
+      const memberId = getValue<string>();
+      const member = membersMap?.get(memberId);
+      const user = member ? usersMap?.get(member.userId) : undefined;
+      return (
+        <div className="flex items-center gap-1.5 text-xs">
+          <UserIcon className="size-3.5 text-muted-foreground shrink-0" />
+          <span className="font-semibold text-foreground">
+            {user?.name || memberId.slice(0, 8)}
+          </span>
+          {user?.email && (
+            <span className="text-muted-foreground text-[11px]">
+              ({user.email})
+            </span>
+          )}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: 'leaveType',
     header: 'ประเภทการลา',

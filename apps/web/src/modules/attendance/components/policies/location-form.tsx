@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useMemo } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createAttendanceLocationSchema } from '@repo/domains/schema/attendance';
 import type { z } from 'zod';
@@ -9,6 +9,7 @@ import {
   useAttendanceLocationCreate,
   useAttendanceLocationUpdate,
 } from '../../hooks/attendance-mutations';
+import { useCompanyBranchesQueries } from '@/modules/company/hooks/company-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import { InputField } from '@repo/ui/components/shared/form/input-field';
 import { SelectField } from '@repo/ui/components/shared/form/select-field';
@@ -36,8 +37,20 @@ export default function LocationForm({
   const ui = useOverlay();
   const createMutation = useAttendanceLocationCreate(companyId);
   const updateMutation = useAttendanceLocationUpdate(companyId);
+  const { data: branches = [] } = useCompanyBranchesQueries(companyId);
 
   const isEdit = Boolean(location);
+
+  const branchOptions = useMemo(
+    () =>
+      branches
+        .filter((b) => b.isActive)
+        .map((b) => ({
+          value: b.id,
+          label: b.name,
+        })),
+    [branches],
+  );
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(createAttendanceLocationSchema as never),
@@ -46,12 +59,17 @@ export default function LocationForm({
       branchId: location?.branchId || null,
       name: location?.name || '',
       locationType: location?.locationType || 'RADIUS',
-      latitude: location?.latitude ?? 13756300,
-      longitude: location?.longitude ?? 100501800,
+      latitude: location?.latitude ?? 13.7563,
+      longitude: location?.longitude ?? 100.5018,
       radiusMeters: location?.radiusMeters ?? 100,
       address: location?.address || '',
       isActive: location?.isActive ?? true,
     },
+  });
+
+  const selectedLocationType = useWatch({
+    control: methods.control,
+    name: 'locationType',
   });
 
   const handleSubmit = async (data: FormValues) => {
@@ -59,11 +77,21 @@ export default function LocationForm({
       await updateMutation.mutateAsync({
         id: location.id,
         data: {
+          branchId: data.locationType === 'BRANCH' ? data.branchId : null,
           name: data.name,
           locationType: data.locationType,
-          latitude: Number(data.latitude) || null,
-          longitude: Number(data.longitude) || null,
-          radiusMeters: Number(data.radiusMeters) || null,
+          latitude:
+            data.latitude !== undefined && data.latitude !== null
+              ? Number(data.latitude)
+              : null,
+          longitude:
+            data.longitude !== undefined && data.longitude !== null
+              ? Number(data.longitude)
+              : null,
+          radiusMeters:
+            data.radiusMeters !== undefined && data.radiusMeters !== null
+              ? Number(data.radiusMeters)
+              : null,
           address: data.address || null,
           isActive: data.isActive,
         },
@@ -71,11 +99,21 @@ export default function LocationForm({
     } else {
       await createMutation.mutateAsync({
         companyId,
+        branchId: data.locationType === 'BRANCH' ? data.branchId : null,
         name: data.name,
         locationType: data.locationType,
-        latitude: Number(data.latitude) || null,
-        longitude: Number(data.longitude) || null,
-        radiusMeters: Number(data.radiusMeters) || null,
+        latitude:
+          data.latitude !== undefined && data.latitude !== null
+            ? Number(data.latitude)
+            : null,
+        longitude:
+          data.longitude !== undefined && data.longitude !== null
+            ? Number(data.longitude)
+            : null,
+        radiusMeters:
+          data.radiusMeters !== undefined && data.radiusMeters !== null
+            ? Number(data.radiusMeters)
+            : null,
         address: data.address || null,
         isActive: data.isActive,
       });
@@ -116,6 +154,16 @@ export default function LocationForm({
             control={methods.control}
           />
         </div>
+
+        {selectedLocationType === 'BRANCH' && (
+          <SelectField
+            name="branchId"
+            label="เลือกสาขาที่ผูก (Company Branch)"
+            placeholder="เลือกสาขา..."
+            options={branchOptions}
+            control={methods.control}
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <InputField
