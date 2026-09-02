@@ -197,3 +197,61 @@ AND NOT EXISTS (
   SELECT 1 FROM "role_permission" rp
   WHERE rp.role_id = r.id AND rp.permission_id = p.id
 );
+
+--> statement-breakpoint
+
+-- 2.6 Custom Company Roles Backfill
+-- Custom MEMBER roles -> Member Attendance Permissions
+INSERT INTO "role_permission" ("id", "role_id", "permission_id", "created_at", "updated_at")
+SELECT
+  gen_random_uuid(),
+  r.id,
+  p.id,
+  now(),
+  now()
+FROM "role" r
+CROSS JOIN "permission" p
+WHERE r.role_type = 'MEMBER' AND r.company_id IS NOT NULL
+AND p.action IN (
+  'work_schedule:read',
+  'work_shift:read',
+  'attendance_policy:read',
+  'attendance_checkpoint:read',
+  'attendance_location:read',
+  'member_work_schedule:read',
+  'attendance_record:read',
+  'attendance_log:create',
+  'attendance_log:read',
+  'leave_request:create',
+  'leave_request:read',
+  'leave_request:update',
+  'leave_request:delete'
+)
+AND NOT EXISTS (
+  SELECT 1 FROM "role_permission" rp
+  WHERE rp.role_id = r.id AND rp.permission_id = p.id
+);
+
+--> statement-breakpoint
+
+-- Custom ADMIN or OWNER roles -> All Attendance Permissions
+INSERT INTO "role_permission" ("id", "role_id", "permission_id", "created_at", "updated_at")
+SELECT
+  gen_random_uuid(),
+  r.id,
+  p.id,
+  now(),
+  now()
+FROM "role" r
+CROSS JOIN "permission" p
+WHERE r.role_type IN ('ADMIN', 'OWNER') AND r.company_id IS NOT NULL
+AND p.module IN (
+  'work_schedule', 'work_shift', 'attendance_policy', 'attendance_checkpoint',
+  'attendance_location', 'member_work_schedule', 'attendance_record',
+  'attendance_log', 'leave_request'
+)
+AND NOT EXISTS (
+  SELECT 1 FROM "role_permission" rp
+  WHERE rp.role_id = r.id AND rp.permission_id = p.id
+);
+
