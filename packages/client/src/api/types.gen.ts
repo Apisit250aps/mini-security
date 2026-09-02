@@ -27,12 +27,104 @@ export type ApiInternalErrorResponse = {
   body: ApiErrorResponse;
 };
 
+export type ApproveAttendanceRecordRequest = {
+  status: DomainEntityAttendanceStatus;
+  note?: string;
+};
+
+export type AttendanceCheckpoint = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  policyId: string;
+  checkType: DomainEntityCheckType;
+  label: string;
+  orderIndex: number;
+  isRequired: boolean;
+  windowStart?: string | null;
+  windowEnd?: string | null;
+  graceMinutes?: number | null;
+  requirePhoto: boolean;
+  requireLocation: boolean;
+};
+
+export type AttendanceLocation = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyId: string;
+  branchId?: string | null;
+  name: string;
+  locationType: DomainEntityLocationType;
+  latitude?: number | null;
+  longitude?: number | null;
+  radiusMeters?: number | null;
+  address?: string | null;
+  isActive: boolean;
+};
+
+export type AttendanceLog = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  attendanceRecordId: string;
+  checkpointId: string;
+  checkType: DomainEntityCheckType;
+  checkedAt: Date;
+  latitude?: number | null;
+  longitude?: number | null;
+  accuracyMeters?: number | null;
+  locationId?: string | null;
+  isLocationValid: boolean;
+  photoUrl?: string | null;
+  photoVerified: boolean;
+  deviceId?: string | null;
+  ipAddress?: string | null;
+  isManual: boolean;
+  manualReason?: string | null;
+};
+
+export type AttendancePolicy = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyId: string;
+  name: string;
+  description?: string | null;
+  isActive: boolean;
+};
+
+export type AttendanceRecord = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyId: string;
+  companyMemberId: string;
+  workShiftId: string;
+  workDate: Date;
+  status: DomainEntityAttendanceStatus;
+  totalWorkMinutes?: number | null;
+  overtimeMinutes?: number | null;
+  lateMinutes?: number | null;
+  note?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: Date | null;
+};
+
 /**
  * Successful response without data payload
  */
 export type BasicResponse = {
   success: boolean;
   message: string;
+};
+
+export type CheckpointLocation = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  checkpointId: string;
+  locationId: string;
 };
 
 export type Company = {
@@ -69,6 +161,93 @@ export type CompanyMember = {
 /**
  * The template for omitting properties.
  */
+export type CreateAttendanceCheckpoint = {
+  policyId: string;
+  checkType: DomainEntityCheckType;
+  label: string;
+  orderIndex: number;
+  isRequired: boolean;
+  windowStart?: string | null;
+  windowEnd?: string | null;
+  graceMinutes?: number | null;
+  requirePhoto: boolean;
+  requireLocation: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateAttendanceLocation = {
+  companyId: string;
+  branchId?: string | null;
+  name: string;
+  locationType: DomainEntityLocationType;
+  latitude?: number | null;
+  longitude?: number | null;
+  radiusMeters?: number | null;
+  address?: string | null;
+  isActive: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateAttendanceLog = {
+  attendanceRecordId: string;
+  checkpointId: string;
+  checkType: DomainEntityCheckType;
+  checkedAt: Date;
+  latitude?: number | null;
+  longitude?: number | null;
+  accuracyMeters?: number | null;
+  locationId?: string | null;
+  isLocationValid: boolean;
+  photoUrl?: string | null;
+  photoVerified: boolean;
+  deviceId?: string | null;
+  ipAddress?: string | null;
+  isManual: boolean;
+  manualReason?: string | null;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateAttendancePolicy = {
+  companyId: string;
+  name: string;
+  description?: string | null;
+  isActive: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateAttendanceRecord = {
+  companyId: string;
+  companyMemberId: string;
+  workShiftId: string;
+  workDate: Date;
+  status: DomainEntityAttendanceStatus;
+  totalWorkMinutes?: number | null;
+  overtimeMinutes?: number | null;
+  lateMinutes?: number | null;
+  note?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: Date | null;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateCheckpointLocation = {
+  checkpointId: string;
+  locationId: string;
+};
+
+/**
+ * The template for omitting properties.
+ */
 export type CreateCompany = {
   name: string;
   slug: string;
@@ -97,6 +276,34 @@ export type CreateCompanyMember = {
 /**
  * The template for omitting properties.
  */
+export type CreateLeaveRequest = {
+  companyId: string;
+  companyMemberId: string;
+  leaveType: DomainEntityLeaveType;
+  status: DomainEntityLeaveStatus;
+  startDate: Date;
+  endDate: Date;
+  totalDays: number;
+  reason?: string | null;
+  attachmentUrl?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: Date | null;
+  reviewNote?: string | null;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateMemberWorkSchedule = {
+  companyMemberId: string;
+  workShiftId: string;
+  effectiveDate: Date;
+  endDate?: Date | null;
+};
+
+/**
+ * The template for omitting properties.
+ */
 export type CreatePermission = {
   action: string;
   module: string;
@@ -112,6 +319,15 @@ export type CreateRole = {
   description?: string | null;
   roleType: DomainEntityRoleType;
   isSystemDefault: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateRoleAttendancePolicy = {
+  roleId: string;
+  policyId: string;
+  companyId: string;
 };
 
 /**
@@ -134,12 +350,92 @@ export type CreateUser = {
   password?: string;
 };
 
+/**
+ * The template for omitting properties.
+ */
+export type CreateWorkSchedule = {
+  companyId: string;
+  name: string;
+  description?: string | null;
+  isActive: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateWorkShift = {
+  workScheduleId: string;
+  companyId: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isOvernight: boolean;
+  color?: string | null;
+};
+
+export type DomainEntityAttendanceStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'LATE'
+  | 'ABSENT';
+
+export type DomainEntityCheckType =
+  | 'CHECK_IN'
+  | 'CHECK_OUT'
+  | 'BREAK_IN'
+  | 'BREAK_OUT'
+  | 'CUSTOM';
+
+export type DomainEntityLeaveStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'CANCELLED';
+
+export type DomainEntityLeaveType =
+  | 'SICK_LEAVE'
+  | 'ANNUAL_LEAVE'
+  | 'PERSONAL_LEAVE'
+  | 'MATERNITY_LEAVE'
+  | 'ABSENT_NO_REASON';
+
+export type DomainEntityLocationType = 'FIXED' | 'RADIUS' | 'BRANCH';
+
 export type DomainEntityRoleType =
   | 'SUPER_ADMIN'
   | 'OWNER'
   | 'ADMIN'
   | 'MEMBER'
   | 'VIEWER';
+
+export type LeaveRequest = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyId: string;
+  companyMemberId: string;
+  leaveType: DomainEntityLeaveType;
+  status: DomainEntityLeaveStatus;
+  startDate: Date;
+  endDate: Date;
+  totalDays: number;
+  reason?: string | null;
+  attachmentUrl?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: Date | null;
+  reviewNote?: string | null;
+};
+
+export type MemberWorkSchedule = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyMemberId: string;
+  workShiftId: string;
+  effectiveDate: Date;
+  endDate?: Date | null;
+};
 
 export type Permission = {
   id: string;
@@ -148,6 +444,11 @@ export type Permission = {
   action: string;
   module: string;
   description?: string | null;
+};
+
+export type ReviewLeaveRequest = {
+  status: DomainEntityLeaveStatus;
+  reviewNote?: string;
 };
 
 export type Role = {
@@ -161,12 +462,108 @@ export type Role = {
   isSystemDefault: boolean;
 };
 
+export type RoleAttendancePolicy = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  roleId: string;
+  policyId: string;
+  companyId: string;
+};
+
 export type RolePermission = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
   roleId: string;
   permissionId: string;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateAttendanceCheckpoint = {
+  policyId?: string;
+  checkType?: DomainEntityCheckType;
+  label?: string;
+  orderIndex?: number;
+  isRequired?: boolean;
+  windowStart?: string | null;
+  windowEnd?: string | null;
+  graceMinutes?: number | null;
+  requirePhoto?: boolean;
+  requireLocation?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateAttendanceLocation = {
+  companyId?: string;
+  branchId?: string | null;
+  name?: string;
+  locationType?: DomainEntityLocationType;
+  latitude?: number | null;
+  longitude?: number | null;
+  radiusMeters?: number | null;
+  address?: string | null;
+  isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateAttendanceLog = {
+  attendanceRecordId?: string;
+  checkpointId?: string;
+  checkType?: DomainEntityCheckType;
+  checkedAt?: Date;
+  latitude?: number | null;
+  longitude?: number | null;
+  accuracyMeters?: number | null;
+  locationId?: string | null;
+  isLocationValid?: boolean;
+  photoUrl?: string | null;
+  photoVerified?: boolean;
+  deviceId?: string | null;
+  ipAddress?: string | null;
+  isManual?: boolean;
+  manualReason?: string | null;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateAttendancePolicy = {
+  companyId?: string;
+  name?: string;
+  description?: string | null;
+  isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateAttendanceRecord = {
+  companyId?: string;
+  companyMemberId?: string;
+  workShiftId?: string;
+  workDate?: Date;
+  status?: DomainEntityAttendanceStatus;
+  totalWorkMinutes?: number | null;
+  overtimeMinutes?: number | null;
+  lateMinutes?: number | null;
+  note?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: Date | null;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateCheckpointLocation = {
+  checkpointId?: string;
+  locationId?: string;
 };
 
 /**
@@ -203,6 +600,34 @@ export type UpdateCompanyMember = {
 /**
  * The template for adding optional properties.
  */
+export type UpdateLeaveRequest = {
+  companyId?: string;
+  companyMemberId?: string;
+  leaveType?: DomainEntityLeaveType;
+  status?: DomainEntityLeaveStatus;
+  startDate?: Date;
+  endDate?: Date;
+  totalDays?: number;
+  reason?: string | null;
+  attachmentUrl?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: Date | null;
+  reviewNote?: string | null;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateMemberWorkSchedule = {
+  companyMemberId?: string;
+  workShiftId?: string;
+  effectiveDate?: Date;
+  endDate?: Date | null;
+};
+
+/**
+ * The template for adding optional properties.
+ */
 export type UpdatePermission = {
   action?: string;
   module?: string;
@@ -223,6 +648,15 @@ export type UpdateRole = {
 /**
  * The template for adding optional properties.
  */
+export type UpdateRoleAttendancePolicy = {
+  roleId?: string;
+  policyId?: string;
+  companyId?: string;
+};
+
+/**
+ * The template for adding optional properties.
+ */
 export type UpdateUser = {
   name?: string;
   email?: string;
@@ -231,6 +665,29 @@ export type UpdateUser = {
   isAdmin?: boolean;
   isActive?: boolean;
   lastLogin?: Date | null;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateWorkSchedule = {
+  companyId?: string;
+  name?: string;
+  description?: string | null;
+  isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateWorkShift = {
+  workScheduleId?: string;
+  companyId?: string;
+  name?: string;
+  startTime?: string;
+  endTime?: string;
+  isOvernight?: boolean;
+  color?: string | null;
 };
 
 export type User = {
@@ -245,6 +702,1961 @@ export type User = {
   isActive: boolean;
   lastLogin?: Date | null;
 };
+
+export type WorkSchedule = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyId: string;
+  name: string;
+  description?: string | null;
+  isActive: boolean;
+};
+
+export type WorkShift = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  workScheduleId: string;
+  companyId: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isOvernight: boolean;
+  color?: string | null;
+};
+
+export type AttendanceServicesAssignCheckpointLocationData = {
+  body: CreateCheckpointLocation;
+  path?: never;
+  query?: never;
+  url: '/attendance/checkpoint-locations';
+};
+
+export type AttendanceServicesAssignCheckpointLocationErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesAssignCheckpointLocationError =
+  AttendanceServicesAssignCheckpointLocationErrors[keyof AttendanceServicesAssignCheckpointLocationErrors];
+
+export type AttendanceServicesAssignCheckpointLocationResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: CheckpointLocation;
+  };
+};
+
+export type AttendanceServicesAssignCheckpointLocationResponse =
+  AttendanceServicesAssignCheckpointLocationResponses[keyof AttendanceServicesAssignCheckpointLocationResponses];
+
+export type AttendanceServicesCreateAttendanceCheckpointData = {
+  body: CreateAttendanceCheckpoint;
+  path?: never;
+  query?: never;
+  url: '/attendance/checkpoints';
+};
+
+export type AttendanceServicesCreateAttendanceCheckpointErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateAttendanceCheckpointError =
+  AttendanceServicesCreateAttendanceCheckpointErrors[keyof AttendanceServicesCreateAttendanceCheckpointErrors];
+
+export type AttendanceServicesCreateAttendanceCheckpointResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: AttendanceCheckpoint;
+  };
+};
+
+export type AttendanceServicesCreateAttendanceCheckpointResponse =
+  AttendanceServicesCreateAttendanceCheckpointResponses[keyof AttendanceServicesCreateAttendanceCheckpointResponses];
+
+export type AttendanceServicesGetCheckpointLocationsData = {
+  body?: never;
+  path: {
+    checkpointId: string;
+  };
+  query?: never;
+  url: '/attendance/checkpoints/{checkpointId}/locations';
+};
+
+export type AttendanceServicesGetCheckpointLocationsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetCheckpointLocationsError =
+  AttendanceServicesGetCheckpointLocationsErrors[keyof AttendanceServicesGetCheckpointLocationsErrors];
+
+export type AttendanceServicesGetCheckpointLocationsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<CheckpointLocation>;
+  };
+};
+
+export type AttendanceServicesGetCheckpointLocationsResponse =
+  AttendanceServicesGetCheckpointLocationsResponses[keyof AttendanceServicesGetCheckpointLocationsResponses];
+
+export type AttendanceServicesRemoveCheckpointLocationData = {
+  body?: never;
+  path: {
+    checkpointId: string;
+    locationId: string;
+  };
+  query?: never;
+  url: '/attendance/checkpoints/{checkpointId}/locations/{locationId}';
+};
+
+export type AttendanceServicesRemoveCheckpointLocationErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesRemoveCheckpointLocationError =
+  AttendanceServicesRemoveCheckpointLocationErrors[keyof AttendanceServicesRemoveCheckpointLocationErrors];
+
+export type AttendanceServicesRemoveCheckpointLocationResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesRemoveCheckpointLocationResponse =
+  AttendanceServicesRemoveCheckpointLocationResponses[keyof AttendanceServicesRemoveCheckpointLocationResponses];
+
+export type AttendanceServicesDeleteAttendanceCheckpointData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/checkpoints/{id}';
+};
+
+export type AttendanceServicesDeleteAttendanceCheckpointErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceCheckpointError =
+  AttendanceServicesDeleteAttendanceCheckpointErrors[keyof AttendanceServicesDeleteAttendanceCheckpointErrors];
+
+export type AttendanceServicesDeleteAttendanceCheckpointResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceCheckpointResponse =
+  AttendanceServicesDeleteAttendanceCheckpointResponses[keyof AttendanceServicesDeleteAttendanceCheckpointResponses];
+
+export type AttendanceServicesGetAttendanceCheckpointData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/checkpoints/{id}';
+};
+
+export type AttendanceServicesGetAttendanceCheckpointErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceCheckpointError =
+  AttendanceServicesGetAttendanceCheckpointErrors[keyof AttendanceServicesGetAttendanceCheckpointErrors];
+
+export type AttendanceServicesGetAttendanceCheckpointResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceCheckpoint;
+  };
+};
+
+export type AttendanceServicesGetAttendanceCheckpointResponse =
+  AttendanceServicesGetAttendanceCheckpointResponses[keyof AttendanceServicesGetAttendanceCheckpointResponses];
+
+export type AttendanceServicesUpdateAttendanceCheckpointData = {
+  body: UpdateAttendanceCheckpoint;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/checkpoints/{id}';
+};
+
+export type AttendanceServicesUpdateAttendanceCheckpointErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateAttendanceCheckpointError =
+  AttendanceServicesUpdateAttendanceCheckpointErrors[keyof AttendanceServicesUpdateAttendanceCheckpointErrors];
+
+export type AttendanceServicesUpdateAttendanceCheckpointResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceCheckpoint;
+  };
+};
+
+export type AttendanceServicesUpdateAttendanceCheckpointResponse =
+  AttendanceServicesUpdateAttendanceCheckpointResponses[keyof AttendanceServicesUpdateAttendanceCheckpointResponses];
+
+export type AttendanceServicesGetAttendanceLocationsData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: never;
+  url: '/attendance/companies/{companyId}/locations';
+};
+
+export type AttendanceServicesGetAttendanceLocationsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceLocationsError =
+  AttendanceServicesGetAttendanceLocationsErrors[keyof AttendanceServicesGetAttendanceLocationsErrors];
+
+export type AttendanceServicesGetAttendanceLocationsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<AttendanceLocation>;
+  };
+};
+
+export type AttendanceServicesGetAttendanceLocationsResponse =
+  AttendanceServicesGetAttendanceLocationsResponses[keyof AttendanceServicesGetAttendanceLocationsResponses];
+
+export type AttendanceServicesGetAttendancePoliciesData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: never;
+  url: '/attendance/companies/{companyId}/policies';
+};
+
+export type AttendanceServicesGetAttendancePoliciesErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendancePoliciesError =
+  AttendanceServicesGetAttendancePoliciesErrors[keyof AttendanceServicesGetAttendancePoliciesErrors];
+
+export type AttendanceServicesGetAttendancePoliciesResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<AttendancePolicy>;
+  };
+};
+
+export type AttendanceServicesGetAttendancePoliciesResponse =
+  AttendanceServicesGetAttendancePoliciesResponses[keyof AttendanceServicesGetAttendancePoliciesResponses];
+
+export type AttendanceServicesGetWorkSchedulesData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: never;
+  url: '/attendance/companies/{companyId}/schedules';
+};
+
+export type AttendanceServicesGetWorkSchedulesErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetWorkSchedulesError =
+  AttendanceServicesGetWorkSchedulesErrors[keyof AttendanceServicesGetWorkSchedulesErrors];
+
+export type AttendanceServicesGetWorkSchedulesResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<WorkSchedule>;
+  };
+};
+
+export type AttendanceServicesGetWorkSchedulesResponse =
+  AttendanceServicesGetWorkSchedulesResponses[keyof AttendanceServicesGetWorkSchedulesResponses];
+
+export type AttendanceServicesGetLeaveRequestsData = {
+  body?: never;
+  path?: never;
+  query: {
+    companyId: string;
+    memberId?: string;
+    status?: string;
+  };
+  url: '/attendance/leave-requests';
+};
+
+export type AttendanceServicesGetLeaveRequestsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetLeaveRequestsError =
+  AttendanceServicesGetLeaveRequestsErrors[keyof AttendanceServicesGetLeaveRequestsErrors];
+
+export type AttendanceServicesGetLeaveRequestsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<LeaveRequest>;
+  };
+};
+
+export type AttendanceServicesGetLeaveRequestsResponse =
+  AttendanceServicesGetLeaveRequestsResponses[keyof AttendanceServicesGetLeaveRequestsResponses];
+
+export type AttendanceServicesCreateLeaveRequestData = {
+  body: CreateLeaveRequest;
+  path?: never;
+  query?: never;
+  url: '/attendance/leave-requests';
+};
+
+export type AttendanceServicesCreateLeaveRequestErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateLeaveRequestError =
+  AttendanceServicesCreateLeaveRequestErrors[keyof AttendanceServicesCreateLeaveRequestErrors];
+
+export type AttendanceServicesCreateLeaveRequestResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: LeaveRequest;
+  };
+};
+
+export type AttendanceServicesCreateLeaveRequestResponse =
+  AttendanceServicesCreateLeaveRequestResponses[keyof AttendanceServicesCreateLeaveRequestResponses];
+
+export type AttendanceServicesDeleteLeaveRequestData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/leave-requests/{id}';
+};
+
+export type AttendanceServicesDeleteLeaveRequestErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteLeaveRequestError =
+  AttendanceServicesDeleteLeaveRequestErrors[keyof AttendanceServicesDeleteLeaveRequestErrors];
+
+export type AttendanceServicesDeleteLeaveRequestResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteLeaveRequestResponse =
+  AttendanceServicesDeleteLeaveRequestResponses[keyof AttendanceServicesDeleteLeaveRequestResponses];
+
+export type AttendanceServicesGetLeaveRequestData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/leave-requests/{id}';
+};
+
+export type AttendanceServicesGetLeaveRequestErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetLeaveRequestError =
+  AttendanceServicesGetLeaveRequestErrors[keyof AttendanceServicesGetLeaveRequestErrors];
+
+export type AttendanceServicesGetLeaveRequestResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: LeaveRequest;
+  };
+};
+
+export type AttendanceServicesGetLeaveRequestResponse =
+  AttendanceServicesGetLeaveRequestResponses[keyof AttendanceServicesGetLeaveRequestResponses];
+
+export type AttendanceServicesUpdateLeaveRequestData = {
+  body: UpdateLeaveRequest;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/leave-requests/{id}';
+};
+
+export type AttendanceServicesUpdateLeaveRequestErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateLeaveRequestError =
+  AttendanceServicesUpdateLeaveRequestErrors[keyof AttendanceServicesUpdateLeaveRequestErrors];
+
+export type AttendanceServicesUpdateLeaveRequestResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: LeaveRequest;
+  };
+};
+
+export type AttendanceServicesUpdateLeaveRequestResponse =
+  AttendanceServicesUpdateLeaveRequestResponses[keyof AttendanceServicesUpdateLeaveRequestResponses];
+
+export type AttendanceServicesReviewLeaveRequestData = {
+  body: ReviewLeaveRequest;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/leave-requests/{id}/review';
+};
+
+export type AttendanceServicesReviewLeaveRequestErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesReviewLeaveRequestError =
+  AttendanceServicesReviewLeaveRequestErrors[keyof AttendanceServicesReviewLeaveRequestErrors];
+
+export type AttendanceServicesReviewLeaveRequestResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: LeaveRequest;
+  };
+};
+
+export type AttendanceServicesReviewLeaveRequestResponse =
+  AttendanceServicesReviewLeaveRequestResponses[keyof AttendanceServicesReviewLeaveRequestResponses];
+
+export type AttendanceServicesCreateAttendanceLocationData = {
+  body: CreateAttendanceLocation;
+  path?: never;
+  query?: never;
+  url: '/attendance/locations';
+};
+
+export type AttendanceServicesCreateAttendanceLocationErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateAttendanceLocationError =
+  AttendanceServicesCreateAttendanceLocationErrors[keyof AttendanceServicesCreateAttendanceLocationErrors];
+
+export type AttendanceServicesCreateAttendanceLocationResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLocation;
+  };
+};
+
+export type AttendanceServicesCreateAttendanceLocationResponse =
+  AttendanceServicesCreateAttendanceLocationResponses[keyof AttendanceServicesCreateAttendanceLocationResponses];
+
+export type AttendanceServicesDeleteAttendanceLocationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/locations/{id}';
+};
+
+export type AttendanceServicesDeleteAttendanceLocationErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceLocationError =
+  AttendanceServicesDeleteAttendanceLocationErrors[keyof AttendanceServicesDeleteAttendanceLocationErrors];
+
+export type AttendanceServicesDeleteAttendanceLocationResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceLocationResponse =
+  AttendanceServicesDeleteAttendanceLocationResponses[keyof AttendanceServicesDeleteAttendanceLocationResponses];
+
+export type AttendanceServicesGetAttendanceLocationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/locations/{id}';
+};
+
+export type AttendanceServicesGetAttendanceLocationErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceLocationError =
+  AttendanceServicesGetAttendanceLocationErrors[keyof AttendanceServicesGetAttendanceLocationErrors];
+
+export type AttendanceServicesGetAttendanceLocationResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLocation;
+  };
+};
+
+export type AttendanceServicesGetAttendanceLocationResponse =
+  AttendanceServicesGetAttendanceLocationResponses[keyof AttendanceServicesGetAttendanceLocationResponses];
+
+export type AttendanceServicesUpdateAttendanceLocationData = {
+  body: UpdateAttendanceLocation;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/locations/{id}';
+};
+
+export type AttendanceServicesUpdateAttendanceLocationErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateAttendanceLocationError =
+  AttendanceServicesUpdateAttendanceLocationErrors[keyof AttendanceServicesUpdateAttendanceLocationErrors];
+
+export type AttendanceServicesUpdateAttendanceLocationResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLocation;
+  };
+};
+
+export type AttendanceServicesUpdateAttendanceLocationResponse =
+  AttendanceServicesUpdateAttendanceLocationResponses[keyof AttendanceServicesUpdateAttendanceLocationResponses];
+
+export type AttendanceServicesCreateAttendanceLogData = {
+  body: CreateAttendanceLog;
+  path?: never;
+  query?: never;
+  url: '/attendance/logs';
+};
+
+export type AttendanceServicesCreateAttendanceLogErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateAttendanceLogError =
+  AttendanceServicesCreateAttendanceLogErrors[keyof AttendanceServicesCreateAttendanceLogErrors];
+
+export type AttendanceServicesCreateAttendanceLogResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLog;
+  };
+};
+
+export type AttendanceServicesCreateAttendanceLogResponse =
+  AttendanceServicesCreateAttendanceLogResponses[keyof AttendanceServicesCreateAttendanceLogResponses];
+
+export type AttendanceServicesDeleteAttendanceLogData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/logs/{id}';
+};
+
+export type AttendanceServicesDeleteAttendanceLogErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceLogError =
+  AttendanceServicesDeleteAttendanceLogErrors[keyof AttendanceServicesDeleteAttendanceLogErrors];
+
+export type AttendanceServicesDeleteAttendanceLogResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceLogResponse =
+  AttendanceServicesDeleteAttendanceLogResponses[keyof AttendanceServicesDeleteAttendanceLogResponses];
+
+export type AttendanceServicesGetAttendanceLogData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/logs/{id}';
+};
+
+export type AttendanceServicesGetAttendanceLogErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceLogError =
+  AttendanceServicesGetAttendanceLogErrors[keyof AttendanceServicesGetAttendanceLogErrors];
+
+export type AttendanceServicesGetAttendanceLogResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLog;
+  };
+};
+
+export type AttendanceServicesGetAttendanceLogResponse =
+  AttendanceServicesGetAttendanceLogResponses[keyof AttendanceServicesGetAttendanceLogResponses];
+
+export type AttendanceServicesUpdateAttendanceLogData = {
+  body: UpdateAttendanceLog;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/logs/{id}';
+};
+
+export type AttendanceServicesUpdateAttendanceLogErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateAttendanceLogError =
+  AttendanceServicesUpdateAttendanceLogErrors[keyof AttendanceServicesUpdateAttendanceLogErrors];
+
+export type AttendanceServicesUpdateAttendanceLogResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLog;
+  };
+};
+
+export type AttendanceServicesUpdateAttendanceLogResponse =
+  AttendanceServicesUpdateAttendanceLogResponses[keyof AttendanceServicesUpdateAttendanceLogResponses];
+
+export type AttendanceServicesAssignMemberWorkScheduleData = {
+  body: CreateMemberWorkSchedule;
+  path?: never;
+  query?: never;
+  url: '/attendance/member-schedules';
+};
+
+export type AttendanceServicesAssignMemberWorkScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesAssignMemberWorkScheduleError =
+  AttendanceServicesAssignMemberWorkScheduleErrors[keyof AttendanceServicesAssignMemberWorkScheduleErrors];
+
+export type AttendanceServicesAssignMemberWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: MemberWorkSchedule;
+  };
+};
+
+export type AttendanceServicesAssignMemberWorkScheduleResponse =
+  AttendanceServicesAssignMemberWorkScheduleResponses[keyof AttendanceServicesAssignMemberWorkScheduleResponses];
+
+export type AttendanceServicesDeleteMemberWorkScheduleData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/member-schedules/{id}';
+};
+
+export type AttendanceServicesDeleteMemberWorkScheduleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteMemberWorkScheduleError =
+  AttendanceServicesDeleteMemberWorkScheduleErrors[keyof AttendanceServicesDeleteMemberWorkScheduleErrors];
+
+export type AttendanceServicesDeleteMemberWorkScheduleResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteMemberWorkScheduleResponse =
+  AttendanceServicesDeleteMemberWorkScheduleResponses[keyof AttendanceServicesDeleteMemberWorkScheduleResponses];
+
+export type AttendanceServicesUpdateMemberWorkScheduleData = {
+  body: UpdateMemberWorkSchedule;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/member-schedules/{id}';
+};
+
+export type AttendanceServicesUpdateMemberWorkScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateMemberWorkScheduleError =
+  AttendanceServicesUpdateMemberWorkScheduleErrors[keyof AttendanceServicesUpdateMemberWorkScheduleErrors];
+
+export type AttendanceServicesUpdateMemberWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: MemberWorkSchedule;
+  };
+};
+
+export type AttendanceServicesUpdateMemberWorkScheduleResponse =
+  AttendanceServicesUpdateMemberWorkScheduleResponses[keyof AttendanceServicesUpdateMemberWorkScheduleResponses];
+
+export type AttendanceServicesGetMemberWorkSchedulesData = {
+  body?: never;
+  path: {
+    companyMemberId: string;
+  };
+  query?: never;
+  url: '/attendance/members/{companyMemberId}/schedules';
+};
+
+export type AttendanceServicesGetMemberWorkSchedulesErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetMemberWorkSchedulesError =
+  AttendanceServicesGetMemberWorkSchedulesErrors[keyof AttendanceServicesGetMemberWorkSchedulesErrors];
+
+export type AttendanceServicesGetMemberWorkSchedulesResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<MemberWorkSchedule>;
+  };
+};
+
+export type AttendanceServicesGetMemberWorkSchedulesResponse =
+  AttendanceServicesGetMemberWorkSchedulesResponses[keyof AttendanceServicesGetMemberWorkSchedulesResponses];
+
+export type AttendanceServicesGetCurrentMemberWorkScheduleData = {
+  body?: never;
+  path: {
+    companyMemberId: string;
+  };
+  query?: never;
+  url: '/attendance/members/{companyMemberId}/schedules/current';
+};
+
+export type AttendanceServicesGetCurrentMemberWorkScheduleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetCurrentMemberWorkScheduleError =
+  AttendanceServicesGetCurrentMemberWorkScheduleErrors[keyof AttendanceServicesGetCurrentMemberWorkScheduleErrors];
+
+export type AttendanceServicesGetCurrentMemberWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: MemberWorkSchedule;
+  };
+};
+
+export type AttendanceServicesGetCurrentMemberWorkScheduleResponse =
+  AttendanceServicesGetCurrentMemberWorkScheduleResponses[keyof AttendanceServicesGetCurrentMemberWorkScheduleResponses];
+
+export type AttendanceServicesCreateAttendancePolicyData = {
+  body: CreateAttendancePolicy;
+  path?: never;
+  query?: never;
+  url: '/attendance/policies';
+};
+
+export type AttendanceServicesCreateAttendancePolicyErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateAttendancePolicyError =
+  AttendanceServicesCreateAttendancePolicyErrors[keyof AttendanceServicesCreateAttendancePolicyErrors];
+
+export type AttendanceServicesCreateAttendancePolicyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: AttendancePolicy;
+  };
+};
+
+export type AttendanceServicesCreateAttendancePolicyResponse =
+  AttendanceServicesCreateAttendancePolicyResponses[keyof AttendanceServicesCreateAttendancePolicyResponses];
+
+export type AttendanceServicesDeleteAttendancePolicyData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/policies/{id}';
+};
+
+export type AttendanceServicesDeleteAttendancePolicyErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteAttendancePolicyError =
+  AttendanceServicesDeleteAttendancePolicyErrors[keyof AttendanceServicesDeleteAttendancePolicyErrors];
+
+export type AttendanceServicesDeleteAttendancePolicyResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteAttendancePolicyResponse =
+  AttendanceServicesDeleteAttendancePolicyResponses[keyof AttendanceServicesDeleteAttendancePolicyResponses];
+
+export type AttendanceServicesGetAttendancePolicyData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/policies/{id}';
+};
+
+export type AttendanceServicesGetAttendancePolicyErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendancePolicyError =
+  AttendanceServicesGetAttendancePolicyErrors[keyof AttendanceServicesGetAttendancePolicyErrors];
+
+export type AttendanceServicesGetAttendancePolicyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendancePolicy;
+  };
+};
+
+export type AttendanceServicesGetAttendancePolicyResponse =
+  AttendanceServicesGetAttendancePolicyResponses[keyof AttendanceServicesGetAttendancePolicyResponses];
+
+export type AttendanceServicesUpdateAttendancePolicyData = {
+  body: UpdateAttendancePolicy;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/policies/{id}';
+};
+
+export type AttendanceServicesUpdateAttendancePolicyErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateAttendancePolicyError =
+  AttendanceServicesUpdateAttendancePolicyErrors[keyof AttendanceServicesUpdateAttendancePolicyErrors];
+
+export type AttendanceServicesUpdateAttendancePolicyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendancePolicy;
+  };
+};
+
+export type AttendanceServicesUpdateAttendancePolicyResponse =
+  AttendanceServicesUpdateAttendancePolicyResponses[keyof AttendanceServicesUpdateAttendancePolicyResponses];
+
+export type AttendanceServicesGetAttendanceCheckpointsData = {
+  body?: never;
+  path: {
+    policyId: string;
+  };
+  query?: never;
+  url: '/attendance/policies/{policyId}/checkpoints';
+};
+
+export type AttendanceServicesGetAttendanceCheckpointsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceCheckpointsError =
+  AttendanceServicesGetAttendanceCheckpointsErrors[keyof AttendanceServicesGetAttendanceCheckpointsErrors];
+
+export type AttendanceServicesGetAttendanceCheckpointsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<AttendanceCheckpoint>;
+  };
+};
+
+export type AttendanceServicesGetAttendanceCheckpointsResponse =
+  AttendanceServicesGetAttendanceCheckpointsResponses[keyof AttendanceServicesGetAttendanceCheckpointsResponses];
+
+export type AttendanceServicesGetAttendanceRecordsData = {
+  body?: never;
+  path?: never;
+  query: {
+    companyId: string;
+    memberId?: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  url: '/attendance/records';
+};
+
+export type AttendanceServicesGetAttendanceRecordsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceRecordsError =
+  AttendanceServicesGetAttendanceRecordsErrors[keyof AttendanceServicesGetAttendanceRecordsErrors];
+
+export type AttendanceServicesGetAttendanceRecordsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<AttendanceRecord>;
+  };
+};
+
+export type AttendanceServicesGetAttendanceRecordsResponse =
+  AttendanceServicesGetAttendanceRecordsResponses[keyof AttendanceServicesGetAttendanceRecordsResponses];
+
+export type AttendanceServicesCreateAttendanceRecordData = {
+  body: CreateAttendanceRecord;
+  path?: never;
+  query?: never;
+  url: '/attendance/records';
+};
+
+export type AttendanceServicesCreateAttendanceRecordErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateAttendanceRecordError =
+  AttendanceServicesCreateAttendanceRecordErrors[keyof AttendanceServicesCreateAttendanceRecordErrors];
+
+export type AttendanceServicesCreateAttendanceRecordResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: AttendanceRecord;
+  };
+};
+
+export type AttendanceServicesCreateAttendanceRecordResponse =
+  AttendanceServicesCreateAttendanceRecordResponses[keyof AttendanceServicesCreateAttendanceRecordResponses];
+
+export type AttendanceServicesGetMemberAttendanceRecordByDateData = {
+  body?: never;
+  path?: never;
+  query: {
+    companyMemberId: string;
+    workDate: string;
+  };
+  url: '/attendance/records/by-member-date';
+};
+
+export type AttendanceServicesGetMemberAttendanceRecordByDateErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetMemberAttendanceRecordByDateError =
+  AttendanceServicesGetMemberAttendanceRecordByDateErrors[keyof AttendanceServicesGetMemberAttendanceRecordByDateErrors];
+
+export type AttendanceServicesGetMemberAttendanceRecordByDateResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceRecord;
+  };
+};
+
+export type AttendanceServicesGetMemberAttendanceRecordByDateResponse =
+  AttendanceServicesGetMemberAttendanceRecordByDateResponses[keyof AttendanceServicesGetMemberAttendanceRecordByDateResponses];
+
+export type AttendanceServicesGetAttendanceLogsByRecordData = {
+  body?: never;
+  path: {
+    attendanceRecordId: string;
+  };
+  query?: never;
+  url: '/attendance/records/{attendanceRecordId}/logs';
+};
+
+export type AttendanceServicesGetAttendanceLogsByRecordErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceLogsByRecordError =
+  AttendanceServicesGetAttendanceLogsByRecordErrors[keyof AttendanceServicesGetAttendanceLogsByRecordErrors];
+
+export type AttendanceServicesGetAttendanceLogsByRecordResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<AttendanceLog>;
+  };
+};
+
+export type AttendanceServicesGetAttendanceLogsByRecordResponse =
+  AttendanceServicesGetAttendanceLogsByRecordResponses[keyof AttendanceServicesGetAttendanceLogsByRecordResponses];
+
+export type AttendanceServicesDeleteAttendanceRecordData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/records/{id}';
+};
+
+export type AttendanceServicesDeleteAttendanceRecordErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceRecordError =
+  AttendanceServicesDeleteAttendanceRecordErrors[keyof AttendanceServicesDeleteAttendanceRecordErrors];
+
+export type AttendanceServicesDeleteAttendanceRecordResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteAttendanceRecordResponse =
+  AttendanceServicesDeleteAttendanceRecordResponses[keyof AttendanceServicesDeleteAttendanceRecordResponses];
+
+export type AttendanceServicesGetAttendanceRecordData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/records/{id}';
+};
+
+export type AttendanceServicesGetAttendanceRecordErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetAttendanceRecordError =
+  AttendanceServicesGetAttendanceRecordErrors[keyof AttendanceServicesGetAttendanceRecordErrors];
+
+export type AttendanceServicesGetAttendanceRecordResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceRecord;
+  };
+};
+
+export type AttendanceServicesGetAttendanceRecordResponse =
+  AttendanceServicesGetAttendanceRecordResponses[keyof AttendanceServicesGetAttendanceRecordResponses];
+
+export type AttendanceServicesUpdateAttendanceRecordData = {
+  body: UpdateAttendanceRecord;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/records/{id}';
+};
+
+export type AttendanceServicesUpdateAttendanceRecordErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateAttendanceRecordError =
+  AttendanceServicesUpdateAttendanceRecordErrors[keyof AttendanceServicesUpdateAttendanceRecordErrors];
+
+export type AttendanceServicesUpdateAttendanceRecordResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceRecord;
+  };
+};
+
+export type AttendanceServicesUpdateAttendanceRecordResponse =
+  AttendanceServicesUpdateAttendanceRecordResponses[keyof AttendanceServicesUpdateAttendanceRecordResponses];
+
+export type AttendanceServicesApproveAttendanceRecordData = {
+  body: ApproveAttendanceRecordRequest;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/records/{id}/approve';
+};
+
+export type AttendanceServicesApproveAttendanceRecordErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesApproveAttendanceRecordError =
+  AttendanceServicesApproveAttendanceRecordErrors[keyof AttendanceServicesApproveAttendanceRecordErrors];
+
+export type AttendanceServicesApproveAttendanceRecordResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceRecord;
+  };
+};
+
+export type AttendanceServicesApproveAttendanceRecordResponse =
+  AttendanceServicesApproveAttendanceRecordResponses[keyof AttendanceServicesApproveAttendanceRecordResponses];
+
+export type AttendanceServicesAssignRoleAttendancePolicyData = {
+  body: CreateRoleAttendancePolicy;
+  path?: never;
+  query?: never;
+  url: '/attendance/role-policies';
+};
+
+export type AttendanceServicesAssignRoleAttendancePolicyErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesAssignRoleAttendancePolicyError =
+  AttendanceServicesAssignRoleAttendancePolicyErrors[keyof AttendanceServicesAssignRoleAttendancePolicyErrors];
+
+export type AttendanceServicesAssignRoleAttendancePolicyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: RoleAttendancePolicy;
+  };
+};
+
+export type AttendanceServicesAssignRoleAttendancePolicyResponse =
+  AttendanceServicesAssignRoleAttendancePolicyResponses[keyof AttendanceServicesAssignRoleAttendancePolicyResponses];
+
+export type AttendanceServicesGetRoleAttendancePoliciesData = {
+  body?: never;
+  path: {
+    roleId: string;
+  };
+  query?: never;
+  url: '/attendance/roles/{roleId}/policies';
+};
+
+export type AttendanceServicesGetRoleAttendancePoliciesErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetRoleAttendancePoliciesError =
+  AttendanceServicesGetRoleAttendancePoliciesErrors[keyof AttendanceServicesGetRoleAttendancePoliciesErrors];
+
+export type AttendanceServicesGetRoleAttendancePoliciesResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<RoleAttendancePolicy>;
+  };
+};
+
+export type AttendanceServicesGetRoleAttendancePoliciesResponse =
+  AttendanceServicesGetRoleAttendancePoliciesResponses[keyof AttendanceServicesGetRoleAttendancePoliciesResponses];
+
+export type AttendanceServicesRemoveRoleAttendancePolicyData = {
+  body?: never;
+  path: {
+    roleId: string;
+    policyId: string;
+  };
+  query?: never;
+  url: '/attendance/roles/{roleId}/policies/{policyId}';
+};
+
+export type AttendanceServicesRemoveRoleAttendancePolicyErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesRemoveRoleAttendancePolicyError =
+  AttendanceServicesRemoveRoleAttendancePolicyErrors[keyof AttendanceServicesRemoveRoleAttendancePolicyErrors];
+
+export type AttendanceServicesRemoveRoleAttendancePolicyResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesRemoveRoleAttendancePolicyResponse =
+  AttendanceServicesRemoveRoleAttendancePolicyResponses[keyof AttendanceServicesRemoveRoleAttendancePolicyResponses];
+
+export type AttendanceServicesCreateWorkScheduleData = {
+  body: CreateWorkSchedule;
+  path?: never;
+  query?: never;
+  url: '/attendance/schedules';
+};
+
+export type AttendanceServicesCreateWorkScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateWorkScheduleError =
+  AttendanceServicesCreateWorkScheduleErrors[keyof AttendanceServicesCreateWorkScheduleErrors];
+
+export type AttendanceServicesCreateWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: WorkSchedule;
+  };
+};
+
+export type AttendanceServicesCreateWorkScheduleResponse =
+  AttendanceServicesCreateWorkScheduleResponses[keyof AttendanceServicesCreateWorkScheduleResponses];
+
+export type AttendanceServicesDeleteWorkScheduleData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/schedules/{id}';
+};
+
+export type AttendanceServicesDeleteWorkScheduleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteWorkScheduleError =
+  AttendanceServicesDeleteWorkScheduleErrors[keyof AttendanceServicesDeleteWorkScheduleErrors];
+
+export type AttendanceServicesDeleteWorkScheduleResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteWorkScheduleResponse =
+  AttendanceServicesDeleteWorkScheduleResponses[keyof AttendanceServicesDeleteWorkScheduleResponses];
+
+export type AttendanceServicesGetWorkScheduleData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/schedules/{id}';
+};
+
+export type AttendanceServicesGetWorkScheduleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetWorkScheduleError =
+  AttendanceServicesGetWorkScheduleErrors[keyof AttendanceServicesGetWorkScheduleErrors];
+
+export type AttendanceServicesGetWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: WorkSchedule;
+  };
+};
+
+export type AttendanceServicesGetWorkScheduleResponse =
+  AttendanceServicesGetWorkScheduleResponses[keyof AttendanceServicesGetWorkScheduleResponses];
+
+export type AttendanceServicesUpdateWorkScheduleData = {
+  body: UpdateWorkSchedule;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/schedules/{id}';
+};
+
+export type AttendanceServicesUpdateWorkScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateWorkScheduleError =
+  AttendanceServicesUpdateWorkScheduleErrors[keyof AttendanceServicesUpdateWorkScheduleErrors];
+
+export type AttendanceServicesUpdateWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: WorkSchedule;
+  };
+};
+
+export type AttendanceServicesUpdateWorkScheduleResponse =
+  AttendanceServicesUpdateWorkScheduleResponses[keyof AttendanceServicesUpdateWorkScheduleResponses];
+
+export type AttendanceServicesGetWorkShiftsData = {
+  body?: never;
+  path: {
+    workScheduleId: string;
+  };
+  query?: never;
+  url: '/attendance/schedules/{workScheduleId}/shifts';
+};
+
+export type AttendanceServicesGetWorkShiftsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetWorkShiftsError =
+  AttendanceServicesGetWorkShiftsErrors[keyof AttendanceServicesGetWorkShiftsErrors];
+
+export type AttendanceServicesGetWorkShiftsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<WorkShift>;
+  };
+};
+
+export type AttendanceServicesGetWorkShiftsResponse =
+  AttendanceServicesGetWorkShiftsResponses[keyof AttendanceServicesGetWorkShiftsResponses];
+
+export type AttendanceServicesCreateWorkShiftData = {
+  body: CreateWorkShift;
+  path?: never;
+  query?: never;
+  url: '/attendance/shifts';
+};
+
+export type AttendanceServicesCreateWorkShiftErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateWorkShiftError =
+  AttendanceServicesCreateWorkShiftErrors[keyof AttendanceServicesCreateWorkShiftErrors];
+
+export type AttendanceServicesCreateWorkShiftResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: WorkShift;
+  };
+};
+
+export type AttendanceServicesCreateWorkShiftResponse =
+  AttendanceServicesCreateWorkShiftResponses[keyof AttendanceServicesCreateWorkShiftResponses];
+
+export type AttendanceServicesDeleteWorkShiftData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/shifts/{id}';
+};
+
+export type AttendanceServicesDeleteWorkShiftErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteWorkShiftError =
+  AttendanceServicesDeleteWorkShiftErrors[keyof AttendanceServicesDeleteWorkShiftErrors];
+
+export type AttendanceServicesDeleteWorkShiftResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteWorkShiftResponse =
+  AttendanceServicesDeleteWorkShiftResponses[keyof AttendanceServicesDeleteWorkShiftResponses];
+
+export type AttendanceServicesGetWorkShiftData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/shifts/{id}';
+};
+
+export type AttendanceServicesGetWorkShiftErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetWorkShiftError =
+  AttendanceServicesGetWorkShiftErrors[keyof AttendanceServicesGetWorkShiftErrors];
+
+export type AttendanceServicesGetWorkShiftResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: WorkShift;
+  };
+};
+
+export type AttendanceServicesGetWorkShiftResponse =
+  AttendanceServicesGetWorkShiftResponses[keyof AttendanceServicesGetWorkShiftResponses];
+
+export type AttendanceServicesUpdateWorkShiftData = {
+  body: UpdateWorkShift;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/shifts/{id}';
+};
+
+export type AttendanceServicesUpdateWorkShiftErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateWorkShiftError =
+  AttendanceServicesUpdateWorkShiftErrors[keyof AttendanceServicesUpdateWorkShiftErrors];
+
+export type AttendanceServicesUpdateWorkShiftResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: WorkShift;
+  };
+};
+
+export type AttendanceServicesUpdateWorkShiftResponse =
+  AttendanceServicesUpdateWorkShiftResponses[keyof AttendanceServicesUpdateWorkShiftResponses];
 
 export type CompanyServicesGetCompaniesData = {
   body?: never;

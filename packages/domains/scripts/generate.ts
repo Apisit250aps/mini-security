@@ -37,6 +37,16 @@ function tsTypeToTsp(typeName: string): string {
       return 'null';
     case 'RoleType':
       return 'RoleType';
+    case 'CheckType':
+      return 'CheckType';
+    case 'AttendanceStatus':
+      return 'AttendanceStatus';
+    case 'LocationType':
+      return 'LocationType';
+    case 'LeaveType':
+      return 'LeaveType';
+    case 'LeaveStatus':
+      return 'LeaveStatus';
     default:
       return t;
   }
@@ -192,6 +202,43 @@ const baseEntityTemplate = `  model BaseEntity {
     ADMIN: "ADMIN",
     MEMBER: "MEMBER",
     VIEWER: "VIEWER",
+  }
+
+  enum CheckType {
+    CHECK_IN: "CHECK_IN",
+    CHECK_OUT: "CHECK_OUT",
+    BREAK_IN: "BREAK_IN",
+    BREAK_OUT: "BREAK_OUT",
+    CUSTOM: "CUSTOM",
+  }
+
+  enum AttendanceStatus {
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+    LATE: "LATE",
+    ABSENT: "ABSENT",
+  }
+
+  enum LocationType {
+    FIXED: "FIXED",
+    RADIUS: "RADIUS",
+    BRANCH: "BRANCH",
+  }
+
+  enum LeaveType {
+    SICK_LEAVE: "SICK_LEAVE",
+    ANNUAL_LEAVE: "ANNUAL_LEAVE",
+    PERSONAL_LEAVE: "PERSONAL_LEAVE",
+    MATERNITY_LEAVE: "MATERNITY_LEAVE",
+    ABSENT_NO_REASON: "ABSENT_NO_REASON",
+  }
+
+  enum LeaveStatus {
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+    CANCELLED: "CANCELLED",
   }`;
 
 const finalTspContent = `namespace Domain.Entity;\n\n${baseEntityTemplate}\n\n${blocks.join('\n\n')}\n`;

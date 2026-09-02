@@ -9,6 +9,168 @@ import type {
 } from './client';
 import { client } from './client.gen';
 import type {
+  AttendanceServicesApproveAttendanceRecordData,
+  AttendanceServicesApproveAttendanceRecordErrors,
+  AttendanceServicesApproveAttendanceRecordResponses,
+  AttendanceServicesAssignCheckpointLocationData,
+  AttendanceServicesAssignCheckpointLocationErrors,
+  AttendanceServicesAssignCheckpointLocationResponses,
+  AttendanceServicesAssignMemberWorkScheduleData,
+  AttendanceServicesAssignMemberWorkScheduleErrors,
+  AttendanceServicesAssignMemberWorkScheduleResponses,
+  AttendanceServicesAssignRoleAttendancePolicyData,
+  AttendanceServicesAssignRoleAttendancePolicyErrors,
+  AttendanceServicesAssignRoleAttendancePolicyResponses,
+  AttendanceServicesCreateAttendanceCheckpointData,
+  AttendanceServicesCreateAttendanceCheckpointErrors,
+  AttendanceServicesCreateAttendanceCheckpointResponses,
+  AttendanceServicesCreateAttendanceLocationData,
+  AttendanceServicesCreateAttendanceLocationErrors,
+  AttendanceServicesCreateAttendanceLocationResponses,
+  AttendanceServicesCreateAttendanceLogData,
+  AttendanceServicesCreateAttendanceLogErrors,
+  AttendanceServicesCreateAttendanceLogResponses,
+  AttendanceServicesCreateAttendancePolicyData,
+  AttendanceServicesCreateAttendancePolicyErrors,
+  AttendanceServicesCreateAttendancePolicyResponses,
+  AttendanceServicesCreateAttendanceRecordData,
+  AttendanceServicesCreateAttendanceRecordErrors,
+  AttendanceServicesCreateAttendanceRecordResponses,
+  AttendanceServicesCreateLeaveRequestData,
+  AttendanceServicesCreateLeaveRequestErrors,
+  AttendanceServicesCreateLeaveRequestResponses,
+  AttendanceServicesCreateWorkScheduleData,
+  AttendanceServicesCreateWorkScheduleErrors,
+  AttendanceServicesCreateWorkScheduleResponses,
+  AttendanceServicesCreateWorkShiftData,
+  AttendanceServicesCreateWorkShiftErrors,
+  AttendanceServicesCreateWorkShiftResponses,
+  AttendanceServicesDeleteAttendanceCheckpointData,
+  AttendanceServicesDeleteAttendanceCheckpointErrors,
+  AttendanceServicesDeleteAttendanceCheckpointResponses,
+  AttendanceServicesDeleteAttendanceLocationData,
+  AttendanceServicesDeleteAttendanceLocationErrors,
+  AttendanceServicesDeleteAttendanceLocationResponses,
+  AttendanceServicesDeleteAttendanceLogData,
+  AttendanceServicesDeleteAttendanceLogErrors,
+  AttendanceServicesDeleteAttendanceLogResponses,
+  AttendanceServicesDeleteAttendancePolicyData,
+  AttendanceServicesDeleteAttendancePolicyErrors,
+  AttendanceServicesDeleteAttendancePolicyResponses,
+  AttendanceServicesDeleteAttendanceRecordData,
+  AttendanceServicesDeleteAttendanceRecordErrors,
+  AttendanceServicesDeleteAttendanceRecordResponses,
+  AttendanceServicesDeleteLeaveRequestData,
+  AttendanceServicesDeleteLeaveRequestErrors,
+  AttendanceServicesDeleteLeaveRequestResponses,
+  AttendanceServicesDeleteMemberWorkScheduleData,
+  AttendanceServicesDeleteMemberWorkScheduleErrors,
+  AttendanceServicesDeleteMemberWorkScheduleResponses,
+  AttendanceServicesDeleteWorkScheduleData,
+  AttendanceServicesDeleteWorkScheduleErrors,
+  AttendanceServicesDeleteWorkScheduleResponses,
+  AttendanceServicesDeleteWorkShiftData,
+  AttendanceServicesDeleteWorkShiftErrors,
+  AttendanceServicesDeleteWorkShiftResponses,
+  AttendanceServicesGetAttendanceCheckpointData,
+  AttendanceServicesGetAttendanceCheckpointErrors,
+  AttendanceServicesGetAttendanceCheckpointResponses,
+  AttendanceServicesGetAttendanceCheckpointsData,
+  AttendanceServicesGetAttendanceCheckpointsErrors,
+  AttendanceServicesGetAttendanceCheckpointsResponses,
+  AttendanceServicesGetAttendanceLocationData,
+  AttendanceServicesGetAttendanceLocationErrors,
+  AttendanceServicesGetAttendanceLocationResponses,
+  AttendanceServicesGetAttendanceLocationsData,
+  AttendanceServicesGetAttendanceLocationsErrors,
+  AttendanceServicesGetAttendanceLocationsResponses,
+  AttendanceServicesGetAttendanceLogData,
+  AttendanceServicesGetAttendanceLogErrors,
+  AttendanceServicesGetAttendanceLogResponses,
+  AttendanceServicesGetAttendanceLogsByRecordData,
+  AttendanceServicesGetAttendanceLogsByRecordErrors,
+  AttendanceServicesGetAttendanceLogsByRecordResponses,
+  AttendanceServicesGetAttendancePoliciesData,
+  AttendanceServicesGetAttendancePoliciesErrors,
+  AttendanceServicesGetAttendancePoliciesResponses,
+  AttendanceServicesGetAttendancePolicyData,
+  AttendanceServicesGetAttendancePolicyErrors,
+  AttendanceServicesGetAttendancePolicyResponses,
+  AttendanceServicesGetAttendanceRecordData,
+  AttendanceServicesGetAttendanceRecordErrors,
+  AttendanceServicesGetAttendanceRecordResponses,
+  AttendanceServicesGetAttendanceRecordsData,
+  AttendanceServicesGetAttendanceRecordsErrors,
+  AttendanceServicesGetAttendanceRecordsResponses,
+  AttendanceServicesGetCheckpointLocationsData,
+  AttendanceServicesGetCheckpointLocationsErrors,
+  AttendanceServicesGetCheckpointLocationsResponses,
+  AttendanceServicesGetCurrentMemberWorkScheduleData,
+  AttendanceServicesGetCurrentMemberWorkScheduleErrors,
+  AttendanceServicesGetCurrentMemberWorkScheduleResponses,
+  AttendanceServicesGetLeaveRequestData,
+  AttendanceServicesGetLeaveRequestErrors,
+  AttendanceServicesGetLeaveRequestResponses,
+  AttendanceServicesGetLeaveRequestsData,
+  AttendanceServicesGetLeaveRequestsErrors,
+  AttendanceServicesGetLeaveRequestsResponses,
+  AttendanceServicesGetMemberAttendanceRecordByDateData,
+  AttendanceServicesGetMemberAttendanceRecordByDateErrors,
+  AttendanceServicesGetMemberAttendanceRecordByDateResponses,
+  AttendanceServicesGetMemberWorkSchedulesData,
+  AttendanceServicesGetMemberWorkSchedulesErrors,
+  AttendanceServicesGetMemberWorkSchedulesResponses,
+  AttendanceServicesGetRoleAttendancePoliciesData,
+  AttendanceServicesGetRoleAttendancePoliciesErrors,
+  AttendanceServicesGetRoleAttendancePoliciesResponses,
+  AttendanceServicesGetWorkScheduleData,
+  AttendanceServicesGetWorkScheduleErrors,
+  AttendanceServicesGetWorkScheduleResponses,
+  AttendanceServicesGetWorkSchedulesData,
+  AttendanceServicesGetWorkSchedulesErrors,
+  AttendanceServicesGetWorkSchedulesResponses,
+  AttendanceServicesGetWorkShiftData,
+  AttendanceServicesGetWorkShiftErrors,
+  AttendanceServicesGetWorkShiftResponses,
+  AttendanceServicesGetWorkShiftsData,
+  AttendanceServicesGetWorkShiftsErrors,
+  AttendanceServicesGetWorkShiftsResponses,
+  AttendanceServicesRemoveCheckpointLocationData,
+  AttendanceServicesRemoveCheckpointLocationErrors,
+  AttendanceServicesRemoveCheckpointLocationResponses,
+  AttendanceServicesRemoveRoleAttendancePolicyData,
+  AttendanceServicesRemoveRoleAttendancePolicyErrors,
+  AttendanceServicesRemoveRoleAttendancePolicyResponses,
+  AttendanceServicesReviewLeaveRequestData,
+  AttendanceServicesReviewLeaveRequestErrors,
+  AttendanceServicesReviewLeaveRequestResponses,
+  AttendanceServicesUpdateAttendanceCheckpointData,
+  AttendanceServicesUpdateAttendanceCheckpointErrors,
+  AttendanceServicesUpdateAttendanceCheckpointResponses,
+  AttendanceServicesUpdateAttendanceLocationData,
+  AttendanceServicesUpdateAttendanceLocationErrors,
+  AttendanceServicesUpdateAttendanceLocationResponses,
+  AttendanceServicesUpdateAttendanceLogData,
+  AttendanceServicesUpdateAttendanceLogErrors,
+  AttendanceServicesUpdateAttendanceLogResponses,
+  AttendanceServicesUpdateAttendancePolicyData,
+  AttendanceServicesUpdateAttendancePolicyErrors,
+  AttendanceServicesUpdateAttendancePolicyResponses,
+  AttendanceServicesUpdateAttendanceRecordData,
+  AttendanceServicesUpdateAttendanceRecordErrors,
+  AttendanceServicesUpdateAttendanceRecordResponses,
+  AttendanceServicesUpdateLeaveRequestData,
+  AttendanceServicesUpdateLeaveRequestErrors,
+  AttendanceServicesUpdateLeaveRequestResponses,
+  AttendanceServicesUpdateMemberWorkScheduleData,
+  AttendanceServicesUpdateMemberWorkScheduleErrors,
+  AttendanceServicesUpdateMemberWorkScheduleResponses,
+  AttendanceServicesUpdateWorkScheduleData,
+  AttendanceServicesUpdateWorkScheduleErrors,
+  AttendanceServicesUpdateWorkScheduleResponses,
+  AttendanceServicesUpdateWorkShiftData,
+  AttendanceServicesUpdateWorkShiftErrors,
+  AttendanceServicesUpdateWorkShiftResponses,
   CompanyServicesAddCompanyMemberData,
   CompanyServicesAddCompanyMemberErrors,
   CompanyServicesAddCompanyMemberResponses,
@@ -130,6 +292,1336 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
+
+/**
+ * Assign location to checkpoint
+ */
+export const attendanceServicesAssignCheckpointLocation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesAssignCheckpointLocationData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesAssignCheckpointLocationResponses,
+  AttendanceServicesAssignCheckpointLocationErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesAssignCheckpointLocationResponses,
+    AttendanceServicesAssignCheckpointLocationErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/checkpoint-locations',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create checkpoint
+ */
+export const attendanceServicesCreateAttendanceCheckpoint = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesCreateAttendanceCheckpointData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesCreateAttendanceCheckpointResponses,
+  AttendanceServicesCreateAttendanceCheckpointErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateAttendanceCheckpointResponses,
+    AttendanceServicesCreateAttendanceCheckpointErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/checkpoints',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get locations assigned to checkpoint
+ */
+export const attendanceServicesGetCheckpointLocations = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetCheckpointLocationsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetCheckpointLocationsResponses,
+  AttendanceServicesGetCheckpointLocationsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetCheckpointLocationsResponses,
+    AttendanceServicesGetCheckpointLocationsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/checkpoints/{checkpointId}/locations',
+    ...options,
+  });
+
+/**
+ * Remove location from checkpoint
+ */
+export const attendanceServicesRemoveCheckpointLocation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesRemoveCheckpointLocationData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesRemoveCheckpointLocationResponses,
+  AttendanceServicesRemoveCheckpointLocationErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesRemoveCheckpointLocationResponses,
+    AttendanceServicesRemoveCheckpointLocationErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/checkpoints/{checkpointId}/locations/{locationId}',
+    ...options,
+  });
+
+/**
+ * Delete checkpoint
+ */
+export const attendanceServicesDeleteAttendanceCheckpoint = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesDeleteAttendanceCheckpointData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesDeleteAttendanceCheckpointResponses,
+  AttendanceServicesDeleteAttendanceCheckpointErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteAttendanceCheckpointResponses,
+    AttendanceServicesDeleteAttendanceCheckpointErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/checkpoints/{id}',
+    ...options,
+  });
+
+/**
+ * Get checkpoint by ID
+ */
+export const attendanceServicesGetAttendanceCheckpoint = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendanceCheckpointData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendanceCheckpointResponses,
+  AttendanceServicesGetAttendanceCheckpointErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceCheckpointResponses,
+    AttendanceServicesGetAttendanceCheckpointErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/checkpoints/{id}',
+    ...options,
+  });
+
+/**
+ * Update checkpoint
+ */
+export const attendanceServicesUpdateAttendanceCheckpoint = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesUpdateAttendanceCheckpointData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesUpdateAttendanceCheckpointResponses,
+  AttendanceServicesUpdateAttendanceCheckpointErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateAttendanceCheckpointResponses,
+    AttendanceServicesUpdateAttendanceCheckpointErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/checkpoints/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get attendance locations by company
+ */
+export const attendanceServicesGetAttendanceLocations = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendanceLocationsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendanceLocationsResponses,
+  AttendanceServicesGetAttendanceLocationsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceLocationsResponses,
+    AttendanceServicesGetAttendanceLocationsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/companies/{companyId}/locations',
+    ...options,
+  });
+
+/**
+ * Get attendance policies by company
+ */
+export const attendanceServicesGetAttendancePolicies = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendancePoliciesData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendancePoliciesResponses,
+  AttendanceServicesGetAttendancePoliciesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendancePoliciesResponses,
+    AttendanceServicesGetAttendancePoliciesErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/companies/{companyId}/policies',
+    ...options,
+  });
+
+/**
+ * Get work schedules by company
+ */
+export const attendanceServicesGetWorkSchedules = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetWorkSchedulesData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetWorkSchedulesResponses,
+  AttendanceServicesGetWorkSchedulesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetWorkSchedulesResponses,
+    AttendanceServicesGetWorkSchedulesErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/companies/{companyId}/schedules',
+    ...options,
+  });
+
+/**
+ * Get leave requests
+ */
+export const attendanceServicesGetLeaveRequests = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetLeaveRequestsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetLeaveRequestsResponses,
+  AttendanceServicesGetLeaveRequestsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetLeaveRequestsResponses,
+    AttendanceServicesGetLeaveRequestsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/leave-requests',
+    ...options,
+  });
+
+/**
+ * Create leave request
+ */
+export const attendanceServicesCreateLeaveRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateLeaveRequestData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateLeaveRequestResponses,
+  AttendanceServicesCreateLeaveRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateLeaveRequestResponses,
+    AttendanceServicesCreateLeaveRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/leave-requests',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete leave request
+ */
+export const attendanceServicesDeleteLeaveRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteLeaveRequestData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteLeaveRequestResponses,
+  AttendanceServicesDeleteLeaveRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteLeaveRequestResponses,
+    AttendanceServicesDeleteLeaveRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/leave-requests/{id}',
+    ...options,
+  });
+
+/**
+ * Get leave request by ID
+ */
+export const attendanceServicesGetLeaveRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetLeaveRequestData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetLeaveRequestResponses,
+  AttendanceServicesGetLeaveRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetLeaveRequestResponses,
+    AttendanceServicesGetLeaveRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/leave-requests/{id}',
+    ...options,
+  });
+
+/**
+ * Update leave request
+ */
+export const attendanceServicesUpdateLeaveRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateLeaveRequestData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateLeaveRequestResponses,
+  AttendanceServicesUpdateLeaveRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateLeaveRequestResponses,
+    AttendanceServicesUpdateLeaveRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/leave-requests/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Review leave request (Approve/Reject)
+ */
+export const attendanceServicesReviewLeaveRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesReviewLeaveRequestData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesReviewLeaveRequestResponses,
+  AttendanceServicesReviewLeaveRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesReviewLeaveRequestResponses,
+    AttendanceServicesReviewLeaveRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/leave-requests/{id}/review',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create attendance location
+ */
+export const attendanceServicesCreateAttendanceLocation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesCreateAttendanceLocationData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesCreateAttendanceLocationResponses,
+  AttendanceServicesCreateAttendanceLocationErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateAttendanceLocationResponses,
+    AttendanceServicesCreateAttendanceLocationErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/locations',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete attendance location
+ */
+export const attendanceServicesDeleteAttendanceLocation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesDeleteAttendanceLocationData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesDeleteAttendanceLocationResponses,
+  AttendanceServicesDeleteAttendanceLocationErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteAttendanceLocationResponses,
+    AttendanceServicesDeleteAttendanceLocationErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/locations/{id}',
+    ...options,
+  });
+
+/**
+ * Get attendance location by ID
+ */
+export const attendanceServicesGetAttendanceLocation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendanceLocationData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendanceLocationResponses,
+  AttendanceServicesGetAttendanceLocationErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceLocationResponses,
+    AttendanceServicesGetAttendanceLocationErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/locations/{id}',
+    ...options,
+  });
+
+/**
+ * Update attendance location
+ */
+export const attendanceServicesUpdateAttendanceLocation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesUpdateAttendanceLocationData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesUpdateAttendanceLocationResponses,
+  AttendanceServicesUpdateAttendanceLocationErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateAttendanceLocationResponses,
+    AttendanceServicesUpdateAttendanceLocationErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/locations/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Record check-in log event
+ */
+export const attendanceServicesCreateAttendanceLog = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateAttendanceLogData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateAttendanceLogResponses,
+  AttendanceServicesCreateAttendanceLogErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateAttendanceLogResponses,
+    AttendanceServicesCreateAttendanceLogErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/logs',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete attendance log
+ */
+export const attendanceServicesDeleteAttendanceLog = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteAttendanceLogData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteAttendanceLogResponses,
+  AttendanceServicesDeleteAttendanceLogErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteAttendanceLogResponses,
+    AttendanceServicesDeleteAttendanceLogErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/logs/{id}',
+    ...options,
+  });
+
+/**
+ * Get attendance log by ID
+ */
+export const attendanceServicesGetAttendanceLog = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendanceLogData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendanceLogResponses,
+  AttendanceServicesGetAttendanceLogErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceLogResponses,
+    AttendanceServicesGetAttendanceLogErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/logs/{id}',
+    ...options,
+  });
+
+/**
+ * Update attendance log
+ */
+export const attendanceServicesUpdateAttendanceLog = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateAttendanceLogData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateAttendanceLogResponses,
+  AttendanceServicesUpdateAttendanceLogErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateAttendanceLogResponses,
+    AttendanceServicesUpdateAttendanceLogErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/logs/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Assign schedule to member
+ */
+export const attendanceServicesAssignMemberWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesAssignMemberWorkScheduleData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesAssignMemberWorkScheduleResponses,
+  AttendanceServicesAssignMemberWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesAssignMemberWorkScheduleResponses,
+    AttendanceServicesAssignMemberWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/member-schedules',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete member work schedule
+ */
+export const attendanceServicesDeleteMemberWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesDeleteMemberWorkScheduleData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesDeleteMemberWorkScheduleResponses,
+  AttendanceServicesDeleteMemberWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteMemberWorkScheduleResponses,
+    AttendanceServicesDeleteMemberWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/member-schedules/{id}',
+    ...options,
+  });
+
+/**
+ * Update member work schedule
+ */
+export const attendanceServicesUpdateMemberWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesUpdateMemberWorkScheduleData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesUpdateMemberWorkScheduleResponses,
+  AttendanceServicesUpdateMemberWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateMemberWorkScheduleResponses,
+    AttendanceServicesUpdateMemberWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/member-schedules/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get work schedules for member
+ */
+export const attendanceServicesGetMemberWorkSchedules = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetMemberWorkSchedulesData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetMemberWorkSchedulesResponses,
+  AttendanceServicesGetMemberWorkSchedulesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetMemberWorkSchedulesResponses,
+    AttendanceServicesGetMemberWorkSchedulesErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/members/{companyMemberId}/schedules',
+    ...options,
+  });
+
+/**
+ * Get current active schedule for member
+ */
+export const attendanceServicesGetCurrentMemberWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesGetCurrentMemberWorkScheduleData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesGetCurrentMemberWorkScheduleResponses,
+  AttendanceServicesGetCurrentMemberWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetCurrentMemberWorkScheduleResponses,
+    AttendanceServicesGetCurrentMemberWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/members/{companyMemberId}/schedules/current',
+    ...options,
+  });
+
+/**
+ * Create attendance policy
+ */
+export const attendanceServicesCreateAttendancePolicy = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateAttendancePolicyData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateAttendancePolicyResponses,
+  AttendanceServicesCreateAttendancePolicyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateAttendancePolicyResponses,
+    AttendanceServicesCreateAttendancePolicyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/policies',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete attendance policy
+ */
+export const attendanceServicesDeleteAttendancePolicy = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteAttendancePolicyData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteAttendancePolicyResponses,
+  AttendanceServicesDeleteAttendancePolicyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteAttendancePolicyResponses,
+    AttendanceServicesDeleteAttendancePolicyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/policies/{id}',
+    ...options,
+  });
+
+/**
+ * Get attendance policy by ID
+ */
+export const attendanceServicesGetAttendancePolicy = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendancePolicyData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendancePolicyResponses,
+  AttendanceServicesGetAttendancePolicyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendancePolicyResponses,
+    AttendanceServicesGetAttendancePolicyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/policies/{id}',
+    ...options,
+  });
+
+/**
+ * Update attendance policy
+ */
+export const attendanceServicesUpdateAttendancePolicy = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateAttendancePolicyData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateAttendancePolicyResponses,
+  AttendanceServicesUpdateAttendancePolicyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateAttendancePolicyResponses,
+    AttendanceServicesUpdateAttendancePolicyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/policies/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get checkpoints by policy
+ */
+export const attendanceServicesGetAttendanceCheckpoints = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesGetAttendanceCheckpointsData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesGetAttendanceCheckpointsResponses,
+  AttendanceServicesGetAttendanceCheckpointsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceCheckpointsResponses,
+    AttendanceServicesGetAttendanceCheckpointsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/policies/{policyId}/checkpoints',
+    ...options,
+  });
+
+/**
+ * List attendance records
+ */
+export const attendanceServicesGetAttendanceRecords = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendanceRecordsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendanceRecordsResponses,
+  AttendanceServicesGetAttendanceRecordsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceRecordsResponses,
+    AttendanceServicesGetAttendanceRecordsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records',
+    ...options,
+  });
+
+/**
+ * Create daily attendance record
+ */
+export const attendanceServicesCreateAttendanceRecord = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateAttendanceRecordData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateAttendanceRecordResponses,
+  AttendanceServicesCreateAttendanceRecordErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateAttendanceRecordResponses,
+    AttendanceServicesCreateAttendanceRecordErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get attendance record by member and date
+ */
+export const attendanceServicesGetMemberAttendanceRecordByDate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesGetMemberAttendanceRecordByDateData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesGetMemberAttendanceRecordByDateResponses,
+  AttendanceServicesGetMemberAttendanceRecordByDateErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetMemberAttendanceRecordByDateResponses,
+    AttendanceServicesGetMemberAttendanceRecordByDateErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records/by-member-date',
+    ...options,
+  });
+
+/**
+ * Get check-in logs by attendance record
+ */
+export const attendanceServicesGetAttendanceLogsByRecord = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesGetAttendanceLogsByRecordData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesGetAttendanceLogsByRecordResponses,
+  AttendanceServicesGetAttendanceLogsByRecordErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceLogsByRecordResponses,
+    AttendanceServicesGetAttendanceLogsByRecordErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records/{attendanceRecordId}/logs',
+    ...options,
+  });
+
+/**
+ * Delete attendance record
+ */
+export const attendanceServicesDeleteAttendanceRecord = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteAttendanceRecordData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteAttendanceRecordResponses,
+  AttendanceServicesDeleteAttendanceRecordErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteAttendanceRecordResponses,
+    AttendanceServicesDeleteAttendanceRecordErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records/{id}',
+    ...options,
+  });
+
+/**
+ * Get attendance record by ID
+ */
+export const attendanceServicesGetAttendanceRecord = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetAttendanceRecordData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetAttendanceRecordResponses,
+  AttendanceServicesGetAttendanceRecordErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetAttendanceRecordResponses,
+    AttendanceServicesGetAttendanceRecordErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records/{id}',
+    ...options,
+  });
+
+/**
+ * Update attendance record
+ */
+export const attendanceServicesUpdateAttendanceRecord = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateAttendanceRecordData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateAttendanceRecordResponses,
+  AttendanceServicesUpdateAttendanceRecordErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateAttendanceRecordResponses,
+    AttendanceServicesUpdateAttendanceRecordErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Approve or reject attendance record
+ */
+export const attendanceServicesApproveAttendanceRecord = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesApproveAttendanceRecordData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesApproveAttendanceRecordResponses,
+  AttendanceServicesApproveAttendanceRecordErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesApproveAttendanceRecordResponses,
+    AttendanceServicesApproveAttendanceRecordErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/records/{id}/approve',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Assign attendance policy to role
+ */
+export const attendanceServicesAssignRoleAttendancePolicy = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesAssignRoleAttendancePolicyData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesAssignRoleAttendancePolicyResponses,
+  AttendanceServicesAssignRoleAttendancePolicyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesAssignRoleAttendancePolicyResponses,
+    AttendanceServicesAssignRoleAttendancePolicyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/role-policies',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get attendance policies for role
+ */
+export const attendanceServicesGetRoleAttendancePolicies = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesGetRoleAttendancePoliciesData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesGetRoleAttendancePoliciesResponses,
+  AttendanceServicesGetRoleAttendancePoliciesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetRoleAttendancePoliciesResponses,
+    AttendanceServicesGetRoleAttendancePoliciesErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/roles/{roleId}/policies',
+    ...options,
+  });
+
+/**
+ * Remove attendance policy from role
+ */
+export const attendanceServicesRemoveRoleAttendancePolicy = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesRemoveRoleAttendancePolicyData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesRemoveRoleAttendancePolicyResponses,
+  AttendanceServicesRemoveRoleAttendancePolicyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesRemoveRoleAttendancePolicyResponses,
+    AttendanceServicesRemoveRoleAttendancePolicyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/roles/{roleId}/policies/{policyId}',
+    ...options,
+  });
+
+/**
+ * Create work schedule
+ */
+export const attendanceServicesCreateWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateWorkScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateWorkScheduleResponses,
+  AttendanceServicesCreateWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateWorkScheduleResponses,
+    AttendanceServicesCreateWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/schedules',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete work schedule
+ */
+export const attendanceServicesDeleteWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteWorkScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteWorkScheduleResponses,
+  AttendanceServicesDeleteWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteWorkScheduleResponses,
+    AttendanceServicesDeleteWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/schedules/{id}',
+    ...options,
+  });
+
+/**
+ * Get work schedule by ID
+ */
+export const attendanceServicesGetWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetWorkScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetWorkScheduleResponses,
+  AttendanceServicesGetWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetWorkScheduleResponses,
+    AttendanceServicesGetWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/schedules/{id}',
+    ...options,
+  });
+
+/**
+ * Update work schedule
+ */
+export const attendanceServicesUpdateWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateWorkScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateWorkScheduleResponses,
+  AttendanceServicesUpdateWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateWorkScheduleResponses,
+    AttendanceServicesUpdateWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/schedules/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get work shifts by schedule
+ */
+export const attendanceServicesGetWorkShifts = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetWorkShiftsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetWorkShiftsResponses,
+  AttendanceServicesGetWorkShiftsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetWorkShiftsResponses,
+    AttendanceServicesGetWorkShiftsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/schedules/{workScheduleId}/shifts',
+    ...options,
+  });
+
+/**
+ * Create work shift
+ */
+export const attendanceServicesCreateWorkShift = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateWorkShiftData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateWorkShiftResponses,
+  AttendanceServicesCreateWorkShiftErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateWorkShiftResponses,
+    AttendanceServicesCreateWorkShiftErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/shifts',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete work shift
+ */
+export const attendanceServicesDeleteWorkShift = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteWorkShiftData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteWorkShiftResponses,
+  AttendanceServicesDeleteWorkShiftErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteWorkShiftResponses,
+    AttendanceServicesDeleteWorkShiftErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/shifts/{id}',
+    ...options,
+  });
+
+/**
+ * Get work shift by ID
+ */
+export const attendanceServicesGetWorkShift = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetWorkShiftData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetWorkShiftResponses,
+  AttendanceServicesGetWorkShiftErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetWorkShiftResponses,
+    AttendanceServicesGetWorkShiftErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/shifts/{id}',
+    ...options,
+  });
+
+/**
+ * Update work shift
+ */
+export const attendanceServicesUpdateWorkShift = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateWorkShiftData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateWorkShiftResponses,
+  AttendanceServicesUpdateWorkShiftErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateWorkShiftResponses,
+    AttendanceServicesUpdateWorkShiftErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/shifts/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Get all companies

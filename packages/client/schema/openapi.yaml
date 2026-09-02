@@ -7,7 +7,2272 @@ tags:
   - name: Company
   - name: Permission
   - name: Role
+  - name: Attendance
 paths:
+  /attendance/checkpoint-locations:
+    post:
+      operationId: AttendanceServices_assignCheckpointLocation
+      summary: Assign location to checkpoint
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CheckpointLocation'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCheckpointLocation'
+  /attendance/checkpoints:
+    post:
+      operationId: AttendanceServices_createAttendanceCheckpoint
+      summary: Create checkpoint
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceCheckpoint'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttendanceCheckpoint'
+  /attendance/checkpoints/{checkpointId}/locations:
+    get:
+      operationId: AttendanceServices_getCheckpointLocations
+      summary: Get locations assigned to checkpoint
+      parameters:
+        - name: checkpointId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CheckpointLocation'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/checkpoints/{checkpointId}/locations/{locationId}:
+    delete:
+      operationId: AttendanceServices_removeCheckpointLocation
+      summary: Remove location from checkpoint
+      parameters:
+        - name: checkpointId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/checkpoints/{id}:
+    get:
+      operationId: AttendanceServices_getAttendanceCheckpoint
+      summary: Get checkpoint by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceCheckpoint'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateAttendanceCheckpoint
+      summary: Update checkpoint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceCheckpoint'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttendanceCheckpoint'
+    delete:
+      operationId: AttendanceServices_deleteAttendanceCheckpoint
+      summary: Delete checkpoint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/companies/{companyId}/locations:
+    get:
+      operationId: AttendanceServices_getAttendanceLocations
+      summary: Get attendance locations by company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceLocation'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/companies/{companyId}/policies:
+    get:
+      operationId: AttendanceServices_getAttendancePolicies
+      summary: Get attendance policies by company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendancePolicy'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/companies/{companyId}/schedules:
+    get:
+      operationId: AttendanceServices_getWorkSchedules
+      summary: Get work schedules by company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkSchedule'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/leave-requests:
+    get:
+      operationId: AttendanceServices_getLeaveRequests
+      summary: Get leave requests
+      parameters:
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: memberId
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LeaveRequest'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    post:
+      operationId: AttendanceServices_createLeaveRequest
+      summary: Create leave request
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LeaveRequest'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLeaveRequest'
+  /attendance/leave-requests/{id}:
+    get:
+      operationId: AttendanceServices_getLeaveRequest
+      summary: Get leave request by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LeaveRequest'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateLeaveRequest
+      summary: Update leave request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LeaveRequest'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLeaveRequest'
+    delete:
+      operationId: AttendanceServices_deleteLeaveRequest
+      summary: Delete leave request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/leave-requests/{id}/review:
+    post:
+      operationId: AttendanceServices_reviewLeaveRequest
+      summary: Review leave request (Approve/Reject)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LeaveRequest'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewLeaveRequest'
+  /attendance/locations:
+    post:
+      operationId: AttendanceServices_createAttendanceLocation
+      summary: Create attendance location
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceLocation'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttendanceLocation'
+  /attendance/locations/{id}:
+    get:
+      operationId: AttendanceServices_getAttendanceLocation
+      summary: Get attendance location by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceLocation'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateAttendanceLocation
+      summary: Update attendance location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceLocation'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttendanceLocation'
+    delete:
+      operationId: AttendanceServices_deleteAttendanceLocation
+      summary: Delete attendance location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/logs:
+    post:
+      operationId: AttendanceServices_createAttendanceLog
+      summary: Record check-in log event
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceLog'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttendanceLog'
+  /attendance/logs/{id}:
+    get:
+      operationId: AttendanceServices_getAttendanceLog
+      summary: Get attendance log by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceLog'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateAttendanceLog
+      summary: Update attendance log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceLog'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttendanceLog'
+    delete:
+      operationId: AttendanceServices_deleteAttendanceLog
+      summary: Delete attendance log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/member-schedules:
+    post:
+      operationId: AttendanceServices_assignMemberWorkSchedule
+      summary: Assign schedule to member
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MemberWorkSchedule'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMemberWorkSchedule'
+  /attendance/member-schedules/{id}:
+    put:
+      operationId: AttendanceServices_updateMemberWorkSchedule
+      summary: Update member work schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MemberWorkSchedule'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemberWorkSchedule'
+    delete:
+      operationId: AttendanceServices_deleteMemberWorkSchedule
+      summary: Delete member work schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/members/{companyMemberId}/schedules:
+    get:
+      operationId: AttendanceServices_getMemberWorkSchedules
+      summary: Get work schedules for member
+      parameters:
+        - name: companyMemberId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MemberWorkSchedule'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/members/{companyMemberId}/schedules/current:
+    get:
+      operationId: AttendanceServices_getCurrentMemberWorkSchedule
+      summary: Get current active schedule for member
+      parameters:
+        - name: companyMemberId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MemberWorkSchedule'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/policies:
+    post:
+      operationId: AttendanceServices_createAttendancePolicy
+      summary: Create attendance policy
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendancePolicy'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttendancePolicy'
+  /attendance/policies/{id}:
+    get:
+      operationId: AttendanceServices_getAttendancePolicy
+      summary: Get attendance policy by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendancePolicy'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateAttendancePolicy
+      summary: Update attendance policy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendancePolicy'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttendancePolicy'
+    delete:
+      operationId: AttendanceServices_deleteAttendancePolicy
+      summary: Delete attendance policy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/policies/{policyId}/checkpoints:
+    get:
+      operationId: AttendanceServices_getAttendanceCheckpoints
+      summary: Get checkpoints by policy
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceCheckpoint'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/records:
+    get:
+      operationId: AttendanceServices_getAttendanceRecords
+      summary: List attendance records
+      parameters:
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: memberId
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceRecord'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    post:
+      operationId: AttendanceServices_createAttendanceRecord
+      summary: Create daily attendance record
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceRecord'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttendanceRecord'
+  /attendance/records/by-member-date:
+    get:
+      operationId: AttendanceServices_getMemberAttendanceRecordByDate
+      summary: Get attendance record by member and date
+      parameters:
+        - name: companyMemberId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: workDate
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceRecord'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/records/{attendanceRecordId}/logs:
+    get:
+      operationId: AttendanceServices_getAttendanceLogsByRecord
+      summary: Get check-in logs by attendance record
+      parameters:
+        - name: attendanceRecordId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceLog'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/records/{id}:
+    get:
+      operationId: AttendanceServices_getAttendanceRecord
+      summary: Get attendance record by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceRecord'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateAttendanceRecord
+      summary: Update attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceRecord'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttendanceRecord'
+    delete:
+      operationId: AttendanceServices_deleteAttendanceRecord
+      summary: Delete attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/records/{id}/approve:
+    post:
+      operationId: AttendanceServices_approveAttendanceRecord
+      summary: Approve or reject attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/AttendanceRecord'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveAttendanceRecordRequest'
+  /attendance/role-policies:
+    post:
+      operationId: AttendanceServices_assignRoleAttendancePolicy
+      summary: Assign attendance policy to role
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoleAttendancePolicy'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleAttendancePolicy'
+  /attendance/roles/{roleId}/policies:
+    get:
+      operationId: AttendanceServices_getRoleAttendancePolicies
+      summary: Get attendance policies for role
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoleAttendancePolicy'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/roles/{roleId}/policies/{policyId}:
+    delete:
+      operationId: AttendanceServices_removeRoleAttendancePolicy
+      summary: Remove attendance policy from role
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: policyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/schedules:
+    post:
+      operationId: AttendanceServices_createWorkSchedule
+      summary: Create work schedule
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkSchedule'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkSchedule'
+  /attendance/schedules/{id}:
+    get:
+      operationId: AttendanceServices_getWorkSchedule
+      summary: Get work schedule by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkSchedule'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateWorkSchedule
+      summary: Update work schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkSchedule'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkSchedule'
+    delete:
+      operationId: AttendanceServices_deleteWorkSchedule
+      summary: Delete work schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/schedules/{workScheduleId}/shifts:
+    get:
+      operationId: AttendanceServices_getWorkShifts
+      summary: Get work shifts by schedule
+      parameters:
+        - name: workScheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkShift'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/shifts:
+    post:
+      operationId: AttendanceServices_createWorkShift
+      summary: Create work shift
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkShift'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkShift'
+  /attendance/shifts/{id}:
+    get:
+      operationId: AttendanceServices_getWorkShift
+      summary: Get work shift by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkShift'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+    put:
+      operationId: AttendanceServices_updateWorkShift
+      summary: Update work shift
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkShift'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkShift'
+    delete:
+      operationId: AttendanceServices_deleteWorkShift
+      summary: Delete work shift
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
   /companies/:
     get:
       operationId: CompanyServices_getCompanies
@@ -1436,6 +3701,274 @@ components:
         body:
           $ref: '#/components/schemas/ApiErrorResponse'
       description: 500 Internal Server Error — INTERNAL_ERROR
+    ApproveAttendanceRecordRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/Domain.Entity.AttendanceStatus'
+        note:
+          type: string
+    AttendanceCheckpoint:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - policyId
+        - checkType
+        - label
+        - orderIndex
+        - isRequired
+        - requirePhoto
+        - requireLocation
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        policyId:
+          type: string
+        checkType:
+          $ref: '#/components/schemas/Domain.Entity.CheckType'
+        label:
+          type: string
+        orderIndex:
+          type: integer
+          format: int32
+        isRequired:
+          type: boolean
+        windowStart:
+          anyOf:
+            - type: string
+            - type: 'null'
+        windowEnd:
+          anyOf:
+            - type: string
+            - type: 'null'
+        graceMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        requirePhoto:
+          type: boolean
+        requireLocation:
+          type: boolean
+    AttendanceLocation:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - name
+        - locationType
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        branchId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        name:
+          type: string
+        locationType:
+          $ref: '#/components/schemas/Domain.Entity.LocationType'
+        latitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        longitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        radiusMeters:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+    AttendanceLog:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - attendanceRecordId
+        - checkpointId
+        - checkType
+        - checkedAt
+        - isLocationValid
+        - photoVerified
+        - isManual
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        attendanceRecordId:
+          type: string
+        checkpointId:
+          type: string
+        checkType:
+          $ref: '#/components/schemas/Domain.Entity.CheckType'
+        checkedAt:
+          type: string
+          format: date-time
+        latitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        longitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        accuracyMeters:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        locationId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isLocationValid:
+          type: boolean
+        photoUrl:
+          anyOf:
+            - type: string
+            - type: 'null'
+        photoVerified:
+          type: boolean
+        deviceId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        ipAddress:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isManual:
+          type: boolean
+        manualReason:
+          anyOf:
+            - type: string
+            - type: 'null'
+    AttendancePolicy:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - name
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+    AttendanceRecord:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - companyMemberId
+        - workShiftId
+        - workDate
+        - status
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        companyMemberId:
+          type: string
+        workShiftId:
+          type: string
+        workDate:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/Domain.Entity.AttendanceStatus'
+        totalWorkMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        overtimeMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        lateMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        note:
+          anyOf:
+            - type: string
+            - type: 'null'
+        approvedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        approvedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
     BasicResponse:
       type: object
       required:
@@ -1447,6 +3980,27 @@ components:
         message:
           type: string
       description: Successful response without data payload
+    CheckpointLocation:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - checkpointId
+        - locationId
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        checkpointId:
+          type: string
+        locationId:
+          type: string
     Company:
       type: object
       required:
@@ -1533,6 +4087,226 @@ components:
           type: string
         isActive:
           type: boolean
+    CreateAttendanceCheckpoint:
+      type: object
+      required:
+        - policyId
+        - checkType
+        - label
+        - orderIndex
+        - isRequired
+        - requirePhoto
+        - requireLocation
+      properties:
+        policyId:
+          type: string
+        checkType:
+          $ref: '#/components/schemas/Domain.Entity.CheckType'
+        label:
+          type: string
+        orderIndex:
+          type: integer
+          format: int32
+        isRequired:
+          type: boolean
+        windowStart:
+          anyOf:
+            - type: string
+            - type: 'null'
+        windowEnd:
+          anyOf:
+            - type: string
+            - type: 'null'
+        graceMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        requirePhoto:
+          type: boolean
+        requireLocation:
+          type: boolean
+      description: The template for omitting properties.
+    CreateAttendanceLocation:
+      type: object
+      required:
+        - companyId
+        - name
+        - locationType
+        - isActive
+      properties:
+        companyId:
+          type: string
+        branchId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        name:
+          type: string
+        locationType:
+          $ref: '#/components/schemas/Domain.Entity.LocationType'
+        latitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        longitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        radiusMeters:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreateAttendanceLog:
+      type: object
+      required:
+        - attendanceRecordId
+        - checkpointId
+        - checkType
+        - checkedAt
+        - isLocationValid
+        - photoVerified
+        - isManual
+      properties:
+        attendanceRecordId:
+          type: string
+        checkpointId:
+          type: string
+        checkType:
+          $ref: '#/components/schemas/Domain.Entity.CheckType'
+        checkedAt:
+          type: string
+          format: date-time
+        latitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        longitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        accuracyMeters:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        locationId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isLocationValid:
+          type: boolean
+        photoUrl:
+          anyOf:
+            - type: string
+            - type: 'null'
+        photoVerified:
+          type: boolean
+        deviceId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        ipAddress:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isManual:
+          type: boolean
+        manualReason:
+          anyOf:
+            - type: string
+            - type: 'null'
+      description: The template for omitting properties.
+    CreateAttendancePolicy:
+      type: object
+      required:
+        - companyId
+        - name
+        - isActive
+      properties:
+        companyId:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreateAttendanceRecord:
+      type: object
+      required:
+        - companyId
+        - companyMemberId
+        - workShiftId
+        - workDate
+        - status
+      properties:
+        companyId:
+          type: string
+        companyMemberId:
+          type: string
+        workShiftId:
+          type: string
+        workDate:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/Domain.Entity.AttendanceStatus'
+        totalWorkMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        overtimeMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        lateMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        note:
+          anyOf:
+            - type: string
+            - type: 'null'
+        approvedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        approvedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      description: The template for omitting properties.
+    CreateCheckpointLocation:
+      type: object
+      required:
+        - checkpointId
+        - locationId
+      properties:
+        checkpointId:
+          type: string
+        locationId:
+          type: string
+      description: The template for omitting properties.
     CreateCompany:
       type: object
       required:
@@ -1587,6 +4361,76 @@ components:
           type: boolean
         companyBranchId:
           type: string
+    CreateLeaveRequest:
+      type: object
+      required:
+        - companyId
+        - companyMemberId
+        - leaveType
+        - status
+        - startDate
+        - endDate
+        - totalDays
+      properties:
+        companyId:
+          type: string
+        companyMemberId:
+          type: string
+        leaveType:
+          $ref: '#/components/schemas/Domain.Entity.LeaveType'
+        status:
+          $ref: '#/components/schemas/Domain.Entity.LeaveStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        totalDays:
+          type: integer
+          format: int32
+        reason:
+          anyOf:
+            - type: string
+            - type: 'null'
+        attachmentUrl:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        reviewNote:
+          anyOf:
+            - type: string
+            - type: 'null'
+      description: The template for omitting properties.
+    CreateMemberWorkSchedule:
+      type: object
+      required:
+        - companyMemberId
+        - workShiftId
+        - effectiveDate
+      properties:
+        companyMemberId:
+          type: string
+        workShiftId:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        endDate:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      description: The template for omitting properties.
     CreatePermission:
       type: object
       required:
@@ -1624,6 +4468,20 @@ components:
         isSystemDefault:
           type: boolean
       description: The template for omitting properties.
+    CreateRoleAttendancePolicy:
+      type: object
+      required:
+        - roleId
+        - policyId
+        - companyId
+      properties:
+        roleId:
+          type: string
+        policyId:
+          type: string
+        companyId:
+          type: string
+      description: The template for omitting properties.
     CreateRolePermission:
       type: object
       required:
@@ -1658,6 +4516,88 @@ components:
         password:
           type: string
       description: The template for omitting properties.
+    CreateWorkSchedule:
+      type: object
+      required:
+        - companyId
+        - name
+        - isActive
+      properties:
+        companyId:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreateWorkShift:
+      type: object
+      required:
+        - workScheduleId
+        - companyId
+        - name
+        - startTime
+        - endTime
+        - isOvernight
+      properties:
+        workScheduleId:
+          type: string
+        companyId:
+          type: string
+        name:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        isOvernight:
+          type: boolean
+        color:
+          anyOf:
+            - type: string
+            - type: 'null'
+      description: The template for omitting properties.
+    Domain.Entity.AttendanceStatus:
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+        - LATE
+        - ABSENT
+    Domain.Entity.CheckType:
+      type: string
+      enum:
+        - CHECK_IN
+        - CHECK_OUT
+        - BREAK_IN
+        - BREAK_OUT
+        - CUSTOM
+    Domain.Entity.LeaveStatus:
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+        - CANCELLED
+    Domain.Entity.LeaveType:
+      type: string
+      enum:
+        - SICK_LEAVE
+        - ANNUAL_LEAVE
+        - PERSONAL_LEAVE
+        - MATERNITY_LEAVE
+        - ABSENT_NO_REASON
+    Domain.Entity.LocationType:
+      type: string
+      enum:
+        - FIXED
+        - RADIUS
+        - BRANCH
     Domain.Entity.RoleType:
       type: string
       enum:
@@ -1666,6 +4606,96 @@ components:
         - ADMIN
         - MEMBER
         - VIEWER
+    LeaveRequest:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - companyMemberId
+        - leaveType
+        - status
+        - startDate
+        - endDate
+        - totalDays
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        companyMemberId:
+          type: string
+        leaveType:
+          $ref: '#/components/schemas/Domain.Entity.LeaveType'
+        status:
+          $ref: '#/components/schemas/Domain.Entity.LeaveStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        totalDays:
+          type: integer
+          format: int32
+        reason:
+          anyOf:
+            - type: string
+            - type: 'null'
+        attachmentUrl:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        reviewNote:
+          anyOf:
+            - type: string
+            - type: 'null'
+    MemberWorkSchedule:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyMemberId
+        - workShiftId
+        - effectiveDate
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyMemberId:
+          type: string
+        workShiftId:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        endDate:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
     Permission:
       type: object
       required:
@@ -1691,6 +4721,15 @@ components:
           anyOf:
             - type: string
             - type: 'null'
+    ReviewLeaveRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/Domain.Entity.LeaveStatus'
+        reviewNote:
+          type: string
     Role:
       type: object
       required:
@@ -1723,6 +4762,30 @@ components:
           $ref: '#/components/schemas/Domain.Entity.RoleType'
         isSystemDefault:
           type: boolean
+    RoleAttendancePolicy:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - roleId
+        - policyId
+        - companyId
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        roleId:
+          type: string
+        policyId:
+          type: string
+        companyId:
+          type: string
     RolePermission:
       type: object
       required:
@@ -1744,6 +4807,192 @@ components:
           type: string
         permissionId:
           type: string
+    UpdateAttendanceCheckpoint:
+      type: object
+      properties:
+        policyId:
+          type: string
+        checkType:
+          $ref: '#/components/schemas/Domain.Entity.CheckType'
+        label:
+          type: string
+        orderIndex:
+          type: integer
+          format: int32
+        isRequired:
+          type: boolean
+        windowStart:
+          anyOf:
+            - type: string
+            - type: 'null'
+        windowEnd:
+          anyOf:
+            - type: string
+            - type: 'null'
+        graceMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        requirePhoto:
+          type: boolean
+        requireLocation:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateAttendanceLocation:
+      type: object
+      properties:
+        companyId:
+          type: string
+        branchId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        name:
+          type: string
+        locationType:
+          $ref: '#/components/schemas/Domain.Entity.LocationType'
+        latitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        longitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        radiusMeters:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateAttendanceLog:
+      type: object
+      properties:
+        attendanceRecordId:
+          type: string
+        checkpointId:
+          type: string
+        checkType:
+          $ref: '#/components/schemas/Domain.Entity.CheckType'
+        checkedAt:
+          type: string
+          format: date-time
+        latitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        longitude:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        accuracyMeters:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        locationId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isLocationValid:
+          type: boolean
+        photoUrl:
+          anyOf:
+            - type: string
+            - type: 'null'
+        photoVerified:
+          type: boolean
+        deviceId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        ipAddress:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isManual:
+          type: boolean
+        manualReason:
+          anyOf:
+            - type: string
+            - type: 'null'
+      description: The template for adding optional properties.
+    UpdateAttendancePolicy:
+      type: object
+      properties:
+        companyId:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateAttendanceRecord:
+      type: object
+      properties:
+        companyId:
+          type: string
+        companyMemberId:
+          type: string
+        workShiftId:
+          type: string
+        workDate:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/Domain.Entity.AttendanceStatus'
+        totalWorkMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        overtimeMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        lateMinutes:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        note:
+          anyOf:
+            - type: string
+            - type: 'null'
+        approvedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        approvedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      description: The template for adding optional properties.
+    UpdateCheckpointLocation:
+      type: object
+      properties:
+        checkpointId:
+          type: string
+        locationId:
+          type: string
+      description: The template for adding optional properties.
     UpdateCompany:
       type: object
       properties:
@@ -1786,6 +5035,64 @@ components:
         isActive:
           type: boolean
       description: The template for adding optional properties.
+    UpdateLeaveRequest:
+      type: object
+      properties:
+        companyId:
+          type: string
+        companyMemberId:
+          type: string
+        leaveType:
+          $ref: '#/components/schemas/Domain.Entity.LeaveType'
+        status:
+          $ref: '#/components/schemas/Domain.Entity.LeaveStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        totalDays:
+          type: integer
+          format: int32
+        reason:
+          anyOf:
+            - type: string
+            - type: 'null'
+        attachmentUrl:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        reviewNote:
+          anyOf:
+            - type: string
+            - type: 'null'
+      description: The template for adding optional properties.
+    UpdateMemberWorkSchedule:
+      type: object
+      properties:
+        companyMemberId:
+          type: string
+        workShiftId:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        endDate:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      description: The template for adding optional properties.
     UpdatePermission:
       type: object
       properties:
@@ -1816,6 +5123,16 @@ components:
         isSystemDefault:
           type: boolean
       description: The template for adding optional properties.
+    UpdateRoleAttendancePolicy:
+      type: object
+      properties:
+        roleId:
+          type: string
+        policyId:
+          type: string
+        companyId:
+          type: string
+      description: The template for adding optional properties.
     UpdateUser:
       type: object
       properties:
@@ -1837,6 +5154,40 @@ components:
           anyOf:
             - type: string
               format: date-time
+            - type: 'null'
+      description: The template for adding optional properties.
+    UpdateWorkSchedule:
+      type: object
+      properties:
+        companyId:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateWorkShift:
+      type: object
+      properties:
+        workScheduleId:
+          type: string
+        companyId:
+          type: string
+        name:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        isOvernight:
+          type: boolean
+        color:
+          anyOf:
+            - type: string
             - type: 'null'
       description: The template for adding optional properties.
     User:
@@ -1877,4 +5228,69 @@ components:
           anyOf:
             - type: string
               format: date-time
+            - type: 'null'
+    WorkSchedule:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - name
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+    WorkShift:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - workScheduleId
+        - companyId
+        - name
+        - startTime
+        - endTime
+        - isOvernight
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        workScheduleId:
+          type: string
+        companyId:
+          type: string
+        name:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        isOvernight:
+          type: boolean
+        color:
+          anyOf:
+            - type: string
             - type: 'null'
