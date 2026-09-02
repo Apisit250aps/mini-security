@@ -74,10 +74,10 @@ export const attendanceKeys = {
   locationDetail: (id: string) => ['ATTENDANCE', 'LOCATION', id] as const,
   checkpointLocations: (checkpointId: string) =>
     ['ATTENDANCE', 'CHECKPOINT_LOCATIONS', checkpointId] as const,
-  memberSchedules: (memberId: string) =>
-    ['ATTENDANCE', 'MEMBER_SCHEDULES', memberId] as const,
-  currentMemberSchedule: (memberId: string) =>
-    ['ATTENDANCE', 'MEMBER_SCHEDULES', memberId, 'CURRENT'] as const,
+  roleSchedules: (companyId: string) =>
+    ['ATTENDANCE', 'ROLE_SCHEDULES', companyId] as const,
+  currentRoleSchedule: (roleId: string) =>
+    ['ATTENDANCE', 'ROLE_SCHEDULES', roleId, 'CURRENT'] as const,
   records: (companyId: string, filters?: Record<string, unknown>) =>
     filters
       ? (['ATTENDANCE', 'RECORDS', companyId, filters] as const)

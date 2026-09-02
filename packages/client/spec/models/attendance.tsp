@@ -31,10 +31,10 @@ model CheckpointLocation is Domain.Entity.CheckpointLocation;
 model CreateCheckpointLocation is OmitProperties<CheckpointLocation, "id" | "createdAt" | "updatedAt">;
 model UpdateCheckpointLocation is OptionalProperties<OmitProperties<CheckpointLocation, "id" | "createdAt" | "updatedAt">>;
 
-// ─── Member Work Schedule ────────────────────────────────────────────────────
-model MemberWorkSchedule is Domain.Entity.MemberWorkSchedule;
-model CreateMemberWorkSchedule is OmitProperties<MemberWorkSchedule, "id" | "createdAt" | "updatedAt">;
-model UpdateMemberWorkSchedule is OptionalProperties<OmitProperties<MemberWorkSchedule, "id" | "createdAt" | "updatedAt">>;
+// ─── Role Work Schedule ────────────────────────────────────────────────────
+model RoleWorkSchedule is Domain.Entity.RoleWorkSchedule;
+model CreateRoleWorkSchedule is OmitProperties<RoleWorkSchedule, "id" | "createdAt" | "updatedAt">;
+model UpdateRoleWorkSchedule is OptionalProperties<OmitProperties<RoleWorkSchedule, "id" | "createdAt" | "updatedAt">>;
 
 // ─── Attendance Record & Log ─────────────────────────────────────────────────
 model AttendanceRecord is Domain.Entity.AttendanceRecord;

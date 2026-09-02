@@ -125,10 +125,11 @@ namespace Domain.Entity;
     locationId: string;
   }
 
-  model MemberWorkSchedule {
+  model RoleWorkSchedule {
     ...BaseEntity;
 
-    companyMemberId: string;
+    roleId: string;
+    companyId: string;
     workShiftId: string;
     effectiveDate: utcDateTime;
     endDate?: utcDateTime | null;

@@ -28,6 +28,7 @@ export const relations = defineRelationsPart(schema, (r) => ({
     workShifts: r.many.workShift(),
     attendancePolicies: r.many.attendancePolicy(),
     attendanceLocations: r.many.attendanceLocation(),
+    roleWorkSchedules: r.many.roleWorkSchedule(),
     attendanceRecords: r.many.attendanceRecord(),
     leaveRequests: r.many.leaveRequest(),
   },
@@ -56,7 +57,6 @@ export const relations = defineRelationsPart(schema, (r) => ({
       from: r.companyMember.companyBranchId,
       to: r.companyBranch.id,
     }),
-    workSchedules: r.many.memberWorkSchedule(),
     attendanceRecords: r.many.attendanceRecord(),
     leaveRequests: r.many.leaveRequest(),
   },
@@ -68,6 +68,7 @@ export const relations = defineRelationsPart(schema, (r) => ({
     rolePermissions: r.many.rolePermission(),
     members: r.many.companyMember(),
     roleAttendancePolicies: r.many.roleAttendancePolicy(),
+    roleWorkSchedules: r.many.roleWorkSchedule(),
   },
   permission: {
     rolePermissions: r.many.rolePermission(),
@@ -98,7 +99,7 @@ export const relations = defineRelationsPart(schema, (r) => ({
       from: r.workShift.companyId,
       to: r.company.id,
     }),
-    memberWorkSchedules: r.many.memberWorkSchedule(),
+    roleWorkSchedules: r.many.roleWorkSchedule(),
     attendanceRecords: r.many.attendanceRecord(),
   },
   attendancePolicy: {
@@ -153,13 +154,17 @@ export const relations = defineRelationsPart(schema, (r) => ({
       to: r.attendanceLocation.id,
     }),
   },
-  memberWorkSchedule: {
-    member: r.one.companyMember({
-      from: r.memberWorkSchedule.companyMemberId,
-      to: r.companyMember.id,
+  roleWorkSchedule: {
+    role: r.one.role({
+      from: r.roleWorkSchedule.roleId,
+      to: r.role.id,
+    }),
+    company: r.one.company({
+      from: r.roleWorkSchedule.companyId,
+      to: r.company.id,
     }),
     workShift: r.one.workShift({
-      from: r.memberWorkSchedule.workShiftId,
+      from: r.roleWorkSchedule.workShiftId,
       to: r.workShift.id,
     }),
   },

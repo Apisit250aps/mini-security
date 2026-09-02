@@ -223,16 +223,19 @@ export const checkpointLocation = pgTable(
 );
 
 // ==========================================
-// MODULE 4: Member Work Schedule Assignment
+// MODULE 4: Role Work Schedule Assignment
 // ==========================================
 
-export const memberWorkSchedule = pgTable(
-  'member_work_schedule',
+export const roleWorkSchedule = pgTable(
+  'role_work_schedule',
   {
     id: primaryKeyUuid7('id'),
-    companyMemberId: uuid('company_member_id')
+    roleId: uuid('role_id')
       .notNull()
-      .references(() => companyMember.id, { onDelete: 'cascade' }),
+      .references(() => role.id, { onDelete: 'cascade' }),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => company.id, { onDelete: 'cascade' }),
     workShiftId: uuid('work_shift_id')
       .notNull()
       .references(() => workShift.id),
@@ -242,9 +245,10 @@ export const memberWorkSchedule = pgTable(
     updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
-    index('member_schedule_member_idx').on(table.companyMemberId),
-    index('member_schedule_shift_idx').on(table.workShiftId),
-    index('member_schedule_date_idx').on(table.effectiveDate),
+    index('role_schedule_role_idx').on(table.roleId),
+    index('role_schedule_company_idx').on(table.companyId),
+    index('role_schedule_shift_idx').on(table.workShiftId),
+    index('role_schedule_date_idx').on(table.effectiveDate),
   ],
 );
 

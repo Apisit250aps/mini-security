@@ -11,11 +11,11 @@ import {
   CompanyMemberRepository,
   CompanyRepository,
   LeaveRequestRepository,
-  MemberWorkScheduleRepository,
   PermissionRepository,
   RoleAttendancePolicyRepository,
   RolePermissionRepository,
   RoleRepository,
+  RoleWorkScheduleRepository,
   SessionRepository,
   UserRepository,
   WorkScheduleRepository,
@@ -49,9 +49,7 @@ export const attendanceLocationRepository = new AttendanceLocationRepository(
 export const checkpointLocationRepository = new CheckpointLocationRepository(
   db,
 );
-export const memberWorkScheduleRepository = new MemberWorkScheduleRepository(
-  db,
-);
+export const roleWorkScheduleRepository = new RoleWorkScheduleRepository(db);
 export const attendanceRecordRepository = new AttendanceRecordRepository(db);
 export const attendanceLogRepository = new AttendanceLogRepository(db);
 export const leaveRequestRepository = new LeaveRequestRepository(db);

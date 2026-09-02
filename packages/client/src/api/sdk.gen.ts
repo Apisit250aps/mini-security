@@ -15,12 +15,12 @@ import type {
   AttendanceServicesAssignCheckpointLocationData,
   AttendanceServicesAssignCheckpointLocationErrors,
   AttendanceServicesAssignCheckpointLocationResponses,
-  AttendanceServicesAssignMemberWorkScheduleData,
-  AttendanceServicesAssignMemberWorkScheduleErrors,
-  AttendanceServicesAssignMemberWorkScheduleResponses,
   AttendanceServicesAssignRoleAttendancePolicyData,
   AttendanceServicesAssignRoleAttendancePolicyErrors,
   AttendanceServicesAssignRoleAttendancePolicyResponses,
+  AttendanceServicesAssignRoleWorkScheduleData,
+  AttendanceServicesAssignRoleWorkScheduleErrors,
+  AttendanceServicesAssignRoleWorkScheduleResponses,
   AttendanceServicesCreateAttendanceCheckpointData,
   AttendanceServicesCreateAttendanceCheckpointErrors,
   AttendanceServicesCreateAttendanceCheckpointResponses,
@@ -63,9 +63,9 @@ import type {
   AttendanceServicesDeleteLeaveRequestData,
   AttendanceServicesDeleteLeaveRequestErrors,
   AttendanceServicesDeleteLeaveRequestResponses,
-  AttendanceServicesDeleteMemberWorkScheduleData,
-  AttendanceServicesDeleteMemberWorkScheduleErrors,
-  AttendanceServicesDeleteMemberWorkScheduleResponses,
+  AttendanceServicesDeleteRoleWorkScheduleData,
+  AttendanceServicesDeleteRoleWorkScheduleErrors,
+  AttendanceServicesDeleteRoleWorkScheduleResponses,
   AttendanceServicesDeleteWorkScheduleData,
   AttendanceServicesDeleteWorkScheduleErrors,
   AttendanceServicesDeleteWorkScheduleResponses,
@@ -105,9 +105,9 @@ import type {
   AttendanceServicesGetCheckpointLocationsData,
   AttendanceServicesGetCheckpointLocationsErrors,
   AttendanceServicesGetCheckpointLocationsResponses,
-  AttendanceServicesGetCurrentMemberWorkScheduleData,
-  AttendanceServicesGetCurrentMemberWorkScheduleErrors,
-  AttendanceServicesGetCurrentMemberWorkScheduleResponses,
+  AttendanceServicesGetCurrentRoleWorkScheduleData,
+  AttendanceServicesGetCurrentRoleWorkScheduleErrors,
+  AttendanceServicesGetCurrentRoleWorkScheduleResponses,
   AttendanceServicesGetLeaveRequestData,
   AttendanceServicesGetLeaveRequestErrors,
   AttendanceServicesGetLeaveRequestResponses,
@@ -117,12 +117,12 @@ import type {
   AttendanceServicesGetMemberAttendanceRecordByDateData,
   AttendanceServicesGetMemberAttendanceRecordByDateErrors,
   AttendanceServicesGetMemberAttendanceRecordByDateResponses,
-  AttendanceServicesGetMemberWorkSchedulesData,
-  AttendanceServicesGetMemberWorkSchedulesErrors,
-  AttendanceServicesGetMemberWorkSchedulesResponses,
   AttendanceServicesGetRoleAttendancePoliciesData,
   AttendanceServicesGetRoleAttendancePoliciesErrors,
   AttendanceServicesGetRoleAttendancePoliciesResponses,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyData,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyErrors,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyResponses,
   AttendanceServicesGetWorkScheduleData,
   AttendanceServicesGetWorkScheduleErrors,
   AttendanceServicesGetWorkScheduleResponses,
@@ -162,9 +162,9 @@ import type {
   AttendanceServicesUpdateLeaveRequestData,
   AttendanceServicesUpdateLeaveRequestErrors,
   AttendanceServicesUpdateLeaveRequestResponses,
-  AttendanceServicesUpdateMemberWorkScheduleData,
-  AttendanceServicesUpdateMemberWorkScheduleErrors,
-  AttendanceServicesUpdateMemberWorkScheduleResponses,
+  AttendanceServicesUpdateRoleWorkScheduleData,
+  AttendanceServicesUpdateRoleWorkScheduleErrors,
+  AttendanceServicesUpdateRoleWorkScheduleResponses,
   AttendanceServicesUpdateWorkScheduleData,
   AttendanceServicesUpdateWorkScheduleErrors,
   AttendanceServicesUpdateWorkScheduleResponses,
@@ -515,6 +515,31 @@ export const attendanceServicesGetAttendancePolicies = <
   >({
     responseType: 'json',
     url: '/attendance/companies/{companyId}/policies',
+    ...options,
+  });
+
+/**
+ * Get role work schedules by company
+ */
+export const attendanceServicesGetRoleWorkSchedulesByCompany = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesGetRoleWorkSchedulesByCompanyData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesGetRoleWorkSchedulesByCompanyResponses,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetRoleWorkSchedulesByCompanyResponses,
+    AttendanceServicesGetRoleWorkSchedulesByCompanyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/companies/{companyId}/role-schedules',
     ...options,
   });
 
@@ -886,136 +911,6 @@ export const attendanceServicesUpdateAttendanceLog = <
   });
 
 /**
- * Assign schedule to member
- */
-export const attendanceServicesAssignMemberWorkSchedule = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AttendanceServicesAssignMemberWorkScheduleData,
-    ThrowOnError
-  >,
-): RequestResult<
-  AttendanceServicesAssignMemberWorkScheduleResponses,
-  AttendanceServicesAssignMemberWorkScheduleErrors,
-  ThrowOnError
-> =>
-  (options.client ?? client).post<
-    AttendanceServicesAssignMemberWorkScheduleResponses,
-    AttendanceServicesAssignMemberWorkScheduleErrors,
-    ThrowOnError
-  >({
-    responseType: 'json',
-    url: '/attendance/member-schedules',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete member work schedule
- */
-export const attendanceServicesDeleteMemberWorkSchedule = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AttendanceServicesDeleteMemberWorkScheduleData,
-    ThrowOnError
-  >,
-): RequestResult<
-  AttendanceServicesDeleteMemberWorkScheduleResponses,
-  AttendanceServicesDeleteMemberWorkScheduleErrors,
-  ThrowOnError
-> =>
-  (options.client ?? client).delete<
-    AttendanceServicesDeleteMemberWorkScheduleResponses,
-    AttendanceServicesDeleteMemberWorkScheduleErrors,
-    ThrowOnError
-  >({
-    responseType: 'json',
-    url: '/attendance/member-schedules/{id}',
-    ...options,
-  });
-
-/**
- * Update member work schedule
- */
-export const attendanceServicesUpdateMemberWorkSchedule = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AttendanceServicesUpdateMemberWorkScheduleData,
-    ThrowOnError
-  >,
-): RequestResult<
-  AttendanceServicesUpdateMemberWorkScheduleResponses,
-  AttendanceServicesUpdateMemberWorkScheduleErrors,
-  ThrowOnError
-> =>
-  (options.client ?? client).put<
-    AttendanceServicesUpdateMemberWorkScheduleResponses,
-    AttendanceServicesUpdateMemberWorkScheduleErrors,
-    ThrowOnError
-  >({
-    responseType: 'json',
-    url: '/attendance/member-schedules/{id}',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-
-/**
- * Get work schedules for member
- */
-export const attendanceServicesGetMemberWorkSchedules = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AttendanceServicesGetMemberWorkSchedulesData, ThrowOnError>,
-): RequestResult<
-  AttendanceServicesGetMemberWorkSchedulesResponses,
-  AttendanceServicesGetMemberWorkSchedulesErrors,
-  ThrowOnError
-> =>
-  (options.client ?? client).get<
-    AttendanceServicesGetMemberWorkSchedulesResponses,
-    AttendanceServicesGetMemberWorkSchedulesErrors,
-    ThrowOnError
-  >({
-    responseType: 'json',
-    url: '/attendance/members/{companyMemberId}/schedules',
-    ...options,
-  });
-
-/**
- * Get current active schedule for member
- */
-export const attendanceServicesGetCurrentMemberWorkSchedule = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AttendanceServicesGetCurrentMemberWorkScheduleData,
-    ThrowOnError
-  >,
-): RequestResult<
-  AttendanceServicesGetCurrentMemberWorkScheduleResponses,
-  AttendanceServicesGetCurrentMemberWorkScheduleErrors,
-  ThrowOnError
-> =>
-  (options.client ?? client).get<
-    AttendanceServicesGetCurrentMemberWorkScheduleResponses,
-    AttendanceServicesGetCurrentMemberWorkScheduleErrors,
-    ThrowOnError
-  >({
-    responseType: 'json',
-    url: '/attendance/members/{companyMemberId}/schedules/current',
-    ...options,
-  });
-
-/**
  * Create attendance policy
  */
 export const attendanceServicesCreateAttendancePolicy = <
@@ -1360,6 +1255,80 @@ export const attendanceServicesAssignRoleAttendancePolicy = <
   });
 
 /**
+ * Assign schedule to role
+ */
+export const attendanceServicesAssignRoleWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesAssignRoleWorkScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesAssignRoleWorkScheduleResponses,
+  AttendanceServicesAssignRoleWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesAssignRoleWorkScheduleResponses,
+    AttendanceServicesAssignRoleWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/role-schedules',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete role work schedule
+ */
+export const attendanceServicesDeleteRoleWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteRoleWorkScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteRoleWorkScheduleResponses,
+  AttendanceServicesDeleteRoleWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteRoleWorkScheduleResponses,
+    AttendanceServicesDeleteRoleWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/role-schedules/{id}',
+    ...options,
+  });
+
+/**
+ * Update role work schedule
+ */
+export const attendanceServicesUpdateRoleWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateRoleWorkScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateRoleWorkScheduleResponses,
+  AttendanceServicesUpdateRoleWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateRoleWorkScheduleResponses,
+    AttendanceServicesUpdateRoleWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/role-schedules/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * Get attendance policies for role
  */
 export const attendanceServicesGetRoleAttendancePolicies = <
@@ -1406,6 +1375,31 @@ export const attendanceServicesRemoveRoleAttendancePolicy = <
   >({
     responseType: 'json',
     url: '/attendance/roles/{roleId}/policies/{policyId}',
+    ...options,
+  });
+
+/**
+ * Get current active schedule for role
+ */
+export const attendanceServicesGetCurrentRoleWorkSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AttendanceServicesGetCurrentRoleWorkScheduleData,
+    ThrowOnError
+  >,
+): RequestResult<
+  AttendanceServicesGetCurrentRoleWorkScheduleResponses,
+  AttendanceServicesGetCurrentRoleWorkScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetCurrentRoleWorkScheduleResponses,
+    AttendanceServicesGetCurrentRoleWorkScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/roles/{roleId}/schedules/current',
     ...options,
   });
 

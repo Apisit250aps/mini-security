@@ -13,7 +13,7 @@ import {
 import { useWorkSchedulesQueries } from '../hooks/attendance-queries';
 import WorkScheduleCard from '../components/schedules/work-schedule-card';
 import WorkScheduleCreateAction from '../components/schedules/work-schedule-create-action';
-import MemberScheduleAction from '../components/schedules/member-schedule-action';
+import RoleScheduleAction from '../components/schedules/role-schedule-action';
 import { CalendarRange } from 'lucide-react';
 
 export default function WorkSchedulesView() {
@@ -35,7 +35,7 @@ export default function WorkSchedulesView() {
       actions={
         activeCompany && (
           <div className="flex items-center gap-2">
-            <MemberScheduleAction companyId={activeCompanyId} />
+            <RoleScheduleAction companyId={activeCompanyId} />
             <WorkScheduleCreateAction companyId={activeCompanyId} />
           </div>
         )

@@ -263,43 +263,43 @@ interface AttendanceServices {
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;
 
-  // ─── Member Work Schedules ─────────────────────────────────────────────────
+  // ─── Role Work Schedules ───────────────────────────────────────────────────
   @get
-  @route("/members/{companyMemberId}/schedules")
-  @summary("Get work schedules for member")
-  getMemberWorkSchedules(@path companyMemberId: string):
-    | ApiOkResponse<MemberWorkSchedule[]>
+  @route("/companies/{companyId}/role-schedules")
+  @summary("Get role work schedules by company")
+  getRoleWorkSchedulesByCompany(@path companyId: string):
+    | ApiOkResponse<RoleWorkSchedule[]>
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/members/{companyMemberId}/schedules/current")
-  @summary("Get current active schedule for member")
-  getCurrentMemberWorkSchedule(@path companyMemberId: string):
-    | ApiOkResponse<MemberWorkSchedule>
+  @route("/roles/{roleId}/schedules/current")
+  @summary("Get current active schedule for role")
+  getCurrentRoleWorkSchedule(@path roleId: string):
+    | ApiOkResponse<RoleWorkSchedule>
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;
 
   @post
-  @route("/member-schedules")
-  @summary("Assign schedule to member")
-  assignMemberWorkSchedule(@body body: CreateMemberWorkSchedule):
-    | ApiCreatedResponse<MemberWorkSchedule>
+  @route("/role-schedules")
+  @summary("Assign schedule to role")
+  assignRoleWorkSchedule(@body body: CreateRoleWorkSchedule):
+    | ApiCreatedResponse<RoleWorkSchedule>
     | ApiBadRequestResponse
     | ApiUnauthorizedResponse;
 
   @put
-  @route("/member-schedules/{id}")
-  @summary("Update member work schedule")
-  updateMemberWorkSchedule(@path id: string, @body body: UpdateMemberWorkSchedule):
-    | ApiOkResponse<MemberWorkSchedule>
+  @route("/role-schedules/{id}")
+  @summary("Update role work schedule")
+  updateRoleWorkSchedule(@path id: string, @body body: UpdateRoleWorkSchedule):
+    | ApiOkResponse<RoleWorkSchedule>
     | ApiNotFoundResponse
     | ApiBadRequestResponse
     | ApiUnauthorizedResponse;
 
   @delete
-  @route("/member-schedules/{id}")
-  @summary("Delete member work schedule")
-  deleteMemberWorkSchedule(@path id: string):
+  @route("/role-schedules/{id}")
+  @summary("Delete role work schedule")
+  deleteRoleWorkSchedule(@path id: string):
     | ApiOkBasicResponse
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;

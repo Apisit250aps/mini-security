@@ -3,28 +3,24 @@
 import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createMemberWorkScheduleSchema } from '@repo/domains/schema/attendance';
+import { createRoleWorkScheduleSchema } from '@repo/domains/schema/attendance';
 import type { z } from 'zod';
-import { useMemberWorkScheduleAssign } from '../../hooks/attendance-mutations';
+import { useRoleWorkScheduleAssign } from '../../hooks/attendance-mutations';
 import {
   useWorkSchedulesQueries,
   useWorkShiftsQueries,
 } from '../../hooks/attendance-queries';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import { SelectField } from '@repo/ui/components/shared/form/select-field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
 
-type FormValues = z.infer<typeof createMemberWorkScheduleSchema>;
+type FormValues = z.infer<typeof createRoleWorkScheduleSchema>;
 
-export default function MemberScheduleForm({
-  companyId,
-}: {
-  companyId: string;
-}) {
+export default function RoleScheduleForm({ companyId }: { companyId: string }) {
   const ui = useOverlay();
-  const { data: members = [] } = useCompanyMembersQueries(companyId);
+  const { data: roles = [] } = useCompanyRolesQueries(companyId);
   const { data: schedules = [] } = useWorkSchedulesQueries(companyId);
 
   const [selectedScheduleId, setSelectedScheduleId] = React.useState<string>(
@@ -33,15 +29,23 @@ export default function MemberScheduleForm({
 
   const { data: shifts = [] } = useWorkShiftsQueries(selectedScheduleId);
 
-  const memberOptions = members.map((m) => ({
-    value: m.id,
-    label: `พนักงาน: ${m.userId}`,
-  }));
+  const roleOptions = useMemo(
+    () =>
+      roles.map((r) => ({
+        value: r.id,
+        label: r.name,
+      })),
+    [roles],
+  );
 
-  const scheduleOptions = schedules.map((s) => ({
-    value: s.id,
-    label: s.name,
-  }));
+  const scheduleOptions = useMemo(
+    () =>
+      schedules.map((s) => ({
+        value: s.id,
+        label: s.name,
+      })),
+    [schedules],
+  );
 
   const shiftOptions = useMemo(
     () =>
@@ -52,12 +56,13 @@ export default function MemberScheduleForm({
     [shifts],
   );
 
-  const assignMutation = useMemberWorkScheduleAssign(members[0]?.id || '');
+  const assignMutation = useRoleWorkScheduleAssign(companyId);
 
   const methods = useForm<FormValues>({
-    resolver: zodResolver(createMemberWorkScheduleSchema as never),
+    resolver: zodResolver(createRoleWorkScheduleSchema as never),
     defaultValues: {
-      companyMemberId: members[0]?.id || '',
+      roleId: roles[0]?.id || '',
+      companyId: companyId,
       workShiftId: shifts[0]?.id || '',
       effectiveDate: new Date(),
       endDate: null,
@@ -66,7 +71,8 @@ export default function MemberScheduleForm({
 
   const handleSubmit = async (data: FormValues) => {
     await assignMutation.mutateAsync({
-      companyMemberId: data.companyMemberId,
+      roleId: data.roleId,
+      companyId: companyId,
       workShiftId: data.workShiftId,
       effectiveDate: data.effectiveDate,
       endDate: data.endDate || null,
@@ -81,10 +87,10 @@ export default function MemberScheduleForm({
     >
       <FieldGroup className="flex flex-col gap-3">
         <SelectField
-          name="companyMemberId"
-          label="เลือกพนักงาน"
-          placeholder="เลือกพนักงานที่ต้องการมอบหมาย..."
-          options={memberOptions}
+          name="roleId"
+          label="เลือกตำแหน่ง / บทบาท (Role)"
+          placeholder="เลือกบทบาทที่ต้องการมอบหมาย..."
+          options={roleOptions}
           control={methods.control}
           required
         />
@@ -121,7 +127,7 @@ export default function MemberScheduleForm({
 
       <div className="flex justify-end gap-2 pt-2">
         <ButtonLoading type="submit" isLoading={assignMutation.isPending}>
-          มอบหมายกะทำงาน
+          กำหนดกะให้ Role
         </ButtonLoading>
       </div>
     </form>

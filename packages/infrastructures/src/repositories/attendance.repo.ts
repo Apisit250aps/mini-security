@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, or } from 'drizzle-orm';
+import { and, eq, gte, isNull, lte, or } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
 import {
@@ -9,8 +9,8 @@ import {
   attendanceRecord,
   checkpointLocation,
   leaveRequest,
-  memberWorkSchedule,
   roleAttendancePolicy,
+  roleWorkSchedule,
   workSchedule,
   workShift,
 } from '@repo/database/schema';
@@ -22,8 +22,8 @@ import {
   AttendanceRecord,
   CheckpointLocation,
   LeaveRequest,
-  MemberWorkSchedule,
   RoleAttendancePolicy,
+  RoleWorkSchedule,
   WorkSchedule,
   WorkShift,
 } from '@repo/domains/entities';
@@ -35,8 +35,8 @@ import type {
   IAttendanceRecordRepository,
   ICheckpointLocationRepository,
   ILeaveRequestRepository,
-  IMemberWorkScheduleRepository,
   IRoleAttendancePolicyRepository,
+  IRoleWorkScheduleRepository,
   IWorkScheduleRepository,
   IWorkShiftRepository,
 } from '@repo/domains/repositories/attendance';
@@ -48,8 +48,8 @@ import type {
   CreateAttendanceRecord,
   CreateCheckpointLocation,
   CreateLeaveRequest,
-  CreateMemberWorkSchedule,
   CreateRoleAttendancePolicy,
+  CreateRoleWorkSchedule,
   CreateWorkSchedule,
   CreateWorkShift,
   LeaveStatus,
@@ -60,8 +60,8 @@ import type {
   UpdateAttendanceRecord,
   UpdateCheckpointLocation,
   UpdateLeaveRequest,
-  UpdateMemberWorkSchedule,
   UpdateRoleAttendancePolicy,
+  UpdateRoleWorkSchedule,
   UpdateWorkSchedule,
   UpdateWorkShift,
 } from '@repo/domains/schema/attendance';
@@ -336,48 +336,58 @@ export class CheckpointLocationRepository
   }
 }
 
-export class MemberWorkScheduleRepository
+export class RoleWorkScheduleRepository
   extends Repository<
-    MemberWorkSchedule,
-    CreateMemberWorkSchedule,
-    UpdateMemberWorkSchedule
+    RoleWorkSchedule,
+    CreateRoleWorkSchedule,
+    UpdateRoleWorkSchedule
   >
-  implements IMemberWorkScheduleRepository
+  implements IRoleWorkScheduleRepository
 {
   constructor(db: Database) {
-    super(db, memberWorkSchedule);
+    super(db, roleWorkSchedule);
   }
 
-  async findByMemberId(companyMemberId: string): Promise<MemberWorkSchedule[]> {
+  async findByRoleId(roleId: string): Promise<RoleWorkSchedule[]> {
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(memberWorkSchedule.companyMemberId, companyMemberId));
+      .where(eq(roleWorkSchedule.roleId, roleId));
     return results.map(
-      (r) => new MemberWorkSchedule(r as unknown as MemberWorkSchedule),
+      (r) => new RoleWorkSchedule(r as unknown as RoleWorkSchedule),
     );
   }
 
-  async findCurrentByMemberId(
-    companyMemberId: string,
+  async findByCompanyId(companyId: string): Promise<RoleWorkSchedule[]> {
+    const results = await this.db
+      .select()
+      .from(this.table)
+      .where(eq(roleWorkSchedule.companyId, companyId));
+    return results.map(
+      (r) => new RoleWorkSchedule(r as unknown as RoleWorkSchedule),
+    );
+  }
+
+  async findCurrentByRoleId(
+    roleId: string,
     date: Date,
-  ): Promise<MemberWorkSchedule | null> {
+  ): Promise<RoleWorkSchedule | null> {
     const [result] = await this.db
       .select()
       .from(this.table)
       .where(
         and(
-          eq(memberWorkSchedule.companyMemberId, companyMemberId),
-          lte(memberWorkSchedule.effectiveDate, date),
+          eq(roleWorkSchedule.roleId, roleId),
+          lte(roleWorkSchedule.effectiveDate, date),
           or(
-            gte(memberWorkSchedule.endDate, date),
-            eq(memberWorkSchedule.endDate, null as unknown as Date),
+            gte(roleWorkSchedule.endDate, date),
+            isNull(roleWorkSchedule.endDate),
           ),
         ),
       )
       .limit(1);
     return result
-      ? new MemberWorkSchedule(result as unknown as MemberWorkSchedule)
+      ? new RoleWorkSchedule(result as unknown as RoleWorkSchedule)
       : null;
   }
 }

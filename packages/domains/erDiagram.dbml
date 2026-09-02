@@ -434,26 +434,28 @@ Table checkpoint_location {
 }
 
 // ==========================================
-// MODULE 4: Member Schedule Assignment
-// ── กำหนดว่า member คนไหน ใช้ตารางงานอะไร
+// MODULE 4: Role Schedule Assignment
+// ── กำหนดว่า role ไหน ใช้ตารางงานอะไร
 // ==========================================
 
-Table member_work_schedule {
-  id                uuid      [pk, note: 'UUIDv7 Primary Key']
-  company_member_id uuid      [not null]
-  work_shift_id     uuid      [not null]
-  effective_date    date      [not null, note: 'วันที่เริ่มใช้งาน']
-  end_date          date      [note: 'วันที่สิ้นสุด (null = ยังใช้งานอยู่)']
-  created_at        timestamp [not null, default: `now()`]
-  updated_at        timestamp [not null]
+Table role_work_schedule {
+  id             uuid      [pk, note: 'UUIDv7 Primary Key']
+  role_id        uuid      [not null]
+  company_id     uuid      [not null]
+  work_shift_id  uuid      [not null]
+  effective_date date      [not null, note: 'วันที่เริ่มใช้งาน']
+  end_date       date      [note: 'วันที่สิ้นสุด (null = ยังใช้งานอยู่)']
+  created_at     timestamp [not null, default: `now()`]
+  updated_at     timestamp [not null]
 
   Indexes {
-    company_member_id [name: 'member_schedule_member_idx']
-    work_shift_id     [name: 'member_schedule_shift_idx']
-    effective_date    [name: 'member_schedule_date_idx']
+    role_id        [name: 'role_schedule_role_idx']
+    company_id     [name: 'role_schedule_company_idx']
+    work_shift_id  [name: 'role_schedule_shift_idx']
+    effective_date [name: 'role_schedule_date_idx']
   }
 
-  Note: 'กำหนดกะการทำงานให้ member รองรับการเปลี่ยนกะในอนาคต'
+  Note: 'กำหนดกะการทำงานให้ Role รองรับการเปลี่ยนกะในอนาคต'
 }
 
 // ==========================================
@@ -574,9 +576,10 @@ Ref: attendance_location.branch_id > company_branch.id
 Ref: checkpoint_location.checkpoint_id > attendance_checkpoint.id [delete: cascade]
 Ref: checkpoint_location.location_id > attendance_location.id [delete: cascade]
 
-// Member Schedule
-Ref: member_work_schedule.company_member_id > company_member.id [delete: cascade]
-Ref: member_work_schedule.work_shift_id > work_shift.id
+// Role Schedule
+Ref: role_work_schedule.role_id > role.id [delete: cascade]
+Ref: role_work_schedule.company_id > company.id [delete: cascade]
+Ref: role_work_schedule.work_shift_id > work_shift.id
 
 // Attendance Record & Log
 Ref: attendance_record.company_id > company.id
@@ -597,7 +600,7 @@ Ref: leave_request.reviewed_by > user.id
 TableGroup attendance_schedule {
   work_schedule
   work_shift
-  member_work_schedule
+  role_work_schedule
 }
 
 TableGroup attendance_policy_config {

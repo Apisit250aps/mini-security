@@ -260,32 +260,33 @@ export type UpdateCheckpointLocation = z.infer<
 >;
 
 // ==========================================
-// 4. Member Work Schedule
+// 4. Role Work Schedule
 // ==========================================
 
-export const memberWorkScheduleSchema = BaseEntity({
-  companyMemberId: UUIDField({ required: true }),
+export const roleWorkScheduleSchema = BaseEntity({
+  roleId: UUIDField({ required: true }),
+  companyId: UUIDField({ required: true }),
   workShiftId: UUIDField({ required: true }),
   effectiveDate: DateField({ required: true }),
   endDate: DateField({ required: false, nullable: true }),
 });
 
-export const createMemberWorkScheduleSchema = memberWorkScheduleSchema.omit({
+export const createRoleWorkScheduleSchema = roleWorkScheduleSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const updateMemberWorkScheduleSchema = memberWorkScheduleSchema
+export const updateRoleWorkScheduleSchema = roleWorkScheduleSchema
   .partial()
   .omit({ id: true, createdAt: true, updatedAt: true });
 
-export type MemberWorkScheduleEntity = z.infer<typeof memberWorkScheduleSchema>;
-export type CreateMemberWorkSchedule = z.infer<
-  typeof createMemberWorkScheduleSchema
+export type RoleWorkScheduleEntity = z.infer<typeof roleWorkScheduleSchema>;
+export type CreateRoleWorkSchedule = z.infer<
+  typeof createRoleWorkScheduleSchema
 >;
-export type UpdateMemberWorkSchedule = z.infer<
-  typeof updateMemberWorkScheduleSchema
+export type UpdateRoleWorkSchedule = z.infer<
+  typeof updateRoleWorkScheduleSchema
 >;
 
 // ==========================================

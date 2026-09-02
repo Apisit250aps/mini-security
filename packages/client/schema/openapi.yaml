@@ -370,6 +370,44 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Attendance
+  /attendance/companies/{companyId}/role-schedules:
+    get:
+      operationId: AttendanceServices_getRoleWorkSchedulesByCompany
+      summary: Get role work schedules by company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoleWorkSchedule'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
   /attendance/companies/{companyId}/schedules:
     get:
       operationId: AttendanceServices_getWorkSchedules
@@ -1010,213 +1048,6 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Attendance
-  /attendance/member-schedules:
-    post:
-      operationId: AttendanceServices_assignMemberWorkSchedule
-      summary: Assign schedule to member
-      parameters: []
-      responses:
-        '201':
-          description: 201 Created with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/MemberWorkSchedule'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateMemberWorkSchedule'
-  /attendance/member-schedules/{id}:
-    put:
-      operationId: AttendanceServices_updateMemberWorkSchedule
-      summary: Update member work schedule
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/MemberWorkSchedule'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateMemberWorkSchedule'
-    delete:
-      operationId: AttendanceServices_deleteMemberWorkSchedule
-      summary: Delete member work schedule
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK without data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
-  /attendance/members/{companyMemberId}/schedules:
-    get:
-      operationId: AttendanceServices_getMemberWorkSchedules
-      summary: Get work schedules for member
-      parameters:
-        - name: companyMemberId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/MemberWorkSchedule'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
-  /attendance/members/{companyMemberId}/schedules/current:
-    get:
-      operationId: AttendanceServices_getCurrentMemberWorkSchedule
-      summary: Get current active schedule for member
-      parameters:
-        - name: companyMemberId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/MemberWorkSchedule'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
   /attendance/policies:
     post:
       operationId: AttendanceServices_createAttendancePolicy
@@ -1825,6 +1656,133 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateRoleAttendancePolicy'
+  /attendance/role-schedules:
+    post:
+      operationId: AttendanceServices_assignRoleWorkSchedule
+      summary: Assign schedule to role
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoleWorkSchedule'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleWorkSchedule'
+  /attendance/role-schedules/{id}:
+    put:
+      operationId: AttendanceServices_updateRoleWorkSchedule
+      summary: Update role work schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoleWorkSchedule'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleWorkSchedule'
+    delete:
+      operationId: AttendanceServices_deleteRoleWorkSchedule
+      summary: Delete role work schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
   /attendance/roles/{roleId}/policies:
     get:
       operationId: AttendanceServices_getRoleAttendancePolicies
@@ -1885,6 +1843,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendance/roles/{roleId}/schedules/current:
+    get:
+      operationId: AttendanceServices_getCurrentRoleWorkSchedule
+      summary: Get current active schedule for role
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoleWorkSchedule'
+                description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
           content:
@@ -4411,26 +4411,6 @@ components:
             - type: string
             - type: 'null'
       description: The template for omitting properties.
-    CreateMemberWorkSchedule:
-      type: object
-      required:
-        - companyMemberId
-        - workShiftId
-        - effectiveDate
-      properties:
-        companyMemberId:
-          type: string
-        workShiftId:
-          type: string
-        effectiveDate:
-          type: string
-          format: date-time
-        endDate:
-          anyOf:
-            - type: string
-              format: date-time
-            - type: 'null'
-      description: The template for omitting properties.
     CreatePermission:
       type: object
       required:
@@ -4492,6 +4472,29 @@ components:
           type: string
         permissionId:
           type: string
+      description: The template for omitting properties.
+    CreateRoleWorkSchedule:
+      type: object
+      required:
+        - roleId
+        - companyId
+        - workShiftId
+        - effectiveDate
+      properties:
+        roleId:
+          type: string
+        companyId:
+          type: string
+        workShiftId:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        endDate:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
       description: The template for omitting properties.
     CreateUser:
       type: object
@@ -4666,36 +4669,6 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-    MemberWorkSchedule:
-      type: object
-      required:
-        - id
-        - createdAt
-        - updatedAt
-        - companyMemberId
-        - workShiftId
-        - effectiveDate
-      properties:
-        id:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        companyMemberId:
-          type: string
-        workShiftId:
-          type: string
-        effectiveDate:
-          type: string
-          format: date-time
-        endDate:
-          anyOf:
-            - type: string
-              format: date-time
-            - type: 'null'
     Permission:
       type: object
       required:
@@ -4807,6 +4780,39 @@ components:
           type: string
         permissionId:
           type: string
+    RoleWorkSchedule:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - roleId
+        - companyId
+        - workShiftId
+        - effectiveDate
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        roleId:
+          type: string
+        companyId:
+          type: string
+        workShiftId:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        endDate:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
     UpdateAttendanceCheckpoint:
       type: object
       properties:
@@ -5077,22 +5083,6 @@ components:
             - type: string
             - type: 'null'
       description: The template for adding optional properties.
-    UpdateMemberWorkSchedule:
-      type: object
-      properties:
-        companyMemberId:
-          type: string
-        workShiftId:
-          type: string
-        effectiveDate:
-          type: string
-          format: date-time
-        endDate:
-          anyOf:
-            - type: string
-              format: date-time
-            - type: 'null'
-      description: The template for adding optional properties.
     UpdatePermission:
       type: object
       properties:
@@ -5132,6 +5122,24 @@ components:
           type: string
         companyId:
           type: string
+      description: The template for adding optional properties.
+    UpdateRoleWorkSchedule:
+      type: object
+      properties:
+        roleId:
+          type: string
+        companyId:
+          type: string
+        workShiftId:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        endDate:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
       description: The template for adding optional properties.
     UpdateUser:
       type: object

@@ -7,8 +7,8 @@ import { client } from '../client.gen';
 import {
   attendanceServicesApproveAttendanceRecord,
   attendanceServicesAssignCheckpointLocation,
-  attendanceServicesAssignMemberWorkSchedule,
   attendanceServicesAssignRoleAttendancePolicy,
+  attendanceServicesAssignRoleWorkSchedule,
   attendanceServicesCreateAttendanceCheckpoint,
   attendanceServicesCreateAttendanceLocation,
   attendanceServicesCreateAttendanceLog,
@@ -23,7 +23,7 @@ import {
   attendanceServicesDeleteAttendancePolicy,
   attendanceServicesDeleteAttendanceRecord,
   attendanceServicesDeleteLeaveRequest,
-  attendanceServicesDeleteMemberWorkSchedule,
+  attendanceServicesDeleteRoleWorkSchedule,
   attendanceServicesDeleteWorkSchedule,
   attendanceServicesDeleteWorkShift,
   attendanceServicesGetAttendanceCheckpoint,
@@ -37,12 +37,12 @@ import {
   attendanceServicesGetAttendanceRecord,
   attendanceServicesGetAttendanceRecords,
   attendanceServicesGetCheckpointLocations,
-  attendanceServicesGetCurrentMemberWorkSchedule,
+  attendanceServicesGetCurrentRoleWorkSchedule,
   attendanceServicesGetLeaveRequest,
   attendanceServicesGetLeaveRequests,
   attendanceServicesGetMemberAttendanceRecordByDate,
-  attendanceServicesGetMemberWorkSchedules,
   attendanceServicesGetRoleAttendancePolicies,
+  attendanceServicesGetRoleWorkSchedulesByCompany,
   attendanceServicesGetWorkSchedule,
   attendanceServicesGetWorkSchedules,
   attendanceServicesGetWorkShift,
@@ -56,7 +56,7 @@ import {
   attendanceServicesUpdateAttendancePolicy,
   attendanceServicesUpdateAttendanceRecord,
   attendanceServicesUpdateLeaveRequest,
-  attendanceServicesUpdateMemberWorkSchedule,
+  attendanceServicesUpdateRoleWorkSchedule,
   attendanceServicesUpdateWorkSchedule,
   attendanceServicesUpdateWorkShift,
   companyServicesAddCompanyMember,
@@ -102,12 +102,12 @@ import type {
   AttendanceServicesAssignCheckpointLocationData,
   AttendanceServicesAssignCheckpointLocationError,
   AttendanceServicesAssignCheckpointLocationResponse,
-  AttendanceServicesAssignMemberWorkScheduleData,
-  AttendanceServicesAssignMemberWorkScheduleError,
-  AttendanceServicesAssignMemberWorkScheduleResponse,
   AttendanceServicesAssignRoleAttendancePolicyData,
   AttendanceServicesAssignRoleAttendancePolicyError,
   AttendanceServicesAssignRoleAttendancePolicyResponse,
+  AttendanceServicesAssignRoleWorkScheduleData,
+  AttendanceServicesAssignRoleWorkScheduleError,
+  AttendanceServicesAssignRoleWorkScheduleResponse,
   AttendanceServicesCreateAttendanceCheckpointData,
   AttendanceServicesCreateAttendanceCheckpointError,
   AttendanceServicesCreateAttendanceCheckpointResponse,
@@ -150,9 +150,9 @@ import type {
   AttendanceServicesDeleteLeaveRequestData,
   AttendanceServicesDeleteLeaveRequestError,
   AttendanceServicesDeleteLeaveRequestResponse,
-  AttendanceServicesDeleteMemberWorkScheduleData,
-  AttendanceServicesDeleteMemberWorkScheduleError,
-  AttendanceServicesDeleteMemberWorkScheduleResponse,
+  AttendanceServicesDeleteRoleWorkScheduleData,
+  AttendanceServicesDeleteRoleWorkScheduleError,
+  AttendanceServicesDeleteRoleWorkScheduleResponse,
   AttendanceServicesDeleteWorkScheduleData,
   AttendanceServicesDeleteWorkScheduleError,
   AttendanceServicesDeleteWorkScheduleResponse,
@@ -192,9 +192,9 @@ import type {
   AttendanceServicesGetCheckpointLocationsData,
   AttendanceServicesGetCheckpointLocationsError,
   AttendanceServicesGetCheckpointLocationsResponse,
-  AttendanceServicesGetCurrentMemberWorkScheduleData,
-  AttendanceServicesGetCurrentMemberWorkScheduleError,
-  AttendanceServicesGetCurrentMemberWorkScheduleResponse,
+  AttendanceServicesGetCurrentRoleWorkScheduleData,
+  AttendanceServicesGetCurrentRoleWorkScheduleError,
+  AttendanceServicesGetCurrentRoleWorkScheduleResponse,
   AttendanceServicesGetLeaveRequestData,
   AttendanceServicesGetLeaveRequestError,
   AttendanceServicesGetLeaveRequestResponse,
@@ -204,12 +204,12 @@ import type {
   AttendanceServicesGetMemberAttendanceRecordByDateData,
   AttendanceServicesGetMemberAttendanceRecordByDateError,
   AttendanceServicesGetMemberAttendanceRecordByDateResponse,
-  AttendanceServicesGetMemberWorkSchedulesData,
-  AttendanceServicesGetMemberWorkSchedulesError,
-  AttendanceServicesGetMemberWorkSchedulesResponse,
   AttendanceServicesGetRoleAttendancePoliciesData,
   AttendanceServicesGetRoleAttendancePoliciesError,
   AttendanceServicesGetRoleAttendancePoliciesResponse,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyData,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyError,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyResponse,
   AttendanceServicesGetWorkScheduleData,
   AttendanceServicesGetWorkScheduleError,
   AttendanceServicesGetWorkScheduleResponse,
@@ -249,9 +249,9 @@ import type {
   AttendanceServicesUpdateLeaveRequestData,
   AttendanceServicesUpdateLeaveRequestError,
   AttendanceServicesUpdateLeaveRequestResponse,
-  AttendanceServicesUpdateMemberWorkScheduleData,
-  AttendanceServicesUpdateMemberWorkScheduleError,
-  AttendanceServicesUpdateMemberWorkScheduleResponse,
+  AttendanceServicesUpdateRoleWorkScheduleData,
+  AttendanceServicesUpdateRoleWorkScheduleError,
+  AttendanceServicesUpdateRoleWorkScheduleResponse,
   AttendanceServicesUpdateWorkScheduleData,
   AttendanceServicesUpdateWorkScheduleError,
   AttendanceServicesUpdateWorkScheduleResponse,
@@ -647,6 +647,34 @@ export const attendanceServicesGetAttendancePoliciesOptions = (
       return data;
     },
     queryKey: attendanceServicesGetAttendancePoliciesQueryKey(options),
+  });
+
+export const attendanceServicesGetRoleWorkSchedulesByCompanyQueryKey = (
+  options: Options<AttendanceServicesGetRoleWorkSchedulesByCompanyData>,
+) => createQueryKey('attendanceServicesGetRoleWorkSchedulesByCompany', options);
+
+/**
+ * Get role work schedules by company
+ */
+export const attendanceServicesGetRoleWorkSchedulesByCompanyOptions = (
+  options: Options<AttendanceServicesGetRoleWorkSchedulesByCompanyData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetRoleWorkSchedulesByCompanyResponse,
+    AxiosError<AttendanceServicesGetRoleWorkSchedulesByCompanyError>,
+    AttendanceServicesGetRoleWorkSchedulesByCompanyResponse,
+    ReturnType<typeof attendanceServicesGetRoleWorkSchedulesByCompanyQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetRoleWorkSchedulesByCompany({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetRoleWorkSchedulesByCompanyQueryKey(options),
   });
 
 export const attendanceServicesGetWorkSchedulesQueryKey = (
@@ -1060,143 +1088,6 @@ export const attendanceServicesUpdateAttendanceLogMutation = (
 };
 
 /**
- * Assign schedule to member
- */
-export const attendanceServicesAssignMemberWorkScheduleMutation = (
-  options?: Partial<Options<AttendanceServicesAssignMemberWorkScheduleData>>,
-): UseMutationOptions<
-  AttendanceServicesAssignMemberWorkScheduleResponse,
-  AxiosError<AttendanceServicesAssignMemberWorkScheduleError>,
-  Options<AttendanceServicesAssignMemberWorkScheduleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesAssignMemberWorkScheduleResponse,
-    AxiosError<AttendanceServicesAssignMemberWorkScheduleError>,
-    Options<AttendanceServicesAssignMemberWorkScheduleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesAssignMemberWorkSchedule({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-/**
- * Delete member work schedule
- */
-export const attendanceServicesDeleteMemberWorkScheduleMutation = (
-  options?: Partial<Options<AttendanceServicesDeleteMemberWorkScheduleData>>,
-): UseMutationOptions<
-  AttendanceServicesDeleteMemberWorkScheduleResponse,
-  AxiosError<AttendanceServicesDeleteMemberWorkScheduleError>,
-  Options<AttendanceServicesDeleteMemberWorkScheduleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesDeleteMemberWorkScheduleResponse,
-    AxiosError<AttendanceServicesDeleteMemberWorkScheduleError>,
-    Options<AttendanceServicesDeleteMemberWorkScheduleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesDeleteMemberWorkSchedule({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-/**
- * Update member work schedule
- */
-export const attendanceServicesUpdateMemberWorkScheduleMutation = (
-  options?: Partial<Options<AttendanceServicesUpdateMemberWorkScheduleData>>,
-): UseMutationOptions<
-  AttendanceServicesUpdateMemberWorkScheduleResponse,
-  AxiosError<AttendanceServicesUpdateMemberWorkScheduleError>,
-  Options<AttendanceServicesUpdateMemberWorkScheduleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesUpdateMemberWorkScheduleResponse,
-    AxiosError<AttendanceServicesUpdateMemberWorkScheduleError>,
-    Options<AttendanceServicesUpdateMemberWorkScheduleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesUpdateMemberWorkSchedule({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-export const attendanceServicesGetMemberWorkSchedulesQueryKey = (
-  options: Options<AttendanceServicesGetMemberWorkSchedulesData>,
-) => createQueryKey('attendanceServicesGetMemberWorkSchedules', options);
-
-/**
- * Get work schedules for member
- */
-export const attendanceServicesGetMemberWorkSchedulesOptions = (
-  options: Options<AttendanceServicesGetMemberWorkSchedulesData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetMemberWorkSchedulesResponse,
-    AxiosError<AttendanceServicesGetMemberWorkSchedulesError>,
-    AttendanceServicesGetMemberWorkSchedulesResponse,
-    ReturnType<typeof attendanceServicesGetMemberWorkSchedulesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetMemberWorkSchedules({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: attendanceServicesGetMemberWorkSchedulesQueryKey(options),
-  });
-
-export const attendanceServicesGetCurrentMemberWorkScheduleQueryKey = (
-  options: Options<AttendanceServicesGetCurrentMemberWorkScheduleData>,
-) => createQueryKey('attendanceServicesGetCurrentMemberWorkSchedule', options);
-
-/**
- * Get current active schedule for member
- */
-export const attendanceServicesGetCurrentMemberWorkScheduleOptions = (
-  options: Options<AttendanceServicesGetCurrentMemberWorkScheduleData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetCurrentMemberWorkScheduleResponse,
-    AxiosError<AttendanceServicesGetCurrentMemberWorkScheduleError>,
-    AttendanceServicesGetCurrentMemberWorkScheduleResponse,
-    ReturnType<typeof attendanceServicesGetCurrentMemberWorkScheduleQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetCurrentMemberWorkSchedule({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: attendanceServicesGetCurrentMemberWorkScheduleQueryKey(options),
-  });
-
-/**
  * Create attendance policy
  */
 export const attendanceServicesCreateAttendancePolicyMutation = (
@@ -1582,6 +1473,87 @@ export const attendanceServicesAssignRoleAttendancePolicyMutation = (
   return mutationOptions;
 };
 
+/**
+ * Assign schedule to role
+ */
+export const attendanceServicesAssignRoleWorkScheduleMutation = (
+  options?: Partial<Options<AttendanceServicesAssignRoleWorkScheduleData>>,
+): UseMutationOptions<
+  AttendanceServicesAssignRoleWorkScheduleResponse,
+  AxiosError<AttendanceServicesAssignRoleWorkScheduleError>,
+  Options<AttendanceServicesAssignRoleWorkScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesAssignRoleWorkScheduleResponse,
+    AxiosError<AttendanceServicesAssignRoleWorkScheduleError>,
+    Options<AttendanceServicesAssignRoleWorkScheduleData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesAssignRoleWorkSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete role work schedule
+ */
+export const attendanceServicesDeleteRoleWorkScheduleMutation = (
+  options?: Partial<Options<AttendanceServicesDeleteRoleWorkScheduleData>>,
+): UseMutationOptions<
+  AttendanceServicesDeleteRoleWorkScheduleResponse,
+  AxiosError<AttendanceServicesDeleteRoleWorkScheduleError>,
+  Options<AttendanceServicesDeleteRoleWorkScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesDeleteRoleWorkScheduleResponse,
+    AxiosError<AttendanceServicesDeleteRoleWorkScheduleError>,
+    Options<AttendanceServicesDeleteRoleWorkScheduleData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesDeleteRoleWorkSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Update role work schedule
+ */
+export const attendanceServicesUpdateRoleWorkScheduleMutation = (
+  options?: Partial<Options<AttendanceServicesUpdateRoleWorkScheduleData>>,
+): UseMutationOptions<
+  AttendanceServicesUpdateRoleWorkScheduleResponse,
+  AxiosError<AttendanceServicesUpdateRoleWorkScheduleError>,
+  Options<AttendanceServicesUpdateRoleWorkScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesUpdateRoleWorkScheduleResponse,
+    AxiosError<AttendanceServicesUpdateRoleWorkScheduleError>,
+    Options<AttendanceServicesUpdateRoleWorkScheduleData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesUpdateRoleWorkSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
 export const attendanceServicesGetRoleAttendancePoliciesQueryKey = (
   options: Options<AttendanceServicesGetRoleAttendancePoliciesData>,
 ) => createQueryKey('attendanceServicesGetRoleAttendancePolicies', options);
@@ -1636,6 +1608,34 @@ export const attendanceServicesRemoveRoleAttendancePolicyMutation = (
   };
   return mutationOptions;
 };
+
+export const attendanceServicesGetCurrentRoleWorkScheduleQueryKey = (
+  options: Options<AttendanceServicesGetCurrentRoleWorkScheduleData>,
+) => createQueryKey('attendanceServicesGetCurrentRoleWorkSchedule', options);
+
+/**
+ * Get current active schedule for role
+ */
+export const attendanceServicesGetCurrentRoleWorkScheduleOptions = (
+  options: Options<AttendanceServicesGetCurrentRoleWorkScheduleData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetCurrentRoleWorkScheduleResponse,
+    AxiosError<AttendanceServicesGetCurrentRoleWorkScheduleError>,
+    AttendanceServicesGetCurrentRoleWorkScheduleResponse,
+    ReturnType<typeof attendanceServicesGetCurrentRoleWorkScheduleQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetCurrentRoleWorkSchedule({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetCurrentRoleWorkScheduleQueryKey(options),
+  });
 
 /**
  * Create work schedule

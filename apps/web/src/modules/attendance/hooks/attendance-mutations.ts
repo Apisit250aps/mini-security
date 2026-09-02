@@ -1,8 +1,8 @@
 import {
   attendanceServicesApproveAttendanceRecord,
   attendanceServicesAssignCheckpointLocation,
-  attendanceServicesAssignMemberWorkSchedule,
   attendanceServicesAssignRoleAttendancePolicy,
+  attendanceServicesAssignRoleWorkSchedule,
   attendanceServicesCreateAttendanceCheckpoint,
   attendanceServicesCreateAttendanceLocation,
   attendanceServicesCreateAttendanceLog,
@@ -17,7 +17,7 @@ import {
   attendanceServicesDeleteAttendancePolicy,
   attendanceServicesDeleteAttendanceRecord,
   attendanceServicesDeleteLeaveRequest,
-  attendanceServicesDeleteMemberWorkSchedule,
+  attendanceServicesDeleteRoleWorkSchedule,
   attendanceServicesDeleteWorkSchedule,
   attendanceServicesDeleteWorkShift,
   attendanceServicesRemoveCheckpointLocation,
@@ -28,7 +28,7 @@ import {
   attendanceServicesUpdateAttendancePolicy,
   attendanceServicesUpdateAttendanceRecord,
   attendanceServicesUpdateLeaveRequest,
-  attendanceServicesUpdateMemberWorkSchedule,
+  attendanceServicesUpdateRoleWorkSchedule,
   attendanceServicesUpdateWorkSchedule,
   attendanceServicesUpdateWorkShift,
 } from '@repo/client';
@@ -41,8 +41,8 @@ import type {
   CreateAttendanceRecord,
   CreateCheckpointLocation,
   CreateLeaveRequest,
-  CreateMemberWorkSchedule,
   CreateRoleAttendancePolicy,
+  CreateRoleWorkSchedule,
   CreateWorkSchedule,
   CreateWorkShift,
   ReviewLeaveRequest,
@@ -51,7 +51,7 @@ import type {
   UpdateAttendancePolicy,
   UpdateAttendanceRecord,
   UpdateLeaveRequest,
-  UpdateMemberWorkSchedule,
+  UpdateRoleWorkSchedule,
   UpdateWorkSchedule,
   UpdateWorkShift,
 } from '@repo/client';
@@ -522,34 +522,36 @@ export function useCheckpointLocationRemove(checkpointId: string) {
   });
 }
 
-// ─── Member Work Schedules ─────────────────────────────────────────────────
-export function useMemberWorkScheduleAssign(companyMemberId: string) {
+// ─── Role Work Schedules ───────────────────────────────────────────────────
+export function useRoleWorkScheduleAssign(companyId: string, roleId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: CreateMemberWorkSchedule) => {
-      const res = await attendanceServicesAssignMemberWorkSchedule({
+    mutationFn: async (data: CreateRoleWorkSchedule) => {
+      const res = await attendanceServicesAssignRoleWorkSchedule({
         body: data,
       });
       return res;
     },
     onSuccess: () => {
-      toast.success('มอบหมายกะทำงานให้พนักงานสำเร็จ');
+      toast.success('มอบหมายกะทำงานให้ Role สำเร็จ');
       queryClient.invalidateQueries({
-        queryKey: attendanceKeys.memberSchedules(companyMemberId),
+        queryKey: attendanceKeys.roleSchedules(companyId),
       });
-      queryClient.invalidateQueries({
-        queryKey: attendanceKeys.currentMemberSchedule(companyMemberId),
-      });
+      if (roleId) {
+        queryClient.invalidateQueries({
+          queryKey: attendanceKeys.currentRoleSchedule(roleId),
+        });
+      }
     },
     onError: (error: unknown) => {
       toast.error(
-        getErrorMessage(error, 'เกิดข้อผิดพลาดในการมอบหมายกะให้พนักงาน'),
+        getErrorMessage(error, 'เกิดข้อผิดพลาดในการมอบหมายกะให้ Role'),
       );
     },
   });
 }
 
-export function useMemberWorkScheduleUpdate(companyMemberId: string) {
+export function useRoleWorkScheduleUpdate(companyId: string, roleId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -557,52 +559,56 @@ export function useMemberWorkScheduleUpdate(companyMemberId: string) {
       data,
     }: {
       id: string;
-      data: UpdateMemberWorkSchedule;
+      data: UpdateRoleWorkSchedule;
     }) => {
-      const res = await attendanceServicesUpdateMemberWorkSchedule({
+      const res = await attendanceServicesUpdateRoleWorkSchedule({
         path: { id },
         body: data,
       });
       return res;
     },
     onSuccess: () => {
-      toast.success('อัปเดตตารางงานพนักงานสำเร็จ');
+      toast.success('อัปเดตตารางงานของ Role สำเร็จ');
       queryClient.invalidateQueries({
-        queryKey: attendanceKeys.memberSchedules(companyMemberId),
+        queryKey: attendanceKeys.roleSchedules(companyId),
       });
-      queryClient.invalidateQueries({
-        queryKey: attendanceKeys.currentMemberSchedule(companyMemberId),
-      });
+      if (roleId) {
+        queryClient.invalidateQueries({
+          queryKey: attendanceKeys.currentRoleSchedule(roleId),
+        });
+      }
     },
     onError: (error: unknown) => {
       toast.error(
-        getErrorMessage(error, 'เกิดข้อผิดพลาดในการอัปเดตตารางงานพนักงาน'),
+        getErrorMessage(error, 'เกิดข้อผิดพลาดในการอัปเดตตารางงานของ Role'),
       );
     },
   });
 }
 
-export function useMemberWorkScheduleDelete(companyMemberId: string) {
+export function useRoleWorkScheduleDelete(companyId: string, roleId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await attendanceServicesDeleteMemberWorkSchedule({
+      const res = await attendanceServicesDeleteRoleWorkSchedule({
         path: { id },
       });
       return res;
     },
     onSuccess: () => {
-      toast.success('ลบตารางงานพนักงานสำเร็จ');
+      toast.success('ลบตารางงานของ Role สำเร็จ');
       queryClient.invalidateQueries({
-        queryKey: attendanceKeys.memberSchedules(companyMemberId),
+        queryKey: attendanceKeys.roleSchedules(companyId),
       });
-      queryClient.invalidateQueries({
-        queryKey: attendanceKeys.currentMemberSchedule(companyMemberId),
-      });
+      if (roleId) {
+        queryClient.invalidateQueries({
+          queryKey: attendanceKeys.currentRoleSchedule(roleId),
+        });
+      }
     },
     onError: (error: unknown) => {
       toast.error(
-        getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบตารางงานพนักงาน'),
+        getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบตารางงานของ Role'),
       );
     },
   });

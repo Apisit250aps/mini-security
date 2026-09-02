@@ -180,6 +180,12 @@
         "schemaName": "public",
         "x": 342.60595703125,
         "y": 3172
+      },
+      {
+        "name": "role_work_schedule",
+        "schemaName": "public",
+        "x": 12,
+        "y": 3734
       }
     ],
     "tableGroupCollapseStates": [],
@@ -1081,6 +1087,51 @@
           "id"
         ],
         "secondTableName": "user",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "role_id"
+        ],
+        "firstTableName": "role_work_schedule",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "role",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "company_id"
+        ],
+        "firstTableName": "role_work_schedule",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "company",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "work_shift_id"
+        ],
+        "firstTableName": "role_work_schedule",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "work_shift",
         "secondSchemaName": "public",
         "secondRelation": "1",
         "checkPoints": []

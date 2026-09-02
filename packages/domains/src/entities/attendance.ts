@@ -11,8 +11,8 @@ import type {
   LeaveStatus,
   LeaveType,
   LocationType,
-  MemberWorkScheduleEntity,
   RoleAttendancePolicyEntity,
+  RoleWorkScheduleEntity,
   WorkScheduleEntity,
   WorkShiftEntity,
 } from '#schema/attendance';
@@ -179,18 +179,20 @@ export class CheckpointLocation implements CheckpointLocationEntity {
   }
 }
 
-export class MemberWorkSchedule implements MemberWorkScheduleEntity {
+export class RoleWorkSchedule implements RoleWorkScheduleEntity {
   id: string;
-  companyMemberId: string;
+  roleId: string;
+  companyId: string;
   workShiftId: string;
   effectiveDate: Date;
   endDate?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 
-  constructor(data: MemberWorkScheduleEntity) {
+  constructor(data: RoleWorkScheduleEntity) {
     this.id = data.id;
-    this.companyMemberId = data.companyMemberId;
+    this.roleId = data.roleId;
+    this.companyId = data.companyId;
     this.workShiftId = data.workShiftId;
     this.effectiveDate = data.effectiveDate;
     this.endDate = data.endDate;

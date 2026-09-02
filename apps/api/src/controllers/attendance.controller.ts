@@ -8,8 +8,8 @@ import {
   createAttendanceRecordSchema,
   createCheckpointLocationSchema,
   createLeaveRequestSchema,
-  createMemberWorkScheduleSchema,
   createRoleAttendancePolicySchema,
+  createRoleWorkScheduleSchema,
   createWorkScheduleSchema,
   createWorkShiftSchema,
   updateAttendanceCheckpointSchema,
@@ -18,15 +18,15 @@ import {
   updateAttendancePolicySchema,
   updateAttendanceRecordSchema,
   updateLeaveRequestSchema,
-  updateMemberWorkScheduleSchema,
+  updateRoleWorkScheduleSchema,
   updateWorkScheduleSchema,
   updateWorkShiftSchema,
 } from '@repo/domains/schema/attendance';
 import type {
   ApproveAttendanceRecordUseCase,
   AssignCheckpointLocationUseCase,
-  AssignMemberWorkScheduleUseCase,
   AssignRoleAttendancePolicyUseCase,
+  AssignRoleWorkScheduleUseCase,
   CreateAttendanceCheckpointUseCase,
   CreateAttendanceLocationUseCase,
   CreateAttendanceLogUseCase,
@@ -41,7 +41,7 @@ import type {
   DeleteAttendancePolicyUseCase,
   DeleteAttendanceRecordUseCase,
   DeleteLeaveRequestUseCase,
-  DeleteMemberWorkScheduleUseCase,
+  DeleteRoleWorkScheduleUseCase,
   DeleteWorkScheduleUseCase,
   DeleteWorkShiftUseCase,
   GetAttendanceCheckpointUseCase,
@@ -55,13 +55,13 @@ import type {
   GetAttendanceRecordsUseCase,
   GetAttendanceRecordUseCase,
   GetCheckpointLocationsUseCase,
-  GetCurrentMemberWorkScheduleUseCase,
+  GetCurrentRoleWorkScheduleUseCase,
   GetLeaveRequestsUseCase,
   GetLeaveRequestUseCase,
   GetMemberAttendanceRecordByDateUseCase,
-  GetMemberWorkSchedulesUseCase,
-  GetMemberWorkScheduleUseCase,
   GetRoleAttendancePoliciesUseCase,
+  GetRoleWorkSchedulesByCompanyUseCase,
+  GetRoleWorkScheduleUseCase,
   GetWorkSchedulesUseCase,
   GetWorkScheduleUseCase,
   GetWorkShiftsUseCase,
@@ -75,7 +75,7 @@ import type {
   UpdateAttendancePolicyUseCase,
   UpdateAttendanceRecordUseCase,
   UpdateLeaveRequestUseCase,
-  UpdateMemberWorkScheduleUseCase,
+  UpdateRoleWorkScheduleUseCase,
   UpdateWorkScheduleUseCase,
   UpdateWorkShiftUseCase,
 } from '@repo/applications';
@@ -113,10 +113,6 @@ const checkpointIdParamSchema = z.object({
 const checkpointLocationParamSchema = z.object({
   checkpointId: z.string().uuid(),
   locationId: z.string().uuid(),
-});
-
-const memberParamSchema = z.object({
-  companyMemberId: z.string().uuid(),
 });
 
 const recordIdParamSchema = z.object({
@@ -190,13 +186,13 @@ export class AttendanceController extends Controller {
     private readonly removeCheckpointLocationUseCase: RemoveCheckpointLocationUseCase,
     private readonly getCheckpointLocationsUseCase: GetCheckpointLocationsUseCase,
 
-    // Member Schedule
-    private readonly assignMemberWorkScheduleUseCase: AssignMemberWorkScheduleUseCase,
-    private readonly updateMemberWorkScheduleUseCase: UpdateMemberWorkScheduleUseCase,
-    private readonly deleteMemberWorkScheduleUseCase: DeleteMemberWorkScheduleUseCase,
-    private readonly getMemberWorkScheduleUseCase: GetMemberWorkScheduleUseCase,
-    private readonly getMemberWorkSchedulesUseCase: GetMemberWorkSchedulesUseCase,
-    private readonly getCurrentMemberWorkScheduleUseCase: GetCurrentMemberWorkScheduleUseCase,
+    // Role Schedule
+    private readonly assignRoleWorkScheduleUseCase: AssignRoleWorkScheduleUseCase,
+    private readonly updateRoleWorkScheduleUseCase: UpdateRoleWorkScheduleUseCase,
+    private readonly deleteRoleWorkScheduleUseCase: DeleteRoleWorkScheduleUseCase,
+    private readonly getRoleWorkScheduleUseCase: GetRoleWorkScheduleUseCase,
+    private readonly getRoleWorkSchedulesByCompanyUseCase: GetRoleWorkSchedulesByCompanyUseCase,
+    private readonly getCurrentRoleWorkScheduleUseCase: GetCurrentRoleWorkScheduleUseCase,
 
     // Attendance Record
     private readonly createAttendanceRecordUseCase: CreateAttendanceRecordUseCase,
@@ -662,73 +658,73 @@ export class AttendanceController extends Controller {
   );
 
   // ==========================================
-  // Member Work Schedule Endpoints
+  // Role Work Schedule Endpoints
   // ==========================================
 
-  public getMemberWorkSchedules = this.validator(
-    { params: memberParamSchema },
+  public getRoleWorkSchedulesByCompany = this.validator(
+    { params: companyIdParamSchema },
     async (c) => {
-      const { companyMemberId } = c.get('params');
+      const { companyId } = c.get('params');
       const user = (c as any).get('user');
-      const result = await this.getMemberWorkSchedulesUseCase.execute({
-        companyMemberId,
+      const result = await this.getRoleWorkSchedulesByCompanyUseCase.execute({
+        companyId,
         userId: user?.id,
       });
-      return this.success(c, 'Member work schedules retrieved', result);
+      return this.success(c, 'Role work schedules retrieved', result);
     },
   );
 
-  public getCurrentMemberWorkSchedule = this.validator(
-    { params: memberParamSchema },
+  public getCurrentRoleWorkSchedule = this.validator(
+    { params: roleIdParamSchema },
     async (c) => {
-      const { companyMemberId } = c.get('params');
+      const { roleId } = c.get('params');
       const user = (c as any).get('user');
-      const result = await this.getCurrentMemberWorkScheduleUseCase.execute({
-        companyMemberId,
+      const result = await this.getCurrentRoleWorkScheduleUseCase.execute({
+        roleId,
         userId: user?.id,
       });
-      return this.success(c, 'Current member work schedule retrieved', result);
+      return this.success(c, 'Current role work schedule retrieved', result);
     },
   );
 
-  public assignMemberWorkSchedule = this.validator(
-    { body: createMemberWorkScheduleSchema },
+  public assignRoleWorkSchedule = this.validator(
+    { body: createRoleWorkScheduleSchema },
     async (c) => {
       const body = c.get('body');
       const user = (c as any).get('user');
-      const result = await this.assignMemberWorkScheduleUseCase.execute({
+      const result = await this.assignRoleWorkScheduleUseCase.execute({
         data: body,
         userId: user?.id,
       });
-      return this.created(c, 'Member work schedule assigned', result);
+      return this.created(c, 'Role work schedule assigned', result);
     },
   );
 
-  public updateMemberWorkSchedule = this.validator(
-    { params: idParamSchema, body: updateMemberWorkScheduleSchema },
+  public updateRoleWorkSchedule = this.validator(
+    { params: idParamSchema, body: updateRoleWorkScheduleSchema },
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
       const user = (c as any).get('user');
-      const result = await this.updateMemberWorkScheduleUseCase.execute({
+      const result = await this.updateRoleWorkScheduleUseCase.execute({
         id,
         data: body,
         userId: user?.id,
       });
-      return this.success(c, 'Member work schedule updated', result);
+      return this.success(c, 'Role work schedule updated', result);
     },
   );
 
-  public deleteMemberWorkSchedule = this.validator(
+  public deleteRoleWorkSchedule = this.validator(
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
       const user = (c as any).get('user');
-      await this.deleteMemberWorkScheduleUseCase.execute({
+      await this.deleteRoleWorkScheduleUseCase.execute({
         id,
         userId: user?.id,
       });
-      return this.success(c, 'Member work schedule deleted', null);
+      return this.success(c, 'Role work schedule deleted', null);
     },
   );
 

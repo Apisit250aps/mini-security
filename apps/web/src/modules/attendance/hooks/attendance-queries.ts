@@ -10,12 +10,12 @@ import {
   attendanceServicesGetAttendanceRecord,
   attendanceServicesGetAttendanceRecords,
   attendanceServicesGetCheckpointLocations,
-  attendanceServicesGetCurrentMemberWorkSchedule,
+  attendanceServicesGetCurrentRoleWorkSchedule,
   attendanceServicesGetLeaveRequest,
   attendanceServicesGetLeaveRequests,
   attendanceServicesGetMemberAttendanceRecordByDate,
-  attendanceServicesGetMemberWorkSchedules,
   attendanceServicesGetRoleAttendancePolicies,
+  attendanceServicesGetRoleWorkSchedulesByCompany,
   attendanceServicesGetWorkSchedule,
   attendanceServicesGetWorkSchedules,
   attendanceServicesGetWorkShift,
@@ -207,34 +207,34 @@ export function useCheckpointLocationsQueries(checkpointId: string) {
   });
 }
 
-// ─── Member Schedules ───────────────────────────────────────────────────────
-export function useMemberWorkSchedulesQueries(companyMemberId: string) {
+// ─── Role Schedules ─────────────────────────────────────────────────────────
+export function useRoleWorkSchedulesByCompanyQueries(companyId: string) {
   return useQuery({
-    queryKey: attendanceKeys.memberSchedules(companyMemberId),
+    queryKey: attendanceKeys.roleSchedules(companyId),
     queryFn: async ({ signal }) => {
-      const response = await attendanceServicesGetMemberWorkSchedules({
-        path: { companyMemberId },
+      const response = await attendanceServicesGetRoleWorkSchedulesByCompany({
+        path: { companyId },
         signal,
       });
       if (response.data) return response.data.data;
-      throw new Error('Failed to fetch member work schedules');
+      throw new Error('Failed to fetch role work schedules');
     },
-    enabled: Boolean(companyMemberId),
+    enabled: Boolean(companyId),
   });
 }
 
-export function useCurrentMemberWorkScheduleQueries(companyMemberId: string) {
+export function useCurrentRoleWorkScheduleQueries(roleId: string) {
   return useQuery({
-    queryKey: attendanceKeys.currentMemberSchedule(companyMemberId),
+    queryKey: attendanceKeys.currentRoleSchedule(roleId),
     queryFn: async ({ signal }) => {
-      const response = await attendanceServicesGetCurrentMemberWorkSchedule({
-        path: { companyMemberId },
+      const response = await attendanceServicesGetCurrentRoleWorkSchedule({
+        path: { roleId },
         signal,
       });
       if (response.data) return response.data.data;
-      throw new Error('Failed to fetch current member work schedule');
+      throw new Error('Failed to fetch current role work schedule');
     },
-    enabled: Boolean(companyMemberId),
+    enabled: Boolean(roleId),
   });
 }
 

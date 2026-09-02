@@ -2,8 +2,8 @@ import { Hono } from 'hono';
 import {
   approveAttendanceRecordUseCase,
   assignCheckpointLocationUseCase,
-  assignMemberWorkScheduleUseCase,
   assignRoleAttendancePolicyUseCase,
+  assignRoleWorkScheduleUseCase,
   createAttendanceCheckpointUseCase,
   createAttendanceLocationUseCase,
   createAttendanceLogUseCase,
@@ -18,7 +18,7 @@ import {
   deleteAttendancePolicyUseCase,
   deleteAttendanceRecordUseCase,
   deleteLeaveRequestUseCase,
-  deleteMemberWorkScheduleUseCase,
+  deleteRoleWorkScheduleUseCase,
   deleteWorkScheduleUseCase,
   deleteWorkShiftUseCase,
   getAttendanceCheckpointUseCase,
@@ -32,13 +32,13 @@ import {
   getAttendanceRecordsUseCase,
   getAttendanceRecordUseCase,
   getCheckpointLocationsUseCase,
-  getCurrentMemberWorkScheduleUseCase,
+  getCurrentRoleWorkScheduleUseCase,
   getLeaveRequestsUseCase,
   getLeaveRequestUseCase,
   getMemberAttendanceRecordByDateUseCase,
-  getMemberWorkSchedulesUseCase,
-  getMemberWorkScheduleUseCase,
   getRoleAttendancePoliciesUseCase,
+  getRoleWorkSchedulesByCompanyUseCase,
+  getRoleWorkScheduleUseCase,
   getWorkSchedulesUseCase,
   getWorkScheduleUseCase,
   getWorkShiftsUseCase,
@@ -52,7 +52,7 @@ import {
   updateAttendancePolicyUseCase,
   updateAttendanceRecordUseCase,
   updateLeaveRequestUseCase,
-  updateMemberWorkScheduleUseCase,
+  updateRoleWorkScheduleUseCase,
   updateWorkScheduleUseCase,
   updateWorkShiftUseCase,
 } from '@repo/infrastructures/compositions';
@@ -91,12 +91,12 @@ const attendanceController = new AttendanceController(
   assignCheckpointLocationUseCase,
   removeCheckpointLocationUseCase,
   getCheckpointLocationsUseCase,
-  assignMemberWorkScheduleUseCase,
-  updateMemberWorkScheduleUseCase,
-  deleteMemberWorkScheduleUseCase,
-  getMemberWorkScheduleUseCase,
-  getMemberWorkSchedulesUseCase,
-  getCurrentMemberWorkScheduleUseCase,
+  assignRoleWorkScheduleUseCase,
+  updateRoleWorkScheduleUseCase,
+  deleteRoleWorkScheduleUseCase,
+  getRoleWorkScheduleUseCase,
+  getRoleWorkSchedulesByCompanyUseCase,
+  getCurrentRoleWorkScheduleUseCase,
   createAttendanceRecordUseCase,
   updateAttendanceRecordUseCase,
   deleteAttendanceRecordUseCase,
@@ -232,26 +232,26 @@ attendanceRoutes.delete(
   attendanceController.removeCheckpointLocation,
 );
 
-// 8. Member Schedules
+// 8. Role Schedules
 attendanceRoutes.get(
-  '/members/:companyMemberId/schedules',
-  attendanceController.getMemberWorkSchedules,
+  '/companies/:companyId/role-schedules',
+  attendanceController.getRoleWorkSchedulesByCompany,
 );
 attendanceRoutes.get(
-  '/members/:companyMemberId/schedules/current',
-  attendanceController.getCurrentMemberWorkSchedule,
+  '/roles/:roleId/schedules/current',
+  attendanceController.getCurrentRoleWorkSchedule,
 );
 attendanceRoutes.post(
-  '/member-schedules',
-  attendanceController.assignMemberWorkSchedule,
+  '/role-schedules',
+  attendanceController.assignRoleWorkSchedule,
 );
 attendanceRoutes.put(
-  '/member-schedules/:id',
-  attendanceController.updateMemberWorkSchedule,
+  '/role-schedules/:id',
+  attendanceController.updateRoleWorkSchedule,
 );
 attendanceRoutes.delete(
-  '/member-schedules/:id',
-  attendanceController.deleteMemberWorkSchedule,
+  '/role-schedules/:id',
+  attendanceController.deleteRoleWorkSchedule,
 );
 
 // 9. Attendance Records

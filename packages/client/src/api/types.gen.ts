@@ -294,16 +294,6 @@ export type CreateLeaveRequest = {
 /**
  * The template for omitting properties.
  */
-export type CreateMemberWorkSchedule = {
-  companyMemberId: string;
-  workShiftId: string;
-  effectiveDate: Date;
-  endDate?: Date | null;
-};
-
-/**
- * The template for omitting properties.
- */
 export type CreatePermission = {
   action: string;
   module: string;
@@ -336,6 +326,17 @@ export type CreateRoleAttendancePolicy = {
 export type CreateRolePermission = {
   roleId: string;
   permissionId: string;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateRoleWorkSchedule = {
+  roleId: string;
+  companyId: string;
+  workShiftId: string;
+  effectiveDate: Date;
+  endDate?: Date | null;
 };
 
 /**
@@ -427,16 +428,6 @@ export type LeaveRequest = {
   reviewNote?: string | null;
 };
 
-export type MemberWorkSchedule = {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  companyMemberId: string;
-  workShiftId: string;
-  effectiveDate: Date;
-  endDate?: Date | null;
-};
-
 export type Permission = {
   id: string;
   createdAt: Date;
@@ -477,6 +468,17 @@ export type RolePermission = {
   updatedAt: Date;
   roleId: string;
   permissionId: string;
+};
+
+export type RoleWorkSchedule = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  roleId: string;
+  companyId: string;
+  workShiftId: string;
+  effectiveDate: Date;
+  endDate?: Date | null;
 };
 
 /**
@@ -618,16 +620,6 @@ export type UpdateLeaveRequest = {
 /**
  * The template for adding optional properties.
  */
-export type UpdateMemberWorkSchedule = {
-  companyMemberId?: string;
-  workShiftId?: string;
-  effectiveDate?: Date;
-  endDate?: Date | null;
-};
-
-/**
- * The template for adding optional properties.
- */
 export type UpdatePermission = {
   action?: string;
   module?: string;
@@ -652,6 +644,17 @@ export type UpdateRoleAttendancePolicy = {
   roleId?: string;
   policyId?: string;
   companyId?: string;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateRoleWorkSchedule = {
+  roleId?: string;
+  companyId?: string;
+  workShiftId?: string;
+  effectiveDate?: Date;
+  endDate?: Date | null;
 };
 
 /**
@@ -1039,6 +1042,39 @@ export type AttendanceServicesGetAttendancePoliciesResponses = {
 
 export type AttendanceServicesGetAttendancePoliciesResponse =
   AttendanceServicesGetAttendancePoliciesResponses[keyof AttendanceServicesGetAttendancePoliciesResponses];
+
+export type AttendanceServicesGetRoleWorkSchedulesByCompanyData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: never;
+  url: '/attendance/companies/{companyId}/role-schedules';
+};
+
+export type AttendanceServicesGetRoleWorkSchedulesByCompanyErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetRoleWorkSchedulesByCompanyError =
+  AttendanceServicesGetRoleWorkSchedulesByCompanyErrors[keyof AttendanceServicesGetRoleWorkSchedulesByCompanyErrors];
+
+export type AttendanceServicesGetRoleWorkSchedulesByCompanyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<RoleWorkSchedule>;
+  };
+};
+
+export type AttendanceServicesGetRoleWorkSchedulesByCompanyResponse =
+  AttendanceServicesGetRoleWorkSchedulesByCompanyResponses[keyof AttendanceServicesGetRoleWorkSchedulesByCompanyResponses];
 
 export type AttendanceServicesGetWorkSchedulesData = {
   body?: never;
@@ -1583,185 +1619,6 @@ export type AttendanceServicesUpdateAttendanceLogResponses = {
 export type AttendanceServicesUpdateAttendanceLogResponse =
   AttendanceServicesUpdateAttendanceLogResponses[keyof AttendanceServicesUpdateAttendanceLogResponses];
 
-export type AttendanceServicesAssignMemberWorkScheduleData = {
-  body: CreateMemberWorkSchedule;
-  path?: never;
-  query?: never;
-  url: '/attendance/member-schedules';
-};
-
-export type AttendanceServicesAssignMemberWorkScheduleErrors = {
-  /**
-   * 400 Bad Request — INVALID_DATA
-   */
-  400: ApiErrorResponse;
-  /**
-   * 401 Unauthorized — UNAUTHORIZED
-   */
-  401: ApiErrorResponse;
-};
-
-export type AttendanceServicesAssignMemberWorkScheduleError =
-  AttendanceServicesAssignMemberWorkScheduleErrors[keyof AttendanceServicesAssignMemberWorkScheduleErrors];
-
-export type AttendanceServicesAssignMemberWorkScheduleResponses = {
-  /**
-   * Successful response wrapping data payload
-   */
-  201: {
-    success: boolean;
-    message: string;
-    data?: MemberWorkSchedule;
-  };
-};
-
-export type AttendanceServicesAssignMemberWorkScheduleResponse =
-  AttendanceServicesAssignMemberWorkScheduleResponses[keyof AttendanceServicesAssignMemberWorkScheduleResponses];
-
-export type AttendanceServicesDeleteMemberWorkScheduleData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: '/attendance/member-schedules/{id}';
-};
-
-export type AttendanceServicesDeleteMemberWorkScheduleErrors = {
-  /**
-   * 401 Unauthorized — UNAUTHORIZED
-   */
-  401: ApiErrorResponse;
-  /**
-   * 404 Not Found — NOT_FOUND
-   */
-  404: ApiErrorResponse;
-};
-
-export type AttendanceServicesDeleteMemberWorkScheduleError =
-  AttendanceServicesDeleteMemberWorkScheduleErrors[keyof AttendanceServicesDeleteMemberWorkScheduleErrors];
-
-export type AttendanceServicesDeleteMemberWorkScheduleResponses = {
-  /**
-   * 200 OK without data
-   */
-  200: BasicResponse;
-};
-
-export type AttendanceServicesDeleteMemberWorkScheduleResponse =
-  AttendanceServicesDeleteMemberWorkScheduleResponses[keyof AttendanceServicesDeleteMemberWorkScheduleResponses];
-
-export type AttendanceServicesUpdateMemberWorkScheduleData = {
-  body: UpdateMemberWorkSchedule;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: '/attendance/member-schedules/{id}';
-};
-
-export type AttendanceServicesUpdateMemberWorkScheduleErrors = {
-  /**
-   * 400 Bad Request — INVALID_DATA
-   */
-  400: ApiErrorResponse;
-  /**
-   * 401 Unauthorized — UNAUTHORIZED
-   */
-  401: ApiErrorResponse;
-  /**
-   * 404 Not Found — NOT_FOUND
-   */
-  404: ApiErrorResponse;
-};
-
-export type AttendanceServicesUpdateMemberWorkScheduleError =
-  AttendanceServicesUpdateMemberWorkScheduleErrors[keyof AttendanceServicesUpdateMemberWorkScheduleErrors];
-
-export type AttendanceServicesUpdateMemberWorkScheduleResponses = {
-  /**
-   * Successful response wrapping data payload
-   */
-  200: {
-    success: boolean;
-    message: string;
-    data?: MemberWorkSchedule;
-  };
-};
-
-export type AttendanceServicesUpdateMemberWorkScheduleResponse =
-  AttendanceServicesUpdateMemberWorkScheduleResponses[keyof AttendanceServicesUpdateMemberWorkScheduleResponses];
-
-export type AttendanceServicesGetMemberWorkSchedulesData = {
-  body?: never;
-  path: {
-    companyMemberId: string;
-  };
-  query?: never;
-  url: '/attendance/members/{companyMemberId}/schedules';
-};
-
-export type AttendanceServicesGetMemberWorkSchedulesErrors = {
-  /**
-   * 401 Unauthorized — UNAUTHORIZED
-   */
-  401: ApiErrorResponse;
-};
-
-export type AttendanceServicesGetMemberWorkSchedulesError =
-  AttendanceServicesGetMemberWorkSchedulesErrors[keyof AttendanceServicesGetMemberWorkSchedulesErrors];
-
-export type AttendanceServicesGetMemberWorkSchedulesResponses = {
-  /**
-   * Successful response wrapping data payload
-   */
-  200: {
-    success: boolean;
-    message: string;
-    data?: Array<MemberWorkSchedule>;
-  };
-};
-
-export type AttendanceServicesGetMemberWorkSchedulesResponse =
-  AttendanceServicesGetMemberWorkSchedulesResponses[keyof AttendanceServicesGetMemberWorkSchedulesResponses];
-
-export type AttendanceServicesGetCurrentMemberWorkScheduleData = {
-  body?: never;
-  path: {
-    companyMemberId: string;
-  };
-  query?: never;
-  url: '/attendance/members/{companyMemberId}/schedules/current';
-};
-
-export type AttendanceServicesGetCurrentMemberWorkScheduleErrors = {
-  /**
-   * 401 Unauthorized — UNAUTHORIZED
-   */
-  401: ApiErrorResponse;
-  /**
-   * 404 Not Found — NOT_FOUND
-   */
-  404: ApiErrorResponse;
-};
-
-export type AttendanceServicesGetCurrentMemberWorkScheduleError =
-  AttendanceServicesGetCurrentMemberWorkScheduleErrors[keyof AttendanceServicesGetCurrentMemberWorkScheduleErrors];
-
-export type AttendanceServicesGetCurrentMemberWorkScheduleResponses = {
-  /**
-   * Successful response wrapping data payload
-   */
-  200: {
-    success: boolean;
-    message: string;
-    data?: MemberWorkSchedule;
-  };
-};
-
-export type AttendanceServicesGetCurrentMemberWorkScheduleResponse =
-  AttendanceServicesGetCurrentMemberWorkScheduleResponses[keyof AttendanceServicesGetCurrentMemberWorkScheduleResponses];
-
 export type AttendanceServicesCreateAttendancePolicyData = {
   body: CreateAttendancePolicy;
   path?: never;
@@ -2266,6 +2123,115 @@ export type AttendanceServicesAssignRoleAttendancePolicyResponses = {
 export type AttendanceServicesAssignRoleAttendancePolicyResponse =
   AttendanceServicesAssignRoleAttendancePolicyResponses[keyof AttendanceServicesAssignRoleAttendancePolicyResponses];
 
+export type AttendanceServicesAssignRoleWorkScheduleData = {
+  body: CreateRoleWorkSchedule;
+  path?: never;
+  query?: never;
+  url: '/attendance/role-schedules';
+};
+
+export type AttendanceServicesAssignRoleWorkScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesAssignRoleWorkScheduleError =
+  AttendanceServicesAssignRoleWorkScheduleErrors[keyof AttendanceServicesAssignRoleWorkScheduleErrors];
+
+export type AttendanceServicesAssignRoleWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: RoleWorkSchedule;
+  };
+};
+
+export type AttendanceServicesAssignRoleWorkScheduleResponse =
+  AttendanceServicesAssignRoleWorkScheduleResponses[keyof AttendanceServicesAssignRoleWorkScheduleResponses];
+
+export type AttendanceServicesDeleteRoleWorkScheduleData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/role-schedules/{id}';
+};
+
+export type AttendanceServicesDeleteRoleWorkScheduleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteRoleWorkScheduleError =
+  AttendanceServicesDeleteRoleWorkScheduleErrors[keyof AttendanceServicesDeleteRoleWorkScheduleErrors];
+
+export type AttendanceServicesDeleteRoleWorkScheduleResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteRoleWorkScheduleResponse =
+  AttendanceServicesDeleteRoleWorkScheduleResponses[keyof AttendanceServicesDeleteRoleWorkScheduleResponses];
+
+export type AttendanceServicesUpdateRoleWorkScheduleData = {
+  body: UpdateRoleWorkSchedule;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendance/role-schedules/{id}';
+};
+
+export type AttendanceServicesUpdateRoleWorkScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateRoleWorkScheduleError =
+  AttendanceServicesUpdateRoleWorkScheduleErrors[keyof AttendanceServicesUpdateRoleWorkScheduleErrors];
+
+export type AttendanceServicesUpdateRoleWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: RoleWorkSchedule;
+  };
+};
+
+export type AttendanceServicesUpdateRoleWorkScheduleResponse =
+  AttendanceServicesUpdateRoleWorkScheduleResponses[keyof AttendanceServicesUpdateRoleWorkScheduleResponses];
+
 export type AttendanceServicesGetRoleAttendancePoliciesData = {
   body?: never;
   path: {
@@ -2332,6 +2298,43 @@ export type AttendanceServicesRemoveRoleAttendancePolicyResponses = {
 
 export type AttendanceServicesRemoveRoleAttendancePolicyResponse =
   AttendanceServicesRemoveRoleAttendancePolicyResponses[keyof AttendanceServicesRemoveRoleAttendancePolicyResponses];
+
+export type AttendanceServicesGetCurrentRoleWorkScheduleData = {
+  body?: never;
+  path: {
+    roleId: string;
+  };
+  query?: never;
+  url: '/attendance/roles/{roleId}/schedules/current';
+};
+
+export type AttendanceServicesGetCurrentRoleWorkScheduleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetCurrentRoleWorkScheduleError =
+  AttendanceServicesGetCurrentRoleWorkScheduleErrors[keyof AttendanceServicesGetCurrentRoleWorkScheduleErrors];
+
+export type AttendanceServicesGetCurrentRoleWorkScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: RoleWorkSchedule;
+  };
+};
+
+export type AttendanceServicesGetCurrentRoleWorkScheduleResponse =
+  AttendanceServicesGetCurrentRoleWorkScheduleResponses[keyof AttendanceServicesGetCurrentRoleWorkScheduleResponses];
 
 export type AttendanceServicesCreateWorkScheduleData = {
   body: CreateWorkSchedule;

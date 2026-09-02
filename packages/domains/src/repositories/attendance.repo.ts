@@ -7,8 +7,8 @@ import type {
   AttendanceRecord,
   CheckpointLocation,
   LeaveRequest,
-  MemberWorkSchedule,
   RoleAttendancePolicy,
+  RoleWorkSchedule,
   WorkSchedule,
   WorkShift,
 } from '#entities/attendance';
@@ -20,8 +20,8 @@ import type {
   CreateAttendanceRecord,
   CreateCheckpointLocation,
   CreateLeaveRequest,
-  CreateMemberWorkSchedule,
   CreateRoleAttendancePolicy,
+  CreateRoleWorkSchedule,
   CreateWorkSchedule,
   CreateWorkShift,
   UpdateAttendanceCheckpoint,
@@ -31,8 +31,8 @@ import type {
   UpdateAttendanceRecord,
   UpdateCheckpointLocation,
   UpdateLeaveRequest,
-  UpdateMemberWorkSchedule,
   UpdateRoleAttendancePolicy,
+  UpdateRoleWorkSchedule,
   UpdateWorkSchedule,
   UpdateWorkShift,
 } from '#schema/attendance';
@@ -108,17 +108,18 @@ export interface ICheckpointLocationRepository
   ): Promise<void>;
 }
 
-export interface IMemberWorkScheduleRepository
+export interface IRoleWorkScheduleRepository
   extends BaseRepository<
-    MemberWorkSchedule,
-    CreateMemberWorkSchedule,
-    UpdateMemberWorkSchedule
+    RoleWorkSchedule,
+    CreateRoleWorkSchedule,
+    UpdateRoleWorkSchedule
   > {
-  findByMemberId(companyMemberId: string): Promise<MemberWorkSchedule[]>;
-  findCurrentByMemberId(
-    companyMemberId: string,
+  findByRoleId(roleId: string): Promise<RoleWorkSchedule[]>;
+  findByCompanyId(companyId: string): Promise<RoleWorkSchedule[]>;
+  findCurrentByRoleId(
+    roleId: string,
     date: Date,
-  ): Promise<MemberWorkSchedule | null>;
+  ): Promise<RoleWorkSchedule | null>;
 }
 
 export interface IAttendanceRecordRepository

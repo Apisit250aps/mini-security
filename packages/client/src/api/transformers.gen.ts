@@ -3,8 +3,8 @@
 import type {
   AttendanceServicesApproveAttendanceRecordResponse,
   AttendanceServicesAssignCheckpointLocationResponse,
-  AttendanceServicesAssignMemberWorkScheduleResponse,
   AttendanceServicesAssignRoleAttendancePolicyResponse,
+  AttendanceServicesAssignRoleWorkScheduleResponse,
   AttendanceServicesCreateAttendanceCheckpointResponse,
   AttendanceServicesCreateAttendanceLocationResponse,
   AttendanceServicesCreateAttendanceLogResponse,
@@ -24,12 +24,12 @@ import type {
   AttendanceServicesGetAttendanceRecordResponse,
   AttendanceServicesGetAttendanceRecordsResponse,
   AttendanceServicesGetCheckpointLocationsResponse,
-  AttendanceServicesGetCurrentMemberWorkScheduleResponse,
+  AttendanceServicesGetCurrentRoleWorkScheduleResponse,
   AttendanceServicesGetLeaveRequestResponse,
   AttendanceServicesGetLeaveRequestsResponse,
   AttendanceServicesGetMemberAttendanceRecordByDateResponse,
-  AttendanceServicesGetMemberWorkSchedulesResponse,
   AttendanceServicesGetRoleAttendancePoliciesResponse,
+  AttendanceServicesGetRoleWorkSchedulesByCompanyResponse,
   AttendanceServicesGetWorkScheduleResponse,
   AttendanceServicesGetWorkSchedulesResponse,
   AttendanceServicesGetWorkShiftResponse,
@@ -41,7 +41,7 @@ import type {
   AttendanceServicesUpdateAttendancePolicyResponse,
   AttendanceServicesUpdateAttendanceRecordResponse,
   AttendanceServicesUpdateLeaveRequestResponse,
-  AttendanceServicesUpdateMemberWorkScheduleResponse,
+  AttendanceServicesUpdateRoleWorkScheduleResponse,
   AttendanceServicesUpdateWorkScheduleResponse,
   AttendanceServicesUpdateWorkShiftResponse,
   CompanyServicesAddCompanyMemberResponse,
@@ -168,6 +168,28 @@ export const attendanceServicesGetAttendancePoliciesResponseTransformer =
     if (data.data) {
       data.data = data.data.map((item: any) =>
         attendancePolicySchemaResponseTransformer(item),
+      );
+    }
+    return data;
+  };
+
+const roleWorkScheduleSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  data.effectiveDate = new Date(data.effectiveDate);
+  if (data.endDate) {
+    data.endDate = new Date(data.endDate);
+  }
+  return data;
+};
+
+export const attendanceServicesGetRoleWorkSchedulesByCompanyResponseTransformer =
+  async (
+    data: any,
+  ): Promise<AttendanceServicesGetRoleWorkSchedulesByCompanyResponse> => {
+    if (data.data) {
+      data.data = data.data.map((item: any) =>
+        roleWorkScheduleSchemaResponseTransformer(item),
       );
     }
     return data;
@@ -312,58 +334,6 @@ export const attendanceServicesUpdateAttendanceLogResponseTransformer = async (
   return data;
 };
 
-const memberWorkScheduleSchemaResponseTransformer = (data: any) => {
-  data.createdAt = new Date(data.createdAt);
-  data.updatedAt = new Date(data.updatedAt);
-  data.effectiveDate = new Date(data.effectiveDate);
-  if (data.endDate) {
-    data.endDate = new Date(data.endDate);
-  }
-  return data;
-};
-
-export const attendanceServicesAssignMemberWorkScheduleResponseTransformer =
-  async (
-    data: any,
-  ): Promise<AttendanceServicesAssignMemberWorkScheduleResponse> => {
-    if (data.data) {
-      data.data = memberWorkScheduleSchemaResponseTransformer(data.data);
-    }
-    return data;
-  };
-
-export const attendanceServicesUpdateMemberWorkScheduleResponseTransformer =
-  async (
-    data: any,
-  ): Promise<AttendanceServicesUpdateMemberWorkScheduleResponse> => {
-    if (data.data) {
-      data.data = memberWorkScheduleSchemaResponseTransformer(data.data);
-    }
-    return data;
-  };
-
-export const attendanceServicesGetMemberWorkSchedulesResponseTransformer =
-  async (
-    data: any,
-  ): Promise<AttendanceServicesGetMemberWorkSchedulesResponse> => {
-    if (data.data) {
-      data.data = data.data.map((item: any) =>
-        memberWorkScheduleSchemaResponseTransformer(item),
-      );
-    }
-    return data;
-  };
-
-export const attendanceServicesGetCurrentMemberWorkScheduleResponseTransformer =
-  async (
-    data: any,
-  ): Promise<AttendanceServicesGetCurrentMemberWorkScheduleResponse> => {
-    if (data.data) {
-      data.data = memberWorkScheduleSchemaResponseTransformer(data.data);
-    }
-    return data;
-  };
-
 export const attendanceServicesCreateAttendancePolicyResponseTransformer =
   async (
     data: any,
@@ -503,6 +473,26 @@ export const attendanceServicesAssignRoleAttendancePolicyResponseTransformer =
     return data;
   };
 
+export const attendanceServicesAssignRoleWorkScheduleResponseTransformer =
+  async (
+    data: any,
+  ): Promise<AttendanceServicesAssignRoleWorkScheduleResponse> => {
+    if (data.data) {
+      data.data = roleWorkScheduleSchemaResponseTransformer(data.data);
+    }
+    return data;
+  };
+
+export const attendanceServicesUpdateRoleWorkScheduleResponseTransformer =
+  async (
+    data: any,
+  ): Promise<AttendanceServicesUpdateRoleWorkScheduleResponse> => {
+    if (data.data) {
+      data.data = roleWorkScheduleSchemaResponseTransformer(data.data);
+    }
+    return data;
+  };
+
 export const attendanceServicesGetRoleAttendancePoliciesResponseTransformer =
   async (
     data: any,
@@ -511,6 +501,16 @@ export const attendanceServicesGetRoleAttendancePoliciesResponseTransformer =
       data.data = data.data.map((item: any) =>
         roleAttendancePolicySchemaResponseTransformer(item),
       );
+    }
+    return data;
+  };
+
+export const attendanceServicesGetCurrentRoleWorkScheduleResponseTransformer =
+  async (
+    data: any,
+  ): Promise<AttendanceServicesGetCurrentRoleWorkScheduleResponse> => {
+    if (data.data) {
+      data.data = roleWorkScheduleSchemaResponseTransformer(data.data);
     }
     return data;
   };
