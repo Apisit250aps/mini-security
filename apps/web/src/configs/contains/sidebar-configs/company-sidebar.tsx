@@ -1,7 +1,11 @@
 import React from 'react';
 import {
   Building2Icon,
+  CalendarCheckIcon,
+  CalendarDaysIcon,
+  CalendarRangeIcon,
   LayoutDashboardIcon,
+  MapPinIcon,
   ShieldCheckIcon,
   UsersIcon,
 } from 'lucide-react';
@@ -22,6 +26,24 @@ export const companySidebarConfig: NavItem[] = [
     {
       id: 'companyRole',
       icon: <ShieldCheckIcon />,
+    },
+  ]),
+  sidebarGroupBuilder('attendance-management', 'ระบบลงเวลาและกะงาน', [
+    {
+      id: 'companyAttendance',
+      icon: <CalendarCheckIcon />,
+    },
+    {
+      id: 'companyAttendanceSchedules',
+      icon: <CalendarRangeIcon />,
+    },
+    {
+      id: 'companyAttendancePolicies',
+      icon: <MapPinIcon />,
+    },
+    {
+      id: 'companyAttendanceLeave',
+      icon: <CalendarDaysIcon />,
     },
   ]),
   sidebarGroupBuilder('settings', 'ตั้งค่าองค์กร', [
