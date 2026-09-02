@@ -1,0 +1,212 @@
+{
+  "version": "3.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "relationshipMode": "All",
+    "tablePositions": [
+      {
+        "name": "user",
+        "schemaName": "public",
+        "x": 663.0205078125,
+        "y": 12
+      },
+      {
+        "name": "account",
+        "schemaName": "public",
+        "x": 1198.44580078125,
+        "y": 12
+      },
+      {
+        "name": "session",
+        "schemaName": "public",
+        "x": 1198.44580078125,
+        "y": 539
+      },
+      {
+        "name": "verification",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      },
+      {
+        "name": "jwks",
+        "schemaName": "public",
+        "x": 337.51025390625,
+        "y": 12
+      },
+      {
+        "name": "company",
+        "schemaName": "public",
+        "x": 663.0205078125,
+        "y": 410
+      },
+      {
+        "name": "company_member",
+        "schemaName": "public",
+        "x": 1795.0966796875,
+        "y": 12
+      },
+      {
+        "name": "role",
+        "schemaName": "public",
+        "x": 1198.44580078125,
+        "y": 906
+      },
+      {
+        "name": "permission",
+        "schemaName": "public",
+        "x": 663.0205078125,
+        "y": 712
+      },
+      {
+        "name": "role_permission",
+        "schemaName": "public",
+        "x": 1795.0966796875,
+        "y": 314
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "account",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "user",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "session",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "user",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "active_company_id"
+        ],
+        "firstTableName": "session",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "company",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "company_id"
+        ],
+        "firstTableName": "company_member",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "company",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "company_member",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "user",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "role_id"
+        ],
+        "firstTableName": "company_member",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "role",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "company_id"
+        ],
+        "firstTableName": "role",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "company",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "role_id"
+        ],
+        "firstTableName": "role_permission",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "role",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "permission_id"
+        ],
+        "firstTableName": "role_permission",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "permission",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}
