@@ -69,7 +69,7 @@ export function RolePermissionModuleGroup({
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 ">
         {permissions.map((permission) => (
           <RolePermissionItem key={permission.id} permission={permission} />
         ))}

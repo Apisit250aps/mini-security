@@ -18,7 +18,7 @@ export default function RoleCreateAction({
       description: companyId
         ? 'กำหนดบทบาทและตำแหน่งพนักงานสำหรับองค์กรนี้'
         : 'กรุณากรอกข้อมูลบทบาทใหม่',
-      size: 'lg',
+      size: 'xl',
       children: <RoleCreateForm companyId={companyId} />,
     });
   };

@@ -55,7 +55,7 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
       description: isReadOnly
         ? 'ดูรายการสิทธิ์การเข้าถึงสำหรับบทบาทมาตรฐานของระบบนี้'
         : 'เลือกและกำหนดสิทธิ์การเข้าถึงสำหรับบทบาทนี้',
-      size: '2xl',
+      size: '5xl',
       children: (
         <RolePermissionManager role={cell.row.original} readOnly={isReadOnly} />
       ),
