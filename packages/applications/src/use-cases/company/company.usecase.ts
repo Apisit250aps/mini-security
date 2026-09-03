@@ -15,10 +15,8 @@ import type {
 import type { Company } from '@repo/domains/entities/company';
 import type {
   ICompanyBranchRepository,
-  ICompanyMemberRepository,
   ICompanyRepository,
 } from '@repo/domains/repositories/company';
-import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import {
   createCompanySchema,
   updateCompanySchema,
@@ -34,8 +32,6 @@ export class CreateCompanyUseCase implements ICreateCompanyUseCase {
   constructor(
     private readonly companyRepository: ICompanyRepository,
     private readonly branchRepository?: ICompanyBranchRepository,
-    private readonly memberRepository?: ICompanyMemberRepository,
-    private readonly roleRepository?: IRoleRepository,
   ) {}
 
   @RequirePermission('company:create')
@@ -53,50 +49,17 @@ export class CreateCompanyUseCase implements ICreateCompanyUseCase {
     const newCompany = await this.companyRepository.create(parsed.data);
 
     // Auto-create default branch if no branch exists yet
-    let defaultBranch = null;
     if (this.branchRepository) {
       const existingBranches = await this.branchRepository.findByCompanyId(
         newCompany.id,
       );
       if (existingBranches.length === 0) {
-        defaultBranch = await this.branchRepository.create({
+        await this.branchRepository.create({
           companyId: newCompany.id,
           name: 'สำนักงานใหญ่ (Headquarters)',
           address: null,
           isActive: true,
         });
-      } else {
-        defaultBranch = existingBranches[0] ?? null;
-      }
-    }
-
-    // Auto-assign owner to the company and default branch if ownerUserId provided
-    if (
-      context.ownerUserId &&
-      this.memberRepository &&
-      this.roleRepository &&
-      defaultBranch
-    ) {
-      const existingMember = await this.memberRepository.findByCompanyAndUser(
-        newCompany.id,
-        context.ownerUserId,
-      );
-      if (!existingMember) {
-        const ownerRole =
-          (await this.roleRepository.findByNameAndCompany('Owner', null)) ??
-          (await this.roleRepository.findByNameAndCompany(
-            'Owner',
-            newCompany.id,
-          ));
-        if (ownerRole) {
-          await this.memberRepository.create({
-            companyId: newCompany.id,
-            companyBranchId: defaultBranch.id,
-            userId: context.ownerUserId,
-            roleId: ownerRole.id,
-            isActive: true,
-          });
-        }
       }
     }
 

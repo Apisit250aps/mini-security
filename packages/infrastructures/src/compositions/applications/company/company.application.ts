@@ -6,18 +6,11 @@ import {
   GetCompanyUseCase,
   UpdateCompanyUseCase,
 } from '@repo/applications';
-import {
-  companyBranchRepository,
-  companyMemberRepository,
-  companyRepository,
-  roleRepository,
-} from '../../repositories';
+import { companyBranchRepository, companyRepository } from '../../repositories';
 
 export const createCompanyUseCase = new CreateCompanyUseCase(
   companyRepository,
   companyBranchRepository,
-  companyMemberRepository,
-  roleRepository,
 );
 export const updateCompanyUseCase = new UpdateCompanyUseCase(companyRepository);
 export const deleteCompanyUseCase = new DeleteCompanyUseCase(companyRepository);

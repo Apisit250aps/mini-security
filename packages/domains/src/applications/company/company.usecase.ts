@@ -6,7 +6,6 @@ import type { CreateCompany, UpdateCompany } from '#schema/company';
 // Context Types
 export type ICreateCompanyContext = ISecurityContext & {
   data: CreateCompany;
-  ownerUserId: string;
 };
 export type IUpdateCompanyContext = ISecurityContext & {
   id: string;

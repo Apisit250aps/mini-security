@@ -106,7 +106,6 @@ export class CompanyController extends Controller {
       const user = (c as any).get('user');
       const company = await this.createCompanyUseCase.execute({
         data: body,
-        ownerUserId: user?.id ?? '',
         userId: user?.id,
       });
       return this.created(c, 'Company created successfully', company);
