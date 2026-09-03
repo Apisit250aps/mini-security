@@ -43,6 +43,7 @@ export type UpdateRole = z.infer<typeof updateRoleSchema>;
 
 // --- Permission Schema (Action-based / Resource-based) ---
 export const permissionSchema = BaseEntity({
+  featureId: UUIDField({ required: false, nullable: true }),
   action: StringField({ required: true }),
   module: StringField({ required: true }),
   description: StringField({ required: false, nullable: true }),

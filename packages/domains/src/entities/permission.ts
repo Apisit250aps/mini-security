@@ -29,6 +29,7 @@ export class Role implements RoleEntity {
 
 export class Permission implements PermissionEntity {
   id: string;
+  featureId?: string | null;
   action: string;
   module: string;
   description?: string | null;
@@ -37,6 +38,7 @@ export class Permission implements PermissionEntity {
 
   constructor(data: PermissionEntity) {
     this.id = data.id;
+    this.featureId = data.featureId;
     this.action = data.action;
     this.module = data.module;
     this.description = data.description;
