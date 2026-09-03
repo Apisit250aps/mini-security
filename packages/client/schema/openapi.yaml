@@ -446,6 +446,44 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Attendance
+  /attendance/companies/{companyId}/shifts:
+    get:
+      operationId: AttendanceServices_getCompanyWorkShifts
+      summary: Get work shifts by company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkShift'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
   /attendance/leave-requests:
     get:
       operationId: AttendanceServices_getLeaveRequests

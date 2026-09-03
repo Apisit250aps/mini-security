@@ -105,6 +105,9 @@ import type {
   AttendanceServicesGetCheckpointLocationsData,
   AttendanceServicesGetCheckpointLocationsErrors,
   AttendanceServicesGetCheckpointLocationsResponses,
+  AttendanceServicesGetCompanyWorkShiftsData,
+  AttendanceServicesGetCompanyWorkShiftsErrors,
+  AttendanceServicesGetCompanyWorkShiftsResponses,
   AttendanceServicesGetCurrentRoleWorkScheduleData,
   AttendanceServicesGetCurrentRoleWorkScheduleErrors,
   AttendanceServicesGetCurrentRoleWorkScheduleResponses,
@@ -562,6 +565,28 @@ export const attendanceServicesGetWorkSchedules = <
   >({
     responseType: 'json',
     url: '/attendance/companies/{companyId}/schedules',
+    ...options,
+  });
+
+/**
+ * Get work shifts by company
+ */
+export const attendanceServicesGetCompanyWorkShifts = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetCompanyWorkShiftsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetCompanyWorkShiftsResponses,
+  AttendanceServicesGetCompanyWorkShiftsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetCompanyWorkShiftsResponses,
+    AttendanceServicesGetCompanyWorkShiftsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendance/companies/{companyId}/shifts',
     ...options,
   });
 

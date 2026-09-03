@@ -41,17 +41,10 @@ export default function AttendanceRecordCreateForm({
   const { data: users = [] } = useUserListQueries();
   const { data: schedules = [] } = useWorkSchedulesQueries(companyId);
 
-  const [selectedScheduleId, setSelectedScheduleId] = useState<string>(
-    schedules[0]?.id || '',
-  );
+  const [selectedScheduleId, setSelectedScheduleId] = useState<string>('');
+  const activeScheduleId = selectedScheduleId || schedules[0]?.id || '';
 
-  useEffect(() => {
-    if (!selectedScheduleId && schedules.length > 0) {
-      setSelectedScheduleId(schedules[0]?.id || '');
-    }
-  }, [schedules, selectedScheduleId]);
-
-  const { data: shifts = [] } = useWorkShiftsQueries(selectedScheduleId);
+  const { data: shifts = [] } = useWorkShiftsQueries(activeScheduleId);
 
   const usersMap = useMemo(() => {
     const map = new Map<string, User>();
@@ -148,7 +141,7 @@ export default function AttendanceRecordCreateForm({
               ตารางเวลาอ้างอิง
             </label>
             <select
-              value={selectedScheduleId}
+              value={activeScheduleId}
               onChange={(e) => {
                 setSelectedScheduleId(e.target.value);
                 methods.setValue('workShiftId', '');

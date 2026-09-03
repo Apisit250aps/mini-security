@@ -57,6 +57,9 @@ export type IGetWorkShiftContext = ISecurityContext & { id: string };
 export type IGetWorkShiftsContext = ISecurityContext & {
   workScheduleId: string;
 };
+export type IGetCompanyWorkShiftsContext = ISecurityContext & {
+  companyId: string;
+};
 
 // Work Shift Contracts
 export type ICreateWorkShiftUseCase = BaseUseCase<
@@ -77,5 +80,9 @@ export type IGetWorkShiftUseCase = BaseUseCase<
 >;
 export type IGetWorkShiftsUseCase = BaseUseCase<
   IGetWorkShiftsContext,
+  WorkShift[]
+>;
+export type IGetCompanyWorkShiftsUseCase = BaseUseCase<
+  IGetCompanyWorkShiftsContext,
   WorkShift[]
 >;

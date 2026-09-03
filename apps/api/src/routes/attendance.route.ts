@@ -43,6 +43,7 @@ import {
   getWorkScheduleUseCase,
   getWorkShiftsUseCase,
   getWorkShiftUseCase,
+  getCompanyWorkShiftsUseCase,
   removeCheckpointLocationUseCase,
   removeRoleAttendancePolicyUseCase,
   reviewLeaveRequestUseCase,
@@ -70,6 +71,7 @@ const attendanceController = new AttendanceController(
   deleteWorkShiftUseCase,
   getWorkShiftUseCase,
   getWorkShiftsUseCase,
+  getCompanyWorkShiftsUseCase,
   createAttendancePolicyUseCase,
   updateAttendancePolicyUseCase,
   deleteAttendancePolicyUseCase,
@@ -135,6 +137,10 @@ attendanceRoutes.delete(
 );
 
 // 2. Work Shifts
+attendanceRoutes.get(
+  '/companies/:companyId/shifts',
+  attendanceController.getCompanyWorkShifts,
+);
 attendanceRoutes.get(
   '/schedules/:workScheduleId/shifts',
   attendanceController.getWorkShifts,

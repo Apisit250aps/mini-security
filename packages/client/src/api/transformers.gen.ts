@@ -24,6 +24,7 @@ import type {
   AttendanceServicesGetAttendanceRecordResponse,
   AttendanceServicesGetAttendanceRecordsResponse,
   AttendanceServicesGetCheckpointLocationsResponse,
+  AttendanceServicesGetCompanyWorkShiftsResponse,
   AttendanceServicesGetCurrentRoleWorkScheduleResponse,
   AttendanceServicesGetLeaveRequestResponse,
   AttendanceServicesGetLeaveRequestsResponse,
@@ -207,6 +208,23 @@ export const attendanceServicesGetWorkSchedulesResponseTransformer = async (
   if (data.data) {
     data.data = data.data.map((item: any) =>
       workScheduleSchemaResponseTransformer(item),
+    );
+  }
+  return data;
+};
+
+const workShiftSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+export const attendanceServicesGetCompanyWorkShiftsResponseTransformer = async (
+  data: any,
+): Promise<AttendanceServicesGetCompanyWorkShiftsResponse> => {
+  if (data.data) {
+    data.data = data.data.map((item: any) =>
+      workShiftSchemaResponseTransformer(item),
     );
   }
   return data;
@@ -539,12 +557,6 @@ export const attendanceServicesUpdateWorkScheduleResponseTransformer = async (
   if (data.data) {
     data.data = workScheduleSchemaResponseTransformer(data.data);
   }
-  return data;
-};
-
-const workShiftSchemaResponseTransformer = (data: any) => {
-  data.createdAt = new Date(data.createdAt);
-  data.updatedAt = new Date(data.updatedAt);
   return data;
 };
 

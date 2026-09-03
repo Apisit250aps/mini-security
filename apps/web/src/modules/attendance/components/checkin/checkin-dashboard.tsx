@@ -47,7 +47,6 @@ export default function CheckinDashboard() {
 
   const userId = sessionData?.user?.id || '';
   const userName = sessionData?.user?.name || 'พนักงาน';
-  const userEmail = sessionData?.user?.email || '';
 
   // 1. Fetch Company Members
   const { data: members = [], isLoading: isMembersLoading } =

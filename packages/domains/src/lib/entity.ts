@@ -121,7 +121,7 @@ const DateField = <
     nullable?: TNullable;
   } = {},
 ) => {
-  return createField(z.date(), options);
+  return createField(z.coerce.date(), options);
 };
 
 const TimestampField = () => {

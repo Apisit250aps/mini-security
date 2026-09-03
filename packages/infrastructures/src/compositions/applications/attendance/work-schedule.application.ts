@@ -7,6 +7,7 @@ import {
   GetWorkSchedulesUseCase,
   GetWorkShiftUseCase,
   GetWorkShiftsUseCase,
+  GetCompanyWorkShiftsUseCase,
   UpdateWorkScheduleUseCase,
   UpdateWorkShiftUseCase,
 } from '@repo/applications';
@@ -43,5 +44,8 @@ export const deleteWorkShiftUseCase = new DeleteWorkShiftUseCase(
 );
 export const getWorkShiftUseCase = new GetWorkShiftUseCase(workShiftRepository);
 export const getWorkShiftsUseCase = new GetWorkShiftsUseCase(
+  workShiftRepository,
+);
+export const getCompanyWorkShiftsUseCase = new GetCompanyWorkShiftsUseCase(
   workShiftRepository,
 );

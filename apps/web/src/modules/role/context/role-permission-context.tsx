@@ -101,21 +101,19 @@ export function RolePermissionProvider({
     async (permissionId: string) => {
       if (readOnly) return;
       setMutatingPermissionId(permissionId);
-      try {
-        if (assignedPermissionIds.has(permissionId)) {
-          await revokeMutation.mutateAsync({
+      const actionPromise = assignedPermissionIds.has(permissionId)
+        ? revokeMutation.mutateAsync({
+            roleId: role.id,
+            permissionId,
+          })
+        : assignMutation.mutateAsync({
             roleId: role.id,
             permissionId,
           });
-        } else {
-          await assignMutation.mutateAsync({
-            roleId: role.id,
-            permissionId,
-          });
-        }
-      } finally {
+
+      await actionPromise.finally(() => {
         setMutatingPermissionId(null);
-      }
+      });
     },
     [readOnly, assignedPermissionIds, assignMutation, revokeMutation, role.id],
   );
@@ -127,7 +125,7 @@ export function RolePermissionProvider({
       if (perms.length === 0) return;
 
       setIsMutatingModule(moduleName);
-      try {
+      const executeActions = async () => {
         if (selectAll) {
           const toAssign = perms.filter(
             (p) => !assignedPermissionIds.has(p.id),
@@ -147,9 +145,11 @@ export function RolePermissionProvider({
             });
           }
         }
-      } finally {
+      };
+
+      await executeActions().finally(() => {
         setIsMutatingModule(null);
-      }
+      });
     },
     [
       readOnly,

@@ -37,6 +37,7 @@ import {
   attendanceServicesGetAttendanceRecord,
   attendanceServicesGetAttendanceRecords,
   attendanceServicesGetCheckpointLocations,
+  attendanceServicesGetCompanyWorkShifts,
   attendanceServicesGetCurrentRoleWorkSchedule,
   attendanceServicesGetLeaveRequest,
   attendanceServicesGetLeaveRequests,
@@ -192,6 +193,9 @@ import type {
   AttendanceServicesGetCheckpointLocationsData,
   AttendanceServicesGetCheckpointLocationsError,
   AttendanceServicesGetCheckpointLocationsResponse,
+  AttendanceServicesGetCompanyWorkShiftsData,
+  AttendanceServicesGetCompanyWorkShiftsError,
+  AttendanceServicesGetCompanyWorkShiftsResponse,
   AttendanceServicesGetCurrentRoleWorkScheduleData,
   AttendanceServicesGetCurrentRoleWorkScheduleError,
   AttendanceServicesGetCurrentRoleWorkScheduleResponse,
@@ -703,6 +707,34 @@ export const attendanceServicesGetWorkSchedulesOptions = (
       return data;
     },
     queryKey: attendanceServicesGetWorkSchedulesQueryKey(options),
+  });
+
+export const attendanceServicesGetCompanyWorkShiftsQueryKey = (
+  options: Options<AttendanceServicesGetCompanyWorkShiftsData>,
+) => createQueryKey('attendanceServicesGetCompanyWorkShifts', options);
+
+/**
+ * Get work shifts by company
+ */
+export const attendanceServicesGetCompanyWorkShiftsOptions = (
+  options: Options<AttendanceServicesGetCompanyWorkShiftsData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetCompanyWorkShiftsResponse,
+    AxiosError<AttendanceServicesGetCompanyWorkShiftsError>,
+    AttendanceServicesGetCompanyWorkShiftsResponse,
+    ReturnType<typeof attendanceServicesGetCompanyWorkShiftsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetCompanyWorkShifts({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetCompanyWorkShiftsQueryKey(options),
   });
 
 export const attendanceServicesGetLeaveRequestsQueryKey = (

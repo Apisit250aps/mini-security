@@ -15,6 +15,8 @@ import type {
   IGetWorkShiftUseCase,
   IGetWorkShiftsContext,
   IGetWorkShiftsUseCase,
+  IGetCompanyWorkShiftsContext,
+  IGetCompanyWorkShiftsUseCase,
   IUpdateWorkScheduleContext,
   IUpdateWorkScheduleUseCase,
   IUpdateWorkShiftContext,
@@ -196,5 +198,16 @@ export class GetWorkShiftsUseCase implements IGetWorkShiftsUseCase {
   @RequirePermission('work_shift:read')
   async execute(context: IGetWorkShiftsContext): Promise<WorkShift[]> {
     return this.shiftRepository.findByWorkScheduleId(context.workScheduleId);
+  }
+}
+
+export class GetCompanyWorkShiftsUseCase
+  implements IGetCompanyWorkShiftsUseCase
+{
+  constructor(private readonly shiftRepository: IWorkShiftRepository) {}
+
+  @RequirePermission('work_shift:read')
+  async execute(context: IGetCompanyWorkShiftsContext): Promise<WorkShift[]> {
+    return this.shiftRepository.findByCompanyId(context.companyId);
   }
 }

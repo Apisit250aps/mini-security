@@ -59,6 +59,8 @@ export const attendanceKeys = {
   schedules: (companyId: string) =>
     ['ATTENDANCE', 'SCHEDULES', companyId] as const,
   scheduleDetail: (id: string) => ['ATTENDANCE', 'SCHEDULE', id] as const,
+  companyShifts: (companyId: string) =>
+    ['ATTENDANCE', 'COMPANY_SHIFTS', companyId] as const,
   shifts: (scheduleId: string) => ['ATTENDANCE', 'SHIFTS', scheduleId] as const,
   shiftDetail: (id: string) => ['ATTENDANCE', 'SHIFT', id] as const,
   policies: (companyId: string) =>

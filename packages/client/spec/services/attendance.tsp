@@ -53,6 +53,13 @@ interface AttendanceServices {
 
   // ─── Work Shifts ────────────────────────────────────────────────────────────
   @get
+  @route("/companies/{companyId}/shifts")
+  @summary("Get work shifts by company")
+  getCompanyWorkShifts(@path companyId: string):
+    | ApiOkResponse<WorkShift[]>
+    | ApiUnauthorizedResponse;
+
+  @get
   @route("/schedules/{workScheduleId}/shifts")
   @summary("Get work shifts by schedule")
   getWorkShifts(@path workScheduleId: string):

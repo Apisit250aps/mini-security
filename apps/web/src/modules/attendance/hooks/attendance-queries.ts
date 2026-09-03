@@ -18,6 +18,7 @@ import {
   attendanceServicesGetRoleWorkSchedulesByCompany,
   attendanceServicesGetWorkSchedule,
   attendanceServicesGetWorkSchedules,
+  attendanceServicesGetCompanyWorkShifts,
   attendanceServicesGetWorkShift,
   attendanceServicesGetWorkShifts,
 } from '@repo/client';
@@ -33,8 +34,23 @@ export function useWorkSchedulesQueries(companyId: string) {
         path: { companyId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch work schedules');
+    },
+    enabled: Boolean(companyId),
+  });
+}
+
+export function useCompanyWorkShiftsQueries(companyId: string) {
+  return useQuery({
+    queryKey: attendanceKeys.companyShifts(companyId),
+    queryFn: async ({ signal }) => {
+      const response = await attendanceServicesGetCompanyWorkShifts({
+        path: { companyId },
+        signal,
+      });
+      if (response.data) return response.data.data ?? [];
+      throw new Error('Failed to fetch company work shifts');
     },
     enabled: Boolean(companyId),
   });
@@ -63,7 +79,7 @@ export function useWorkShiftsQueries(workScheduleId: string) {
         path: { workScheduleId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch work shifts');
     },
     enabled: Boolean(workScheduleId),
@@ -94,7 +110,7 @@ export function useAttendancePoliciesQueries(companyId: string) {
         path: { companyId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch attendance policies');
     },
     enabled: Boolean(companyId),
@@ -124,7 +140,7 @@ export function useAttendanceCheckpointsQueries(policyId: string) {
         path: { policyId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch attendance checkpoints');
     },
     enabled: Boolean(policyId),
@@ -154,7 +170,7 @@ export function useRoleAttendancePoliciesQueries(roleId: string) {
         path: { roleId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch role attendance policies');
     },
     enabled: Boolean(roleId),
@@ -170,7 +186,7 @@ export function useAttendanceLocationsQueries(companyId: string) {
         path: { companyId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch attendance locations');
     },
     enabled: Boolean(companyId),
@@ -200,7 +216,7 @@ export function useCheckpointLocationsQueries(checkpointId: string) {
         path: { checkpointId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch checkpoint locations');
     },
     enabled: Boolean(checkpointId),
@@ -216,7 +232,7 @@ export function useRoleWorkSchedulesByCompanyQueries(companyId: string) {
         path: { companyId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch role work schedules');
     },
     enabled: Boolean(companyId),
@@ -259,7 +275,7 @@ export function useAttendanceRecordsQueries(
         },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch attendance records');
     },
     enabled: Boolean(companyId),
@@ -310,7 +326,7 @@ export function useAttendanceLogsQueries(attendanceRecordId: string) {
         path: { attendanceRecordId },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch attendance logs');
     },
     enabled: Boolean(attendanceRecordId),
@@ -351,7 +367,7 @@ export function useLeaveRequestsQueries(
         },
         signal,
       });
-      if (response.data) return response.data.data;
+      if (response.data) return response.data.data ?? [];
       throw new Error('Failed to fetch leave requests');
     },
     enabled: Boolean(companyId),

@@ -24,17 +24,11 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
   const { data: roles = [] } = useCompanyRolesQueries(companyId);
   const { data: schedules = [] } = useWorkSchedulesQueries(companyId);
 
-  const [selectedScheduleId, setSelectedScheduleId] = React.useState<string>(
-    schedules[0]?.id || '',
-  );
+  const [selectedScheduleId, setSelectedScheduleId] =
+    React.useState<string>('');
+  const activeScheduleId = selectedScheduleId || schedules[0]?.id || '';
 
-  useEffect(() => {
-    if (!selectedScheduleId && schedules.length > 0) {
-      setSelectedScheduleId(schedules[0]?.id || '');
-    }
-  }, [schedules, selectedScheduleId]);
-
-  const { data: shifts = [] } = useWorkShiftsQueries(selectedScheduleId);
+  const { data: shifts = [] } = useWorkShiftsQueries(activeScheduleId);
 
   const roleOptions = useMemo(
     () =>
@@ -115,7 +109,7 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
             ตารางเวลาอ้างอิง
           </label>
           <select
-            value={selectedScheduleId}
+            value={activeScheduleId}
             onChange={(e) => {
               setSelectedScheduleId(e.target.value);
               methods.setValue('workShiftId', '');

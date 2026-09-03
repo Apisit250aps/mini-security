@@ -1109,6 +1109,39 @@ export type AttendanceServicesGetWorkSchedulesResponses = {
 export type AttendanceServicesGetWorkSchedulesResponse =
   AttendanceServicesGetWorkSchedulesResponses[keyof AttendanceServicesGetWorkSchedulesResponses];
 
+export type AttendanceServicesGetCompanyWorkShiftsData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: never;
+  url: '/attendance/companies/{companyId}/shifts';
+};
+
+export type AttendanceServicesGetCompanyWorkShiftsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetCompanyWorkShiftsError =
+  AttendanceServicesGetCompanyWorkShiftsErrors[keyof AttendanceServicesGetCompanyWorkShiftsErrors];
+
+export type AttendanceServicesGetCompanyWorkShiftsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<WorkShift>;
+  };
+};
+
+export type AttendanceServicesGetCompanyWorkShiftsResponse =
+  AttendanceServicesGetCompanyWorkShiftsResponses[keyof AttendanceServicesGetCompanyWorkShiftsResponses];
+
 export type AttendanceServicesGetLeaveRequestsData = {
   body?: never;
   path?: never;

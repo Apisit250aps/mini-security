@@ -129,16 +129,18 @@ export default function NavUser() {
 
             <DropdownMenuItem
               variant="destructive"
-              onAction={async () => {
-                try {
-                  await session.signOut();
-                  toast.success('ออกจากระบบสำเร็จ');
-                  router.push(buildPageUrl('signIn'));
-                } catch (error) {
-                  toast.error(
-                    getErrorMessage(error, 'เกิดข้อผิดพลาดในการออกจากระบบ'),
-                  );
-                }
+              onAction={() => {
+                session
+                  .signOut()
+                  .then(() => {
+                    toast.success('ออกจากระบบสำเร็จ');
+                    router.push(buildPageUrl('signIn'));
+                  })
+                  .catch((error) => {
+                    toast.error(
+                      getErrorMessage(error, 'เกิดข้อผิดพลาดในการออกจากระบบ'),
+                    );
+                  });
               }}
             >
               <LogOutIcon />

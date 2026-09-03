@@ -66,6 +66,7 @@ import type {
   GetWorkScheduleUseCase,
   GetWorkShiftsUseCase,
   GetWorkShiftUseCase,
+  GetCompanyWorkShiftsUseCase,
   RemoveCheckpointLocationUseCase,
   RemoveRoleAttendancePolicyUseCase,
   ReviewLeaveRequestUseCase,
@@ -160,6 +161,7 @@ export class AttendanceController extends Controller {
     private readonly deleteWorkShiftUseCase: DeleteWorkShiftUseCase,
     private readonly getWorkShiftUseCase: GetWorkShiftUseCase,
     private readonly getWorkShiftsUseCase: GetWorkShiftsUseCase,
+    private readonly getCompanyWorkShiftsUseCase: GetCompanyWorkShiftsUseCase,
 
     // Policy & Checkpoint
     private readonly createAttendancePolicyUseCase: CreateAttendancePolicyUseCase,
@@ -306,6 +308,19 @@ export class AttendanceController extends Controller {
         userId: user?.id,
       });
       return this.success(c, 'Work shifts retrieved', result);
+    },
+  );
+
+  public getCompanyWorkShifts = this.validator(
+    { params: companyIdParamSchema },
+    async (c) => {
+      const { companyId } = c.get('params');
+      const user = (c as any).get('user');
+      const result = await this.getCompanyWorkShiftsUseCase.execute({
+        companyId,
+        userId: user?.id,
+      });
+      return this.success(c, 'Company work shifts retrieved', result);
     },
   );
 
