@@ -93,3 +93,15 @@ export const attendanceKeys = {
       : (['ATTENDANCE', 'LEAVE_REQUESTS', companyId] as const),
   leaveDetail: (id: string) => ['ATTENDANCE', 'LEAVE_REQUEST', id] as const,
 };
+
+export const featureKeys = {
+  ...createQueryKeys('FEATURE'),
+  company: (companyId: string) =>
+    ['FEATURE', 'COMPANY', companyId] as const,
+  companyAvailable: (companyId: string) =>
+    ['FEATURE', 'COMPANY', companyId, 'AVAILABLE'] as const,
+  role: (roleId: string) =>
+    ['FEATURE', 'ROLE', roleId] as const,
+  companyRoles: (companyId: string) =>
+    ['FEATURE', 'COMPANY_ROLES', companyId] as const,
+};

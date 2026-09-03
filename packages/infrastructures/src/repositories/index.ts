@@ -3,3 +3,4 @@ export * from './auth.repo';
 export * from './company.repo';
 export * from './permission.repo';
 export * from './attendance.repo';
+export * from './feature.repo';

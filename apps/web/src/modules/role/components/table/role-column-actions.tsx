@@ -7,6 +7,7 @@ import { useOverlay } from '@repo/ui/hooks';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import RoleEditForm from '../form/role-edit-form';
 import RolePermissionManager from '../permission-manager/role-permission-manager';
+import RoleFeatureManager from '../feature-delegation/role-feature-manager';
 
 function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
   const ui = useOverlay();
@@ -62,12 +63,39 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
     });
   };
 
+  const actionManageFeatures = () => {
+    const companyId =
+      cell.row.original.companyId ||
+      (session.data?.session as { activeCompanyId?: string })
+        ?.activeCompanyId ||
+      '';
+    ui.dialog.open({
+      title: isReadOnly
+        ? `ฟีเจอร์ที่ดูแล: ${cell.row.original.name}`
+        : `มอบหมายฟีเจอร์: ${cell.row.original.name}`,
+      description: isReadOnly
+        ? 'ดูรายการฟีเจอร์ที่มอบหมายให้บทบาทนี้'
+        : 'เลือกฟีเจอร์ขององค์กรที่ต้องการให้บทบาทนี้ดูแลและเข้าถึง',
+      size: '4xl',
+      children: (
+        <RoleFeatureManager
+          role={cell.row.original}
+          companyId={companyId}
+          readOnly={isReadOnly}
+        />
+      ),
+    });
+  };
+
   if (isReadOnly) {
     return (
       <ColumnActions
         actions={{
           ดูสิทธิ์การใช้งาน: {
             onAction: actionManagePermissions,
+          },
+          ดูฟีเจอร์ที่ดูแล: {
+            onAction: actionManageFeatures,
           },
           ดูรายละเอียด: {
             onAction: actionEdit,
@@ -80,6 +108,9 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
   return (
     <ColumnActions
       actions={{
+        มอบหมายฟีเจอร์: {
+          onAction: actionManageFeatures,
+        },
         จัดการสิทธิ์: {
           onAction: actionManagePermissions,
         },

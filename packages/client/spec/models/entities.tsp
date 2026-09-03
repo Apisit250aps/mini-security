@@ -261,6 +261,35 @@ namespace Domain.Entity;
     isActive: boolean;
   }
 
+  model Feature {
+    ...BaseEntity;
+
+    code: string;
+    name: string;
+    description?: string | null;
+    category: string;
+    isActive: boolean;
+  }
+
+  model CompanyFeature {
+    ...BaseEntity;
+
+    companyId: string;
+    featureId: string;
+    isEnabled: boolean;
+    assignedBy?: string | null;
+    expiresAt?: utcDateTime | null;
+  }
+
+  model RoleFeature {
+    ...BaseEntity;
+
+    companyId: string;
+    roleId: string;
+    featureId: string;
+    isEnabled: boolean;
+  }
+
   model Role {
     ...BaseEntity;
 
@@ -274,6 +303,7 @@ namespace Domain.Entity;
   model Permission {
     ...BaseEntity;
 
+    featureId?: string | null;
     action: string;
     module: string;
     description?: string | null;

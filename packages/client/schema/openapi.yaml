@@ -8,6 +8,7 @@ tags:
   - name: Permission
   - name: Role
   - name: Attendance
+  - name: Feature
 paths:
   /attendance/checkpoint-locations:
     post:
@@ -2948,6 +2949,698 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Company
+  /features/:
+    get:
+      operationId: FeatureServices_getFeatures
+      summary: Get all features
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: isActive
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feature'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+    post:
+      operationId: FeatureServices_createFeature
+      summary: Create feature
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Feature'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeature'
+  /features/companies/{companyId}:
+    get:
+      operationId: FeatureServices_getCompanyFeatures
+      summary: Get company features
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: onlyEnabled
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CompanyFeature'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+  /features/companies/{companyId}/assign:
+    post:
+      operationId: FeatureServices_assignCompanyFeature
+      summary: Assign feature to company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CompanyFeature'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyFeature'
+  /features/companies/{companyId}/available:
+    get:
+      operationId: FeatureServices_getCompanyAvailableFeatures
+      summary: Get available features for company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feature'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+  /features/companies/{companyId}/features/{featureId}:
+    delete:
+      operationId: FeatureServices_removeCompanyFeature
+      summary: Remove feature from company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+  /features/companies/{companyId}/roles:
+    get:
+      operationId: FeatureServices_getCompanyRoleFeatures
+      summary: Get role features for company
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoleFeature'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+  /features/companies/{companyId}/roles/{roleId}/access/{featureCode}:
+    get:
+      operationId: FeatureServices_checkRoleFeatureAccess
+      summary: Check role feature access
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: featureCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/FeatureAccessResponse'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+  /features/companies/{companyId}/toggle:
+    put:
+      operationId: FeatureServices_toggleCompanyFeature
+      summary: Toggle company feature
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CompanyFeature'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyToggleFeatureRequest'
+  /features/roles/{roleId}:
+    get:
+      operationId: FeatureServices_getRoleFeatures
+      summary: Get features for a role
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feature'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+  /features/roles/{roleId}/assign:
+    post:
+      operationId: FeatureServices_assignRoleFeature
+      summary: Assign feature to role
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoleFeature'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleFeature'
+  /features/roles/{roleId}/features/{featureId}:
+    delete:
+      operationId: FeatureServices_revokeRoleFeature
+      summary: Revoke feature from role
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: companyId
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+  /features/roles/{roleId}/toggle:
+    put:
+      operationId: FeatureServices_toggleRoleFeature
+      summary: Toggle role feature
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoleFeature'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleToggleFeatureRequest'
+  /features/{id}:
+    get:
+      operationId: FeatureServices_getFeature
+      summary: Get feature by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Feature'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+    put:
+      operationId: FeatureServices_updateFeature
+      summary: Update feature
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Feature'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeature'
+  /features/{id}/toggle:
+    put:
+      operationId: FeatureServices_toggleFeature
+      summary: Toggle feature active state
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Feature'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Feature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToggleFeatureRequest'
   /permissions/:
     get:
       operationId: PermissionServices_getPermissions
@@ -4095,6 +4788,39 @@ components:
             - type: 'null'
         isActive:
           type: boolean
+    CompanyFeature:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - featureId
+        - isEnabled
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
+        assignedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        expiresAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
     CompanyMember:
       type: object
       required:
@@ -4124,6 +4850,16 @@ components:
         roleId:
           type: string
         isActive:
+          type: boolean
+    CompanyToggleFeatureRequest:
+      type: object
+      required:
+        - featureId
+        - isEnabled
+      properties:
+        featureId:
+          type: string
+        isEnabled:
           type: boolean
     CreateAttendanceCheckpoint:
       type: object
@@ -4381,6 +5117,29 @@ components:
         isActive:
           type: boolean
       description: The template for omitting properties.
+    CreateCompanyFeature:
+      type: object
+      required:
+        - companyId
+        - featureId
+        - isEnabled
+      properties:
+        companyId:
+          type: string
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
+        assignedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        expiresAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      description: The template for omitting properties.
     CreateCompanyMember:
       type: object
       required:
@@ -4399,6 +5158,27 @@ components:
           type: boolean
         companyBranchId:
           type: string
+    CreateFeature:
+      type: object
+      required:
+        - code
+        - name
+        - category
+        - isActive
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        category:
+          type: string
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
     CreateLeaveRequest:
       type: object
       required:
@@ -4455,6 +5235,10 @@ components:
         - action
         - module
       properties:
+        featureId:
+          anyOf:
+            - type: string
+            - type: 'null'
         action:
           type: string
         module:
@@ -4499,6 +5283,23 @@ components:
           type: string
         companyId:
           type: string
+      description: The template for omitting properties.
+    CreateRoleFeature:
+      type: object
+      required:
+        - companyId
+        - roleId
+        - featureId
+        - isEnabled
+      properties:
+        companyId:
+          type: string
+        roleId:
+          type: string
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
       description: The template for omitting properties.
     CreateRolePermission:
       type: object
@@ -4647,6 +5448,44 @@ components:
         - ADMIN
         - MEMBER
         - VIEWER
+    Feature:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - code
+        - name
+        - category
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        category:
+          type: string
+        isActive:
+          type: boolean
+    FeatureAccessResponse:
+      type: object
+      required:
+        - hasAccess
+      properties:
+        hasAccess:
+          type: boolean
     LeaveRequest:
       type: object
       required:
@@ -4724,6 +5563,10 @@ components:
         updatedAt:
           type: string
           format: date-time
+        featureId:
+          anyOf:
+            - type: string
+            - type: 'null'
         action:
           type: string
         module:
@@ -4797,6 +5640,33 @@ components:
           type: string
         companyId:
           type: string
+    RoleFeature:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - roleId
+        - featureId
+        - isEnabled
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        roleId:
+          type: string
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
     RolePermission:
       type: object
       required:
@@ -4818,6 +5688,19 @@ components:
           type: string
         permissionId:
           type: string
+    RoleToggleFeatureRequest:
+      type: object
+      required:
+        - companyId
+        - featureId
+        - isEnabled
+      properties:
+        companyId:
+          type: string
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
     RoleWorkSchedule:
       type: object
       required:
@@ -4851,6 +5734,13 @@ components:
             - type: string
               format: date-time
             - type: 'null'
+    ToggleFeatureRequest:
+      type: object
+      required:
+        - isActive
+      properties:
+        isActive:
+          type: boolean
     UpdateAttendanceCheckpoint:
       type: object
       properties:
@@ -5079,6 +5969,22 @@ components:
         isActive:
           type: boolean
       description: The template for adding optional properties.
+    UpdateFeature:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        category:
+          type: string
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
     UpdateLeaveRequest:
       type: object
       properties:
@@ -5124,6 +6030,10 @@ components:
     UpdatePermission:
       type: object
       properties:
+        featureId:
+          anyOf:
+            - type: string
+            - type: 'null'
         action:
           type: string
         module:

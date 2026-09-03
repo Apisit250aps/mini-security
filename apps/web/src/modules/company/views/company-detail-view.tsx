@@ -25,8 +25,9 @@ import {
 } from '@repo/ui/components/tabs';
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
-import { ArrowLeft, Building2, GitBranch, Users2 } from 'lucide-react';
+import { ArrowLeft, Building2, GitBranch, Sparkles, Users2 } from 'lucide-react';
 import { buildPageUrl } from '@/shared/utils';
+import CompanyFeatureManager from '../components/features/company-feature-manager';
 
 export default function CompanyDetailView({
   companyId,
@@ -81,7 +82,7 @@ export default function CompanyDetailView({
       ) : (
         /* Tabs Layout */
         <Tabs defaultSelectedKey="members" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-xl">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
             <TabsTrigger id="members" className="gap-2">
               <Users2 className="size-4" />
               สมาชิกและบทบาท
@@ -89,6 +90,10 @@ export default function CompanyDetailView({
             <TabsTrigger id="branches" className="gap-2">
               <GitBranch className="size-4" />
               สาขาในองค์กร
+            </TabsTrigger>
+            <TabsTrigger id="features" className="gap-2">
+              <Sparkles className="size-4" />
+              ฟีเจอร์และสิทธิ์
             </TabsTrigger>
             <TabsTrigger id="general" className="gap-2">
               <Building2 className="size-4" />
@@ -137,7 +142,24 @@ export default function CompanyDetailView({
             </Card>
           </TabsContent>
 
-          {/* Tab 3: General Info Form */}
+          {/* Tab 3: Features & Entitlements */}
+          <TabsContent id="features" className="pt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  ฟีเจอร์และแพ็กเกจการใช้งาน (Features & Modules)
+                </CardTitle>
+                <CardDescription>
+                  กำหนดว่าบริษัทนี้ได้รับสิทธิ์ในฟีเจอร์ใดบ้าง และเปิดหรือปิดการใช้งานสำหรับบริษัทนี้
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CompanyFeatureManager companyId={company.id} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab 4: General Info Form */}
           <TabsContent id="general" className="pt-4">
             <Card className="max-w-2xl">
               <CardHeader>

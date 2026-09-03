@@ -12,6 +12,7 @@ import {
   updatedAtTimestamp,
 } from '#lib/utils';
 import { company } from './company';
+import { feature } from './feature';
 
 export const roleTypeEnum = pgEnum('role_type', [
   'SUPER_ADMIN',
@@ -46,6 +47,9 @@ export const permission = pgTable(
   'permission',
   {
     id: primaryKeyUuid7('id'),
+    featureId: uuid('feature_id').references(() => feature.id, {
+      onDelete: 'set null',
+    }),
     action: text('action').notNull().unique(),
     module: text('module').notNull(),
     description: text('description'),
@@ -55,6 +59,7 @@ export const permission = pgTable(
   (table) => [
     index('permission_action_idx').on(table.action),
     index('permission_module_idx').on(table.module),
+    index('permission_feature_id_idx').on(table.featureId),
   ],
 );
 

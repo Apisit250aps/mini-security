@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo } from 'react';
 import type { Permission } from '@repo/domains/entities';
 import type { Session } from '@repo/infrastructures/types/auth';
+export type { Session };
 import { createAuthClient, jwtClient } from '@repo/infrastructures/auth/client';
 
 const authClient = createAuthClient({

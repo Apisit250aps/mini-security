@@ -8,12 +8,7 @@ import {
   serializePrimitiveParam,
 } from '../core/pathSerializer.gen';
 import { getUrl } from '../core/utils.gen';
-import type {
-  Client,
-  ClientOptions,
-  Config,
-  RequestOptions,
-} from './types.gen';
+import type { Client, ClientOptions, Config, RequestOptions } from './types.gen';
 
 export const createQuerySerializer = <T = unknown>({
   parameters = {},
@@ -133,9 +128,7 @@ export const buildUrl: Client['buildUrl'] = (options) => {
   const instanceBaseUrl = options.axios?.defaults?.baseURL;
 
   const baseUrl =
-    options.baseURL && typeof options.baseURL === 'string'
-      ? options.baseURL
-      : instanceBaseUrl;
+    options.baseURL && typeof options.baseURL === 'string' ? options.baseURL : instanceBaseUrl;
 
   return getUrl({
     baseUrl: baseUrl as string,
@@ -182,9 +175,7 @@ export const mergeHeaders = (
 
     for (const [key, value] of iterator) {
       if (
-        axiosHeadersKeywords.includes(
-          key as (typeof axiosHeadersKeywords)[number],
-        ) &&
+        axiosHeadersKeywords.includes(key as (typeof axiosHeadersKeywords)[number]) &&
         typeof value === 'object'
       ) {
         mergedHeaders[key] = {
@@ -201,8 +192,7 @@ export const mergeHeaders = (
       } else if (value !== undefined) {
         // assume object headers are meant to be JSON stringified, i.e., their
         // content value in OpenAPI specification is 'application/json'
-        mergedHeaders[key] =
-          typeof value === 'object' ? JSON.stringify(value) : (value as string);
+        mergedHeaders[key] = typeof value === 'object' ? JSON.stringify(value) : (value as string);
       }
     }
   }

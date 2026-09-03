@@ -85,6 +85,14 @@ export class PermissionRepository
       .where(eq(permission.module, module));
     return results.map((r) => new Permission(r as unknown as Permission));
   }
+
+  async findByFeatureId(featureId: string): Promise<Permission[]> {
+    const results = await this.db
+      .select()
+      .from(this.table)
+      .where(eq(permission.featureId, featureId));
+    return results.map((r) => new Permission(r as unknown as Permission));
+  }
 }
 
 export class RolePermissionRepository
