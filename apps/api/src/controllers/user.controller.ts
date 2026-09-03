@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import { createUserSchema, updateUserSchema } from '@repo/domains/schema/user';
 import type {
@@ -28,14 +27,14 @@ export class UserController extends Controller {
   }
 
   public getUsers = async (c: Parameters<typeof this.success>[0]) => {
-    const user = (c as any).get('user');
+    const user = c.get('user');
     const users = await this.getUsersUseCase.execute({ userId: user?.id });
     return this.success(c, 'Users retrieved successfully', users);
   };
 
   public getUser = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     const userResult = await this.getUserUseCase.execute({
       id,
       userId: user?.id,
@@ -45,7 +44,7 @@ export class UserController extends Controller {
 
   public createUser = this.validator({ body: createUserSchema }, async (c) => {
     const body = c.get('body');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     const userResult = await this.createUserUseCase.execute({
       data: body,
       userId: user?.id,
@@ -58,7 +57,7 @@ export class UserController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const userResult = await this.updateUserUseCase.execute({
         id,
         data: body,
@@ -70,7 +69,7 @@ export class UserController extends Controller {
 
   public deleteUser = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     await this.deleteUserUseCase.execute({
       id,
       userId: user?.id,

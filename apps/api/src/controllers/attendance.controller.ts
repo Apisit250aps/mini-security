@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import {
   createAttendanceCheckpointSchema,
@@ -231,7 +230,7 @@ export class AttendanceController extends Controller {
     { params: companyIdParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getWorkSchedulesUseCase.execute({
         companyId,
         userId: user?.id,
@@ -244,7 +243,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getWorkScheduleUseCase.execute({
         id,
         userId: user?.id,
@@ -257,7 +256,7 @@ export class AttendanceController extends Controller {
     { body: createWorkScheduleSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createWorkScheduleUseCase.execute({
         data: body,
         userId: user?.id,
@@ -271,7 +270,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateWorkScheduleUseCase.execute({
         id,
         data: body,
@@ -285,7 +284,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteWorkScheduleUseCase.execute({
         id,
         userId: user?.id,
@@ -302,7 +301,7 @@ export class AttendanceController extends Controller {
     { params: workScheduleIdParamSchema },
     async (c) => {
       const { workScheduleId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getWorkShiftsUseCase.execute({
         workScheduleId,
         userId: user?.id,
@@ -315,7 +314,7 @@ export class AttendanceController extends Controller {
     { params: companyIdParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getCompanyWorkShiftsUseCase.execute({
         companyId,
         userId: user?.id,
@@ -326,7 +325,7 @@ export class AttendanceController extends Controller {
 
   public getWorkShift = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     const result = await this.getWorkShiftUseCase.execute({
       id,
       userId: user?.id,
@@ -338,7 +337,7 @@ export class AttendanceController extends Controller {
     { body: createWorkShiftSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createWorkShiftUseCase.execute({
         data: body,
         userId: user?.id,
@@ -352,7 +351,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateWorkShiftUseCase.execute({
         id,
         data: body,
@@ -366,7 +365,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteWorkShiftUseCase.execute({
         id,
         userId: user?.id,
@@ -383,7 +382,7 @@ export class AttendanceController extends Controller {
     { params: companyIdParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendancePoliciesUseCase.execute({
         companyId,
         userId: user?.id,
@@ -396,7 +395,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendancePolicyUseCase.execute({
         id,
         userId: user?.id,
@@ -409,7 +408,7 @@ export class AttendanceController extends Controller {
     { body: createAttendancePolicySchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createAttendancePolicyUseCase.execute({
         data: body,
         userId: user?.id,
@@ -423,7 +422,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateAttendancePolicyUseCase.execute({
         id,
         data: body,
@@ -437,7 +436,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteAttendancePolicyUseCase.execute({
         id,
         userId: user?.id,
@@ -454,7 +453,7 @@ export class AttendanceController extends Controller {
     { params: policyIdParamSchema },
     async (c) => {
       const { policyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceCheckpointsUseCase.execute({
         policyId,
         userId: user?.id,
@@ -467,7 +466,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceCheckpointUseCase.execute({
         id,
         userId: user?.id,
@@ -480,7 +479,7 @@ export class AttendanceController extends Controller {
     { body: createAttendanceCheckpointSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createAttendanceCheckpointUseCase.execute({
         data: body,
         userId: user?.id,
@@ -494,7 +493,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateAttendanceCheckpointUseCase.execute({
         id,
         data: body,
@@ -508,7 +507,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteAttendanceCheckpointUseCase.execute({
         id,
         userId: user?.id,
@@ -525,7 +524,7 @@ export class AttendanceController extends Controller {
     { params: roleIdParamSchema },
     async (c) => {
       const { roleId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getRoleAttendancePoliciesUseCase.execute({
         roleId,
         userId: user?.id,
@@ -538,7 +537,7 @@ export class AttendanceController extends Controller {
     { body: createRoleAttendancePolicySchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.assignRoleAttendancePolicyUseCase.execute({
         data: body,
         userId: user?.id,
@@ -551,7 +550,7 @@ export class AttendanceController extends Controller {
     { params: rolePolicyParamSchema },
     async (c) => {
       const { roleId, policyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.removeRoleAttendancePolicyUseCase.execute({
         roleId,
         policyId,
@@ -569,7 +568,7 @@ export class AttendanceController extends Controller {
     { params: companyIdParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceLocationsUseCase.execute({
         companyId,
         userId: user?.id,
@@ -582,7 +581,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceLocationUseCase.execute({
         id,
         userId: user?.id,
@@ -595,7 +594,7 @@ export class AttendanceController extends Controller {
     { body: createAttendanceLocationSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createAttendanceLocationUseCase.execute({
         data: body,
         userId: user?.id,
@@ -609,7 +608,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateAttendanceLocationUseCase.execute({
         id,
         data: body,
@@ -623,7 +622,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteAttendanceLocationUseCase.execute({
         id,
         userId: user?.id,
@@ -636,7 +635,7 @@ export class AttendanceController extends Controller {
     { params: checkpointIdParamSchema },
     async (c) => {
       const { checkpointId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getCheckpointLocationsUseCase.execute({
         checkpointId,
         userId: user?.id,
@@ -649,7 +648,7 @@ export class AttendanceController extends Controller {
     { body: createCheckpointLocationSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.assignCheckpointLocationUseCase.execute({
         data: body,
         userId: user?.id,
@@ -662,7 +661,7 @@ export class AttendanceController extends Controller {
     { params: checkpointLocationParamSchema },
     async (c) => {
       const { checkpointId, locationId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.removeCheckpointLocationUseCase.execute({
         checkpointId,
         locationId,
@@ -680,7 +679,7 @@ export class AttendanceController extends Controller {
     { params: companyIdParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getRoleWorkSchedulesByCompanyUseCase.execute({
         companyId,
         userId: user?.id,
@@ -693,7 +692,7 @@ export class AttendanceController extends Controller {
     { params: roleIdParamSchema },
     async (c) => {
       const { roleId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getCurrentRoleWorkScheduleUseCase.execute({
         roleId,
         userId: user?.id,
@@ -706,7 +705,7 @@ export class AttendanceController extends Controller {
     { body: createRoleWorkScheduleSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.assignRoleWorkScheduleUseCase.execute({
         data: body,
         userId: user?.id,
@@ -720,7 +719,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateRoleWorkScheduleUseCase.execute({
         id,
         data: body,
@@ -734,7 +733,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteRoleWorkScheduleUseCase.execute({
         id,
         userId: user?.id,
@@ -751,7 +750,7 @@ export class AttendanceController extends Controller {
     { query: attendanceRecordQuerySchema },
     async (c) => {
       const query = c.get('query');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceRecordsUseCase.execute({
         companyId: query.companyId,
         memberId: query.memberId,
@@ -767,7 +766,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceRecordUseCase.execute({
         id,
         userId: user?.id,
@@ -780,7 +779,7 @@ export class AttendanceController extends Controller {
     { query: memberDateQuerySchema },
     async (c) => {
       const query = c.get('query');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getMemberAttendanceRecordByDateUseCase.execute({
         companyMemberId: query.companyMemberId,
         workDate: new Date(query.workDate),
@@ -794,7 +793,7 @@ export class AttendanceController extends Controller {
     { body: createAttendanceRecordSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createAttendanceRecordUseCase.execute({
         data: body,
         userId: user?.id,
@@ -808,7 +807,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateAttendanceRecordUseCase.execute({
         id,
         data: body,
@@ -822,7 +821,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteAttendanceRecordUseCase.execute({
         id,
         userId: user?.id,
@@ -836,7 +835,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.approveAttendanceRecordUseCase.execute({
         id,
         approvedBy: user?.id ?? '',
@@ -856,7 +855,7 @@ export class AttendanceController extends Controller {
     { params: recordIdParamSchema },
     async (c) => {
       const { attendanceRecordId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceLogsByRecordUseCase.execute({
         attendanceRecordId,
         userId: user?.id,
@@ -869,7 +868,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getAttendanceLogUseCase.execute({
         id,
         userId: user?.id,
@@ -882,7 +881,7 @@ export class AttendanceController extends Controller {
     { body: createAttendanceLogSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createAttendanceLogUseCase.execute({
         data: body,
         userId: user?.id,
@@ -896,7 +895,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateAttendanceLogUseCase.execute({
         id,
         data: body,
@@ -910,7 +909,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteAttendanceLogUseCase.execute({
         id,
         userId: user?.id,
@@ -927,7 +926,7 @@ export class AttendanceController extends Controller {
     { query: leaveRequestQuerySchema },
     async (c) => {
       const query = c.get('query');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getLeaveRequestsUseCase.execute({
         companyId: query.companyId,
         memberId: query.memberId,
@@ -942,7 +941,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.getLeaveRequestUseCase.execute({
         id,
         userId: user?.id,
@@ -955,7 +954,7 @@ export class AttendanceController extends Controller {
     { body: createLeaveRequestSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.createLeaveRequestUseCase.execute({
         data: body,
         userId: user?.id,
@@ -969,7 +968,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.updateLeaveRequestUseCase.execute({
         id,
         data: body,
@@ -983,7 +982,7 @@ export class AttendanceController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteLeaveRequestUseCase.execute({
         id,
         userId: user?.id,
@@ -997,7 +996,7 @@ export class AttendanceController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const result = await this.reviewLeaveRequestUseCase.execute({
         id,
         reviewedBy: user?.id ?? '',

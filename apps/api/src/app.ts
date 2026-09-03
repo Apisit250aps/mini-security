@@ -4,10 +4,10 @@ import { logger } from 'hono/logger';
 import auth from '@repo/infrastructures/auth';
 import { config } from './configs';
 import { onApiError, onNotFound, success } from './lib/response';
-import { authMiddleware, type AuthContext } from './middleware';
+import { authMiddleware } from './middleware';
 import apiRoutes from './routes';
 
-const app = new Hono<AuthContext>();
+const app = new Hono();
 
 // Request Logger
 app.use(logger());

@@ -4,13 +4,11 @@ import db from '@repo/database/db';
 import * as schema from '@repo/database/schema';
 import auth from '@repo/infrastructures/auth';
 import { UnauthorizedError } from '@repo/applications';
-
-export type AuthUser = typeof auth.$Infer.Session.user;
-export type AuthSession = typeof auth.$Infer.Session.session;
+import type { Session } from '@repo/infrastructures/types/auth';
 
 export type AuthVariables = {
-  user: AuthUser;
-  session: AuthSession | null;
+  user: Session['user'];
+  session: Session['session'] | null;
 };
 
 export type AuthContext = {
@@ -46,7 +44,9 @@ function parseDate(value: unknown): Date {
 /**
  * Maps decoded JWT payload to standard AuthUser entity
  */
-function mapJwtPayloadToUser(payload: Record<string, unknown>): AuthUser {
+function mapJwtPayloadToUser(
+  payload: Record<string, unknown>,
+): Session['user'] {
   return {
     id: String(payload.id ?? payload.sub ?? ''),
     name: String(payload.name ?? ''),
@@ -66,7 +66,10 @@ function mapJwtPayloadToUser(payload: Record<string, unknown>): AuthUser {
  */
 async function resolveAuth(
   headers: Headers,
-): Promise<{ user: AuthUser; session: AuthSession | null } | null> {
+): Promise<{
+  user: Session['user'];
+  session: Session['session'] | null;
+} | null> {
   // 1. Session-based authentication (Cookie or Bearer session token)
   const session = await auth.api.getSession({ headers });
   if (session) {

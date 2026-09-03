@@ -14,7 +14,8 @@
     "./auth": "./src/auth/index.ts",
     "./auth/client": "./src/auth/client.ts",
     "./compositions": "./src/compositions/index.ts",
-    "./compositions/*": "./src/compositions/*"
+    "./compositions/*": "./src/compositions/*",
+    "./types/*": "./src/types/*.d.ts"
   },
   "imports": {
     "#lib/*": "./src/lib/*.ts",

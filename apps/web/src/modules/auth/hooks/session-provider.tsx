@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useCallback, useMemo } from 'react';
-import { createAuthClient, jwtClient } from '@repo/infrastructures/auth/client';
-import type auth from '@repo/infrastructures/auth';
 import type { Permission } from '@repo/domains/entities';
+import type { Session } from '@repo/infrastructures/types/auth';
+import { createAuthClient, jwtClient } from '@repo/infrastructures/auth/client';
 
 const authClient = createAuthClient({
   baseURL: typeof window !== 'undefined' ? window.location.origin : '',
@@ -13,8 +13,6 @@ const authClient = createAuthClient({
 const { signIn, signUp, signOut } = authClient;
 
 export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
-export type Session = typeof auth.$Infer.Session | null;
-
 export type SessionContext = {
   signIn: typeof signIn;
   signUp: typeof signUp;

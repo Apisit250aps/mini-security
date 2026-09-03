@@ -6,11 +6,14 @@ import {
   AppError,
   ValidationError,
 } from '@repo/applications';
+import { Session } from '@repo/infrastructures/types/auth';
 
 export type RequestSchema = {
   body?: ZodType;
   query?: ZodType;
   params?: ZodType;
+  session?: Session['session'];
+  user?: Session['user'];
   responseBody?: ZodType;
 };
 
@@ -18,6 +21,8 @@ export type InferVariables<S extends RequestSchema> = {
   body: S['body'] extends ZodType ? z.infer<S['body']> : never;
   query: S['query'] extends ZodType ? z.infer<S['query']> : never;
   params: S['params'] extends ZodType ? z.infer<S['params']> : never;
+  user: S['user'] extends Session['user'] ? S['user'] : never;
+  session: S['session'] extends Session['session'] ? S['session'] : never;
 };
 
 export type InferEnv<S extends RequestSchema> = {

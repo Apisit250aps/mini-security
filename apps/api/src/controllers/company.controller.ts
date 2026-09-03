@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import db from '@repo/database/db';
@@ -68,7 +67,7 @@ export class CompanyController extends Controller {
   }
 
   public getCompanies = async (c: Parameters<typeof this.success>[0]) => {
-    const user = (c as any).get('user');
+    const user = c.get('user');
     const companies = await this.getCompaniesUseCase.execute({
       userId: user?.id,
     });
@@ -77,7 +76,7 @@ export class CompanyController extends Controller {
 
   public getCompany = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     const company = await this.getCompanyUseCase.execute({
       id,
       userId: user?.id,
@@ -90,7 +89,7 @@ export class CompanyController extends Controller {
     { params: slugParamSchema },
     async (c) => {
       const { slug } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const company = await this.getCompanyBySlugUseCase.execute({
         slug,
         userId: user?.id,
@@ -103,7 +102,7 @@ export class CompanyController extends Controller {
     { body: createCompanySchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const company = await this.createCompanyUseCase.execute({
         data: body,
         userId: user?.id,
@@ -117,7 +116,7 @@ export class CompanyController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const company = await this.updateCompanyUseCase.execute({
         id,
         data: body,
@@ -132,7 +131,7 @@ export class CompanyController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       await this.deleteCompanyUseCase.execute({
         id,
         userId: user?.id,
@@ -146,7 +145,7 @@ export class CompanyController extends Controller {
     { params: companyMemberParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const members = await this.getCompanyMembersUseCase.execute({
         companyId,
         userId: user?.id,
@@ -159,7 +158,7 @@ export class CompanyController extends Controller {
     { body: createCompanyMemberSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const member = await this.addCompanyMemberUseCase.execute({
         data: body,
         userId: user?.id,
@@ -174,7 +173,7 @@ export class CompanyController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       const member = await this.updateCompanyMemberUseCase.execute({
         id,
         data: body,
@@ -186,7 +185,7 @@ export class CompanyController extends Controller {
 
   public removeMember = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     await this.removeCompanyMemberUseCase.execute({
       id,
       userId: user?.id,
@@ -199,7 +198,7 @@ export class CompanyController extends Controller {
     { params: companyMemberParamSchema },
     async (c) => {
       const { companyId } = c.get('params');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       if (!this.getCompanyBranchesUseCase) {
         throw new Error('GetCompanyBranchesUseCase is not injected');
       }
@@ -217,7 +216,7 @@ export class CompanyController extends Controller {
 
   public getBranch = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     if (!this.getCompanyBranchUseCase) {
       throw new Error('GetCompanyBranchUseCase is not injected');
     }
@@ -232,7 +231,7 @@ export class CompanyController extends Controller {
     { body: createCompanyBranchSchema },
     async (c) => {
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       if (!this.createCompanyBranchUseCase) {
         throw new Error('CreateCompanyBranchUseCase is not injected');
       }
@@ -249,7 +248,7 @@ export class CompanyController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body');
-      const user = (c as any).get('user');
+      const user = c.get('user');
       if (!this.updateCompanyBranchUseCase) {
         throw new Error('UpdateCompanyBranchUseCase is not injected');
       }
@@ -264,7 +263,7 @@ export class CompanyController extends Controller {
 
   public deleteBranch = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const user = (c as any).get('user');
+    const user = c.get('user');
     const companyId = c.req.query('companyId') || '';
     if (!this.deleteCompanyBranchUseCase) {
       throw new Error('DeleteCompanyBranchUseCase is not injected');
@@ -281,8 +280,8 @@ export class CompanyController extends Controller {
     { params: idParamSchema },
     async (c) => {
       const { id } = c.get('params');
-      const user = (c as any).get('user');
-      const currentSession = (c as any).get('session');
+      const user = c.get('user');
+      const currentSession = c.get('session');
 
       if (!currentSession?.id) {
         throw new UnauthorizedError('Session not found');
