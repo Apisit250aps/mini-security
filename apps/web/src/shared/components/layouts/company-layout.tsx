@@ -2,16 +2,18 @@
 
 import React from 'react';
 import { SidebarInset, SidebarProvider } from '@repo/ui/components/sidebar';
-import { companySidebarConfig } from '@/configs/contains/sidebar-configs/company-sidebar';
 import { AppSidebar } from '@/shared/components/app/app-sidebar';
 import { SiteHeader } from '@/shared/components/app/site-header';
 import { CompanyGuard } from '@/shared/components/guards/company-guard';
+import { useCompanySidebarNav } from '@/modules/company-workspace/hooks/use-company-sidebar-nav';
 
 export default function CompanyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { sidebarItems } = useCompanySidebarNav();
+
   return (
     <CompanyGuard>
       <SidebarProvider
@@ -25,7 +27,7 @@ export default function CompanyLayout({
         <AppSidebar
           variant="inset"
           brandTitle="พื้นที่ทำงานบริษัท"
-          items={companySidebarConfig}
+          items={sidebarItems}
         />
         <SidebarInset>
           <SiteHeader />

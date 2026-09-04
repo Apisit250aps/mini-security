@@ -22,34 +22,42 @@ export const companySidebarConfig: NavItem[] = [
     {
       id: 'companyEmployee',
       icon: <UsersIcon />,
+      featureCode: 'EMPLOYEE_MANAGEMENT',
     },
     {
       id: 'companyRole',
       icon: <ShieldCheckIcon />,
+      featureCode: 'ROLE_PERMISSION_MANAGEMENT',
     },
   ]),
   sidebarGroupBuilder('attendance-management', 'ระบบลงเวลาและกะงาน', [
     {
       id: 'companyAttendance',
       icon: <CalendarCheckIcon />,
+      featureCode: 'ATTENDANCE_MANAGEMENT',
     },
     {
       id: 'companyAttendanceSchedules',
       icon: <CalendarRangeIcon />,
+      featureCode: 'ATTENDANCE_MANAGEMENT',
     },
     {
       id: 'companyAttendancePolicies',
       icon: <MapPinIcon />,
+      featureCode: 'ATTENDANCE_MANAGEMENT',
     },
     {
       id: 'companyAttendanceLeave',
       icon: <CalendarDaysIcon />,
+      featureCode: 'LEAVE_MANAGEMENT',
     },
   ]),
   sidebarGroupBuilder('settings', 'ตั้งค่าองค์กร', [
     {
       id: 'companySettings',
       icon: <Building2Icon />,
+      featureCode: 'COMPANY_MANAGEMENT',
     },
   ]),
 ];
+

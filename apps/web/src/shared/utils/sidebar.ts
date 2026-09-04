@@ -8,6 +8,7 @@ export type NavItemSingle = {
   url: string;
   icon?: React.ReactNode;
   isActive?: boolean;
+  featureCode?: string;
 };
 
 export type NavSubItem = {
@@ -17,6 +18,7 @@ export type NavSubItem = {
   description?: string;
   url: string;
   icon?: React.ReactNode;
+  featureCode?: string;
 };
 
 export type NavItemGroup = {
@@ -26,6 +28,7 @@ export type NavItemGroup = {
   url?: string;
   icon?: React.ReactNode;
   isActive?: boolean;
+  featureCode?: string;
   items: NavSubItem[];
 };
 
@@ -34,9 +37,13 @@ export type NavItem = NavItemSingle | NavItemGroup;
 export const sidebarGroupBuilder = (
   groupId: string,
   groupTitle: string,
-  items: Array<PageConfigId | { id: PageConfigId; icon?: React.ReactNode }>,
+  items: Array<
+    | PageConfigId
+    | { id: PageConfigId; icon?: React.ReactNode; featureCode?: string }
+  >,
   icon?: React.ReactNode,
   isActive: boolean = false,
+  featureCode?: string,
 ): NavItemGroup => {
   return {
     id: groupId,
@@ -45,9 +52,12 @@ export const sidebarGroupBuilder = (
     url: '#',
     icon,
     isActive,
+    featureCode,
     items: items.map((item) => {
       const itemId = typeof item === 'string' ? item : item.id;
       const itemIcon = typeof item === 'object' ? item.icon : undefined;
+      const itemFeatureCode =
+        typeof item === 'object' ? item.featureCode : undefined;
       const page = PAGE_CONFIGS[itemId];
 
       if (!page) {
@@ -58,6 +68,7 @@ export const sidebarGroupBuilder = (
         id: itemId,
         ...page,
         icon: itemIcon,
+        featureCode: itemFeatureCode,
       };
     }),
   };
@@ -67,6 +78,7 @@ export const sidebarItemBuilder = (
   pageId: PageConfigId,
   icon?: React.ReactNode,
   isActive: boolean = false,
+  featureCode?: string,
 ): NavItemSingle => {
   const page = PAGE_CONFIGS[pageId];
 
@@ -80,5 +92,7 @@ export const sidebarItemBuilder = (
     url: page.url,
     icon,
     isActive,
+    featureCode,
   };
 };
+
