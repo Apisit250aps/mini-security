@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { useSession } from '@/modules/auth/hooks/session-provider';
 import type { CellContext } from '@tanstack/react-table';
 import type { CompanyMember, Role } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
@@ -19,7 +20,7 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
 }: CompanyMemberColumnActionsProps<T>) {
   const ui = useOverlay();
   const removeMutation = useCompanyMemberRemove(companyId);
-
+  const session = useSession();
   const member = cell.row.original;
   const currentRole = roles.find((r) => r.id === member.roleId);
   const isOwner = currentRole?.name.toLowerCase() === 'owner';
@@ -52,8 +53,8 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
     });
   };
 
-  // If member is the Owner, they cannot be modified or deleted
-  if (isOwner) {
+  // If member is the Owner and the current user is not a Super Admin, they cannot be modified or deleted
+  if (isOwner && !session.isSuperAdmin) {
     return (
       <span className="text-xs text-muted-foreground italic">
         เจ้าขององค์กร (คงที่)

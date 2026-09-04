@@ -11,6 +11,7 @@ import {
 import { Badge } from '@repo/ui/components/badge';
 import { useCompanyMemberUpdate } from '../../hooks/company-mutations';
 import type { CompanyMember, Role } from '@repo/client';
+import { useSession } from '@/modules/auth/hooks/session-provider';
 
 export default function CompanyMemberRoleSelect({
   member,
@@ -22,7 +23,7 @@ export default function CompanyMemberRoleSelect({
   roles: Role[];
 }) {
   const updateMutation = useCompanyMemberUpdate(companyId);
-
+  const session = useSession()
   const currentRole = useMemo(
     () => roles.find((r) => r.id === member.roleId),
     [roles, member.roleId],
@@ -54,7 +55,7 @@ export default function CompanyMemberRoleSelect({
   };
 
   // If member is Owner, do not allow changing roles
-  if (isOwner) {
+  if (isOwner && !session.isSuperAdmin) {
     return (
       <Badge
         variant="outline"

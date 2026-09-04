@@ -25,7 +25,13 @@ import {
 } from '@repo/ui/components/tabs';
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
-import { ArrowLeft, Building2, GitBranch, Sparkles, Users2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Building2,
+  GitBranch,
+  Sparkles,
+  Users2,
+} from 'lucide-react';
 import { buildPageUrl } from '@/shared/utils';
 import CompanyFeatureManager from '../components/features/company-feature-manager';
 
@@ -150,7 +156,8 @@ export default function CompanyDetailView({
                   ฟีเจอร์และแพ็กเกจการใช้งาน (Features & Modules)
                 </CardTitle>
                 <CardDescription>
-                  กำหนดว่าบริษัทนี้ได้รับสิทธิ์ในฟีเจอร์ใดบ้าง และเปิดหรือปิดการใช้งานสำหรับบริษัทนี้
+                  กำหนดว่าบริษัทนี้ได้รับสิทธิ์ในฟีเจอร์ใดบ้าง
+                  และเปิดหรือปิดการใช้งานสำหรับบริษัทนี้
                 </CardDescription>
               </CardHeader>
               <CardContent>
