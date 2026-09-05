@@ -14,6 +14,7 @@ export type RequestSchema = {
   params?: ZodType;
   session?: Session['session'];
   user?: Session['user'];
+  permissions?: string;
   responseBody?: ZodType;
 };
 
@@ -23,6 +24,7 @@ export type InferVariables<S extends RequestSchema> = {
   params: S['params'] extends ZodType ? z.infer<S['params']> : never;
   user: S['user'] extends Session['user'] ? S['user'] : never;
   session: S['session'] extends Session['session'] ? S['session'] : never;
+  permissions: S['permissions'] extends string ? S['permissions'] : never;
 };
 
 export type InferEnv<S extends RequestSchema> = {

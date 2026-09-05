@@ -15,7 +15,7 @@ export const authMiddleware: MiddlewareHandler = createMiddleware(
 
     c.set('user', session.user);
     c.set('session', session.session);
-
+    c.set('permissions', session.session.permissions)
     return await next();
   },
 );
