@@ -1,23 +1,10 @@
-export type PermissionAction = string;
-
 /**
- * Base security context passed along application use cases
+ * @backward-compat
+ * This file is a compatibility bridge. New code should import directly from:
+ *   - '@repo/domains/constants' (re-exports all)
+ *   - './security' (ISecurityContext, WithSecurityContext)
+ *   - './permissions/index' (PermissionAction, PERMISSIONS, ALL_PERMISSIONS)
  */
-export interface ISecurityContext {
-  userId?: string;
-  companyId?: string;
-  /** Trusted session snapshot; never populate from request input. */
-  permissions?: string | null;
-  activeCompanyId?: string | null;
-  user?: {
-    id: string;
-    isAdmin?: boolean;
-    isActive?: boolean;
-    [key: string]: unknown;
-  };
-}
+export type { ISecurityContext, WithSecurityContext } from './security';
+export type { PermissionAction } from './permissions/index';
 
-/**
- * Helper to wrap any context with security authorization attributes
- */
-export type WithSecurityContext<T> = T & ISecurityContext;

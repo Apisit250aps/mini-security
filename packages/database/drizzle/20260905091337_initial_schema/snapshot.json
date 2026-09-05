@@ -1,29 +1,54 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "5e163151-ad60-4331-95a4-fbbbc84ec14c",
-  "prevIds": ["2c87da98-fbb7-41e4-8254-aaa761038617"],
+  "id": "f53c7ac1-6b2c-4109-9ce3-7b8115e4b75b",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
   "ddl": [
     {
-      "values": ["SUPER_ADMIN", "OWNER", "ADMIN", "MEMBER", "VIEWER"],
+      "values": [
+        "SUPER_ADMIN",
+        "OWNER",
+        "ADMIN",
+        "MEMBER",
+        "VIEWER"
+      ],
       "name": "role_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": ["PENDING", "APPROVED", "REJECTED", "LATE", "ABSENT"],
+      "values": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "LATE",
+        "ABSENT"
+      ],
       "name": "attendance_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": ["CHECK_IN", "CHECK_OUT", "BREAK_IN", "BREAK_OUT", "CUSTOM"],
+      "values": [
+        "CHECK_IN",
+        "CHECK_OUT",
+        "BREAK_IN",
+        "BREAK_OUT",
+        "CUSTOM"
+      ],
       "name": "check_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": ["PENDING", "APPROVED", "REJECTED", "CANCELLED"],
+      "values": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "CANCELLED"
+      ],
       "name": "leave_status",
       "entityType": "enums",
       "schema": "public"
@@ -41,7 +66,11 @@
       "schema": "public"
     },
     {
-      "values": ["FIXED", "RADIUS", "BRANCH"],
+      "values": [
+        "FIXED",
+        "RADIUS",
+        "BRANCH"
+      ],
       "name": "location_type",
       "entityType": "enums",
       "schema": "public"
@@ -4500,10 +4529,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "account_user_id_user_id_fkey",
@@ -4513,10 +4546,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "session_user_id_user_id_fkey",
@@ -4526,10 +4563,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_branch_company_id_company_id_fkey",
@@ -4539,10 +4580,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_branch_id"],
+      "columns": [
+        "company_branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company_branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_member_company_branch_id_company_branch_id_fkey",
@@ -4552,10 +4597,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_member_company_id_company_id_fkey",
@@ -4565,10 +4614,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_member_user_id_user_id_fkey",
@@ -4578,10 +4631,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["feature_id"],
+      "columns": [
+        "feature_id"
+      ],
       "schemaTo": "public",
       "tableTo": "feature",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "permission_feature_id_feature_id_fkey",
@@ -4591,10 +4648,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_company_id_company_id_fkey",
@@ -4604,10 +4665,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["role_id"],
+      "columns": [
+        "role_id"
+      ],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_permission_role_id_role_id_fkey",
@@ -4617,10 +4682,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["permission_id"],
+      "columns": [
+        "permission_id"
+      ],
       "schemaTo": "public",
       "tableTo": "permission",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_permission_permission_id_permission_id_fkey",
@@ -4630,10 +4699,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["policy_id"],
+      "columns": [
+        "policy_id"
+      ],
       "schemaTo": "public",
       "tableTo": "attendance_policy",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "attendance_checkpoint_policy_id_attendance_policy_id_fkey",
@@ -4643,10 +4716,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "attendance_location_company_id_company_id_fkey",
@@ -4656,10 +4733,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["branch_id"],
+      "columns": [
+        "branch_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company_branch",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "attendance_location_branch_id_company_branch_id_fkey",
@@ -4669,10 +4750,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["attendance_record_id"],
+      "columns": [
+        "attendance_record_id"
+      ],
       "schemaTo": "public",
       "tableTo": "attendance_record",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "attendance_log_attendance_record_id_attendance_record_id_fkey",
@@ -4682,10 +4767,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["checkpoint_id"],
+      "columns": [
+        "checkpoint_id"
+      ],
       "schemaTo": "public",
       "tableTo": "attendance_checkpoint",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "attendance_log_checkpoint_id_attendance_checkpoint_id_fkey",
@@ -4695,10 +4784,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["location_id"],
+      "columns": [
+        "location_id"
+      ],
       "schemaTo": "public",
       "tableTo": "attendance_location",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "attendance_log_location_id_attendance_location_id_fkey",
@@ -4708,10 +4801,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "attendance_policy_company_id_company_id_fkey",
@@ -4721,10 +4818,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "attendance_record_company_id_company_id_fkey",
@@ -4734,10 +4835,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_member_id"],
+      "columns": [
+        "company_member_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "attendance_record_company_member_id_company_member_id_fkey",
@@ -4747,10 +4852,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["work_shift_id"],
+      "columns": [
+        "work_shift_id"
+      ],
       "schemaTo": "public",
       "tableTo": "work_shift",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "attendance_record_work_shift_id_work_shift_id_fkey",
@@ -4760,10 +4869,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["approved_by"],
+      "columns": [
+        "approved_by"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "attendance_record_approved_by_user_id_fkey",
@@ -4773,10 +4886,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["checkpoint_id"],
+      "columns": [
+        "checkpoint_id"
+      ],
       "schemaTo": "public",
       "tableTo": "attendance_checkpoint",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "checkpoint_location_checkpoint_id_attendance_checkpoint_id_fkey",
@@ -4786,10 +4903,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["location_id"],
+      "columns": [
+        "location_id"
+      ],
       "schemaTo": "public",
       "tableTo": "attendance_location",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "checkpoint_location_location_id_attendance_location_id_fkey",
@@ -4799,10 +4920,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "leave_request_company_id_company_id_fkey",
@@ -4812,10 +4937,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_member_id"],
+      "columns": [
+        "company_member_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "leave_request_company_member_id_company_member_id_fkey",
@@ -4825,10 +4954,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["reviewed_by"],
+      "columns": [
+        "reviewed_by"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "leave_request_reviewed_by_user_id_fkey",
@@ -4838,10 +4971,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["role_id"],
+      "columns": [
+        "role_id"
+      ],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_attendance_policy_role_id_role_id_fkey",
@@ -4851,10 +4988,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["policy_id"],
+      "columns": [
+        "policy_id"
+      ],
       "schemaTo": "public",
       "tableTo": "attendance_policy",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_attendance_policy_policy_id_attendance_policy_id_fkey",
@@ -4864,10 +5005,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_attendance_policy_company_id_company_id_fkey",
@@ -4877,10 +5022,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["role_id"],
+      "columns": [
+        "role_id"
+      ],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_work_schedule_role_id_role_id_fkey",
@@ -4890,10 +5039,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_work_schedule_company_id_company_id_fkey",
@@ -4903,10 +5056,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["work_shift_id"],
+      "columns": [
+        "work_shift_id"
+      ],
       "schemaTo": "public",
       "tableTo": "work_shift",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "name": "role_work_schedule_work_shift_id_work_shift_id_fkey",
@@ -4916,10 +5073,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "work_schedule_company_id_company_id_fkey",
@@ -4929,10 +5090,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["work_schedule_id"],
+      "columns": [
+        "work_schedule_id"
+      ],
       "schemaTo": "public",
       "tableTo": "work_schedule",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "work_shift_work_schedule_id_work_schedule_id_fkey",
@@ -4942,10 +5107,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "work_shift_company_id_company_id_fkey",
@@ -4955,10 +5124,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_feature_company_id_company_id_fkey",
@@ -4968,10 +5141,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["feature_id"],
+      "columns": [
+        "feature_id"
+      ],
       "schemaTo": "public",
       "tableTo": "feature",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_feature_feature_id_feature_id_fkey",
@@ -4981,10 +5158,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["assigned_by"],
+      "columns": [
+        "assigned_by"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "company_feature_assigned_by_user_id_fkey",
@@ -4994,10 +5175,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["company_id"],
+      "columns": [
+        "company_id"
+      ],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_feature_company_id_company_id_fkey",
@@ -5007,10 +5192,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["role_id"],
+      "columns": [
+        "role_id"
+      ],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_feature_role_id_role_id_fkey",
@@ -5020,10 +5209,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["feature_id"],
+      "columns": [
+        "feature_id"
+      ],
       "schemaTo": "public",
       "tableTo": "feature",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_feature_feature_id_feature_id_fkey",
@@ -5032,7 +5225,9 @@
       "table": "role_feature"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "user_pkey",
       "schema": "public",
@@ -5040,7 +5235,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "account_pkey",
       "schema": "public",
@@ -5048,7 +5245,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "jwks_pkey",
       "schema": "public",
@@ -5056,7 +5255,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "session_pkey",
       "schema": "public",
@@ -5064,7 +5265,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "verification_pkey",
       "schema": "public",
@@ -5072,7 +5275,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "company_pkey",
       "schema": "public",
@@ -5080,7 +5285,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "company_branch_pkey",
       "schema": "public",
@@ -5088,7 +5295,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "company_member_pkey",
       "schema": "public",
@@ -5096,7 +5305,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "permission_pkey",
       "schema": "public",
@@ -5104,7 +5315,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "role_pkey",
       "schema": "public",
@@ -5112,7 +5325,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "role_permission_pkey",
       "schema": "public",
@@ -5120,7 +5335,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "attendance_checkpoint_pkey",
       "schema": "public",
@@ -5128,7 +5345,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "attendance_location_pkey",
       "schema": "public",
@@ -5136,7 +5355,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "attendance_log_pkey",
       "schema": "public",
@@ -5144,7 +5365,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "attendance_policy_pkey",
       "schema": "public",
@@ -5152,7 +5375,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "attendance_record_pkey",
       "schema": "public",
@@ -5160,7 +5385,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "checkpoint_location_pkey",
       "schema": "public",
@@ -5168,7 +5395,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "leave_request_pkey",
       "schema": "public",
@@ -5176,7 +5405,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "role_attendance_policy_pkey",
       "schema": "public",
@@ -5184,7 +5415,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "role_work_schedule_pkey",
       "schema": "public",
@@ -5192,7 +5425,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "work_schedule_pkey",
       "schema": "public",
@@ -5200,7 +5435,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "work_shift_pkey",
       "schema": "public",
@@ -5208,7 +5445,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "company_feature_pkey",
       "schema": "public",
@@ -5216,7 +5455,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "feature_pkey",
       "schema": "public",
@@ -5224,7 +5465,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "role_feature_pkey",
       "schema": "public",
@@ -5233,7 +5476,10 @@
     },
     {
       "nameExplicit": true,
-      "columns": ["company_id", "feature_id"],
+      "columns": [
+        "company_id",
+        "feature_id"
+      ],
       "nullsNotDistinct": false,
       "name": "company_feature_company_feature_unique",
       "entityType": "uniques",
@@ -5242,7 +5488,10 @@
     },
     {
       "nameExplicit": true,
-      "columns": ["role_id", "feature_id"],
+      "columns": [
+        "role_id",
+        "feature_id"
+      ],
       "nullsNotDistinct": false,
       "name": "role_feature_role_feature_unique",
       "entityType": "uniques",
@@ -5251,7 +5500,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["email"],
+      "columns": [
+        "email"
+      ],
       "nullsNotDistinct": false,
       "name": "user_email_key",
       "schema": "public",
@@ -5260,7 +5511,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["token"],
+      "columns": [
+        "token"
+      ],
       "nullsNotDistinct": false,
       "name": "session_token_key",
       "schema": "public",
@@ -5269,7 +5522,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["slug"],
+      "columns": [
+        "slug"
+      ],
       "nullsNotDistinct": false,
       "name": "company_slug_key",
       "schema": "public",
@@ -5278,7 +5533,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["action"],
+      "columns": [
+        "action"
+      ],
       "nullsNotDistinct": false,
       "name": "permission_action_key",
       "schema": "public",
@@ -5287,7 +5544,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["code"],
+      "columns": [
+        "code"
+      ],
       "nullsNotDistinct": false,
       "name": "feature_code_key",
       "schema": "public",
