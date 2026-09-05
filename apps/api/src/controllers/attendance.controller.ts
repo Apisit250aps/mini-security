@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  attendanceRecordSchema,
   createAttendanceCheckpointSchema,
   createAttendanceLocationSchema,
   createAttendanceLogSchema,
@@ -81,70 +82,66 @@ import type {
 } from '@repo/applications';
 import Controller from './base.controller';
 
-const idParamSchema = z.object({
-  id: z.string().uuid(),
+const idParamSchema = attendanceRecordSchema.pick({ id: true });
+
+const companyIdParamSchema = createWorkScheduleSchema.pick({ companyId: true });
+
+const workScheduleIdParamSchema = createWorkShiftSchema.pick({
+  workScheduleId: true,
 });
 
-const companyIdParamSchema = z.object({
-  companyId: z.string().uuid(),
+const policyIdParamSchema = createAttendanceCheckpointSchema.pick({
+  policyId: true,
 });
 
-const workScheduleIdParamSchema = z.object({
-  workScheduleId: z.string().uuid(),
+const roleIdParamSchema = createRoleAttendancePolicySchema.pick({
+  roleId: true,
 });
 
-const policyIdParamSchema = z.object({
-  policyId: z.string().uuid(),
+const rolePolicyParamSchema = createRoleAttendancePolicySchema.pick({
+  roleId: true,
+  policyId: true,
 });
 
-const roleIdParamSchema = z.object({
-  roleId: z.string().uuid(),
+const checkpointIdParamSchema = createCheckpointLocationSchema.pick({
+  checkpointId: true,
 });
 
-const rolePolicyParamSchema = z.object({
-  roleId: z.string().uuid(),
-  policyId: z.string().uuid(),
+const checkpointLocationParamSchema = createCheckpointLocationSchema.pick({
+  checkpointId: true,
+  locationId: true,
 });
 
-const checkpointIdParamSchema = z.object({
-  checkpointId: z.string().uuid(),
-});
-
-const checkpointLocationParamSchema = z.object({
-  checkpointId: z.string().uuid(),
-  locationId: z.string().uuid(),
-});
-
-const recordIdParamSchema = z.object({
-  attendanceRecordId: z.string().uuid(),
+const recordIdParamSchema = createAttendanceLogSchema.pick({
+  attendanceRecordId: true,
 });
 
 const attendanceRecordQuerySchema = z.object({
-  companyId: z.string().uuid(),
-  memberId: z.string().uuid().optional(),
+  companyId: createWorkScheduleSchema.shape.companyId,
+  memberId: createAttendanceRecordSchema.shape.companyMemberId.optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
 });
 
 const memberDateQuerySchema = z.object({
-  companyMemberId: z.string().uuid(),
+  companyMemberId: createAttendanceRecordSchema.shape.companyMemberId,
   workDate: z.string(),
 });
 
 const leaveRequestQuerySchema = z.object({
-  companyId: z.string().uuid(),
-  memberId: z.string().uuid().optional(),
-  status: z.string().optional(),
+  companyId: createWorkScheduleSchema.shape.companyId,
+  memberId: createAttendanceRecordSchema.shape.companyMemberId.optional(),
+  status: createLeaveRequestSchema.shape.status.optional(),
 });
 
 const approveRecordBodySchema = z.object({
-  status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'LATE', 'ABSENT']),
-  note: z.string().optional(),
+  status: createAttendanceRecordSchema.shape.status,
+  note: createAttendanceRecordSchema.shape.note.unwrap(),
 });
 
 const reviewLeaveBodySchema = z.object({
-  status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED']),
-  reviewNote: z.string().optional(),
+  status: createLeaveRequestSchema.shape.status,
+  reviewNote: createLeaveRequestSchema.shape.reviewNote.unwrap(),
 });
 
 export class AttendanceController extends Controller {

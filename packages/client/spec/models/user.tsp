@@ -6,7 +6,9 @@ model CreateUser is OmitProperties<
   User,
   "id" | "lastLogin" | "createdAt" | "updatedAt" | "emailVerified"
 > {
-  password?: string;
+  @minLength(8)
+  @maxLength(255)
+  password?: string | null;
 }
 
 model UpdateUser

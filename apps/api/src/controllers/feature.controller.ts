@@ -18,6 +18,9 @@ import {
   UpdateFeatureUseCase,
 } from '@repo/applications';
 import {
+  featureSchema,
+  companyFeatureSchema,
+  roleFeatureSchema,
   createCompanyFeatureSchema,
   createFeatureSchema,
   createRoleFeatureSchema,
@@ -25,47 +28,39 @@ import {
 } from '@repo/domains/schema/feature';
 import Controller from './base.controller';
 
-const idParamSchema = z.object({
-  id: z.string().uuid(),
+const idParamSchema = featureSchema.pick({ id: true });
+
+const companyIdParamSchema = companyFeatureSchema.pick({ companyId: true });
+
+const roleIdParamSchema = roleFeatureSchema.pick({ roleId: true });
+
+const companyFeatureParamSchema = companyFeatureSchema.pick({
+  companyId: true,
+  featureId: true,
 });
 
-const companyIdParamSchema = z.object({
-  companyId: z.string().uuid(),
-});
-
-const roleIdParamSchema = z.object({
-  roleId: z.string().uuid(),
-});
-
-const companyFeatureParamSchema = z.object({
-  companyId: z.string().uuid(),
-  featureId: z.string().uuid(),
-});
-
-const roleFeatureParamSchema = z.object({
-  roleId: z.string().uuid(),
-  featureId: z.string().uuid(),
+const roleFeatureParamSchema = roleFeatureSchema.pick({
+  roleId: true,
+  featureId: true,
 });
 
 const roleAccessParamSchema = z.object({
-  companyId: z.string().uuid(),
-  roleId: z.string().uuid(),
-  featureCode: z.string().min(1),
+  companyId: roleFeatureSchema.shape.companyId,
+  roleId: roleFeatureSchema.shape.roleId,
+  featureCode: featureSchema.shape.code,
 });
 
-const toggleFeatureBodySchema = z.object({
-  isActive: z.boolean(),
+const toggleFeatureBodySchema = featureSchema.pick({ isActive: true });
+
+const companyToggleBodySchema = companyFeatureSchema.pick({
+  featureId: true,
+  isEnabled: true,
 });
 
-const companyToggleBodySchema = z.object({
-  featureId: z.string().uuid(),
-  isEnabled: z.boolean(),
-});
-
-const roleToggleBodySchema = z.object({
-  companyId: z.string().uuid(),
-  featureId: z.string().uuid(),
-  isEnabled: z.boolean(),
+const roleToggleBodySchema = roleFeatureSchema.pick({
+  companyId: true,
+  featureId: true,
+  isEnabled: true,
 });
 
 export class FeatureController extends Controller {

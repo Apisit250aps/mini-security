@@ -51,11 +51,13 @@ model CreateLeaveRequest is OmitProperties<LeaveRequest, "id" | "createdAt" | "u
 model UpdateLeaveRequest is OptionalProperties<OmitProperties<LeaveRequest, "id" | "createdAt" | "updatedAt">>;
 
 model ApproveAttendanceRecordRequest {
-  status: Domain.Entity.AttendanceStatus;
+  status: AttendanceRecord.status;
+  @maxLength(255)
   note?: string;
 }
 
 model ReviewLeaveRequest {
-  status: Domain.Entity.LeaveStatus;
+  status: LeaveRequest.status;
+  @maxLength(255)
   reviewNote?: string;
 }

@@ -23,7 +23,8 @@ model CompanyMember is Domain.Entity.CompanyMember;
 
 model CreateCompanyMember {
   ...OmitProperties<CompanyMember, "id" | "createdAt" | "updatedAt" | "companyBranchId">;
-  companyBranchId?: string;
+  @format("uuid")
+  companyBranchId?: string | null;
 }
 
 
@@ -31,3 +32,8 @@ model CreateCompanyMember {
 model UpdateCompanyMember
   is OptionalProperties<OmitProperties<CompanyMember, "id" | "createdAt" | "updatedAt">>;
 
+
+model SwitchActiveCompanyResponse {
+  activeCompanyId: string;
+  company: Company;
+}

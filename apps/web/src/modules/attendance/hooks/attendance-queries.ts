@@ -1,4 +1,5 @@
 import {
+  type AttendanceServicesGetLeaveRequestsData,
   attendanceServicesGetAttendanceCheckpoint,
   attendanceServicesGetAttendanceCheckpoints,
   attendanceServicesGetAttendanceLocation,
@@ -353,7 +354,7 @@ export function useLeaveRequestsQueries(
   companyId: string,
   filters?: {
     memberId?: string;
-    status?: string;
+    status?: AttendanceServicesGetLeaveRequestsData['query']['status'];
   },
 ) {
   return useQuery({

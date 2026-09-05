@@ -506,7 +506,7 @@ paths:
           in: query
           required: false
           schema:
-            type: string
+            $ref: '#/components/schemas/Domain.Entity.LeaveStatus'
           explode: false
       responses:
         '200':
@@ -2949,6 +2949,48 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Company
+  /companies/{id}/switch:
+    post:
+      operationId: CompanyServices_switchActiveCompany
+      summary: Switch active company for the current session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/SwitchActiveCompanyResponse'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Company
   /features/:
     get:
       operationId: FeatureServices_getFeatures
@@ -4441,6 +4483,7 @@ components:
           $ref: '#/components/schemas/Domain.Entity.AttendanceStatus'
         note:
           type: string
+          maxLength: 255
     AttendanceCheckpoint:
       type: object
       required:
@@ -4861,6 +4904,7 @@ components:
           type: string
         isEnabled:
           type: boolean
+      description: The template for picking properties.
     CreateAttendanceCheckpoint:
       type: object
       required:
@@ -5157,7 +5201,10 @@ components:
         isActive:
           type: boolean
         companyBranchId:
-          type: string
+          anyOf:
+            - type: string
+            - type: 'null'
+          format: uuid
     CreateFeature:
       type: object
       required:
@@ -5356,7 +5403,11 @@ components:
         isActive:
           type: boolean
         password:
-          type: string
+          anyOf:
+            - type: string
+            - type: 'null'
+          minLength: 8
+          maxLength: 255
       description: The template for omitting properties.
     CreateWorkSchedule:
       type: object
@@ -5584,6 +5635,7 @@ components:
           $ref: '#/components/schemas/Domain.Entity.LeaveStatus'
         reviewNote:
           type: string
+          maxLength: 255
     Role:
       type: object
       required:
@@ -5701,6 +5753,7 @@ components:
           type: string
         isEnabled:
           type: boolean
+      description: The template for picking properties.
     RoleWorkSchedule:
       type: object
       required:
@@ -5734,6 +5787,16 @@ components:
             - type: string
               format: date-time
             - type: 'null'
+    SwitchActiveCompanyResponse:
+      type: object
+      required:
+        - activeCompanyId
+        - company
+      properties:
+        activeCompanyId:
+          type: string
+        company:
+          $ref: '#/components/schemas/Company'
     ToggleFeatureRequest:
       type: object
       required:
@@ -5741,6 +5804,7 @@ components:
       properties:
         isActive:
           type: boolean
+      description: The template for picking properties.
     UpdateAttendanceCheckpoint:
       type: object
       properties:

@@ -419,7 +419,7 @@ interface AttendanceServices {
   getLeaveRequests(
     @query companyId: string,
     @query memberId?: string,
-    @query status?: string,
+    @query status?: LeaveRequest.status,
   ): ApiOkResponse<LeaveRequest[]> | ApiUnauthorizedResponse;
 
   @get

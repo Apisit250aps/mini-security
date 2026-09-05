@@ -169,6 +169,9 @@ export type CompanyMember = {
   isActive: boolean;
 };
 
+/**
+ * The template for picking properties.
+ */
 export type CompanyToggleFeatureRequest = {
   featureId: string;
   isEnabled: boolean;
@@ -297,7 +300,7 @@ export type CreateCompanyMember = {
   userId: string;
   roleId: string;
   isActive: boolean;
-  companyBranchId?: string;
+  companyBranchId?: string | null;
 };
 
 /**
@@ -397,7 +400,7 @@ export type CreateUser = {
   image?: string | null;
   isAdmin: boolean;
   isActive: boolean;
-  password?: string;
+  password?: string | null;
 };
 
 /**
@@ -545,6 +548,9 @@ export type RolePermission = {
   permissionId: string;
 };
 
+/**
+ * The template for picking properties.
+ */
 export type RoleToggleFeatureRequest = {
   companyId: string;
   featureId: string;
@@ -562,6 +568,14 @@ export type RoleWorkSchedule = {
   endDate?: Date | null;
 };
 
+export type SwitchActiveCompanyResponse = {
+  activeCompanyId: string;
+  company: Company;
+};
+
+/**
+ * The template for picking properties.
+ */
 export type ToggleFeatureRequest = {
   isActive: boolean;
 };
@@ -1245,7 +1259,7 @@ export type AttendanceServicesGetLeaveRequestsData = {
   query: {
     companyId: string;
     memberId?: string;
-    status?: string;
+    status?: DomainEntityLeaveStatus;
   };
   url: '/attendance/leave-requests';
 };
@@ -3339,6 +3353,43 @@ export type CompanyServicesUpdateCompanyResponses = {
 
 export type CompanyServicesUpdateCompanyResponse =
   CompanyServicesUpdateCompanyResponses[keyof CompanyServicesUpdateCompanyResponses];
+
+export type CompanyServicesSwitchActiveCompanyData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/companies/{id}/switch';
+};
+
+export type CompanyServicesSwitchActiveCompanyErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type CompanyServicesSwitchActiveCompanyError =
+  CompanyServicesSwitchActiveCompanyErrors[keyof CompanyServicesSwitchActiveCompanyErrors];
+
+export type CompanyServicesSwitchActiveCompanyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: SwitchActiveCompanyResponse;
+  };
+};
+
+export type CompanyServicesSwitchActiveCompanyResponse =
+  CompanyServicesSwitchActiveCompanyResponses[keyof CompanyServicesSwitchActiveCompanyResponses];
 
 export type FeatureServicesGetFeaturesData = {
   body?: never;

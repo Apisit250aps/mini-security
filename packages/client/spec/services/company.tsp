@@ -132,5 +132,12 @@ interface CompanyServices {
     | ApiNotFoundResponse
     | ApiBadRequestResponse
     | ApiUnauthorizedResponse;
+  @post
+  @route("/{id}/switch")
+  @summary("Switch active company for the current session")
+  switchActiveCompany(@path id: string):
+    | ApiOkResponse<SwitchActiveCompanyResponse>
+    | ApiNotFoundResponse
+    | ApiUnauthorizedResponse;
 }
 

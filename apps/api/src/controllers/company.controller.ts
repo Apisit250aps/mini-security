@@ -1,9 +1,10 @@
 import { getUserPermissionActions } from '@repo/infrastructures/lib/auth-permissions';
-import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import db from '@repo/database/db';
 import * as schema from '@repo/database/schema';
 import {
+  companySchema,
+  companyMemberSchema,
   createCompanyBranchSchema,
   createCompanyMemberSchema,
   createCompanySchema,
@@ -33,17 +34,11 @@ import {
 } from '@repo/applications';
 import Controller from './base.controller';
 
-const idParamSchema = z.object({
-  id: z.string().uuid(),
-});
+const idParamSchema = companySchema.pick({ id: true });
 
-const slugParamSchema = z.object({
-  slug: z.string().min(1),
-});
+const slugParamSchema = companySchema.pick({ slug: true });
 
-const companyMemberParamSchema = z.object({
-  companyId: z.string().uuid(),
-});
+const companyMemberParamSchema = companyMemberSchema.pick({ companyId: true });
 
 export class CompanyController extends Controller {
   constructor(

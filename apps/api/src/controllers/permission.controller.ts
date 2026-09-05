@@ -1,5 +1,7 @@
-import { z } from 'zod';
+import { companyMemberSchema } from '@repo/domains/schema/company';
 import {
+  permissionSchema,
+  rolePermissionSchema,
   createPermissionSchema,
   createRolePermissionSchema,
   createRoleSchema,
@@ -24,21 +26,15 @@ import type {
 } from '@repo/applications';
 import Controller from './base.controller';
 
-const idParamSchema = z.object({
-  id: z.string().uuid(),
-});
+const idParamSchema = permissionSchema.pick({ id: true });
 
-const companyRolesParamSchema = z.object({
-  companyId: z.string().uuid(),
-});
+const companyRolesParamSchema = companyMemberSchema.pick({ companyId: true });
 
-const roleIdParamSchema = z.object({
-  roleId: z.string().uuid(),
-});
+const roleIdParamSchema = rolePermissionSchema.pick({ roleId: true });
 
-const revokeParamSchema = z.object({
-  roleId: z.string().uuid(),
-  permissionId: z.string().uuid(),
+const revokeParamSchema = rolePermissionSchema.pick({
+  roleId: true,
+  permissionId: true,
 });
 
 export class PermissionController extends Controller {
@@ -146,10 +142,10 @@ export class PermissionController extends Controller {
   };
 
   public getMyPermissions = this.validator(
-    { query: z.object({ companyId: z.string().uuid().optional() }).optional() },
+    { query: companyRolesParamSchema.partial().optional() },
     async (c) => {
       const user = c.get('user');
-      const query = c.get('query') as { companyId?: string } | undefined;
+      const query = c.get('query');
       const permissions = await this.getMyPermissionsUseCase.execute({
         ...this.securityContext(c),
         userId: user?.id,

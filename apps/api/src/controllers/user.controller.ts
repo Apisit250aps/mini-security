@@ -1,5 +1,8 @@
-import { z } from 'zod';
-import { createUserSchema, updateUserSchema } from '@repo/domains/schema/user';
+import {
+  userSchema,
+  createUserSchema,
+  updateUserSchema,
+} from '@repo/domains/schema/user';
 import type {
   CreateUserUseCase,
   DeleteUserUseCase,
@@ -10,9 +13,7 @@ import type {
 } from '@repo/applications';
 import Controller from './base.controller';
 
-const idParamSchema = z.object({
-  id: z.string().uuid(),
-});
+const idParamSchema = userSchema.pick({ id: true });
 
 export class UserController extends Controller {
   constructor(

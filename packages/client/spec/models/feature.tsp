@@ -9,9 +9,7 @@ model CreateFeature
 model UpdateFeature
   is OptionalProperties<OmitProperties<Feature, "id" | "createdAt" | "updatedAt">>;
 
-model ToggleFeatureRequest {
-  isActive: boolean;
-}
+model ToggleFeatureRequest is PickProperties<Feature, "isActive">;
 
 // ─── CompanyFeature ────────────────────────────────────────────────────────────
 model CompanyFeature is Domain.Entity.CompanyFeature;
@@ -19,10 +17,7 @@ model CompanyFeature is Domain.Entity.CompanyFeature;
 model CreateCompanyFeature
   is OmitProperties<CompanyFeature, "id" | "createdAt" | "updatedAt">;
 
-model CompanyToggleFeatureRequest {
-  featureId: string;
-  isEnabled: boolean;
-}
+model CompanyToggleFeatureRequest is PickProperties<CompanyFeature, "featureId" | "isEnabled">;
 
 // ─── RoleFeature ───────────────────────────────────────────────────────────────
 model RoleFeature is Domain.Entity.RoleFeature;
@@ -30,11 +25,7 @@ model RoleFeature is Domain.Entity.RoleFeature;
 model CreateRoleFeature
   is OmitProperties<RoleFeature, "id" | "createdAt" | "updatedAt">;
 
-model RoleToggleFeatureRequest {
-  companyId: string;
-  featureId: string;
-  isEnabled: boolean;
-}
+model RoleToggleFeatureRequest is PickProperties<RoleFeature, "companyId" | "featureId" | "isEnabled">;
 
 model FeatureAccessResponse {
   hasAccess: boolean;

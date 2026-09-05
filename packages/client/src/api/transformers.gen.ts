@@ -54,6 +54,7 @@ import type {
   CompanyServicesGetCompanyBySlugResponse,
   CompanyServicesGetCompanyMembersResponse,
   CompanyServicesGetCompanyResponse,
+  CompanyServicesSwitchActiveCompanyResponse,
   CompanyServicesUpdateCompanyBranchResponse,
   CompanyServicesUpdateCompanyMemberResponse,
   CompanyServicesUpdateCompanyResponse,
@@ -739,6 +740,20 @@ export const companyServicesUpdateCompanyResponseTransformer = async (
 ): Promise<CompanyServicesUpdateCompanyResponse> => {
   if (data.data) {
     data.data = companySchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+const switchActiveCompanyResponseSchemaResponseTransformer = (data: any) => {
+  data.company = companySchemaResponseTransformer(data.company);
+  return data;
+};
+
+export const companyServicesSwitchActiveCompanyResponseTransformer = async (
+  data: any,
+): Promise<CompanyServicesSwitchActiveCompanyResponse> => {
+  if (data.data) {
+    data.data = switchActiveCompanyResponseSchemaResponseTransformer(data.data);
   }
   return data;
 };

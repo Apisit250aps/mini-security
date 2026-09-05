@@ -210,6 +210,9 @@ import type {
   CompanyServicesRemoveCompanyMemberData,
   CompanyServicesRemoveCompanyMemberErrors,
   CompanyServicesRemoveCompanyMemberResponses,
+  CompanyServicesSwitchActiveCompanyData,
+  CompanyServicesSwitchActiveCompanyErrors,
+  CompanyServicesSwitchActiveCompanyResponses,
   CompanyServicesUpdateCompanyBranchData,
   CompanyServicesUpdateCompanyBranchErrors,
   CompanyServicesUpdateCompanyBranchResponses,
@@ -2040,6 +2043,28 @@ export const companyServicesUpdateCompany = <
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Switch active company for the current session
+ */
+export const companyServicesSwitchActiveCompany = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CompanyServicesSwitchActiveCompanyData, ThrowOnError>,
+): RequestResult<
+  CompanyServicesSwitchActiveCompanyResponses,
+  CompanyServicesSwitchActiveCompanyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    CompanyServicesSwitchActiveCompanyResponses,
+    CompanyServicesSwitchActiveCompanyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/companies/{id}/switch',
+    ...options,
   });
 
 /**

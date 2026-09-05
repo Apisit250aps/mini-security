@@ -72,6 +72,7 @@ import {
   companyServicesGetCompanyBySlug,
   companyServicesGetCompanyMembers,
   companyServicesRemoveCompanyMember,
+  companyServicesSwitchActiveCompany,
   companyServicesUpdateCompany,
   companyServicesUpdateCompanyBranch,
   companyServicesUpdateCompanyMember,
@@ -314,6 +315,9 @@ import type {
   CompanyServicesRemoveCompanyMemberData,
   CompanyServicesRemoveCompanyMemberError,
   CompanyServicesRemoveCompanyMemberResponse,
+  CompanyServicesSwitchActiveCompanyData,
+  CompanyServicesSwitchActiveCompanyError,
+  CompanyServicesSwitchActiveCompanyResponse,
   CompanyServicesUpdateCompanyBranchData,
   CompanyServicesUpdateCompanyBranchError,
   CompanyServicesUpdateCompanyBranchResponse,
@@ -2380,6 +2384,33 @@ export const companyServicesUpdateCompanyMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await companyServicesUpdateCompany({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Switch active company for the current session
+ */
+export const companyServicesSwitchActiveCompanyMutation = (
+  options?: Partial<Options<CompanyServicesSwitchActiveCompanyData>>,
+): UseMutationOptions<
+  CompanyServicesSwitchActiveCompanyResponse,
+  AxiosError<CompanyServicesSwitchActiveCompanyError>,
+  Options<CompanyServicesSwitchActiveCompanyData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CompanyServicesSwitchActiveCompanyResponse,
+    AxiosError<CompanyServicesSwitchActiveCompanyError>,
+    Options<CompanyServicesSwitchActiveCompanyData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await companyServicesSwitchActiveCompany({
         ...options,
         ...fnOptions,
         throwOnError: true,
