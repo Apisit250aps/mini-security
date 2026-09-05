@@ -53,7 +53,7 @@ function Button({
   size = 'default',
   ...props
 }: Omit<ButtonPrimitiveProps, 'className' | 'ref' | 'data-slot'> &
-  Omit<React.RefAttributes<HTMLButtonElement>, 'ref' | 'data-slot'> &
+  React.RefAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     className?: string;
   }) {
