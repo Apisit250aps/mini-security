@@ -43,7 +43,9 @@ export class AssignRoleFeatureUseCase implements IAssignRoleFeatureUseCase {
     }
 
     // 1. Verify feature exists
-    const feature = await this.featureRepository.findById(parsed.data.featureId);
+    const feature = await this.featureRepository.findById(
+      parsed.data.featureId,
+    );
     if (!feature) {
       throw new NotFoundError(
         `Feature with id "${parsed.data.featureId}" not found`,
@@ -77,9 +79,7 @@ export class AssignRoleFeatureUseCase implements IAssignRoleFeatureUseCase {
 }
 
 export class ToggleRoleFeatureUseCase implements IToggleRoleFeatureUseCase {
-  constructor(
-    private readonly roleFeatureRepository: IRoleFeatureRepository,
-  ) {}
+  constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
   async execute(context: IToggleRoleFeatureContext): Promise<RoleFeature> {
     const existing = await this.roleFeatureRepository.findByRoleAndFeature(
@@ -103,9 +103,7 @@ export class ToggleRoleFeatureUseCase implements IToggleRoleFeatureUseCase {
 }
 
 export class RevokeRoleFeatureUseCase implements IRevokeRoleFeatureUseCase {
-  constructor(
-    private readonly roleFeatureRepository: IRoleFeatureRepository,
-  ) {}
+  constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
   async execute(context: IRevokeRoleFeatureContext): Promise<void> {
     await this.roleFeatureRepository.deleteByRoleAndFeature(
@@ -116,9 +114,7 @@ export class RevokeRoleFeatureUseCase implements IRevokeRoleFeatureUseCase {
 }
 
 export class GetRoleFeaturesUseCase implements IGetRoleFeaturesUseCase {
-  constructor(
-    private readonly roleFeatureRepository: IRoleFeatureRepository,
-  ) {}
+  constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
   async execute(context: IGetRoleFeaturesContext): Promise<Feature[]> {
     return this.roleFeatureRepository.findFeaturesByRoleId(context.roleId);
@@ -128,9 +124,7 @@ export class GetRoleFeaturesUseCase implements IGetRoleFeaturesUseCase {
 export class GetCompanyRoleFeaturesUseCase
   implements IGetCompanyRoleFeaturesUseCase
 {
-  constructor(
-    private readonly roleFeatureRepository: IRoleFeatureRepository,
-  ) {}
+  constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
   async execute(
     context: IGetCompanyRoleFeaturesContext,
@@ -164,11 +158,10 @@ export class CheckRoleFeatureAccessUseCase
     if (!companyFeature || !companyFeature.isEnabled) return false;
 
     // 3. Check role assignment
-    const roleFeature =
-      await this.roleFeatureRepository.findByRoleAndFeature(
-        context.roleId,
-        feature.id,
-      );
+    const roleFeature = await this.roleFeatureRepository.findByRoleAndFeature(
+      context.roleId,
+      feature.id,
+    );
     return Boolean(roleFeature && roleFeature.isEnabled);
   }
 }

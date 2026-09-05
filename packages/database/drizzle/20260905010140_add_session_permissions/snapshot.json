@@ -1,8 +1,8 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "2c87da98-fbb7-41e4-8254-aaa761038617",
-  "prevIds": ["89cb25d4-a887-42ba-b5a4-f6eb5e953643"],
+  "id": "5e163151-ad60-4331-95a4-fbbbc84ec14c",
+  "prevIds": ["2c87da98-fbb7-41e4-8254-aaa761038617"],
   "ddl": [
     {
       "values": ["SUPER_ADMIN", "OWNER", "ADMIN", "MEMBER", "VIEWER"],
@@ -686,6 +686,19 @@
       "generated": null,
       "identity": null,
       "name": "active_company_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "permissions",
       "entityType": "columns",
       "schema": "public",
       "table": "session"

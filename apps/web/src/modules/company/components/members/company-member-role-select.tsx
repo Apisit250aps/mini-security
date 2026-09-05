@@ -23,7 +23,7 @@ export default function CompanyMemberRoleSelect({
   roles: Role[];
 }) {
   const updateMutation = useCompanyMemberUpdate(companyId);
-  const session = useSession()
+  const session = useSession();
   const currentRole = useMemo(
     () => roles.find((r) => r.id === member.roleId),
     [roles, member.roleId],

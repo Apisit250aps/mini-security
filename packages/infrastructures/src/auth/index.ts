@@ -8,6 +8,7 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { bearer } from 'better-auth/plugins/bearer';
 import { jwt } from 'better-auth/plugins/jwt';
+import { getUserPermissionActions } from './helpers';
 
 const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -39,61 +40,46 @@ const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
-          let activeCompanyId = session.activeCompanyId as
-            | string
-            | null
-            | undefined;
-          if (!activeCompanyId && session.userId) {
-            // 1. Resolve first active company membership for user
-            const [member] = await db
-              .select({ companyId: schema.companyMember.companyId })
-              .from(schema.companyMember)
-              .where(
-                and(
-                  eq(schema.companyMember.userId, session.userId),
-                  eq(schema.companyMember.isActive, true),
-                ),
-              )
-              .limit(1);
+          const { actions, companyId } = await getUserPermissionActions(
+            session.userId,
+          );
 
-            if (member?.companyId) {
-              activeCompanyId = member.companyId;
-            } else {
-              // 2. Fallback for super admin: pick first active company
-              const [userRecord] = await db
-                .select({ isAdmin: schema.user.isAdmin })
-                .from(schema.user)
-                .where(eq(schema.user.id, session.userId))
-                .limit(1);
-
-              if (userRecord?.isAdmin) {
-                const [firstCompany] = await db
-                  .select({ id: schema.company.id })
-                  .from(schema.company)
-                  .where(eq(schema.company.isActive, true))
-                  .limit(1);
-                if (firstCompany?.id) {
-                  activeCompanyId = firstCompany.id;
-                }
-              }
-            }
-          }
+          console.log(
+            'User permission actions:',
+            actions,
+            'Active company ID:',
+            companyId,
+          );
 
           return {
             data: {
               ...session,
-              activeCompanyId: activeCompanyId ?? null,
+              activeCompanyId: companyId,
+              permissions: actions.join(','),
             },
           };
         },
         after: async (session) => {
-          // Update user's lastLogin timestamp upon session creation (login/sign-in)
           if (session.userId) {
             await db
               .update(schema.user)
               .set({ lastLogin: new Date() })
               .where(eq(schema.user.id, session.userId));
           }
+        },
+      },
+      update: {
+        before: async (session) => {
+          const { actions, companyId } = await getUserPermissionActions(
+            session.userId!,
+          );
+          return {
+            data: {
+              ...session,
+              activeCompanyId: companyId,
+              permissions: actions.join(','),
+            },
+          };
         },
       },
     },
@@ -126,7 +112,24 @@ const auth = betterAuth({
         required: false,
         input: false,
       },
+      permissions: {
+        type: 'string',
+        required: false,
+        input: false,
+      },
+    },
+
+    expiresIn: 60 * 60 * 24,
+    updateAge: 60 * 5,
+    freshAge: 60 * 5,
+    deferSessionRefresh: true,
+
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5,
+      strategy: 'compact',
     },
   },
 });
+
 export default auth;

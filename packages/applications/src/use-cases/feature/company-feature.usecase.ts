@@ -58,9 +58,7 @@ export class AssignCompanyFeatureUseCase
         parsed.data.featureId,
       );
     if (existing) {
-      throw new DuplicateError(
-        'Feature is already assigned to this company',
-      );
+      throw new DuplicateError('Feature is already assigned to this company');
     }
 
     return this.companyFeatureRepository.create(parsed.data);

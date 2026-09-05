@@ -9,6 +9,7 @@ export const sessionSchema = BaseEntity({
   ipAddress: StringField({ required: false, nullable: true }),
   userAgent: StringField({ required: false, nullable: true }),
   activeCompanyId: UUIDField({ required: false, nullable: true }),
+  permissions: StringField({ required: false, nullable: true }),
 });
 
 export const createSessionSchema = sessionSchema.omit({

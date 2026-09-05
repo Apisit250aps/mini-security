@@ -35,8 +35,7 @@ export function RoleFeatureManager({
   const [searchTerm, setSearchTerm] = useState('');
 
   // 1. Only show features that THIS company has active access to!
-  const availableFeaturesQuery =
-    useCompanyAvailableFeaturesQueries(companyId);
+  const availableFeaturesQuery = useCompanyAvailableFeaturesQueries(companyId);
 
   // 2. Query features assigned to this role
   const roleFeaturesQuery = useRoleFeaturesQueries(role.id);
@@ -117,13 +116,15 @@ export function RoleFeatureManager({
               มอบหมายฟีเจอร์ให้บทบาท: {role.name}
             </span>
             <span className="text-xs text-muted-foreground">
-              กำหนดว่าผู้ใช้ในบทบาทนี้ สามารถเข้าถึงและดูแลฟีเจอร์ใดขององค์กรได้บ้าง
+              กำหนดว่าผู้ใช้ในบทบาทนี้
+              สามารถเข้าถึงและดูแลฟีเจอร์ใดขององค์กรได้บ้าง
             </span>
           </div>
         </div>
 
         <Badge variant="outline" className="text-xs">
-          ดูแล {assignedFeatureIds.size} จาก {availableFeatures.length} ฟีเจอร์ที่บริษัทมี
+          ดูแล {assignedFeatureIds.size} จาก {availableFeatures.length}{' '}
+          ฟีเจอร์ที่บริษัทมี
         </Badge>
       </div>
 

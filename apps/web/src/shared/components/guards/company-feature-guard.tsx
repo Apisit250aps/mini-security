@@ -23,8 +23,11 @@ export function CompanyFeatureGuard({
   fallbackTitle = 'ฟีเจอร์นี้ยังไม่เปิดใช้งานสำหรับบริษัทของคุณ',
   fallbackDescription = 'บริษัทของคุณยังไม่ได้รับสิทธิ์เข้าถึงโมดูลนี้ หรือถูกปิดการใช้งานโดยผู้ดูแลระบบ กรุณาติดต่อผู้ดูแลระบบหากต้องการใช้งานฟีเจอร์นี้',
 }: CompanyFeatureGuardProps) {
-  const { activeCompanyId, isSuperAdmin, isLoading: isCompanyLoading } =
-    useActiveCompany();
+  const {
+    activeCompanyId,
+    isSuperAdmin,
+    isLoading: isCompanyLoading,
+  } = useActiveCompany();
 
   const availableFeaturesQuery =
     useCompanyAvailableFeaturesQueries(activeCompanyId);

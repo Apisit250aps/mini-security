@@ -245,13 +245,7 @@ export function useFeatureCreate() {
 export function useFeatureUpdate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: UpdateFeature;
-    }) => {
+    mutationFn: async ({ id, data }: { id: string; data: UpdateFeature }) => {
       const res = await featureServicesUpdateFeature({
         path: { id },
         body: data,
@@ -276,13 +270,7 @@ export function useFeatureUpdate() {
 export function useFeatureToggle() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      id,
-      isActive,
-    }: {
-      id: string;
-      isActive: boolean;
-    }) => {
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
       const res = await featureServicesToggleFeature({
         path: { id },
         body: { isActive },

@@ -197,6 +197,7 @@ namespace Domain.Entity;
     ipAddress?: string | null;
     userAgent?: string | null;
     activeCompanyId?: string | null;
+    permissions?: string | null;
   }
 
   model Account {

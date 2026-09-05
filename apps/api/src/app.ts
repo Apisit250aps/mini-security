@@ -6,8 +6,14 @@ import { config } from './configs';
 import { onApiError, onNotFound, success } from './lib/response';
 import { authMiddleware } from './middleware';
 import apiRoutes from './routes';
+import { Session, User } from '@repo/domains';
 
-const app = new Hono();
+const app = new Hono<{
+  Variables: {
+    user?: User;
+    session?: Session;
+  };
+}>();
 
 // Request Logger
 app.use(logger());

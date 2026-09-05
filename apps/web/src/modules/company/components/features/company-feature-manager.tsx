@@ -22,7 +22,9 @@ interface CompanyFeatureManagerProps {
   companyId: string;
 }
 
-export function CompanyFeatureManager({ companyId }: CompanyFeatureManagerProps) {
+export function CompanyFeatureManager({
+  companyId,
+}: CompanyFeatureManagerProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const featuresQuery = useFeatureListQueries();
@@ -169,7 +171,10 @@ export function CompanyFeatureManager({ companyId }: CompanyFeatureManagerProps)
                             <span className="font-semibold text-sm">
                               {feat.name}
                             </span>
-                            <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] font-mono px-1.5 py-0"
+                            >
                               {feat.code}
                             </Badge>
                           </div>

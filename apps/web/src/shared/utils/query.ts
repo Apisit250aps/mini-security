@@ -96,12 +96,10 @@ export const attendanceKeys = {
 
 export const featureKeys = {
   ...createQueryKeys('FEATURE'),
-  company: (companyId: string) =>
-    ['FEATURE', 'COMPANY', companyId] as const,
+  company: (companyId: string) => ['FEATURE', 'COMPANY', companyId] as const,
   companyAvailable: (companyId: string) =>
     ['FEATURE', 'COMPANY', companyId, 'AVAILABLE'] as const,
-  role: (roleId: string) =>
-    ['FEATURE', 'ROLE', roleId] as const,
+  role: (roleId: string) => ['FEATURE', 'ROLE', roleId] as const,
   companyRoles: (companyId: string) =>
     ['FEATURE', 'COMPANY_ROLES', companyId] as const,
 };

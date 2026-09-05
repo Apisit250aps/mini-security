@@ -38,7 +38,9 @@ export function useCompanyFeaturesQueries(
         query: { onlyEnabled },
       });
       if (response.data) return response.data.data;
-      throw new Error('No data returned from featureServicesGetCompanyFeatures');
+      throw new Error(
+        'No data returned from featureServicesGetCompanyFeatures',
+      );
     },
     enabled: Boolean(companyId),
   });

@@ -18,7 +18,7 @@ import {
   updateFeatureUseCase,
 } from '@repo/infrastructures/compositions';
 import { FeatureController } from '../controllers/feature.controller';
-import { authMiddleware, type AuthContext } from '../middleware';
+import { authMiddleware } from '../middleware';
 
 const featureController = new FeatureController(
   createFeatureUseCase,
@@ -39,7 +39,7 @@ const featureController = new FeatureController(
   checkRoleFeatureAccessUseCase,
 );
 
-const featureRoutes = new Hono<AuthContext>();
+const featureRoutes = new Hono();
 
 featureRoutes.use('*', authMiddleware);
 
@@ -70,18 +70,12 @@ featureRoutes.get(
   '/companies/:companyId/roles',
   featureController.getCompanyRoleFeatures,
 );
-featureRoutes.get(
-  '/roles/:roleId',
-  featureController.getRoleFeatures,
-);
+featureRoutes.get('/roles/:roleId', featureController.getRoleFeatures);
 featureRoutes.post(
   '/roles/:roleId/assign',
   featureController.assignRoleFeature,
 );
-featureRoutes.put(
-  '/roles/:roleId/toggle',
-  featureController.toggleRoleFeature,
-);
+featureRoutes.put('/roles/:roleId/toggle', featureController.toggleRoleFeature);
 featureRoutes.delete(
   '/roles/:roleId/features/:featureId',
   featureController.revokeRoleFeature,

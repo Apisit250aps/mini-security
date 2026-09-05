@@ -8,7 +8,7 @@ import {
   updateUserUseCase,
 } from '@repo/infrastructures/compositions';
 import { UserController } from '../controllers/user.controller';
-import { authMiddleware, type AuthContext } from '../middleware';
+import { authMiddleware } from '../middleware';
 
 const userController = new UserController(
   createUserUseCase,
@@ -19,7 +19,7 @@ const userController = new UserController(
   getUsersUseCase,
 );
 
-const userRoutes = new Hono<AuthContext>();
+const userRoutes = new Hono();
 
 userRoutes.use('*', authMiddleware);
 

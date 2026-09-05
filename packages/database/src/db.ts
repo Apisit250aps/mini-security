@@ -7,7 +7,7 @@ if (!url) {
   throw new Error('DATABASE_URL environment variable is not set');
 }
 
-const db = drizzle(url, { relations: { ...relations }, logger: !true });
+const db = drizzle(url, { relations: { ...relations }, logger: true });
 
 type Database = typeof db;
 

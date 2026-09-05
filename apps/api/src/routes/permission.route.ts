@@ -16,7 +16,7 @@ import {
   updateRoleUseCase,
 } from '@repo/infrastructures/compositions';
 import { PermissionController } from '../controllers/permission.controller';
-import { authMiddleware, type AuthContext } from '../middleware';
+import { authMiddleware } from '../middleware';
 
 const permissionController = new PermissionController(
   createRoleUseCase,
@@ -35,7 +35,7 @@ const permissionController = new PermissionController(
   getMyPermissionsUseCase,
 );
 
-const permissionRoutes = new Hono<AuthContext>();
+const permissionRoutes = new Hono();
 
 permissionRoutes.use('*', authMiddleware);
 

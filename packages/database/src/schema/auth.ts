@@ -18,6 +18,7 @@ export const session = pgTable(
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
     activeCompanyId: uuid('active_company_id'),
+    permissions: text('permissions'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },

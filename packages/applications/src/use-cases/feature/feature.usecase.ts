@@ -28,15 +28,14 @@ export class CreateFeatureUseCase implements ICreateFeatureUseCase {
   async execute(context: ICreateFeatureContext): Promise<Feature> {
     const parsed = await createFeatureSchema.safeParseAsync(context.data);
     if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid feature data',
-        parsed.error.format(),
-      );
+      throw new ValidationError('Invalid feature data', parsed.error.format());
     }
 
     const existing = await this.featureRepository.findByCode(parsed.data.code);
     if (existing) {
-      throw new DuplicateError(`Feature with code "${parsed.data.code}" already exists`);
+      throw new DuplicateError(
+        `Feature with code "${parsed.data.code}" already exists`,
+      );
     }
 
     return this.featureRepository.create(parsed.data);
@@ -61,9 +60,13 @@ export class UpdateFeatureUseCase implements IUpdateFeatureUseCase {
     }
 
     if (parsed.data.code && parsed.data.code !== existing.code) {
-      const duplicate = await this.featureRepository.findByCode(parsed.data.code);
+      const duplicate = await this.featureRepository.findByCode(
+        parsed.data.code,
+      );
       if (duplicate) {
-        throw new DuplicateError(`Feature with code "${parsed.data.code}" already exists`);
+        throw new DuplicateError(
+          `Feature with code "${parsed.data.code}" already exists`,
+        );
       }
     }
 

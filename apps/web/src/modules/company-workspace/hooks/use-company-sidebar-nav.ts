@@ -40,7 +40,10 @@ export function useCompanySidebarNav() {
         const group = item as NavItemGroup;
 
         // If the group itself requires a feature that is not available, skip it
-        if (group.featureCode && !availableFeatureCodes.has(group.featureCode)) {
+        if (
+          group.featureCode &&
+          !availableFeatureCodes.has(group.featureCode)
+        ) {
           continue;
         }
 

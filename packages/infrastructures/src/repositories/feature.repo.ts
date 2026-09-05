@@ -1,16 +1,8 @@
 import { and, eq } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
-import {
-  companyFeature,
-  feature,
-  roleFeature,
-} from '@repo/database/schema';
-import {
-  CompanyFeature,
-  Feature,
-  RoleFeature,
-} from '@repo/domains/entities';
+import { companyFeature, feature, roleFeature } from '@repo/database/schema';
+import { CompanyFeature, Feature, RoleFeature } from '@repo/domains/entities';
 import type {
   ICompanyFeatureRepository,
   IFeatureRepository,
@@ -59,11 +51,7 @@ export class FeatureRepository
 }
 
 export class CompanyFeatureRepository
-  extends Repository<
-    CompanyFeature,
-    CreateCompanyFeature,
-    UpdateCompanyFeature
-  >
+  extends Repository<CompanyFeature, CreateCompanyFeature, UpdateCompanyFeature>
   implements ICompanyFeatureRepository
 {
   constructor(db: Database) {
@@ -75,7 +63,9 @@ export class CompanyFeatureRepository
       .select()
       .from(this.table)
       .where(eq(companyFeature.companyId, companyId));
-    return results.map((r) => new CompanyFeature(r as unknown as CompanyFeature));
+    return results.map(
+      (r) => new CompanyFeature(r as unknown as CompanyFeature),
+    );
   }
 
   async findActiveByCompanyId(companyId: string): Promise<CompanyFeature[]> {
@@ -88,7 +78,9 @@ export class CompanyFeatureRepository
           eq(companyFeature.isEnabled, true),
         ),
       );
-    return results.map((r) => new CompanyFeature(r as unknown as CompanyFeature));
+    return results.map(
+      (r) => new CompanyFeature(r as unknown as CompanyFeature),
+    );
   }
 
   async findByCompanyAndFeature(
@@ -104,7 +96,9 @@ export class CompanyFeatureRepository
           eq(companyFeature.featureId, featureId),
         ),
       );
-    return result ? new CompanyFeature(result as unknown as CompanyFeature) : null;
+    return result
+      ? new CompanyFeature(result as unknown as CompanyFeature)
+      : null;
   }
 
   async findByCompanyAndFeatureCode(
@@ -130,7 +124,9 @@ export class CompanyFeatureRepository
           eq(feature.code, featureCode),
         ),
       );
-    return result ? new CompanyFeature(result as unknown as CompanyFeature) : null;
+    return result
+      ? new CompanyFeature(result as unknown as CompanyFeature)
+      : null;
   }
 
   async findFeaturesByCompanyId(
@@ -286,8 +282,6 @@ export class RoleFeatureRepository
   }
 
   async deleteByRoleId(roleId: string): Promise<void> {
-    await this.db
-      .delete(this.table)
-      .where(eq(roleFeature.roleId, roleId));
+    await this.db.delete(this.table).where(eq(roleFeature.roleId, roleId));
   }
 }

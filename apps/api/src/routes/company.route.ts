@@ -18,7 +18,7 @@ import {
   updateCompanyUseCase,
 } from '@repo/infrastructures/compositions';
 import { CompanyController } from '../controllers/company.controller';
-import { authMiddleware, type AuthContext } from '../middleware';
+import { authMiddleware } from '../middleware';
 
 const companyController = new CompanyController(
   createCompanyUseCase,
@@ -39,7 +39,7 @@ const companyController = new CompanyController(
   getCompanyBranchUseCase,
 );
 
-const companyRoutes = new Hono<AuthContext>();
+const companyRoutes = new Hono();
 
 companyRoutes.use('*', authMiddleware);
 

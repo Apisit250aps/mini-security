@@ -58,7 +58,7 @@ import {
   updateWorkShiftUseCase,
 } from '@repo/infrastructures/compositions';
 import { AttendanceController } from '../controllers/attendance.controller';
-import { authMiddleware, type AuthContext } from '../middleware';
+import { authMiddleware } from '../middleware';
 
 const attendanceController = new AttendanceController(
   createWorkScheduleUseCase,
@@ -119,7 +119,7 @@ const attendanceController = new AttendanceController(
   reviewLeaveRequestUseCase,
 );
 
-const attendanceRoutes = new Hono<AuthContext>();
+const attendanceRoutes = new Hono();
 
 attendanceRoutes.use('*', authMiddleware);
 
