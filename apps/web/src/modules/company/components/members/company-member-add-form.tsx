@@ -1,17 +1,18 @@
 'use client';
 
+import { UserSelectField } from '@/modules/user/components/user-select-field';
+import { RoleSelectField } from '@/modules/role/components/role-select-field';
+import { CompanyBranchSelectField } from '@/modules/company/components/branches/company-branch-select-field';
+
 import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createCompanyMemberSchema } from '@repo/domains/schema/company';
 import { z } from 'zod';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+import { SwitchField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useCompanyMemberAdd } from '../../hooks/company-mutations';
-import { useUserListQueries } from '@/modules/user/hooks/user-queries';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import { useCompanyBranchesQueries } from '../../hooks/company-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import {
@@ -34,46 +35,16 @@ export default function CompanyMemberAddForm({
   const ui = useOverlay();
   const addMutation = useCompanyMemberAdd(companyId);
 
-  const usersQuery = useUserListQueries();
-  const rolesQuery = useCompanyRolesQueries(companyId);
   const branchesQuery = useCompanyBranchesQueries(companyId);
 
-  const userOptions = useMemo(() => {
-    return (usersQuery.data || []).map((u) => ({
-      value: u.id,
-      label: `${u.name} (${u.email})`,
-    }));
-  }, [usersQuery.data]);
-
-  const roleOptions = useMemo(() => {
-    return (rolesQuery.data || [])
-      .filter(
-        (r) =>
-          r.roleType !== 'SUPER_ADMIN' &&
-          (!r.companyId || r.companyId === companyId),
-      )
-      .map((r) => ({
-        value: r.id,
-        label: r.name,
-      }));
-  }, [rolesQuery.data, companyId]);
-
-  const branchOptions = useMemo(() => {
-    return (branchesQuery.data || [])
-      .filter((b) => b.isActive)
-      .map((b) => ({
-        value: b.id,
-        label: b.name,
-      }));
-  }, [branchesQuery.data]);
-
   const defaultBranchId = useMemo(() => {
-    return branchesQuery.data?.[0]?.id || '';
+    return branchesQuery.data?.find((branch) => branch.isActive)?.id || '';
   }, [branchesQuery.data]);
 
   const methods = useForm<CompanyMemberAddFormValues>({
     resolver: zodResolver(createCompanyMemberSchema as never),
-    defaultValues: {
+    resetOptions: { keepDirtyValues: true, keepErrors: true },
+    values: {
       companyId,
       companyBranchId: defaultBranchId,
       userId: '',
@@ -81,12 +52,6 @@ export default function CompanyMemberAddForm({
       isActive: true,
     },
   });
-
-  React.useEffect(() => {
-    if (defaultBranchId && !methods.getValues('companyBranchId')) {
-      methods.setValue('companyBranchId', defaultBranchId);
-    }
-  }, [defaultBranchId, methods]);
 
   const handleSubmit = async (data: CompanyMemberAddFormValues) => {
     await addMutation.mutateAsync({
@@ -116,40 +81,39 @@ export default function CompanyMemberAddForm({
           className="flex flex-col gap-4"
         >
           <FieldGroup className="flex flex-col gap-3">
-            <SelectField
+            <UserSelectField
               name="userId"
               label="เลือกผู้ใช้งานในระบบ"
               placeholder="เลือกผู้ใช้งาน..."
-              options={userOptions}
               control={methods.control}
               required
             />
 
-            <SelectField
+            <CompanyBranchSelectField
               name="companyBranchId"
+              companyId={companyId}
               label="สังกัดสาขา (Branch)"
               placeholder="เลือกสาขา (ค่าเริ่มต้น: สำนักงานใหญ่)..."
-              options={branchOptions}
               control={methods.control}
             />
 
-            <SelectField
+            <RoleSelectField
               name="roleId"
+              companyId={companyId}
               label="มอบหมายบทบาท (Role)"
               placeholder="เลือกบทบาท..."
-              options={roleOptions}
               control={methods.control}
               required
             />
 
-            <div className="flex flex-col gap-3 rounded-lg border p-3">
+            <FieldGroup className="flex flex-col gap-3 rounded-lg border p-3">
               <SwitchField
                 name="isActive"
                 label="เปิดใช้งานในองค์กร (Active)"
                 description="อนุญาตให้ผู้ใช้นี้เข้าปฏิบัติงานในนามบริษัทได้"
                 control={methods.control}
               />
-            </div>
+            </FieldGroup>
           </FieldGroup>
 
           <div className="flex justify-end">

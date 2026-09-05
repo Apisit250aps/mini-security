@@ -1,13 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@repo/ui/components/select';
+import { OptionsSelect } from '@/shared/components/form/options-select';
 import { Badge } from '@repo/ui/components/badge';
 import { useCompanyMemberUpdate } from '../../hooks/company-mutations';
 import type { CompanyMember, Role } from '@repo/client';
@@ -67,23 +61,16 @@ export default function CompanyMemberRoleSelect({
   }
 
   return (
-    <Select
-      selectedKey={member.roleId}
-      placeholder="เลือกบทบาท..."
-      onSelectionChange={handleRoleChange}
-      isDisabled={updateMutation.isPending}
+    <OptionsSelect
+      value={member.roleId}
+      label="บทบาท"
+      onChange={handleRoleChange}
+      disabled={updateMutation.isPending}
       className="w-44"
-    >
-      <SelectTrigger size="sm" className="h-8 text-xs font-medium">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {companyRoles.map((role) => (
-          <SelectItem key={role.id} id={role.id} textValue={role.name}>
-            {role.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      options={companyRoles.map((item) => ({
+        value: item.id,
+        label: item.name,
+      }))}
+    />
   );
 }

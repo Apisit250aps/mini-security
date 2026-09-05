@@ -1,16 +1,14 @@
 'use client';
 
+import { InputField, PasswordField, SwitchField } from '@repo/ui/form';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createUserSchema } from '@repo/domains/schema/user';
 import type { FormProps } from '@/types';
 import { z } from 'zod';
-import {
-  InputField,
-  PasswordField,
-} from '@repo/ui/components/shared/form/input-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
@@ -86,7 +84,7 @@ export default function UserForm({
           required={!isEdit}
         />
 
-        <div className="flex flex-col gap-3 rounded-lg border p-3">
+        <FieldGroup className="flex flex-col gap-3 rounded-lg border p-3">
           <SwitchField
             name="isAdmin"
             label="ผู้ดูแลระบบ (Admin)"
@@ -100,7 +98,7 @@ export default function UserForm({
             description="อนุญาตให้ผู้ใช้นี้เข้าสู่ระบบได้"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
       </FieldGroup>
 
       <div className="flex justify-end">

@@ -1,15 +1,19 @@
 'use client';
 
+import {
+  InputField,
+  TextareaField,
+  SwitchField,
+  SelectField,
+} from '@repo/ui/form';
+
 import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createRoleSchema } from '@repo/domains/schema/permission';
 import type { FormProps } from '@/types';
 import { z } from 'zod';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
+
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
@@ -96,7 +100,7 @@ export default function RoleForm({
         />
 
         {!hideSystemDefault && (
-          <div className="flex flex-col gap-3 rounded-lg border p-3">
+          <FieldGroup className="flex flex-col gap-3 rounded-lg border p-3">
             <SwitchField
               name="isSystemDefault"
               label="บทบาทเริ่มต้นของระบบ (System Default)"
@@ -104,7 +108,7 @@ export default function RoleForm({
               control={methods.control}
               disabled={readOnly}
             />
-          </div>
+          </FieldGroup>
         )}
       </FieldGroup>
 

@@ -5,6 +5,7 @@ import { Field, FieldLabel, FieldError } from '@repo/ui/components/field';
 import { Input } from '@repo/ui/components/input';
 import {
   InputGroup,
+  InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from '@repo/ui/components/input-group';
@@ -18,17 +19,20 @@ const InputField = <T extends FieldValues>({
   name,
   label,
   required,
+  disabled,
   id,
   ...props
 }: BaseFieldProps<T> &
   Omit<React.ComponentProps<typeof Input>, 'name'>): React.ReactElement => {
-  const inputId = id ?? name;
+  const generatedId = React.useId();
+  const inputId = id ?? generatedId;
   return (
     <Controller
       name={name}
       control={control}
+      disabled={disabled}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
+        <Field data-invalid={fieldState.invalid} data-disabled={field.disabled}>
           {label && (
             <FieldLabel htmlFor={inputId}>
               {label}
@@ -38,13 +42,19 @@ const InputField = <T extends FieldValues>({
           <Input
             id={inputId}
             aria-invalid={fieldState.invalid}
+            aria-describedby={
+              fieldState.invalid ? `${inputId}-error` : undefined
+            }
             {...field}
             {...props}
+            disabled={field.disabled}
             required={required}
             onChange={(e) => parseOnChange(e, field)}
             value={field.value ?? ''}
           />
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          {fieldState.invalid && (
+            <FieldError id={`${inputId}-error`} errors={[fieldState.error]} />
+          )}
         </Field>
       )}
     />
@@ -56,48 +66,61 @@ const PasswordField = <T extends FieldValues>({
   name,
   label,
   required,
+  disabled,
   id,
   ...props
 }: BaseFieldProps<T> & React.ComponentProps<'input'>): React.ReactElement => {
   const [showPassword, setShowPassword] = React.useState(false);
-  const inputId = id ?? `password-${name}`;
+  const generatedId = React.useId();
+  const passwordId = id ?? generatedId;
 
   return (
     <Controller
       name={name}
       control={control}
+      disabled={disabled}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
+        <Field data-invalid={fieldState.invalid} data-disabled={field.disabled}>
           {label && (
-            <FieldLabel htmlFor={inputId}>
+            <FieldLabel htmlFor={passwordId}>
               {label}
               {required && <span className="text-destructive ml-0.5">*</span>}
             </FieldLabel>
           )}
           <InputGroup>
             <InputGroupInput
-              id={inputId}
+              id={passwordId}
               {...props}
+              disabled={field.disabled}
+              required={required}
               {...field}
               type={showPassword ? 'text' : 'password'}
               aria-invalid={fieldState.invalid}
+              aria-describedby={
+                fieldState.invalid ? `${passwordId}-error` : undefined
+              }
               value={field.value ?? ''}
             />
-            <InputGroupButton
-              variant="ghost"
-              size="icon-xs"
-              aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
-              className="mr-1 text-muted-foreground hover:text-foreground"
-              onPress={() => setShowPassword((prev) => !prev)}
-            >
-              {showPassword ? (
-                <Eye className="size-4" />
-              ) : (
-                <EyeClosed className="size-4" />
-              )}
-            </InputGroupButton>
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton
+                type="button"
+                isDisabled={field.disabled}
+                variant="ghost"
+                size="icon-xs"
+                aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
+                className="mr-1 text-muted-foreground hover:text-foreground"
+                onPress={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <Eye /> : <EyeClosed />}
+              </InputGroupButton>
+            </InputGroupAddon>
           </InputGroup>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          {fieldState.invalid && (
+            <FieldError
+              id={`${passwordId}-error`}
+              errors={[fieldState.error]}
+            />
+          )}
         </Field>
       )}
     />

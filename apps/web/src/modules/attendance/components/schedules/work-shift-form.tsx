@@ -1,5 +1,7 @@
 'use client';
 
+import { InputField, SwitchField } from '@repo/ui/form';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,8 +12,7 @@ import {
   useWorkShiftUpdate,
 } from '../../hooks/attendance-mutations';
 import { useOverlay } from '@repo/ui/hooks';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
 import type { WorkShift } from '@repo/domains/entities';
@@ -88,9 +89,10 @@ export default function WorkShiftForm({
           required
         />
 
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <InputField
             name="startTime"
+            type="time"
             label="เวลาเริ่มงาน (HH:mm)"
             placeholder="09:00"
             control={methods.control}
@@ -98,14 +100,15 @@ export default function WorkShiftForm({
           />
           <InputField
             name="endTime"
+            type="time"
             label="เวลาเลิกงาน (HH:mm)"
             placeholder="18:00"
             control={methods.control}
             required
           />
-        </div>
+        </FieldGroup>
 
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <InputField
             name="color"
             label="สีประจำกะ (Hex Code)"
@@ -120,7 +123,7 @@ export default function WorkShiftForm({
               control={methods.control}
             />
           </div>
-        </div>
+        </FieldGroup>
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

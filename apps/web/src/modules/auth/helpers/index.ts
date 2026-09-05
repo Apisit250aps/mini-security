@@ -1,28 +1,25 @@
 import 'server-only';
-import { getUserPermissionActions } from '@repo/infrastructures/lib/auth-permissions';
-import { getMyPermissionsUseCase } from '@repo/infrastructures/compositions';
+import { permissionServicesGetMyPermissions } from '@repo/client';
+import config from '@repo/configs';
 import type { Permission } from '@repo/domains/entities';
-import { Session } from '../hooks/session-provider';
+import { headers } from 'next/headers';
+import type { Session } from '../hooks/session-provider';
 
 async function getPermissions(session: Session): Promise<Permission[]> {
-  let permissions: Permission[] = [];
-  if (session) {
-    if (!session.user.isAdmin) {
-      const { actions, companyId } = await getUserPermissionActions(
-        session.user.id,
-        session.session.activeCompanyId,
-      );
-      permissions = await getMyPermissionsUseCase.execute({
-        companyId: companyId ?? undefined,
-        activeCompanyId: companyId,
-        user: session.user,
-        permissions: actions.join(','),
-        userId: session.session.userId,
-      });
-      permissions = permissions.map((p) => ({ ...p }));
-    }
-  }
-  return permissions;
+  if (!session || session.user.isAdmin) return [];
+
+  const requestHeaders = await headers();
+  const { data } = await permissionServicesGetMyPermissions({
+    baseURL: `${config.backend.url.replace(/\/$/, '')}/api`,
+    headers: { cookie: requestHeaders.get('cookie') ?? '' },
+    throwOnError: true,
+  });
+
+  return (data.data ?? []).map((permission) => ({
+    ...permission,
+    createdAt: new Date(permission.createdAt),
+    updatedAt: new Date(permission.updatedAt),
+  }));
 }
 
 export { getPermissions };

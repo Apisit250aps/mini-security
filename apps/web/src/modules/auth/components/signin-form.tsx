@@ -15,10 +15,7 @@ import {
   CardTitle,
 } from '@repo/ui/components/card';
 import { FieldDescription, FieldGroup } from '@repo/ui/components/field';
-import {
-  InputField,
-  PasswordField,
-} from '@repo/ui/components/shared/form/input-field';
+import { InputField, PasswordField } from '@repo/ui/form';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useSession } from '../hooks/session-provider';
 import { toast } from '@repo/ui/components/sonner';

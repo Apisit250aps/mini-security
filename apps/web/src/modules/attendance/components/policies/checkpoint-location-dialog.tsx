@@ -1,5 +1,7 @@
 'use client';
 
+import { AttendanceLocationSelect } from './attendance-location-select';
+
 import React, { useMemo, useState } from 'react';
 import type { AttendanceCheckpoint } from '@repo/domains/entities';
 import {
@@ -43,7 +45,10 @@ export default function CheckpointLocationDialog({
   );
 
   const handleAssign = async () => {
-    if (!selectedLocationId) return;
+    if (
+      !availableLocations.some((location) => location.id === selectedLocationId)
+    )
+      return;
     await assignMutation.mutateAsync({
       checkpointId: checkpoint.id,
       locationId: selectedLocationId,
@@ -70,27 +75,23 @@ export default function CheckpointLocationDialog({
           </h4>
         </div>
         <div className="flex items-center gap-2">
-          <select
+          <AttendanceLocationSelect
+            companyId={companyId}
+            excludeIds={assignedLocationIds}
+            label="สถานที่ลงเวลา"
             value={selectedLocationId}
-            onChange={(e) => setSelectedLocationId(e.target.value)}
-            disabled={availableLocations.length === 0}
-            className="h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="">
-              {availableLocations.length === 0
-                ? 'ผูกสถานที่ครบทั้งหมดแล้ว'
-                : 'เลือกสถานที่ลงเวลา...'}
-            </option>
-            {availableLocations.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.name} ({loc.locationType} - {loc.radiusMeters || 0}m)
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedLocationId}
+            disabled={isAssignedLoading || assignMutation.isPending}
+          />
           <ButtonLoading
             size="sm"
             onPress={handleAssign}
-            isDisabled={!selectedLocationId}
+            isDisabled={
+              isLoading ||
+              !availableLocations.some(
+                (location) => location.id === selectedLocationId,
+              )
+            }
             isLoading={assignMutation.isPending}
             className="gap-1 h-9"
           >
@@ -100,7 +101,7 @@ export default function CheckpointLocationDialog({
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           สถานที่ที่อนุญาตให้ลงเวลา ({assigned.length})
         </h4>
@@ -114,7 +115,7 @@ export default function CheckpointLocationDialog({
             ยังไม่ได้ผูกสถานที่ใดๆ (จะอนุญาตให้ลงเวลาได้ทุกที่ หากไม่ได้ระบุ)
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             {assigned.map((item) => {
               const loc = allLocations.find((l) => l.id === item.locationId);
               return (

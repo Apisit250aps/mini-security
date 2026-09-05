@@ -1,5 +1,7 @@
 'use client';
 
+import { InputField, TextareaField, SwitchField } from '@repo/ui/form';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,9 +12,7 @@ import {
   useWorkScheduleUpdate,
 } from '../../hooks/attendance-mutations';
 import { useOverlay } from '@repo/ui/hooks';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
 import type { WorkSchedule } from '@repo/domains/entities';
@@ -86,14 +86,14 @@ export default function WorkScheduleForm({
           control={methods.control}
         />
 
-        <div className="flex flex-col gap-3 rounded-lg border p-3">
+        <FieldGroup className="flex flex-col gap-3 rounded-lg border p-3">
           <SwitchField
             name="isActive"
             label="เปิดใช้งานตารางเวลานี้"
             description="หากปิดใช้งาน พนักงานจะไม่สามารถผูกกับตารางนี้ได้"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

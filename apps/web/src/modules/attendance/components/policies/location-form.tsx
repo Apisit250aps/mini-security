@@ -1,6 +1,15 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import {
+  InputField,
+  SelectField,
+  TextareaField,
+  SwitchField,
+} from '@repo/ui/form';
+
+import { CompanyBranchSelectField } from '@/modules/company/components/branches/company-branch-select-field';
+
+import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createAttendanceLocationSchema } from '@repo/domains/schema/attendance';
@@ -9,12 +18,8 @@ import {
   useAttendanceLocationCreate,
   useAttendanceLocationUpdate,
 } from '../../hooks/attendance-mutations';
-import { useCompanyBranchesQueries } from '@/modules/company/hooks/company-queries';
 import { useOverlay } from '@repo/ui/hooks';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
-import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
 import type { AttendanceLocation } from '@repo/domains/entities';
@@ -37,20 +42,8 @@ export default function LocationForm({
   const ui = useOverlay();
   const createMutation = useAttendanceLocationCreate(companyId);
   const updateMutation = useAttendanceLocationUpdate(companyId);
-  const { data: branches = [] } = useCompanyBranchesQueries(companyId);
 
   const isEdit = Boolean(location);
-
-  const branchOptions = useMemo(
-    () =>
-      branches
-        .filter((b) => b.isActive)
-        .map((b) => ({
-          value: b.id,
-          label: b.name,
-        })),
-    [branches],
-  );
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(createAttendanceLocationSchema as never),
@@ -137,7 +130,7 @@ export default function LocationForm({
           required
         />
 
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <SelectField
             name="locationType"
             label="ประเภทการระบุพื้นที่"
@@ -153,19 +146,19 @@ export default function LocationForm({
             placeholder="100"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
 
         {selectedLocationType === 'BRANCH' && (
-          <SelectField
+          <CompanyBranchSelectField
             name="branchId"
+            companyId={companyId}
             label="เลือกสาขาที่ผูก (Company Branch)"
             placeholder="เลือกสาขา..."
-            options={branchOptions}
             control={methods.control}
           />
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <InputField
             name="latitude"
             label="ละติจูด (Latitude)"
@@ -180,7 +173,7 @@ export default function LocationForm({
             placeholder="100.5018"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
 
         <TextareaField
           name="address"
@@ -189,14 +182,14 @@ export default function LocationForm({
           control={methods.control}
         />
 
-        <div className="flex flex-col gap-3 rounded-lg border p-3">
+        <FieldGroup className="flex flex-col gap-3 rounded-lg border p-3">
           <SwitchField
             name="isActive"
             label="เปิดใช้งานสถานที่นี้"
             description="พนักงานสามารถเช็คชื่อภายในพิกัดนี้ได้"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

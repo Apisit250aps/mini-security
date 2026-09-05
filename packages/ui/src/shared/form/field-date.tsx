@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 import { Field, FieldLabel, FieldError } from '@repo/ui/components/field';
-import { Control, Controller, FieldValues, Path } from 'react-hook-form';
-import { DialogTrigger, Dialog } from '@repo/ui/components/dialog';
+import { Controller, FieldValues } from 'react-hook-form';
 import { Button } from '@repo/ui/components/button';
 import { format } from 'date-fns';
 import { Calendar } from '@repo/ui/components/calendar';
@@ -109,48 +108,71 @@ function DateField<T extends FieldValues>({
   name,
   control,
   label,
-  placeholder,
-}: {
-  name: Path<T>;
-  control: Control<T>;
-  label?: string;
-  placeholder?: string;
-}) {
+  placeholder = 'Pick a date',
+  disabled,
+  required,
+  id,
+}: BaseFieldProps<T> & { placeholder?: string; id?: string }) {
+  const generatedId = React.useId();
+  const inputId = id ?? generatedId;
+  const errorId = `${inputId}-error`;
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field }) => {
+      disabled={disabled}
+      rules={{ required: required ? 'กรุณาเลือกวันที่' : false }}
+      render={({ field, fieldState }) => {
+        const date = toDateValue(field.value);
         return (
-          <Field className="mx-auto">
-            {label && (
-              <FieldLabel htmlFor="date-picker-simple">{label}</FieldLabel>
-            )}
-            <DialogTrigger>
+          <Field
+            data-invalid={fieldState.invalid}
+            data-disabled={field.disabled}
+          >
+            {label && <FieldLabel htmlFor={inputId}>{label}</FieldLabel>}
+            <PopoverTrigger
+              onOpenChange={(isOpen) => {
+                if (!isOpen) field.onBlur();
+              }}
+            >
               <Button
+                type="button"
                 variant="outline"
-                id="date-picker-simple"
-                className="justify-start font-normal"
+                id={inputId}
+                ref={field.ref}
+                onBlur={field.onBlur}
+                isDisabled={field.disabled}
+                aria-label={label ?? placeholder}
+                aria-invalid={fieldState.invalid}
+                aria-describedby={fieldState.invalid ? errorId : undefined}
+                className="w-full justify-start"
               >
-                {field.value != null && field.value !== '' ? (
-                  format(field.value, 'PPP')
+                <CalendarIcon data-icon="inline-start" />
+                {date ? (
+                  format(date.toDate(getLocalTimeZone()), 'PPP')
                 ) : (
-                  <span>{placeholder ?? 'Pick a date'}</span>
+                  <span>{placeholder}</span>
                 )}
               </Button>
               <Popover className="w-auto p-0" placement="bottom start">
-                <Dialog>
+                <AriaDialog aria-label={label ?? placeholder}>
                   <Calendar
-                    value={toDateValue(field.value)}
-                    onChange={(date) =>
+                    aria-label={label ?? placeholder}
+                    value={date}
+                    isDisabled={field.disabled}
+                    isInvalid={fieldState.invalid}
+                    onChange={(value) =>
                       field.onChange(
-                        date ? date.toDate(getLocalTimeZone()) : null,
+                        value ? value.toDate(getLocalTimeZone()) : null,
                       )
                     }
                   />
-                </Dialog>
+                </AriaDialog>
               </Popover>
-            </DialogTrigger>
+            </PopoverTrigger>
+            {fieldState.invalid && (
+              <FieldError id={errorId} errors={[fieldState.error]} />
+            )}
           </Field>
         );
       }}

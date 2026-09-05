@@ -1,18 +1,19 @@
 'use client';
 
+import { RoleSelectField } from '@/modules/role/components/role-select-field';
+import { CompanyBranchSelectField } from '@/modules/company/components/branches/company-branch-select-field';
+
 import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateCompanyMemberSchema } from '@repo/domains/schema/company';
 import type { CompanyMember } from '@repo/domains/entities';
 import { z } from 'zod';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+import { SwitchField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useCompanyMemberUpdate } from '../../hooks/company-mutations';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
-import { useCompanyBranchesQueries } from '../../hooks/company-queries';
 import { useOverlay } from '@repo/ui/hooks';
 
 export type CompanyMemberEditFormValues = z.infer<
@@ -29,7 +30,6 @@ export default function CompanyMemberEditForm({
   const ui = useOverlay();
   const updateMutation = useCompanyMemberUpdate(companyId);
   const rolesQuery = useCompanyRolesQueries(companyId);
-  const branchesQuery = useCompanyBranchesQueries(companyId);
 
   const currentRole = useMemo(
     () => (rolesQuery.data || []).find((r) => r.id === member.roleId),
@@ -40,28 +40,6 @@ export default function CompanyMemberEditForm({
     () => currentRole?.name.toLowerCase() === 'owner',
     [currentRole],
   );
-
-  const roleOptions = useMemo(() => {
-    return (rolesQuery.data || [])
-      .filter(
-        (r) =>
-          r.roleType !== 'SUPER_ADMIN' &&
-          (!r.companyId || r.companyId === companyId),
-      )
-      .map((r) => ({
-        value: r.id,
-        label: r.name,
-      }));
-  }, [rolesQuery.data, companyId]);
-
-  const branchOptions = useMemo(() => {
-    return (branchesQuery.data || [])
-      .filter((b) => b.isActive || b.id === member.companyBranchId)
-      .map((b) => ({
-        value: b.id,
-        label: b.name,
-      }));
-  }, [branchesQuery.data, member.companyBranchId]);
 
   const methods = useForm<CompanyMemberEditFormValues>({
     resolver: zodResolver(updateCompanyMemberSchema as never),
@@ -99,34 +77,34 @@ export default function CompanyMemberEditForm({
             แต่สามารถเปลี่ยนสาขาสังกัดได้
           </div>
         ) : (
-          <SelectField
+          <RoleSelectField
             name="roleId"
+            companyId={companyId}
             label="ปรับเปลี่ยนบทบาท (Role)"
             placeholder="เลือกบทบาท..."
-            options={roleOptions}
             control={methods.control}
             required
           />
         )}
 
-        <SelectField
+        <CompanyBranchSelectField
           name="companyBranchId"
+          companyId={companyId}
           label="สาขาสังกัด (Branch)"
           placeholder="เลือกสาขา..."
-          options={branchOptions}
           control={methods.control}
           required
         />
 
         {!isOwner && (
-          <div className="flex flex-col gap-3 rounded-lg border p-3">
+          <FieldGroup className="flex flex-col gap-3 rounded-lg border p-3">
             <SwitchField
               name="isActive"
               label="สถานะการทำงาน (Active)"
               description="อนุญาตให้ผู้ใช้นี้เข้าปฏิบัติงานในนามบริษัทได้"
               control={methods.control}
             />
-          </div>
+          </FieldGroup>
         )}
       </FieldGroup>
 

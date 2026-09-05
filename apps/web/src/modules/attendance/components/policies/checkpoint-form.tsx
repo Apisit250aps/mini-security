@@ -1,5 +1,7 @@
 'use client';
 
+import { InputField, SelectField, SwitchField } from '@repo/ui/form';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,9 +12,7 @@ import {
   useAttendanceCheckpointUpdate,
 } from '../../hooks/attendance-mutations';
 import { useOverlay } from '@repo/ui/hooks';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
 import type { AttendanceCheckpoint } from '@repo/domains/entities';
@@ -97,7 +97,7 @@ export default function CheckpointForm({
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <SelectField
             name="checkType"
             label="ประเภทการเช็คชื่อ"
@@ -114,9 +114,9 @@ export default function CheckpointForm({
             control={methods.control}
             required
           />
-        </div>
+        </FieldGroup>
 
-        <div className="grid grid-cols-3 gap-3">
+        <FieldGroup className="grid grid-cols-3 gap-3">
           <InputField
             name="orderIndex"
             label="ลำดับการเช็ค"
@@ -136,7 +136,7 @@ export default function CheckpointForm({
             placeholder="09:30"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
 
         <InputField
           name="graceMinutes"
@@ -146,7 +146,7 @@ export default function CheckpointForm({
           control={methods.control}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 rounded-lg border p-3">
+        <FieldGroup className="grid grid-cols-1 md:grid-cols-3 gap-2 rounded-lg border p-3">
           <SwitchField
             name="isRequired"
             label="บังคับเช็ค"
@@ -162,7 +162,7 @@ export default function CheckpointForm({
             label="บังคับถ่ายภาพ Selfie"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">

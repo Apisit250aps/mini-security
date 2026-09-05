@@ -1,25 +1,26 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+  SelectField,
+  InputField,
+  TextareaField,
+  DateField,
+} from '@repo/ui/form';
+
+import { CompanyMemberSelectField } from '@/modules/company/components/members/company-member-select-field';
+import { WorkShiftSelectField } from '@/modules/attendance/components/schedules/work-shift-select-field';
+import { WorkScheduleSelect } from '@/modules/attendance/components/schedules/work-schedule-select';
+
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createAttendanceRecordSchema } from '@repo/domains/schema/attendance';
 import type { z } from 'zod';
 import { useAttendanceRecordCreate } from '../../hooks/attendance-mutations';
-import {
-  useWorkSchedulesQueries,
-  useWorkShiftsQueries,
-} from '../../hooks/attendance-queries';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
-import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import { useOverlay } from '@repo/ui/hooks';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
-import { DateField } from '@repo/ui/components/shared/form/field-date';
+
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
-import type { User } from '@repo/domains/entities';
 
 type FormValues = z.infer<typeof createAttendanceRecordSchema>;
 
@@ -37,59 +38,14 @@ export default function AttendanceRecordCreateForm({
 }) {
   const ui = useOverlay();
   const createMutation = useAttendanceRecordCreate(companyId);
-  const { data: members = [] } = useCompanyMembersQueries(companyId);
-  const { data: users = [] } = useUserListQueries();
-  const { data: schedules = [] } = useWorkSchedulesQueries(companyId);
-
-  const [selectedScheduleId, setSelectedScheduleId] = useState<string>('');
-  const activeScheduleId = selectedScheduleId || schedules[0]?.id || '';
-
-  const { data: shifts = [] } = useWorkShiftsQueries(activeScheduleId);
-
-  const usersMap = useMemo(() => {
-    const map = new Map<string, User>();
-    for (const u of users) {
-      map.set(u.id, u);
-    }
-    return map;
-  }, [users]);
-
-  const memberOptions = useMemo(
-    () =>
-      members.map((m) => {
-        const user = usersMap.get(m.userId);
-        return {
-          value: m.id,
-          label: user ? `${user.name} (${user.email})` : `พนักงาน ID: ${m.id}`,
-        };
-      }),
-    [members, usersMap],
-  );
-
-  const scheduleOptions = useMemo(
-    () =>
-      schedules.map((s) => ({
-        value: s.id,
-        label: s.name,
-      })),
-    [schedules],
-  );
-
-  const shiftOptions = useMemo(
-    () =>
-      shifts.map((s) => ({
-        value: s.id,
-        label: `${s.name} (${s.startTime} - ${s.endTime})`,
-      })),
-    [shifts],
-  );
+  const [selectedScheduleId, setSelectedScheduleId] = React.useState('');
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(createAttendanceRecordSchema as never),
     defaultValues: {
       companyId,
-      companyMemberId: members[0]?.id || '',
-      workShiftId: shifts[0]?.id || '',
+      companyMemberId: '',
+      workShiftId: '',
       workDate: new Date(),
       status: 'APPROVED',
       totalWorkMinutes: 480,
@@ -98,12 +54,6 @@ export default function AttendanceRecordCreateForm({
       note: '',
     },
   });
-
-  useEffect(() => {
-    if (shifts.length > 0 && !methods.getValues('workShiftId')) {
-      methods.setValue('workShiftId', shifts[0]?.id || '');
-    }
-  }, [shifts, methods]);
 
   const handleSubmit = async (data: FormValues) => {
     await createMutation.mutateAsync({
@@ -126,50 +76,40 @@ export default function AttendanceRecordCreateForm({
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <SelectField
+        <CompanyMemberSelectField
           name="companyMemberId"
+          companyId={companyId}
           label="พนักงาน"
           placeholder="เลือกพนักงาน..."
-          options={memberOptions}
           control={methods.control}
           required
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-foreground">
-              ตารางเวลาอ้างอิง
-            </label>
-            <select
-              value={activeScheduleId}
-              onChange={(e) => {
-                setSelectedScheduleId(e.target.value);
-                methods.setValue('workShiftId', '');
-              }}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="" disabled>
-                เลือกตารางเวลา...
-              </option>
-              {scheduleOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <FieldGroup className="grid grid-cols-2 gap-3">
+          <WorkScheduleSelect
+            companyId={companyId}
+            label="ตารางเวลาอ้างอิง"
+            value={selectedScheduleId}
+            onChange={(value) => {
+              setSelectedScheduleId(value);
+              methods.setValue('workShiftId', '', {
+                shouldDirty: true,
+                shouldValidate: true,
+              });
+            }}
+          />
 
-          <SelectField
+          <WorkShiftSelectField
             name="workShiftId"
+            workScheduleId={selectedScheduleId}
             label="กะการทำงาน (Work Shift)"
             placeholder="เลือกกะ..."
-            options={shiftOptions}
             control={methods.control}
             required
           />
-        </div>
+        </FieldGroup>
 
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <DateField
             name="workDate"
             label="วันที่ปฏิบัติงาน (Work Date)"
@@ -184,9 +124,9 @@ export default function AttendanceRecordCreateForm({
             control={methods.control}
             required
           />
-        </div>
+        </FieldGroup>
 
-        <div className="grid grid-cols-3 gap-2">
+        <FieldGroup className="grid grid-cols-3 gap-2">
           <InputField
             name="totalWorkMinutes"
             label="เวลาทำงาน (นาที)"
@@ -205,7 +145,7 @@ export default function AttendanceRecordCreateForm({
             type="number"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
 
         <TextareaField
           name="note"

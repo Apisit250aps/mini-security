@@ -1,6 +1,15 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import {
+  SelectField,
+  InputField,
+  TextareaField,
+  DateField,
+} from '@repo/ui/form';
+
+import { CompanyMemberSelectField } from '@/modules/company/components/members/company-member-select-field';
+
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createLeaveRequestSchema } from '@repo/domains/schema/attendance';
@@ -9,16 +18,11 @@ import {
   useLeaveRequestCreate,
   useLeaveRequestUpdate,
 } from '../../hooks/attendance-mutations';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
-import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import { useOverlay } from '@repo/ui/hooks';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
-import { DateField } from '@repo/ui/components/shared/form/field-date';
+
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
-import type { LeaveRequest, User } from '@repo/domains/entities';
+import type { LeaveRequest } from '@repo/domains/entities';
 
 type FormValues = z.infer<typeof createLeaveRequestSchema>;
 
@@ -40,36 +44,14 @@ export default function LeaveForm({
   const ui = useOverlay();
   const createMutation = useLeaveRequestCreate(companyId);
   const updateMutation = useLeaveRequestUpdate(companyId);
-  const { data: members = [] } = useCompanyMembersQueries(companyId);
-  const { data: users = [] } = useUserListQueries();
 
   const isEdit = Boolean(leave);
-
-  const usersMap = useMemo(() => {
-    const map = new Map<string, User>();
-    for (const u of users) {
-      map.set(u.id, u);
-    }
-    return map;
-  }, [users]);
-
-  const memberOptions = useMemo(
-    () =>
-      members.map((m) => {
-        const user = usersMap.get(m.userId);
-        return {
-          value: m.id,
-          label: user ? `${user.name} (${user.email})` : `พนักงาน ID: ${m.id}`,
-        };
-      }),
-    [members, usersMap],
-  );
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(createLeaveRequestSchema as never),
     defaultValues: {
       companyId,
-      companyMemberId: leave?.companyMemberId || members[0]?.id || '',
+      companyMemberId: leave?.companyMemberId || '',
       leaveType: leave?.leaveType || 'ANNUAL_LEAVE',
       status: leave?.status || 'PENDING',
       startDate: leave?.startDate ? new Date(leave.startDate) : new Date(),
@@ -121,17 +103,17 @@ export default function LeaveForm({
     >
       <FieldGroup className="flex flex-col gap-3">
         {!isEdit && (
-          <SelectField
+          <CompanyMemberSelectField
             name="companyMemberId"
+            companyId={companyId}
             label="พนักงานผู้ยื่นคำขอ"
             placeholder="เลือกพนักงาน..."
-            options={memberOptions}
             control={methods.control}
             required
           />
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <SelectField
             name="leaveType"
             label="ประเภทการลา"
@@ -149,9 +131,9 @@ export default function LeaveForm({
             control={methods.control}
             required
           />
-        </div>
+        </FieldGroup>
 
-        <div className="grid grid-cols-2 gap-3">
+        <FieldGroup className="grid grid-cols-2 gap-3">
           <DateField
             name="startDate"
             label="วันที่เริ่มลา"
@@ -164,7 +146,7 @@ export default function LeaveForm({
             placeholder="เลือกวันที่สิ้นสุด"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
 
         <TextareaField
           name="reason"

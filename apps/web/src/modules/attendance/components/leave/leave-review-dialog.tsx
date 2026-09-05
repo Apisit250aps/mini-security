@@ -1,5 +1,7 @@
 'use client';
 
+import { SelectField, TextareaField } from '@repo/ui/form';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,8 +9,7 @@ import { z } from 'zod';
 import type { LeaveRequest } from '@repo/domains/entities';
 import { useLeaveRequestReview } from '../../hooks/attendance-mutations';
 import { useOverlay } from '@repo/ui/hooks';
-import { SelectField } from '@repo/ui/components/shared/form/select-field';
-import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
+
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { FieldGroup } from '@repo/ui/components/field';
 

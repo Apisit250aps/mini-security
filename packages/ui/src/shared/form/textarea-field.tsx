@@ -1,3 +1,6 @@
+'use client';
+
+import { useId } from 'react';
 import { Controller, FieldValues } from 'react-hook-form';
 import { Field, FieldError, FieldLabel } from '@repo/ui/components/field';
 import { Textarea } from '@repo/ui/components/textarea';
@@ -9,19 +12,22 @@ export const TextareaField = <T extends FieldValues>({
   label,
   id,
   required,
+  disabled,
   ...props
 }: BaseFieldProps<T> &
   Omit<React.ComponentProps<typeof Textarea>, 'name'> & {
     id?: string;
   }): React.ReactElement => {
-  const textareaId = id ?? name;
+  const generatedId = useId();
+  const textareaId = id ?? generatedId;
 
   return (
     <Controller
       name={name}
       control={control}
+      disabled={disabled}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
+        <Field data-invalid={fieldState.invalid} data-disabled={field.disabled}>
           {label && (
             <FieldLabel htmlFor={textareaId}>
               {label}
@@ -32,10 +38,20 @@ export const TextareaField = <T extends FieldValues>({
             {...field}
             id={textareaId}
             aria-invalid={fieldState.invalid}
+            aria-describedby={
+              fieldState.invalid ? `${textareaId}-error` : undefined
+            }
             value={field.value ?? ''}
             {...props}
+            required={required}
+            disabled={field.disabled}
           />
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          {fieldState.invalid && (
+            <FieldError
+              id={`${textareaId}-error`}
+              errors={[fieldState.error]}
+            />
+          )}
         </Field>
       )}
     />

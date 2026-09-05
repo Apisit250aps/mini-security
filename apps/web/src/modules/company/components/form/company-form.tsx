@@ -1,13 +1,14 @@
 'use client';
 
+import { InputField, SwitchField } from '@repo/ui/form';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createCompanySchema } from '@repo/domains/schema/company';
 import type { FormProps } from '@/types';
 import { z } from 'zod';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { SwitchField } from '@repo/ui/components/shared/form/boolean-fields';
+
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
@@ -57,14 +58,14 @@ export default function CompanyForm({
           control={methods.control}
         />
 
-        <div className="flex flex-col gap-3 rounded-lg border p-3">
+        <FieldGroup className="flex flex-col gap-3 rounded-lg border p-3">
           <SwitchField
             name="isActive"
             label="เปิดใช้งานบริษัท (Active)"
             description="อนุญาตให้เข้าใช้งานในนามบริษัทนี้ได้"
             control={methods.control}
           />
-        </div>
+        </FieldGroup>
       </FieldGroup>
 
       <div className="flex justify-end">

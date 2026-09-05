@@ -1,17 +1,42 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useSyncExternalStore } from 'react';
+
+let timestamp: number | null = null;
+const listeners = new Set<() => void>();
+let timer: ReturnType<typeof setInterval> | undefined;
+
+function tick() {
+  timestamp = Date.now();
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  if (listeners.size === 1) {
+    tick();
+    timer = setInterval(tick, 1000);
+  }
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size === 0) {
+      clearInterval(timer);
+      timer = undefined;
+      timestamp = null;
+    }
+  };
+}
+
+const getSnapshot = () => timestamp;
+const getServerSnapshot = () => null;
 
 export default function RealtimeClock() {
-  const [time, setTime] = useState<Date | null>(null);
-
-  useEffect(() => {
-    setTime(new Date());
-    const timer = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const timestamp = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
+  const time = timestamp === null ? null : new Date(timestamp);
 
   if (!time) {
     return (

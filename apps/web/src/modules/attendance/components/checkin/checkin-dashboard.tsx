@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
@@ -16,7 +16,8 @@ import {
   useWorkShiftDetailQueries,
 } from '../../hooks/attendance-queries';
 import RealtimeClock from './realtime-clock';
-import GPSStatusBadge, { type GPSState } from './gps-status-badge';
+import GPSStatusBadge from './gps-status-badge';
+import { useGPSPosition } from '../../hooks/use-gps-position';
 import CheckinActionCard from './checkin-action-card';
 import CheckpointTimeline from './checkpoint-timeline';
 import TodayShiftCard from './today-shift-card';
@@ -33,17 +34,6 @@ export default function CheckinDashboard() {
     activeCompanyId,
     isLoading: isCompanyLoading,
   } = useActiveCompany();
-
-  const [gpsState, setGpsState] = useState<GPSState>({
-    latitude: null,
-    longitude: null,
-    accuracy: null,
-    nearestLocation: null,
-    distanceMeters: null,
-    isWithinRadius: false,
-    isLoading: true,
-    error: null,
-  });
 
   const userId = sessionData?.user?.id || '';
   const userName = sessionData?.user?.name || 'พนักงาน';
@@ -83,6 +73,12 @@ export default function CheckinDashboard() {
   // 5. Fetch Allowed GPS Locations
   const { data: locations = [] } =
     useAttendanceLocationsQueries(activeCompanyId);
+
+  const { state: gpsState, refresh: refreshGPS } = useGPSPosition(
+    activeCompanyId,
+    locations,
+    status === 'authenticated' && !isCompanyLoading && !isMembersLoading,
+  );
 
   // 6. Fetch Today's Attendance Record & Logs
   const todayStr = useMemo(
@@ -204,7 +200,7 @@ export default function CheckinDashboard() {
                 </p>
               </div>
 
-              <GPSStatusBadge locations={locations} onGPSUpdate={setGpsState} />
+              <GPSStatusBadge state={gpsState} onRefresh={refreshGPS} />
             </div>
 
             {/* Bento Grid Architecture */}

@@ -1,13 +1,14 @@
 'use client';
 
+import { InputField, TextareaField } from '@repo/ui/form';
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createPermissionSchema } from '@repo/domains/schema/permission';
 import type { FormProps } from '@/types';
 import { z } from 'zod';
-import { InputField } from '@repo/ui/components/shared/form/input-field';
-import { TextareaField } from '@repo/ui/components/shared/form/textarea-field';
+
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
