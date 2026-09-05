@@ -67,10 +67,15 @@ export default function CheckinActionCard({
 
     // If no record exists for today, create one first
     if (!recordId) {
+      if (!currentShift) {
+        toast.error('ยังไม่ได้กำหนดกะการทำงานให้ Role ของคุณ');
+        return;
+      }
+
       const newRecordRes = await createRecordMutation.mutateAsync({
         companyId,
         companyMemberId: currentMember.id,
-        workShiftId: currentShift?.id || '00000000-0000-0000-0000-000000000000',
+        workShiftId: currentShift.id,
         workDate: new Date(),
         status: 'APPROVED',
         totalWorkMinutes: 480,

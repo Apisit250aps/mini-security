@@ -25,7 +25,6 @@ import WorkScheduleTable from '../components/schedules/work-schedule-table';
 import WorkShiftTable from '../components/schedules/work-shift-table';
 import RoleScheduleTable from '../components/schedules/role-schedule-table';
 import WorkScheduleCreateAction from '../components/schedules/work-schedule-create-action';
-import RoleScheduleAction from '../components/schedules/role-schedule-action';
 import {
   CalendarRange,
   Clock,
@@ -70,7 +69,6 @@ export default function WorkSchedulesView() {
       actions={
         activeCompany && (
           <div className="flex items-center gap-2">
-            <RoleScheduleAction companyId={activeCompanyId} />
             <WorkScheduleCreateAction companyId={activeCompanyId} />
           </div>
         )

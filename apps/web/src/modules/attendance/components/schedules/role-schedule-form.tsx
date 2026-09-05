@@ -17,7 +17,13 @@ import { FieldGroup } from '@repo/ui/components/field';
 
 type FormValues = z.infer<typeof createRoleWorkScheduleSchema>;
 
-export default function RoleScheduleForm({ companyId }: { companyId: string }) {
+export default function RoleScheduleForm({
+  companyId,
+  workShiftId,
+}: {
+  companyId: string;
+  workShiftId?: string;
+}) {
   const ui = useOverlay();
   const [selectedScheduleId, setSelectedScheduleId] = React.useState('');
 
@@ -25,10 +31,11 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(createRoleWorkScheduleSchema as never),
+    mode: 'onChange',
     defaultValues: {
       roleId: '',
       companyId: companyId,
-      workShiftId: '',
+      workShiftId: workShiftId || '',
       effectiveDate: new Date(),
       endDate: null,
     },
@@ -60,27 +67,35 @@ export default function RoleScheduleForm({ companyId }: { companyId: string }) {
           required
         />
 
-        <WorkScheduleSelect
-          companyId={companyId}
-          label="ตารางเวลาอ้างอิง"
-          value={selectedScheduleId}
-          onChange={(value) => {
-            setSelectedScheduleId(value);
-            methods.setValue('workShiftId', '', {
-              shouldDirty: true,
-              shouldValidate: true,
-            });
-          }}
-        />
+        {workShiftId && (
+          <input type="hidden" {...methods.register('workShiftId')} />
+        )}
 
-        <WorkShiftSelectField
-          name="workShiftId"
-          workScheduleId={selectedScheduleId}
-          label="กะการทำงาน (Work Shift)"
-          placeholder="เลือกกะ..."
-          control={methods.control}
-          required
-        />
+        {!workShiftId && (
+          <>
+            <WorkScheduleSelect
+              companyId={companyId}
+              label="ตารางเวลาอ้างอิง"
+              value={selectedScheduleId}
+              onChange={(value) => {
+                setSelectedScheduleId(value);
+                methods.setValue('workShiftId', '', {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              }}
+            />
+
+            <WorkShiftSelectField
+              name="workShiftId"
+              workScheduleId={selectedScheduleId}
+              label="กะการทำงาน (Work Shift)"
+              placeholder="เลือกกะ..."
+              control={methods.control}
+              required
+            />
+          </>
+        )}
 
         <FieldGroup className="grid grid-cols-2 gap-3">
           <DateField

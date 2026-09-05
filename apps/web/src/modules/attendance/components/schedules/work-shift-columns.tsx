@@ -8,6 +8,7 @@ import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useOverlay } from '@repo/ui/hooks';
 import { useWorkShiftDelete } from '../../hooks/attendance-mutations';
 import WorkShiftForm from './work-shift-form';
+import RoleScheduleForm from './role-schedule-form';
 import { Clock, Moon } from 'lucide-react';
 
 function WorkShiftColumnActions<T extends WorkShift>({
@@ -44,9 +45,23 @@ function WorkShiftColumnActions<T extends WorkShift>({
     });
   };
 
+  const handleAssignRole = () => {
+    ui.dialog.open({
+      title: `กำหนด Role: ${shift.name}`,
+      description: 'เลือก Role ที่ต้องใช้กะการทำงานนี้',
+      size: 'lg',
+      children: (
+        <RoleScheduleForm companyId={shift.companyId} workShiftId={shift.id} />
+      ),
+    });
+  };
+
   return (
     <ColumnActions
       actions={{
+        กำหนดให้Role: {
+          onAction: handleAssignRole,
+        },
         แก้ไข: {
           onAction: handleEdit,
         },

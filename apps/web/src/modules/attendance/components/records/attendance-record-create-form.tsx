@@ -42,6 +42,7 @@ export default function AttendanceRecordCreateForm({
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(createAttendanceRecordSchema as never),
+    mode: 'onChange',
     defaultValues: {
       companyId,
       companyMemberId: '',

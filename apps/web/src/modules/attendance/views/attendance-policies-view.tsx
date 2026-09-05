@@ -16,12 +16,10 @@ import {
   TabsList,
   TabsTrigger,
 } from '@repo/ui/components/tabs';
-import { useAttendancePoliciesQueries } from '../hooks/attendance-queries';
-import PolicyCard from '../components/policies/policy-card';
 import PolicyCreateAction from '../components/policies/policy-create-action';
-import RolePolicyAction from '../components/policies/role-policy-action';
 import LocationTable from '../components/policies/location-table';
 import LocationCreateAction from '../components/policies/location-create-action';
+import PolicyTable from '../components/policies/policy-table';
 import { MapPin, ShieldAlert } from 'lucide-react';
 
 export default function AttendancePoliciesView() {
@@ -31,10 +29,7 @@ export default function AttendancePoliciesView() {
     isLoading: isCompanyLoading,
   } = useActiveCompany();
 
-  const { data: policies = [], isLoading: isPoliciesLoading } =
-    useAttendancePoliciesQueries(activeCompanyId);
-
-  const isLoading = isCompanyLoading || isPoliciesLoading;
+  const isLoading = isCompanyLoading;
 
   return (
     <PageLayout
@@ -43,7 +38,6 @@ export default function AttendancePoliciesView() {
       actions={
         activeCompany && (
           <div className="flex items-center gap-2">
-            <RolePolicyAction companyId={activeCompanyId} />
             <LocationCreateAction companyId={activeCompanyId} />
             <PolicyCreateAction companyId={activeCompanyId} />
           </div>
@@ -77,22 +71,7 @@ export default function AttendancePoliciesView() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {policies.length === 0 ? (
-                  <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-                    ยังไม่มีนโยบายการลงเวลา กดปุ่ม &quot;สร้างนโยบายใหม่&quot;
-                    เพื่อเริ่มต้น
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {policies.map((policy) => (
-                      <PolicyCard
-                        key={policy.id}
-                        companyId={activeCompanyId}
-                        policy={policy}
-                      />
-                    ))}
-                  </div>
-                )}
+                <PolicyTable companyId={activeCompanyId} />
               </CardContent>
             </Card>
           </TabsContent>
