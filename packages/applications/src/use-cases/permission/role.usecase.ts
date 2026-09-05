@@ -32,17 +32,14 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
     private readonly userRepository?: IUserRepository,
   ) {}
 
+  @RequirePermission('role:create')
   async execute(context: ICreateRoleContext): Promise<Role> {
     const parsed = await createRoleSchema.safeParseAsync(context.data);
     if (!parsed.success) {
       throw new ValidationError('Invalid role data', parsed.error.format());
     }
 
-    let isAdmin = false;
-    if (context.userId && this.userRepository) {
-      const user = await this.userRepository.findById(context.userId);
-      isAdmin = Boolean(user?.isAdmin);
-    }
+    const isAdmin = context.user?.isAdmin === true;
 
     if (!isAdmin && parsed.data.roleType === 'SUPER_ADMIN') {
       throw new ValidationError('ไม่อนุญาตให้สร้างบทบาทประเภท Super Admin');
@@ -89,11 +86,7 @@ export class UpdateRoleUseCase implements IUpdateRoleUseCase {
       throw new NotFoundError(`Role with id ${context.id} not found`);
     }
 
-    let isAdmin = false;
-    if (context.userId && this.userRepository) {
-      const user = await this.userRepository.findById(context.userId);
-      isAdmin = Boolean(user?.isAdmin);
-    }
+    const isAdmin = context.user?.isAdmin === true;
 
     if (existing.isSystemDefault && !isAdmin) {
       throw new ValidationError(
@@ -139,11 +132,7 @@ export class DeleteRoleUseCase implements IDeleteRoleUseCase {
       throw new NotFoundError(`Role with id ${context.id} not found`);
     }
 
-    let isAdmin = false;
-    if (context.userId && this.userRepository) {
-      const user = await this.userRepository.findById(context.userId);
-      isAdmin = Boolean(user?.isAdmin);
-    }
+    const isAdmin = context.user?.isAdmin === true;
 
     if (existing.isSystemDefault && !isAdmin) {
       throw new ValidationError(
@@ -178,11 +167,7 @@ export class GetRolesByCompanyUseCase implements IGetRolesByCompanyUseCase {
     companyId: ctx.companyId,
   }))
   async execute(context: IGetRolesByCompanyContext): Promise<Role[]> {
-    let isAdmin = false;
-    if (context.userId && this.userRepository) {
-      const user = await this.userRepository.findById(context.userId);
-      isAdmin = Boolean(user?.isAdmin);
-    }
+    const isAdmin = context.user?.isAdmin === true;
     return this.roleRepository.findByCompanyId(context.companyId, isAdmin);
   }
 }

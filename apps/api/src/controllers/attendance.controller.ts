@@ -232,6 +232,7 @@ export class AttendanceController extends Controller {
       const { companyId } = c.get('params');
       const user = c.get('user');
       const result = await this.getWorkSchedulesUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         userId: user?.id,
       });
@@ -245,6 +246,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       const result = await this.getWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -258,6 +260,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -272,6 +275,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -286,6 +290,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -303,6 +308,7 @@ export class AttendanceController extends Controller {
       const { workScheduleId } = c.get('params');
       const user = c.get('user');
       const result = await this.getWorkShiftsUseCase.execute({
+        ...this.securityContext(c),
         workScheduleId,
         userId: user?.id,
       });
@@ -316,6 +322,7 @@ export class AttendanceController extends Controller {
       const { companyId } = c.get('params');
       const user = c.get('user');
       const result = await this.getCompanyWorkShiftsUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         userId: user?.id,
       });
@@ -327,6 +334,7 @@ export class AttendanceController extends Controller {
     const { id } = c.get('params');
     const user = c.get('user');
     const result = await this.getWorkShiftUseCase.execute({
+      ...this.securityContext(c),
       id,
       userId: user?.id,
     });
@@ -339,6 +347,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createWorkShiftUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -353,6 +362,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateWorkShiftUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -367,6 +377,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteWorkShiftUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -384,6 +395,7 @@ export class AttendanceController extends Controller {
       const { companyId } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendancePoliciesUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         userId: user?.id,
       });
@@ -397,6 +409,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendancePolicyUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -410,6 +423,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createAttendancePolicyUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -424,6 +438,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateAttendancePolicyUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -438,6 +453,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteAttendancePolicyUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -455,6 +471,7 @@ export class AttendanceController extends Controller {
       const { policyId } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendanceCheckpointsUseCase.execute({
+        ...this.securityContext(c),
         policyId,
         userId: user?.id,
       });
@@ -468,6 +485,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendanceCheckpointUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -481,6 +499,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createAttendanceCheckpointUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -495,6 +514,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateAttendanceCheckpointUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -509,6 +529,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteAttendanceCheckpointUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -526,6 +547,7 @@ export class AttendanceController extends Controller {
       const { roleId } = c.get('params');
       const user = c.get('user');
       const result = await this.getRoleAttendancePoliciesUseCase.execute({
+        ...this.securityContext(c),
         roleId,
         userId: user?.id,
       });
@@ -539,6 +561,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.assignRoleAttendancePolicyUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -552,6 +575,7 @@ export class AttendanceController extends Controller {
       const { roleId, policyId } = c.get('params');
       const user = c.get('user');
       await this.removeRoleAttendancePolicyUseCase.execute({
+        ...this.securityContext(c),
         roleId,
         policyId,
         userId: user?.id,
@@ -570,6 +594,7 @@ export class AttendanceController extends Controller {
       const { companyId } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendanceLocationsUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         userId: user?.id,
       });
@@ -583,6 +608,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendanceLocationUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -596,6 +622,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createAttendanceLocationUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -610,6 +637,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateAttendanceLocationUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -624,6 +652,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteAttendanceLocationUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -637,6 +666,7 @@ export class AttendanceController extends Controller {
       const { checkpointId } = c.get('params');
       const user = c.get('user');
       const result = await this.getCheckpointLocationsUseCase.execute({
+        ...this.securityContext(c),
         checkpointId,
         userId: user?.id,
       });
@@ -650,6 +680,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.assignCheckpointLocationUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -663,6 +694,7 @@ export class AttendanceController extends Controller {
       const { checkpointId, locationId } = c.get('params');
       const user = c.get('user');
       await this.removeCheckpointLocationUseCase.execute({
+        ...this.securityContext(c),
         checkpointId,
         locationId,
         userId: user?.id,
@@ -681,6 +713,7 @@ export class AttendanceController extends Controller {
       const { companyId } = c.get('params');
       const user = c.get('user');
       const result = await this.getRoleWorkSchedulesByCompanyUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         userId: user?.id,
       });
@@ -694,6 +727,7 @@ export class AttendanceController extends Controller {
       const { roleId } = c.get('params');
       const user = c.get('user');
       const result = await this.getCurrentRoleWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         roleId,
         userId: user?.id,
       });
@@ -707,6 +741,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.assignRoleWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -721,6 +756,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateRoleWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -735,6 +771,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteRoleWorkScheduleUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -752,6 +789,7 @@ export class AttendanceController extends Controller {
       const query = c.get('query');
       const user = c.get('user');
       const result = await this.getAttendanceRecordsUseCase.execute({
+        ...this.securityContext(c),
         companyId: query.companyId,
         memberId: query.memberId,
         startDate: query.startDate ? new Date(query.startDate) : undefined,
@@ -768,6 +806,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendanceRecordUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -781,6 +820,7 @@ export class AttendanceController extends Controller {
       const query = c.get('query');
       const user = c.get('user');
       const result = await this.getMemberAttendanceRecordByDateUseCase.execute({
+        ...this.securityContext(c),
         companyMemberId: query.companyMemberId,
         workDate: new Date(query.workDate),
         userId: user?.id,
@@ -795,6 +835,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createAttendanceRecordUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -809,6 +850,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateAttendanceRecordUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -823,6 +865,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteAttendanceRecordUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -837,6 +880,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.approveAttendanceRecordUseCase.execute({
+        ...this.securityContext(c),
         id,
         approvedBy: user?.id ?? '',
         status: body.status,
@@ -857,6 +901,7 @@ export class AttendanceController extends Controller {
       const { attendanceRecordId } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendanceLogsByRecordUseCase.execute({
+        ...this.securityContext(c),
         attendanceRecordId,
         userId: user?.id,
       });
@@ -870,6 +915,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       const result = await this.getAttendanceLogUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -883,6 +929,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createAttendanceLogUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -897,6 +944,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateAttendanceLogUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -911,6 +959,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteAttendanceLogUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -928,6 +977,7 @@ export class AttendanceController extends Controller {
       const query = c.get('query');
       const user = c.get('user');
       const result = await this.getLeaveRequestsUseCase.execute({
+        ...this.securityContext(c),
         companyId: query.companyId,
         memberId: query.memberId,
         status: query.status,
@@ -943,6 +993,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       const result = await this.getLeaveRequestUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -956,6 +1007,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.createLeaveRequestUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -970,6 +1022,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.updateLeaveRequestUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -984,6 +1037,7 @@ export class AttendanceController extends Controller {
       const { id } = c.get('params');
       const user = c.get('user');
       await this.deleteLeaveRequestUseCase.execute({
+        ...this.securityContext(c),
         id,
         userId: user?.id,
       });
@@ -998,6 +1052,7 @@ export class AttendanceController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.reviewLeaveRequestUseCase.execute({
+        ...this.securityContext(c),
         id,
         reviewedBy: user?.id ?? '',
         status: body.status,

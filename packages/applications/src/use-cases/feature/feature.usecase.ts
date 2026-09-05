@@ -1,3 +1,4 @@
+import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICreateFeatureContext,
   ICreateFeatureUseCase,
@@ -25,6 +26,7 @@ import {
 export class CreateFeatureUseCase implements ICreateFeatureUseCase {
   constructor(private readonly featureRepository: IFeatureRepository) {}
 
+  @RequirePermission('feature:create')
   async execute(context: ICreateFeatureContext): Promise<Feature> {
     const parsed = await createFeatureSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -45,6 +47,7 @@ export class CreateFeatureUseCase implements ICreateFeatureUseCase {
 export class UpdateFeatureUseCase implements IUpdateFeatureUseCase {
   constructor(private readonly featureRepository: IFeatureRepository) {}
 
+  @RequirePermission('feature:update')
   async execute(context: IUpdateFeatureContext): Promise<Feature> {
     const existing = await this.featureRepository.findById(context.id);
     if (!existing) {
@@ -77,6 +80,7 @@ export class UpdateFeatureUseCase implements IUpdateFeatureUseCase {
 export class ToggleFeatureUseCase implements IToggleFeatureUseCase {
   constructor(private readonly featureRepository: IFeatureRepository) {}
 
+  @RequirePermission('feature:toggle')
   async execute(context: IToggleFeatureContext): Promise<Feature> {
     const existing = await this.featureRepository.findById(context.id);
     if (!existing) {
@@ -92,6 +96,7 @@ export class ToggleFeatureUseCase implements IToggleFeatureUseCase {
 export class GetFeaturesUseCase implements IGetFeaturesUseCase {
   constructor(private readonly featureRepository: IFeatureRepository) {}
 
+  @RequirePermission('feature:read')
   async execute(context?: IGetFeaturesContext): Promise<Feature[]> {
     if (context?.category) {
       return this.featureRepository.findByCategory(context.category);
@@ -106,6 +111,7 @@ export class GetFeaturesUseCase implements IGetFeaturesUseCase {
 export class GetFeatureByIdUseCase implements IGetFeatureByIdUseCase {
   constructor(private readonly featureRepository: IFeatureRepository) {}
 
+  @RequirePermission('feature:read')
   async execute(context: IGetFeatureByIdContext): Promise<Feature | null> {
     return this.featureRepository.findById(context.id);
   }

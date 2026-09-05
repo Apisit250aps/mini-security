@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { hash, verify } from '#lib/password';
 import { config } from '@repo/configs';
 import db from '@repo/database/db';
@@ -44,13 +44,6 @@ const auth = betterAuth({
             session.userId,
           );
 
-          console.log(
-            'User permission actions:',
-            actions,
-            'Active company ID:',
-            companyId,
-          );
-
           return {
             data: {
               ...session,
@@ -66,20 +59,6 @@ const auth = betterAuth({
               .set({ lastLogin: new Date() })
               .where(eq(schema.user.id, session.userId));
           }
-        },
-      },
-      update: {
-        before: async (session) => {
-          const { actions, companyId } = await getUserPermissionActions(
-            session.userId!,
-          );
-          return {
-            data: {
-              ...session,
-              activeCompanyId: companyId,
-              permissions: actions.join(','),
-            },
-          };
         },
       },
     },

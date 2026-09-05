@@ -1,3 +1,4 @@
+import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   IAssignCompanyFeatureContext,
   IAssignCompanyFeatureUseCase,
@@ -30,6 +31,7 @@ export class AssignCompanyFeatureUseCase
     private readonly featureRepository: IFeatureRepository,
   ) {}
 
+  @RequirePermission('company_feature:create')
   async execute(
     context: IAssignCompanyFeatureContext,
   ): Promise<CompanyFeature> {
@@ -72,6 +74,7 @@ export class ToggleCompanyFeatureUseCase
     private readonly companyFeatureRepository: ICompanyFeatureRepository,
   ) {}
 
+  @RequirePermission('company_feature:toggle')
   async execute(
     context: IToggleCompanyFeatureContext,
   ): Promise<CompanyFeature> {
@@ -105,6 +108,7 @@ export class RemoveCompanyFeatureUseCase
     private readonly companyFeatureRepository: ICompanyFeatureRepository,
   ) {}
 
+  @RequirePermission('company_feature:delete')
   async execute(context: IRemoveCompanyFeatureContext): Promise<void> {
     await this.companyFeatureRepository.deleteByCompanyAndFeature(
       context.companyId,
@@ -118,6 +122,7 @@ export class GetCompanyFeaturesUseCase implements IGetCompanyFeaturesUseCase {
     private readonly companyFeatureRepository: ICompanyFeatureRepository,
   ) {}
 
+  @RequirePermission('company_feature:read')
   async execute(
     context: IGetCompanyFeaturesContext,
   ): Promise<CompanyFeature[]> {
@@ -137,6 +142,7 @@ export class GetCompanyAvailableFeaturesUseCase
     private readonly companyFeatureRepository: ICompanyFeatureRepository,
   ) {}
 
+  @RequirePermission('company_feature:read')
   async execute(
     context: IGetCompanyAvailableFeaturesContext,
   ): Promise<Feature[]> {

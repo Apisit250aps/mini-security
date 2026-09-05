@@ -54,11 +54,7 @@ export class AssignPermissionToRoleUseCase
       throw new NotFoundError(`Role with id ${parsed.data.roleId} not found`);
     }
 
-    let isAdmin = false;
-    if (context.userId && this.userRepository) {
-      const user = await this.userRepository.findById(context.userId);
-      isAdmin = Boolean(user?.isAdmin);
-    }
+    const isAdmin = context.user?.isAdmin === true;
 
     if (role.isSystemDefault && !isAdmin) {
       throw new ValidationError(
@@ -93,11 +89,7 @@ export class RevokePermissionFromRoleUseCase
     if (this.roleRepository) {
       const role = await this.roleRepository.findById(context.roleId);
       if (role) {
-        let isAdmin = false;
-        if (context.userId && this.userRepository) {
-          const user = await this.userRepository.findById(context.userId);
-          isAdmin = Boolean(user?.isAdmin);
-        }
+        const isAdmin = context.user?.isAdmin === true;
         if (role.isSystemDefault && !isAdmin) {
           throw new ValidationError(
             'ไม่สามารถแก้ไขสิทธิ์ของบทบาทมาตรฐานของระบบ (System Default) ได้',

@@ -24,6 +24,7 @@ import {
 import { RequirePermission } from '../../decorators/permission.decorator';
 import {
   DuplicateError,
+  ForbiddenError,
   NotFoundError,
   ValidationError,
 } from '../../lib/error';
@@ -32,12 +33,12 @@ export class AddCompanyMemberUseCase implements IAddCompanyMemberUseCase {
   constructor(
     private readonly memberRepository: ICompanyMemberRepository,
     private readonly companyRepository: ICompanyRepository,
-    private readonly roleRepository?: IRoleRepository,
+    private readonly roleRepository: IRoleRepository,
     private readonly branchRepository?: ICompanyBranchRepository,
   ) {}
 
   @RequirePermission('company_member:create', (ctx) => ({
-    companyId: ctx.data.companyId,
+    companyId: ctx.data?.companyId,
   }))
   async execute(context: IAddCompanyMemberContext): Promise<CompanyMember> {
     const parsed = await createCompanyMemberSchema.safeParseAsync(context.data);
@@ -131,15 +132,37 @@ export class AddCompanyMemberUseCase implements IAddCompanyMemberUseCase {
 export class UpdateCompanyMemberUseCase implements IUpdateCompanyMemberUseCase {
   constructor(
     private readonly memberRepository: ICompanyMemberRepository,
-    private readonly roleRepository?: IRoleRepository,
+    private readonly roleRepository: IRoleRepository,
     private readonly branchRepository?: ICompanyBranchRepository,
   ) {}
 
-  @RequirePermission('company_member:update')
-  async execute(context: IUpdateCompanyMemberContext): Promise<CompanyMember> {
-    const existing = await this.memberRepository.findById(context.id);
+  @RequirePermission('company_member:update', {
+    resolveResource: (useCase: UpdateCompanyMemberUseCase, context) =>
+      useCase.memberRepository.findById(context.id!),
+    notFoundMessage: 'CompanyMember not found',
+  })
+  async execute(
+    context: IUpdateCompanyMemberContext,
+    existing?: CompanyMember,
+  ): Promise<CompanyMember> {
     if (!existing) {
       throw new NotFoundError(`Company member with id ${context.id} not found`);
+    }
+
+    if (!context.user?.isAdmin) {
+      const actor = await this.memberRepository.findByCompanyAndUser(
+        existing.companyId,
+        context.user!.id,
+      );
+      if (!actor?.isActive)
+        throw new ForbiddenError('Active company membership required');
+    }
+    if (
+      (context.data.companyId &&
+        context.data.companyId !== existing.companyId) ||
+      (context.data.userId && context.data.userId !== existing.userId)
+    ) {
+      throw new ValidationError('Member company and user cannot be changed');
     }
 
     // If current member is Owner, role/permissions cannot be changed
@@ -147,9 +170,10 @@ export class UpdateCompanyMemberUseCase implements IUpdateCompanyMemberUseCase {
       const currentRole = await this.roleRepository.findById(existing.roleId);
       if (
         currentRole &&
-        currentRole.name.toLowerCase() === 'owner' &&
-        context.data.roleId &&
-        context.data.roleId !== existing.roleId
+        currentRole.roleType === 'OWNER' &&
+        !context.user?.isAdmin &&
+        ((context.data.roleId && context.data.roleId !== existing.roleId) ||
+          context.data.isActive === false)
       ) {
         throw new ValidationError(
           'ไม่สามารถเปลี่ยนแปลงสิทธิ์หรือแก้ไขบทบาทของ Owner ได้',
@@ -198,22 +222,36 @@ export class UpdateCompanyMemberUseCase implements IUpdateCompanyMemberUseCase {
 export class RemoveCompanyMemberUseCase implements IRemoveCompanyMemberUseCase {
   constructor(
     private readonly memberRepository: ICompanyMemberRepository,
-    private readonly roleRepository?: IRoleRepository,
+    private readonly roleRepository: IRoleRepository,
   ) {}
 
-  @RequirePermission('company_member:delete')
-  async execute(context: IRemoveCompanyMemberContext): Promise<void> {
-    const existing = await this.memberRepository.findById(context.id);
+  @RequirePermission('company_member:delete', {
+    resolveResource: (useCase: RemoveCompanyMemberUseCase, context) =>
+      useCase.memberRepository.findById(context.id!),
+    notFoundMessage: 'CompanyMember not found',
+  })
+  async execute(
+    context: IRemoveCompanyMemberContext,
+    existing?: CompanyMember,
+  ): Promise<void> {
     if (!existing) {
       throw new NotFoundError(`Company member with id ${context.id} not found`);
     }
 
+    if (!context.user?.isAdmin) {
+      const actor = await this.memberRepository.findByCompanyAndUser(
+        existing.companyId,
+        context.user!.id,
+      );
+      if (!actor?.isActive)
+        throw new ForbiddenError('Active company membership required');
+    }
+
     if (this.roleRepository) {
       const currentRole = await this.roleRepository.findById(existing.roleId);
-      if (currentRole && currentRole.name.toLowerCase() === 'owner') {
-        throw new ValidationError(
-          'ไม่สามารถลบหรือถอดถอน Owner ออกจากบริษัทได้',
-        );
+      if (!currentRole) throw new NotFoundError('Member role not found');
+      if (currentRole?.roleType === 'OWNER' && !context.user?.isAdmin) {
+        throw new ForbiddenError('ไม่สามารถลบหรือถอดถอน Owner ออกจากบริษัทได้');
       }
     }
 

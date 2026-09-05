@@ -101,6 +101,7 @@ export class FeatureController extends Controller {
       isActiveStr !== undefined ? isActiveStr === 'true' : undefined;
 
     const features = await this.getFeaturesUseCase.execute({
+      ...this.securityContext(c),
       category,
       isActive,
     });
@@ -109,7 +110,10 @@ export class FeatureController extends Controller {
 
   public getFeature = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
-    const feature = await this.getFeatureByIdUseCase.execute({ id });
+    const feature = await this.getFeatureByIdUseCase.execute({
+      ...this.securityContext(c),
+      id,
+    });
     return this.success(c, 'Feature retrieved successfully', feature);
   });
 
@@ -117,7 +121,10 @@ export class FeatureController extends Controller {
     { body: createFeatureSchema },
     async (c) => {
       const body = c.get('body');
-      const feature = await this.createFeatureUseCase.execute({ data: body });
+      const feature = await this.createFeatureUseCase.execute({
+        ...this.securityContext(c),
+        data: body,
+      });
       return this.created(c, 'Feature created successfully', feature);
     },
   );
@@ -128,6 +135,7 @@ export class FeatureController extends Controller {
       const { id } = c.get('params');
       const body = c.get('body');
       const feature = await this.updateFeatureUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
       });
@@ -140,7 +148,11 @@ export class FeatureController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const { isActive } = c.get('body');
-      const feature = await this.toggleFeatureUseCase.execute({ id, isActive });
+      const feature = await this.toggleFeatureUseCase.execute({
+        ...this.securityContext(c),
+        id,
+        isActive,
+      });
       return this.success(c, 'Feature status updated successfully', feature);
     },
   );
@@ -156,6 +168,7 @@ export class FeatureController extends Controller {
       const onlyEnabled = c.req.query('onlyEnabled') === 'true';
 
       const companyFeatures = await this.getCompanyFeaturesUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         onlyEnabled,
       });
@@ -172,6 +185,7 @@ export class FeatureController extends Controller {
     async (c) => {
       const { companyId } = c.get('params');
       const features = await this.getCompanyAvailableFeaturesUseCase.execute({
+        ...this.securityContext(c),
         companyId,
       });
       return this.success(
@@ -188,6 +202,7 @@ export class FeatureController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.assignCompanyFeatureUseCase.execute({
+        ...this.securityContext(c),
         data: {
           ...body,
           assignedBy: user?.id ?? null,
@@ -203,6 +218,7 @@ export class FeatureController extends Controller {
       const { companyId } = c.get('params');
       const { featureId, isEnabled } = c.get('body');
       const result = await this.toggleCompanyFeatureUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         featureId,
         isEnabled,
@@ -216,6 +232,7 @@ export class FeatureController extends Controller {
     async (c) => {
       const { companyId, featureId } = c.get('params');
       await this.removeCompanyFeatureUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         featureId,
       });
@@ -231,7 +248,10 @@ export class FeatureController extends Controller {
     { params: roleIdParamSchema },
     async (c) => {
       const { roleId } = c.get('params');
-      const features = await this.getRoleFeaturesUseCase.execute({ roleId });
+      const features = await this.getRoleFeaturesUseCase.execute({
+        ...this.securityContext(c),
+        roleId,
+      });
       return this.success(c, 'Role features retrieved successfully', features);
     },
   );
@@ -241,6 +261,7 @@ export class FeatureController extends Controller {
     async (c) => {
       const { companyId } = c.get('params');
       const roleFeatures = await this.getCompanyRoleFeaturesUseCase.execute({
+        ...this.securityContext(c),
         companyId,
       });
       return this.success(
@@ -256,6 +277,7 @@ export class FeatureController extends Controller {
     async (c) => {
       const body = c.get('body');
       const result = await this.assignRoleFeatureUseCase.execute({
+        ...this.securityContext(c),
         data: body,
       });
       return this.created(c, 'Role feature assigned successfully', result);
@@ -268,6 +290,7 @@ export class FeatureController extends Controller {
       const { roleId } = c.get('params');
       const { companyId, featureId, isEnabled } = c.get('body');
       const result = await this.toggleRoleFeatureUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         roleId,
         featureId,
@@ -283,6 +306,7 @@ export class FeatureController extends Controller {
       const { roleId, featureId } = c.get('params');
       const companyId = c.req.query('companyId') || '';
       await this.revokeRoleFeatureUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         roleId,
         featureId,
@@ -296,6 +320,7 @@ export class FeatureController extends Controller {
     async (c) => {
       const { companyId, roleId, featureCode } = c.get('params');
       const hasAccess = await this.checkRoleFeatureAccessUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         roleId,
         featureCode,

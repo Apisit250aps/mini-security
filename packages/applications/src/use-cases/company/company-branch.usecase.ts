@@ -34,7 +34,7 @@ export class CreateCompanyBranchUseCase implements ICreateCompanyBranchUseCase {
   ) {}
 
   @RequirePermission('company_branch:create', (ctx) => ({
-    companyId: ctx.data.companyId,
+    companyId: ctx.data?.companyId,
   }))
   async execute(context: ICreateCompanyBranchContext): Promise<CompanyBranch> {
     const parsed = await createCompanyBranchSchema.safeParseAsync(context.data);
@@ -66,9 +66,15 @@ export class CreateCompanyBranchUseCase implements ICreateCompanyBranchUseCase {
 export class UpdateCompanyBranchUseCase implements IUpdateCompanyBranchUseCase {
   constructor(private readonly branchRepository: ICompanyBranchRepository) {}
 
-  @RequirePermission('company_branch:update')
-  async execute(context: IUpdateCompanyBranchContext): Promise<CompanyBranch> {
-    const existing = await this.branchRepository.findById(context.id);
+  @RequirePermission('company_branch:update', {
+    resolveResource: (useCase: UpdateCompanyBranchUseCase, context) =>
+      useCase.branchRepository.findById(context.id!),
+    notFoundMessage: 'CompanyBranch not found',
+  })
+  async execute(
+    context: IUpdateCompanyBranchContext,
+    existing?: CompanyBranch,
+  ): Promise<CompanyBranch> {
     if (!existing) {
       throw new NotFoundError(`Branch with id ${context.id} not found`);
     }
@@ -79,6 +85,10 @@ export class UpdateCompanyBranchUseCase implements IUpdateCompanyBranchUseCase {
         'Invalid update branch data',
         parsed.error.format(),
       );
+    }
+
+    if (parsed.data.companyId && parsed.data.companyId !== existing.companyId) {
+      throw new ValidationError('Branch company cannot be changed');
     }
 
     if (parsed.data.name && parsed.data.name !== existing.name) {
@@ -101,11 +111,15 @@ export class DeleteCompanyBranchUseCase implements IDeleteCompanyBranchUseCase {
     private readonly memberRepository?: ICompanyMemberRepository,
   ) {}
 
-  @RequirePermission('company_branch:delete', (ctx) => ({
-    companyId: ctx.companyId,
-  }))
-  async execute(context: IDeleteCompanyBranchContext): Promise<void> {
-    const existing = await this.branchRepository.findById(context.id);
+  @RequirePermission('company_branch:delete', {
+    resolveResource: (useCase: DeleteCompanyBranchUseCase, context) =>
+      useCase.branchRepository.findById(context.id!),
+    notFoundMessage: 'CompanyBranch not found',
+  })
+  async execute(
+    context: IDeleteCompanyBranchContext,
+    existing?: CompanyBranch,
+  ): Promise<void> {
     if (!existing) {
       throw new NotFoundError(`Branch with id ${context.id} not found`);
     }
@@ -148,14 +162,19 @@ export class GetCompanyBranchesUseCase implements IGetCompanyBranchesUseCase {
 export class GetCompanyBranchUseCase implements IGetCompanyBranchUseCase {
   constructor(private readonly branchRepository: ICompanyBranchRepository) {}
 
-  @RequirePermission('company_branch:read')
+  @RequirePermission('company_branch:read', {
+    resolveResource: (useCase: GetCompanyBranchUseCase, context) =>
+      useCase.branchRepository.findById(context.id!),
+    notFoundMessage: 'CompanyBranch not found',
+  })
   async execute(
     context: IGetCompanyBranchContext,
+    branch?: CompanyBranch,
   ): Promise<CompanyBranch | null> {
-    const branch = await this.branchRepository.findById(context.id);
     if (!branch) {
       throw new NotFoundError(`Branch with id ${context.id} not found`);
     }
+
     return branch;
   }
 }

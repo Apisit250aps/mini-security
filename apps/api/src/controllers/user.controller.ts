@@ -28,7 +28,10 @@ export class UserController extends Controller {
 
   public getUsers = async (c: Parameters<typeof this.success>[0]) => {
     const user = c.get('user');
-    const users = await this.getUsersUseCase.execute({ userId: user?.id });
+    const users = await this.getUsersUseCase.execute({
+      ...this.securityContext(c),
+      userId: user?.id,
+    });
     return this.success(c, 'Users retrieved successfully', users);
   };
 
@@ -36,6 +39,7 @@ export class UserController extends Controller {
     const { id } = c.get('params');
     const user = c.get('user');
     const userResult = await this.getUserUseCase.execute({
+      ...this.securityContext(c),
       id,
       userId: user?.id,
     });
@@ -46,6 +50,7 @@ export class UserController extends Controller {
     const body = c.get('body');
     const user = c.get('user');
     const userResult = await this.createUserUseCase.execute({
+      ...this.securityContext(c),
       data: body,
       userId: user?.id,
     });
@@ -59,6 +64,7 @@ export class UserController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const userResult = await this.updateUserUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -71,6 +77,7 @@ export class UserController extends Controller {
     const { id } = c.get('params');
     const user = c.get('user');
     await this.deleteUserUseCase.execute({
+      ...this.securityContext(c),
       id,
       userId: user?.id,
     });

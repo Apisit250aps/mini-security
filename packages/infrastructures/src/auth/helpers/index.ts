@@ -19,13 +19,20 @@ async function getAllPermissionActions(): Promise<string[]> {
 
 async function getUserPermissionActions(
   userId: string,
+  activeCompanyId?: string | null,
 ): Promise<{ actions: string[]; companyId: string | null }> {
   const result = await db.transaction(async (tx) => {
     const [m] = await tx
       .select({ companyId: companyMember.companyId })
       .from(companyMember)
       .where(
-        and(eq(companyMember.userId, userId), eq(companyMember.isActive, true)),
+        and(
+          eq(companyMember.userId, userId),
+          eq(companyMember.isActive, true),
+          activeCompanyId
+            ? eq(companyMember.companyId, activeCompanyId)
+            : undefined,
+        ),
       )
       .limit(1);
 
@@ -38,10 +45,14 @@ async function getUserPermissionActions(
     return { member: m, user: u };
   });
 
+  if (!result.user?.isActive) return { actions: [], companyId: null };
+
   if (result.user?.isAdmin) {
     const allActions = await getAllPermissionActions();
-    return { actions: allActions, companyId: null };
+    return { actions: allActions, companyId: activeCompanyId ?? null };
   }
+
+  if (!result.member) return { actions: [], companyId: null };
 
   const actionsResult = await db
     .selectDistinct({
@@ -53,7 +64,7 @@ async function getUserPermissionActions(
     .where(
       and(
         eq(companyMember.userId, userId),
-        eq(companyMember.companyId, result.member?.companyId ?? ''),
+        eq(companyMember.companyId, result.member.companyId),
         eq(companyMember.isActive, true),
       ),
     );

@@ -66,6 +66,7 @@ export class PermissionController extends Controller {
   ) => {
     const user = c.get('user');
     const roles = await this.getSystemDefaultRolesUseCase.execute({
+      ...this.securityContext(c),
       userId: user?.id,
     });
     return this.success(c, 'System default roles retrieved', roles);
@@ -77,6 +78,7 @@ export class PermissionController extends Controller {
       const { companyId } = c.get('params');
       const user = c.get('user');
       const roles = await this.getRolesByCompanyUseCase.execute({
+        ...this.securityContext(c),
         companyId,
         userId: user?.id,
       });
@@ -87,7 +89,11 @@ export class PermissionController extends Controller {
   public getRole = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
     const user = c.get('user');
-    const role = await this.getRoleUseCase.execute({ id, userId: user?.id });
+    const role = await this.getRoleUseCase.execute({
+      ...this.securityContext(c),
+      id,
+      userId: user?.id,
+    });
     return this.success(c, 'Role retrieved successfully', role);
   });
 
@@ -95,6 +101,7 @@ export class PermissionController extends Controller {
     const body = c.get('body');
     const user = c.get('user');
     const role = await this.createRoleUseCase.execute({
+      ...this.securityContext(c),
       data: body,
       userId: user?.id,
       companyId: body.companyId ?? undefined,
@@ -109,6 +116,7 @@ export class PermissionController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const role = await this.updateRoleUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -120,13 +128,18 @@ export class PermissionController extends Controller {
   public deleteRole = this.validator({ params: idParamSchema }, async (c) => {
     const { id } = c.get('params');
     const user = c.get('user');
-    await this.deleteRoleUseCase.execute({ id, userId: user?.id });
+    await this.deleteRoleUseCase.execute({
+      ...this.securityContext(c),
+      id,
+      userId: user?.id,
+    });
     return this.success(c, 'Role deleted successfully');
   });
 
   public getPermissions = async (c: Parameters<typeof this.success>[0]) => {
     const user = c.get('user');
     const permissions = await this.getPermissionsUseCase.execute({
+      ...this.securityContext(c),
       userId: user?.id,
     });
     return this.success(c, 'Permissions retrieved successfully', permissions);
@@ -138,6 +151,7 @@ export class PermissionController extends Controller {
       const user = c.get('user');
       const query = c.get('query') as { companyId?: string } | undefined;
       const permissions = await this.getMyPermissionsUseCase.execute({
+        ...this.securityContext(c),
         userId: user?.id,
         companyId: query?.companyId,
       });
@@ -151,6 +165,7 @@ export class PermissionController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const permission = await this.createPermissionUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -165,6 +180,7 @@ export class PermissionController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const permission = await this.updatePermissionUseCase.execute({
+        ...this.securityContext(c),
         id,
         data: body,
         userId: user?.id,
@@ -178,7 +194,11 @@ export class PermissionController extends Controller {
     async (c) => {
       const { id } = c.get('params');
       const user = c.get('user');
-      await this.deletePermissionUseCase.execute({ id, userId: user?.id });
+      await this.deletePermissionUseCase.execute({
+        ...this.securityContext(c),
+        id,
+        userId: user?.id,
+      });
       return this.success(c, 'Permission deleted successfully');
     },
   );
@@ -189,6 +209,7 @@ export class PermissionController extends Controller {
       const { roleId } = c.get('params');
       const user = c.get('user');
       const perms = await this.getRolePermissionsUseCase.execute({
+        ...this.securityContext(c),
         roleId,
         userId: user?.id,
       });
@@ -202,6 +223,7 @@ export class PermissionController extends Controller {
       const body = c.get('body');
       const user = c.get('user');
       const result = await this.assignPermissionToRoleUseCase.execute({
+        ...this.securityContext(c),
         data: body,
         userId: user?.id,
       });
@@ -219,6 +241,7 @@ export class PermissionController extends Controller {
       const { roleId, permissionId } = c.get('params');
       const user = c.get('user');
       await this.revokePermissionFromRoleUseCase.execute({
+        ...this.securityContext(c),
         roleId,
         permissionId,
         userId: user?.id,

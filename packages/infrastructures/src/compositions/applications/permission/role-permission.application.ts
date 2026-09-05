@@ -3,7 +3,6 @@ import {
   CheckUserPermissionUseCase,
   GetMyPermissionsUseCase,
   GetRolePermissionsUseCase,
-  PermissionGuard,
   RevokePermissionFromRoleUseCase,
 } from '@repo/applications';
 import {
@@ -45,6 +44,3 @@ export const checkUserPermissionUseCase = new CheckUserPermissionUseCase(
   userRepository,
   companyMemberRepository,
 );
-
-// Register checker in PermissionGuard for @RequirePermission decorator support
-PermissionGuard.setChecker(checkUserPermissionUseCase);

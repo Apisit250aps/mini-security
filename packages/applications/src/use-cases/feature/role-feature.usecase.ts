@@ -1,3 +1,4 @@
+import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   IAssignRoleFeatureContext,
   IAssignRoleFeatureUseCase,
@@ -33,6 +34,7 @@ export class AssignRoleFeatureUseCase implements IAssignRoleFeatureUseCase {
     private readonly featureRepository: IFeatureRepository,
   ) {}
 
+  @RequirePermission('role_feature:create')
   async execute(context: IAssignRoleFeatureContext): Promise<RoleFeature> {
     const parsed = await createRoleFeatureSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -81,6 +83,7 @@ export class AssignRoleFeatureUseCase implements IAssignRoleFeatureUseCase {
 export class ToggleRoleFeatureUseCase implements IToggleRoleFeatureUseCase {
   constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
+  @RequirePermission('role_feature:toggle')
   async execute(context: IToggleRoleFeatureContext): Promise<RoleFeature> {
     const existing = await this.roleFeatureRepository.findByRoleAndFeature(
       context.roleId,
@@ -105,6 +108,7 @@ export class ToggleRoleFeatureUseCase implements IToggleRoleFeatureUseCase {
 export class RevokeRoleFeatureUseCase implements IRevokeRoleFeatureUseCase {
   constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
+  @RequirePermission('role_feature:delete')
   async execute(context: IRevokeRoleFeatureContext): Promise<void> {
     await this.roleFeatureRepository.deleteByRoleAndFeature(
       context.roleId,
@@ -116,6 +120,7 @@ export class RevokeRoleFeatureUseCase implements IRevokeRoleFeatureUseCase {
 export class GetRoleFeaturesUseCase implements IGetRoleFeaturesUseCase {
   constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
+  @RequirePermission('role_feature:read')
   async execute(context: IGetRoleFeaturesContext): Promise<Feature[]> {
     return this.roleFeatureRepository.findFeaturesByRoleId(context.roleId);
   }
@@ -126,6 +131,7 @@ export class GetCompanyRoleFeaturesUseCase
 {
   constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
+  @RequirePermission('role_feature:read')
   async execute(
     context: IGetCompanyRoleFeaturesContext,
   ): Promise<RoleFeature[]> {
@@ -142,6 +148,7 @@ export class CheckRoleFeatureAccessUseCase
     private readonly featureRepository: IFeatureRepository,
   ) {}
 
+  @RequirePermission('role_feature:check')
   async execute(context: ICheckRoleFeatureAccessContext): Promise<boolean> {
     // 1. Find feature by code
     const feature = await this.featureRepository.findByCode(

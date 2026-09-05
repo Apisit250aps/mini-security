@@ -1,85 +1,74 @@
 import type {
-  ICheckUserPermissionContext,
-  ICheckUserPermissionUseCase,
-} from '@repo/domains/applications/permission';
-import type { PermissionAction } from '@repo/domains/constants';
-import { ForbiddenError, InternalError, UnauthorizedError } from './error';
+  ISecurityContext,
+  PermissionAction,
+} from '@repo/domains/constants';
+import { ForbiddenError, UnauthorizedError } from './error';
 
-/**
- * Global authorization and permission guard registry
- */
+/** Authorizes a trusted session snapshot without global mutable dependencies. */
 export class PermissionGuard {
-  private static checkerInstance: ICheckUserPermissionUseCase | null = null;
-
-  /**
-   * Set the global permission checker use case instance (typically called during app bootstrap/DI setup)
-   */
-  public static setChecker(checker: ICheckUserPermissionUseCase): void {
-    PermissionGuard.checkerInstance = checker;
-  }
-
-  /**
-   * Get the registered permission checker
-   */
-  public static getChecker(): ICheckUserPermissionUseCase | null {
-    return PermissionGuard.checkerInstance;
-  }
-
-  /**
-   * Verify if a user has permission
-   */
-  public static async hasPermission(
-    context: ICheckUserPermissionContext,
-    customChecker?: ICheckUserPermissionUseCase,
-  ): Promise<boolean> {
-    const checker =
-      customChecker && typeof customChecker.execute === 'function'
-        ? customChecker
-        : PermissionGuard.checkerInstance;
-    if (!checker) {
-      throw new InternalError(
-        'Permission checker is not configured. Call PermissionGuard.setChecker(...) during application startup.',
-      );
-    }
-
-    if (!context.userId) {
-      return false;
-    }
-
-    return checker.execute(context);
-  }
-
   /**
    * Enforce permission check: throws UnauthorizedError or ForbiddenError if check fails
    */
   public static async requirePermission(
     action: PermissionAction | string,
-    context: { userId?: string; companyId?: string },
+    context: ISecurityContext,
     options?: {
-      customChecker?: ICheckUserPermissionUseCase;
       errorMessage?: string;
     },
   ): Promise<void> {
-    if (!context.userId) {
+    if (!context.user?.id) {
       throw new UnauthorizedError(
         'Authentication required to perform this action',
       );
     }
 
-    const isAllowed = await PermissionGuard.hasPermission(
-      {
-        userId: context.userId,
-        companyId: context.companyId,
-        action,
-      },
-      options?.customChecker,
+    if (context.user?.isActive === false) {
+      throw new ForbiddenError('User is inactive');
+    }
+
+    // Admin is a trusted actor attribute, never a permission wildcard.
+    if (context.user?.isAdmin === true) return;
+
+    const permissions = new Set(
+      (context.permissions ?? '')
+        .split(',')
+        .map((action) => action.trim())
+        .filter(Boolean),
     );
+    const isAllowed =
+      permissions.has(action) ||
+      permissions.has('*') ||
+      permissions.has(`${action.split(':')[0]}:*`);
+
+    // A session snapshot only grants permissions for its active company.
+    if (context.companyId) {
+      PermissionGuard.requireCompanyScope(context, context.companyId);
+    }
 
     if (!isAllowed) {
       throw new ForbiddenError(
         options?.errorMessage ??
           `Forbidden: missing required permission "${action}"`,
       );
+    }
+  }
+
+  /** Checks resource scope after loading its actual company; does not check actions. */
+  public static requireCompanyScope(
+    context: ISecurityContext,
+    companyId: string,
+  ): void {
+    if (!context.user?.id) {
+      throw new UnauthorizedError(
+        'Authentication required to access this company',
+      );
+    }
+    if (context.user.isActive === false) {
+      throw new ForbiddenError('User is inactive');
+    }
+    if (context.user.isAdmin === true) return;
+    if (!companyId || companyId !== context.activeCompanyId) {
+      throw new ForbiddenError('Permission does not apply to this company');
     }
   }
 }
