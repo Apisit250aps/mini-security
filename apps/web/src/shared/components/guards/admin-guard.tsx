@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { useSession } from '@/modules/auth/hooks/session-provider';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import { Spinner } from '@repo/ui/components/spinner';
 import { unauthorized, forbidden } from 'next/navigation';
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
-  const { status, isSuperAdmin } = useSession();
+  const { status } = useSession();
+  const { isSuperAdmin } = usePermission();
 
   if (status === 'loading') {
     return (

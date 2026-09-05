@@ -2,11 +2,13 @@
 
 import { useMemo } from 'react';
 import { useSession } from '@/modules/auth/hooks/session-provider';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import { useCompanyListQueries } from '@/modules/company/hooks/company-queries';
 import type { Company } from '@repo/domains/entities';
 
 export function useActiveCompany() {
-  const { data: sessionData, isSuperAdmin } = useSession();
+  const { data: sessionData } = useSession();
+  const { isSuperAdmin } = usePermission();
   const companiesQuery = useCompanyListQueries();
 
   const companies = useMemo(

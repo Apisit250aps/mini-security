@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { useRoleDelete } from '../../hooks/role-mutations';
 import { useOverlay } from '@repo/ui/hooks';
 import { useSession } from '@/modules/auth/hooks/session-provider';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import RoleEditForm from '../form/role-edit-form';
 import RolePermissionManager from '../permission-manager/role-permission-manager';
 import RoleFeatureManager from '../feature-delegation/role-feature-manager';
@@ -12,9 +13,9 @@ import RoleFeatureManager from '../feature-delegation/role-feature-manager';
 function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
   const ui = useOverlay();
   const session = useSession();
+  const { isSuperAdmin } = usePermission();
   const deleteMutation = useRoleDelete();
   const isSystemDefault = cell.row.original.isSystemDefault;
-  const isSuperAdmin = session.isSuperAdmin;
 
   const handleDelete = useCallback(
     async (id: string) => {

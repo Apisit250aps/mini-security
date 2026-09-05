@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
-import type { Permission } from '@repo/domains/entities';
+import React from 'react';
 import type { Session } from '@repo/infrastructures/types/auth';
 export type { Session };
 import { createAuthClient, jwtClient } from '@repo/infrastructures/auth/client';
@@ -20,9 +19,6 @@ export type SessionContext = {
   signOut: typeof signOut;
   data: Session;
   status: SessionStatus;
-  permissions: Permission[];
-  hasPermission: (action: string) => boolean;
-  isSuperAdmin: boolean;
 };
 
 const sessionContext = React.createContext<SessionContext | null>(null);
@@ -30,45 +26,13 @@ const sessionContext = React.createContext<SessionContext | null>(null);
 export function SessionProvider({
   children,
   session = null,
-  permissions = [],
 }: {
   children: React.ReactNode;
   session?: Session;
-  permissions: Permission[];
 }) {
   const data = session;
   const status: SessionStatus = session ? 'authenticated' : 'unauthenticated';
-  const isSuperAdmin = Boolean((data?.user as { isAdmin?: boolean })?.isAdmin);
-  const permissionActionsSet = useMemo(() => {
-    return new Set(permissions.map((p) => p.action));
-  }, [permissions]);
-
-  const hasPermission = useCallback(
-    (action: string): boolean => {
-      if (isSuperAdmin) return true;
-      if (permissionActionsSet.has('*')) return true;
-      if (permissionActionsSet.has(action)) return true;
-
-      const modulePrefix = action.split(':')[0];
-      if (permissionActionsSet.has(`${modulePrefix}:*`)) return true;
-
-      return false;
-    },
-    [isSuperAdmin, permissionActionsSet],
-  );
-  const value = useMemo<SessionContext>(
-    () => ({
-      signIn,
-      signUp,
-      signOut,
-      data,
-      status,
-      permissions,
-      hasPermission,
-      isSuperAdmin,
-    }),
-    [data, status, permissions, hasPermission, isSuperAdmin],
-  );
+  const value: SessionContext = { signIn, signUp, signOut, data, status };
 
   return (
     <sessionContext.Provider value={value}>{children}</sessionContext.Provider>
@@ -81,9 +45,4 @@ export const useSession = () => {
     throw new Error('useSession must be used within a SessionProvider');
   }
   return context;
-};
-
-export const useHasPermission = (action: string): boolean => {
-  const { hasPermission } = useSession();
-  return hasPermission(action);
 };

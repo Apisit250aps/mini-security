@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useSession } from '@/modules/auth/hooks/session-provider';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import {
   Avatar,
   AvatarFallback,
@@ -36,6 +37,7 @@ export default function NavUser() {
   const router = useRouter();
   const { isMobile } = useSidebar();
   const session = useSession();
+  const { isSuperAdmin } = usePermission();
   const user = session.data?.user;
 
   if (session.status === 'loading') {
@@ -105,7 +107,7 @@ export default function NavUser() {
 
             <DropdownMenuSeparator />
 
-            {session.isSuperAdmin && (
+            {isSuperAdmin && (
               <>
                 <DropdownMenuGroup>
                   <DropdownMenuItem
