@@ -16,13 +16,17 @@ export default function CompanyBranchAddForm({
   const createMutation = useCompanyBranchCreate(companyId);
 
   const handleSubmit = async (data: CompanyBranchFormValues) => {
-    await createMutation.mutateAsync({
-      companyId,
-      name: data.name,
-      address: data.address || null,
-      isActive: data.isActive ?? true,
-    });
-    ui.hideAll();
+    try {
+      await createMutation.mutateAsync({
+        companyId,
+        name: data.name,
+        address: data.address || null,
+        isActive: data.isActive ?? true,
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

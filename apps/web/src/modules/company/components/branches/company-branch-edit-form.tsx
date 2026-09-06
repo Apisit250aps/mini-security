@@ -19,15 +19,19 @@ export default function CompanyBranchEditForm({
   const updateMutation = useCompanyBranchUpdate(companyId);
 
   const handleSubmit = async (data: CompanyBranchFormValues) => {
-    await updateMutation.mutateAsync({
-      id: branch.id,
-      data: {
-        name: data.name,
-        address: data.address || null,
-        isActive: data.isActive,
-      },
-    });
-    ui.hideAll();
+    try {
+      await updateMutation.mutateAsync({
+        id: branch.id,
+        data: {
+          name: data.name,
+          address: data.address || null,
+          isActive: data.isActive,
+        },
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

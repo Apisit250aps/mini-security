@@ -50,10 +50,10 @@ const createField = <
   }
 
   if (options.default !== undefined) {
-    result = result.default(options.default).unwrap();
+    result = result.default(options.default);
   }
 
-  return result as FieldResult<TSchema, TRequired, TNullable>;
+  return result as unknown as FieldResult<TSchema, TRequired, TNullable>;
 };
 
 const StringField = <

@@ -15,15 +15,19 @@ export default function PermissionEditForm({
   const updateMutation = usePermissionUpdate();
 
   const handleSubmit = async (data: PermissionFormValues) => {
-    await updateMutation.mutateAsync({
-      permissionId: permission.id,
-      data: {
-        module: data.module,
-        action: data.action,
-        description: data.description || null,
-      },
-    });
-    ui.hideAll();
+    try {
+      await updateMutation.mutateAsync({
+        permissionId: permission.id,
+        data: {
+          module: data.module,
+          action: data.action,
+          description: data.description || null,
+        },
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

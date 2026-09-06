@@ -10,13 +10,17 @@ export default function CompanyCreateForm() {
   const createMutation = useCompanyCreate();
 
   const handleSubmit = async (data: CompanyFormValues) => {
-    await createMutation.mutateAsync({
-      name: data.name,
-      slug: data.slug,
-      logo: data.logo || null,
-      isActive: data.isActive ?? true,
-    });
-    ui.hideAll();
+    try {
+      await createMutation.mutateAsync({
+        name: data.name,
+        slug: data.slug,
+        logo: data.logo || null,
+        isActive: data.isActive ?? true,
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

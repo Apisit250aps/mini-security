@@ -51,15 +51,19 @@ export default function CompanyMemberEditForm({
   });
 
   const handleSubmit = async (data: CompanyMemberEditFormValues) => {
-    await updateMutation.mutateAsync({
-      id: member.id,
-      data: {
-        roleId: isOwner ? member.roleId : data.roleId,
-        companyBranchId: data.companyBranchId || member.companyBranchId,
-        isActive: isOwner ? true : data.isActive,
-      },
-    });
-    ui.hideAll();
+    try {
+      await updateMutation.mutateAsync({
+        id: member.id,
+        data: {
+          roleId: isOwner ? member.roleId : data.roleId,
+          companyBranchId: data.companyBranchId || member.companyBranchId,
+          isActive: isOwner ? true : data.isActive,
+        },
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

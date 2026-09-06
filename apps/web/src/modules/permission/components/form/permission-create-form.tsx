@@ -10,12 +10,16 @@ export default function PermissionCreateForm() {
   const createMutation = usePermissionCreate();
 
   const handleSubmit = async (data: PermissionFormValues) => {
-    await createMutation.mutateAsync({
-      module: data.module,
-      action: data.action,
-      description: data.description || null,
-    });
-    ui.hideAll();
+    try {
+      await createMutation.mutateAsync({
+        module: data.module,
+        action: data.action,
+        description: data.description || null,
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

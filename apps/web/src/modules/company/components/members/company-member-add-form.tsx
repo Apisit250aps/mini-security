@@ -54,14 +54,18 @@ export default function CompanyMemberAddForm({
   });
 
   const handleSubmit = async (data: CompanyMemberAddFormValues) => {
-    await addMutation.mutateAsync({
-      companyId,
-      companyBranchId: data.companyBranchId || defaultBranchId || undefined,
-      userId: data.userId,
-      roleId: data.roleId,
-      isActive: data.isActive ?? true,
-    });
-    ui.hideAll();
+    try {
+      await addMutation.mutateAsync({
+        companyId,
+        companyBranchId: data.companyBranchId || defaultBranchId || undefined,
+        userId: data.userId,
+        roleId: data.roleId,
+        isActive: data.isActive ?? true,
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

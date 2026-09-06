@@ -10,14 +10,18 @@ export default function RoleCreateForm({ companyId }: { companyId?: string }) {
   const createMutation = useRoleCreate();
 
   const handleSubmit = async (data: RoleFormValues) => {
-    await createMutation.mutateAsync({
-      name: data.name,
-      description: data.description || null,
-      companyId: companyId || data.companyId || null,
-      roleType: data.roleType,
-      isSystemDefault: companyId ? false : (data.isSystemDefault ?? false),
-    });
-    ui.hideAll();
+    try {
+      await createMutation.mutateAsync({
+        name: data.name,
+        description: data.description || null,
+        companyId: companyId || data.companyId || null,
+        roleType: data.roleType,
+        isSystemDefault: companyId ? false : (data.isSystemDefault ?? false),
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

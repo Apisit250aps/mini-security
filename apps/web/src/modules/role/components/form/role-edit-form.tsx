@@ -18,16 +18,20 @@ export default function RoleEditForm({
 
   const handleSubmit = async (data: RoleFormValues) => {
     if (readOnly) return;
-    await updateMutation.mutateAsync({
-      roleId: role.id,
-      data: {
-        name: data.name,
-        description: data.description || null,
-        roleType: data.roleType,
-        isSystemDefault: data.isSystemDefault,
-      },
-    });
-    ui.hideAll();
+    try {
+      await updateMutation.mutateAsync({
+        roleId: role.id,
+        data: {
+          name: data.name,
+          description: data.description || null,
+          roleType: data.roleType,
+          isSystemDefault: data.isSystemDefault,
+        },
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

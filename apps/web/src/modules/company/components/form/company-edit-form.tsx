@@ -11,16 +11,20 @@ export default function CompanyEditForm({ company }: { company: Company }) {
   const updateMutation = useCompanyUpdate();
 
   const handleSubmit = async (data: CompanyFormValues) => {
-    await updateMutation.mutateAsync({
-      companyId: company.id,
-      data: {
-        name: data.name,
-        slug: data.slug,
-        logo: data.logo || null,
-        isActive: data.isActive,
-      },
-    });
-    ui.hideAll();
+    try {
+      await updateMutation.mutateAsync({
+        companyId: company.id,
+        data: {
+          name: data.name,
+          slug: data.slug,
+          logo: data.logo || null,
+          isActive: data.isActive,
+        },
+      });
+      ui.hideAll();
+    } catch {
+      // Handled by mutation onError toast
+    }
   };
 
   return (

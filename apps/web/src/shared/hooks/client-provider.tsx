@@ -8,6 +8,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { client } from '@repo/client/gen';
 client.setConfig({
   baseURL: '/api',
+  throwOnError: true,
 });
 
 function makeQueryClient() {

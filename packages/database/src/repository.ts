@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseRepository } from '@repo/domains';
 import type { Database } from './db';
-import { PgTable } from 'drizzle-orm/pg-core';
+import { PgTable, type PgColumn } from 'drizzle-orm/pg-core';
 import { eq } from 'drizzle-orm';
+
+export type TableWithId = PgTable & { id: PgColumn };
 
 export abstract class Repository<
   T,
@@ -11,7 +12,7 @@ export abstract class Repository<
 > extends BaseRepository<T, C, U> {
   constructor(
     protected readonly db: Database,
-    protected readonly table: PgTable<any>,
+    protected readonly table: TableWithId,
   ) {
     super();
   }
@@ -25,7 +26,7 @@ export abstract class Repository<
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.delete(this.table).where(eq((this.table as any).id, id));
+    await this.db.delete(this.table).where(eq(this.table.id, id));
   }
 
   async findAll(): Promise<T[]> {
@@ -37,7 +38,7 @@ export abstract class Repository<
     const [result] = await this.db
       .select()
       .from(this.table)
-      .where(eq((this.table as any).id, id));
+      .where(eq(this.table.id, id));
     return (result as T) || null;
   }
 
@@ -45,7 +46,7 @@ export abstract class Repository<
     const [result] = await this.db
       .update(this.table)
       .set(entity)
-      .where(eq((this.table as any).id, id))
+      .where(eq(this.table.id, id))
       .returning();
     return result as T;
   }
