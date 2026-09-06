@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Field, FieldLabel, FieldError } from '@repo/ui/components/field';
 import { Controller, FieldValues, Control, Path } from 'react-hook-form';
 import { Button } from '@repo/ui/components/button';
-import { format } from 'date-fns';
+import { formatDate, formatDateRange } from '#lib/date';
 import { Calendar } from '@repo/ui/components/calendar';
 import { CalendarDate, getLocalTimeZone } from '@internationalized/date';
 import { Dialog as AriaDialog, type DateRange } from 'react-aria-components';
@@ -134,11 +134,9 @@ function DateRangeField<T extends FieldValues>({
                     >
                       <CalendarIcon data-icon="inline-start" />
                       {date?.start && date.end ? (
-                        new Intl.DateTimeFormat(undefined, {
-                          dateStyle: 'medium',
-                        }).formatRange(
-                          date.start.toDate(getLocalTimeZone()),
-                          date.end.toDate(getLocalTimeZone()),
+                        formatDateRange(
+                          date.start.toString(),
+                          date.end.toString(),
                         )
                       ) : (
                         <span className="text-muted-foreground">
@@ -230,12 +228,7 @@ function DateRangeField<T extends FieldValues>({
               >
                 <CalendarIcon data-icon="inline-start" />
                 {date?.start && date.end ? (
-                  new Intl.DateTimeFormat(undefined, {
-                    dateStyle: 'medium',
-                  }).formatRange(
-                    date.start.toDate(getLocalTimeZone()),
-                    date.end.toDate(getLocalTimeZone()),
-                  )
+                  formatDateRange(date.start.toString(), date.end.toString())
                 ) : (
                   <span className="text-muted-foreground">{placeholder}</span>
                 )}
@@ -329,7 +322,7 @@ function DateField<T extends FieldValues>({
               >
                 <CalendarIcon data-icon="inline-start" />
                 {date ? (
-                  format(date.toDate(getLocalTimeZone()), 'dd/MM/yyyy')
+                  formatDate(date.toString())
                 ) : (
                   <span className="text-muted-foreground">{placeholder}</span>
                 )}

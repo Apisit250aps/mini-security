@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { formatDateRange } from '@/shared/utils/date';
 import type { LeaveRequest } from '@repo/domains/entities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,7 +81,8 @@ export default function LeaveRequestReviewModal({
         <div className="flex justify-between">
           <span className="text-muted-foreground">ช่วงเวลาที่ลา:</span>
           <span className="font-medium">
-            {request.startDate} ถึง {request.endDate} ({request.totalDays} วัน)
+            {formatDateRange(request.startDate, request.endDate)} (
+            {request.totalDays} วัน)
           </span>
         </div>
         <div className="flex flex-col gap-1 pt-2 border-t">

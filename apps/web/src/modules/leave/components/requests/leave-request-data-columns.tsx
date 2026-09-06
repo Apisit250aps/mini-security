@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { formatDateRange } from '@/shared/utils/date';
 import type { ColumnDef } from '@tanstack/react-table';
 import type {
   CompanyMember,
@@ -76,7 +77,7 @@ export const leaveRequestDataColumns = ({
       header: 'ช่วงวันที่ลา',
       cell: ({ row }) => (
         <span className="text-sm">
-          {row.original.startDate} ถึง {row.original.endDate}
+          {formatDateRange(row.original.startDate, row.original.endDate)}
         </span>
       ),
     },

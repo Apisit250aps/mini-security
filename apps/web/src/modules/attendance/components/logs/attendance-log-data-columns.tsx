@@ -9,7 +9,7 @@ import type {
   User,
 } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
-import { formatDate } from '@/shared/utils';
+import { formatDate, formatDateTime } from '@/shared/utils';
 
 interface AttendanceLogColumnsOptions {
   members?: CompanyMember[];
@@ -43,7 +43,7 @@ export const attendanceLogDataColumns = ({
       accessorKey: 'workDate',
       header: 'วันที่',
       cell: ({ getValue }) => (
-        <span className="font-semibold">{getValue<string>()}</span>
+        <span className="font-semibold">{formatDate(getValue<string>())}</span>
       ),
     },
     {
@@ -81,7 +81,7 @@ export const attendanceLogDataColumns = ({
       header: 'เวลาบันทึก',
       cell: ({ getValue }) => {
         const val = getValue<Date | null>();
-        return val ? formatDate(val) : '-';
+        return formatDateTime(val);
       },
     },
     {
