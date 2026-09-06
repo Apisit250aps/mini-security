@@ -228,13 +228,13 @@ Composite unique index `(role_id, permission_id)` ป้องกัน duplicat
 
 ### 3.1 `feature`
 
-| Column      | Type      | คำอธิบาย                                                  |
-| ----------- | --------- | --------------------------------------------------------- |
-| `id`        | uuid (PK) | UUIDv7 Primary Key                                        |
-| `code`      | text      | รหัสอ้างอิง unique เช่น `EMPLOYEE_MANAGEMENT`, `PAYROLL`  |
-| `name`      | text      | ชื่อแสดงผล เช่น "ระบบจัดการพนักงาน"                       |
-| `category`  | text      | หมวดหมู่ เช่น `HR`, `SECURITY`, `FINANCE`, `CORE`         |
-| `is_active` | boolean   | เปิดใช้งานระดับ Platform (Global Master Switch)           |
+| Column      | Type      | คำอธิบาย                                                 |
+| ----------- | --------- | -------------------------------------------------------- |
+| `id`        | uuid (PK) | UUIDv7 Primary Key                                       |
+| `code`      | text      | รหัสอ้างอิง unique เช่น `EMPLOYEE_MANAGEMENT`, `PAYROLL` |
+| `name`      | text      | ชื่อแสดงผล เช่น "ระบบจัดการพนักงาน"                      |
+| `category`  | text      | หมวดหมู่ เช่น `HR`, `SECURITY`, `FINANCE`, `CORE`        |
+| `is_active` | boolean   | เปิดใช้งานระดับ Platform (Global Master Switch)          |
 
 **หน้าที่:** **Master Catalog** ของ feature ทั้งหมดในระบบ  
 กำหนดและดูแลโดย Super Admin เท่านั้น  
@@ -279,26 +279,28 @@ Composite unique index `(company_id, feature_id)` ป้องกัน assign �
 
 กลุ่มตารางที่ดูแล **ระบบบันทึกเวลาเข้างานของพนักงาน (Attendance & Time Tracking)**  
 ออกแบบโดยยึดหลัก **Clean Architecture & Domain Separation**:
+
 - **ตำแหน่งงาน (Position)** ใช้ตาราง `role` ที่มีอยู่แล้วในระบบ (ไม่ต้องสร้างตารางตำแหน่งซ้ำซ้อน)
 - **พนักงาน (Employee)** ใช้ตาราง `company_member` ที่ผูกระหว่าง `user` ↔ `company` ↔ `role`
 - **รองรับรอบการเช็คชื่อแบบ Dynamic**: แต่ละตำแหน่งงาน (Role) สามารถตั้งค่าช่วงเวลาและจำนวนรอบการเช็คชื่อต่อวันได้อิสระ เช่น
-  - *แม่บ้าน:* เช็ค 2 รอบ (เช้า, เย็น)
-  - *พนักงานทั่วไป:* เช็ค 3 รอบ (เช้า, กลางวัน, เย็น)
-  - *หัวหน้างาน:* เช็ค 1 รอบ (เช้า)
+  - _แม่บ้าน:_ เช็ค 2 รอบ (เช้า, เย็น)
+  - _พนักงานทั่วไป:_ เช็ค 3 รอบ (เช้า, กลางวัน, เย็น)
+  - _หัวหน้างาน:_ เช็ค 1 รอบ (เช้า)
 
 ---
 
 ### Enum Definitions
 
 #### `attendance_status`
+
 สถานะการลงเวลาของพนักงานในแต่ละรอบ (Slot)
 
-| ค่า | ความหมาย | คำอธิบายเงื่อนไข |
-|---|---|---|
-| `present` | มาทำงาน | ลงเวลาสำเร็จภายในช่วงเวลาที่กำหนด (`window_start` ถึง `window_end`) |
-| `late` | มาสาย | ลงเวลาหลังจากเวลามาตรฐานที่อนุญาต หรือเกินเกณฑ์เริ่มงานแต่ยังอยู่ในกรอบที่ระบบรับบันทึก |
-| `absent` | ขาดงาน | ไม่มีการลงเวลาตลอดช่วงเวลาที่กำหนดของรอบนั้น (ค่าเริ่มต้นของระบบ) |
-| `excused` | ลางาน (มีเหตุผล) | ได้รับการอนุมัติการลาจากระบบ Leave Management หรือบันทึกโดยหัวหน้างาน/Admin |
+| ค่า       | ความหมาย         | คำอธิบายเงื่อนไข                                                                        |
+| --------- | ---------------- | --------------------------------------------------------------------------------------- |
+| `present` | มาทำงาน          | ลงเวลาสำเร็จภายในช่วงเวลาที่กำหนด (`window_start` ถึง `window_end`)                     |
+| `late`    | มาสาย            | ลงเวลาหลังจากเวลามาตรฐานที่อนุญาต หรือเกินเกณฑ์เริ่มงานแต่ยังอยู่ในกรอบที่ระบบรับบันทึก |
+| `absent`  | ขาดงาน           | ไม่มีการลงเวลาตลอดช่วงเวลาที่กำหนดของรอบนั้น (ค่าเริ่มต้นของระบบ)                       |
+| `excused` | ลางาน (มีเหตุผล) | ได้รับการอนุมัติการลาจากระบบ Leave Management หรือบันทึกโดยหัวหน้างาน/Admin             |
 
 ---
 
@@ -306,17 +308,18 @@ Composite unique index `(company_id, feature_id)` ป้องกัน assign �
 
 ตารางกำหนดแม่แบบตารางเวลาเช็คชื่อต่อตำแหน่งงาน (Role) ภายในแต่ละบริษัท
 
-| Column | Type | คำอธิบาย |
-|---|---|---|
-| `id` | uuid (PK) | UUIDv7 Primary Key |
-| `role_id` | uuid (FK) | อ้างอิงไปยัง `role.id` — **1 Role มีได้ 1 Schedule** (Unique) |
-| `company_id` | uuid (FK) | อ้างอิงไปยัง `company.id` (Denormalized เพื่อ Tenant Isolation & Fast Query) |
-| `name` | text | ชื่อ Schedule เช่น *"แม่บ้าน 2 รอบ"*, *"พนักงานออฟฟิศ 3 รอบ"*, *"รปภ. กะกลางวัน"* |
-| `is_active` | boolean | สถานะเปิดใช้งานตารางเวลานี้ (default: `true`) |
-| `created_at` | timestamp | วันเวลาที่สร้างตาราง |
-| `updated_at` | timestamp | วันเวลาที่แก้ไขล่าสุด |
+| Column       | Type      | คำอธิบาย                                                                          |
+| ------------ | --------- | --------------------------------------------------------------------------------- |
+| `id`         | uuid (PK) | UUIDv7 Primary Key                                                                |
+| `role_id`    | uuid (FK) | อ้างอิงไปยัง `role.id` — **1 Role มีได้ 1 Schedule** (Unique)                     |
+| `company_id` | uuid (FK) | อ้างอิงไปยัง `company.id` (Denormalized เพื่อ Tenant Isolation & Fast Query)      |
+| `name`       | text      | ชื่อ Schedule เช่น _"แม่บ้าน 2 รอบ"_, _"พนักงานออฟฟิศ 3 รอบ"_, _"รปภ. กะกลางวัน"_ |
+| `is_active`  | boolean   | สถานะเปิดใช้งานตารางเวลานี้ (default: `true`)                                     |
+| `created_at` | timestamp | วันเวลาที่สร้างตาราง                                                              |
+| `updated_at` | timestamp | วันเวลาที่แก้ไขล่าสุด                                                             |
 
 **Indexes & Constraints:**
+
 - `role_id` (Unique Index: `check_in_schedule_role_id_unique`) — บังคับว่า 1 Role จะมี Schedule ได้เพียง 1 รูปแบบ
 - `company_id` (Index: `check_in_schedule_company_id_idx`) — ค้นหา Schedule ทั้งหมดในระดับบริษัท
 
@@ -328,19 +331,20 @@ Composite unique index `(company_id, feature_id)` ป้องกัน assign �
 
 ตารางกำหนด **แต่ละรอบ (Slot)** ใน 1 วันของ Schedule นั้นๆ
 
-| Column | Type | คำอธิบาย |
-|---|---|---|
-| `id` | uuid (PK) | UUIDv7 Primary Key |
-| `check_in_schedule_id` | uuid (FK) | อ้างอิงไปยัง `check_in_schedules.id` (ลบตามเมื่อ Schedule ถูกลบ - Cascade) |
-| `slot_order` | integer | ลำดับรอบใน 1 วัน (เช่น `1` = รอบแรก/เช้า, `2` = รอบสอง/กลางวัน, `3` = รอบสาม/เย็น) |
-| `label` | text | ป้ายชื่อแสดงผลของรอบ เช่น *"รอบเช้า"*, *"รอบกลางวัน"*, *"รอบเย็น"*, *"ตรวจเวรค่ำ"* |
-| `window_start` | time | เวลาเริ่มต้นที่เปิดรับการเช็คชื่อ เช่น `07:00:00` |
-| `window_end` | time | เวลาสิ้นสุดที่ปิดรับการเช็คชื่อ เช่น `09:00:00` |
-| `is_required` | boolean | บังคับต้องเช็คในรอบนี้หรือไม่ (default: `true`) |
-| `created_at` | timestamp | วันเวลาที่สร้างรอบ |
-| `updated_at` | timestamp | วันเวลาที่แก้ไขล่าสุด |
+| Column                 | Type      | คำอธิบาย                                                                           |
+| ---------------------- | --------- | ---------------------------------------------------------------------------------- |
+| `id`                   | uuid (PK) | UUIDv7 Primary Key                                                                 |
+| `check_in_schedule_id` | uuid (FK) | อ้างอิงไปยัง `check_in_schedules.id` (ลบตามเมื่อ Schedule ถูกลบ - Cascade)         |
+| `slot_order`           | integer   | ลำดับรอบใน 1 วัน (เช่น `1` = รอบแรก/เช้า, `2` = รอบสอง/กลางวัน, `3` = รอบสาม/เย็น) |
+| `label`                | text      | ป้ายชื่อแสดงผลของรอบ เช่น _"รอบเช้า"_, _"รอบกลางวัน"_, _"รอบเย็น"_, _"ตรวจเวรค่ำ"_ |
+| `window_start`         | time      | เวลาเริ่มต้นที่เปิดรับการเช็คชื่อ เช่น `07:00:00`                                  |
+| `window_end`           | time      | เวลาสิ้นสุดที่ปิดรับการเช็คชื่อ เช่น `09:00:00`                                    |
+| `is_required`          | boolean   | บังคับต้องเช็คในรอบนี้หรือไม่ (default: `true`)                                    |
+| `created_at`           | timestamp | วันเวลาที่สร้างรอบ                                                                 |
+| `updated_at`           | timestamp | วันเวลาที่แก้ไขล่าสุด                                                              |
 
 **Indexes & Constraints:**
+
 - `check_in_schedule_id` (Index: `schedule_slot_schedule_id_idx`)
 - `(check_in_schedule_id, slot_order)` (Composite Unique: `schedule_slot_order_unique`) — ลำดับรอบใน Schedule เดียวกันต้องไม่ซ้ำกัน
 
@@ -352,20 +356,21 @@ Composite unique index `(company_id, feature_id)` ป้องกัน assign �
 
 ตารางบันทึกประวัติการเช็คชื่อเข้างานจริงของพนักงาน
 
-| Column | Type | คำอธิบาย |
-|---|---|---|
-| `id` | uuid (PK) | UUIDv7 Primary Key |
-| `company_member_id` | uuid (FK) | อ้างอิงไปยัง `company_member.id` (พนักงานผู้ลงเวลา) |
-| `schedule_slot_id` | uuid (FK) | อ้างอิงไปยัง `schedule_slots.id` (รอบการลงเวลาที่บันทึก) |
-| `work_date` | date | วันที่ทำงาน (YYYY-MM-DD) เช่น `2026-09-06` |
-| `checked_in_at` | timestamp | วันเวลาจริงที่ทำการกดเช็คชื่อ (`NULL` หากขาดงานหรือยังไม่ได้เช็ค) |
-| `status` | enum | สถานะการลงเวลา (`present`, `absent`, `late`, `excused`) |
-| `note` | text | หมายเหตุเพิ่มเติม เช่น *"ลากิจ (อนุมัติผ่านระบบ)"*, *"สแกนนิ้วขัดข้อง"* |
-| `recorded_by` | uuid (FK) | อ้างอิงไปยัง `user.id` ของ Supervisor/Admin ที่บันทึกแทนหรือ Override (`NULL` ถ้าเช็คด้วยตนเอง) |
-| `created_at` | timestamp | วันเวลาที่สร้างเรคคอร์ด |
-| `updated_at` | timestamp | วันเวลาที่แก้ไขล่าสุด |
+| Column              | Type      | คำอธิบาย                                                                                        |
+| ------------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| `id`                | uuid (PK) | UUIDv7 Primary Key                                                                              |
+| `company_member_id` | uuid (FK) | อ้างอิงไปยัง `company_member.id` (พนักงานผู้ลงเวลา)                                             |
+| `schedule_slot_id`  | uuid (FK) | อ้างอิงไปยัง `schedule_slots.id` (รอบการลงเวลาที่บันทึก)                                        |
+| `work_date`         | date      | วันที่ทำงาน (YYYY-MM-DD) เช่น `2026-09-06`                                                      |
+| `checked_in_at`     | timestamp | วันเวลาจริงที่ทำการกดเช็คชื่อ (`NULL` หากขาดงานหรือยังไม่ได้เช็ค)                               |
+| `status`            | enum      | สถานะการลงเวลา (`present`, `absent`, `late`, `excused`)                                         |
+| `note`              | text      | หมายเหตุเพิ่มเติม เช่น _"ลากิจ (อนุมัติผ่านระบบ)"_, _"สแกนนิ้วขัดข้อง"_                         |
+| `recorded_by`       | uuid (FK) | อ้างอิงไปยัง `user.id` ของ Supervisor/Admin ที่บันทึกแทนหรือ Override (`NULL` ถ้าเช็คด้วยตนเอง) |
+| `created_at`        | timestamp | วันเวลาที่สร้างเรคคอร์ด                                                                         |
+| `updated_at`        | timestamp | วันเวลาที่แก้ไขล่าสุด                                                                           |
 
 **Indexes & Constraints:**
+
 - `company_member_id` (Index: `attendance_log_member_id_idx`) — ค้นหาประวัติการลงเวลาของพนักงาน
 - `schedule_slot_id` (Index: `attendance_log_slot_id_idx`) — ค้นหาตามรอบเวลา
 - `work_date` (Index: `attendance_log_work_date_idx`) — กรองรายงานตามช่วงวันที่
@@ -385,23 +390,25 @@ Composite unique index `(company_id, feature_id)` ป้องกัน assign �
 ### Enum Definitions
 
 #### `leave_request_status`
+
 สถานะของคำขอลาในกระบวนการพิจารณา (Approval Workflow)
 
-| ค่า | ความหมาย | คำอธิบาย |
-|---|---|---|
-| `pending` | รอการอนุมัติ | พนักงานยื่นคำขอแล้ว อยู่ในระหว่างรอหัวหน้างาน/Admin ตรวจสอบ |
-| `approved` | อนุมัติแล้ว | ผ่านการอนุมัติ โควต้าวันลาถูกหัก และระบบ Attendance ปรับสถานะเป็น `excused` |
-| `rejected` | ปฏิเสธ | ไม่อนุมัติคำขอ พร้อมระบุเหตุผลใน `review_note` โควต้าไม่ถูกหัก |
-| `cancelled` | ยกเลิกโดยผู้ขอ | พนักงานกดยกเลิกคำขอก่อนหรือหลังการพิจารณา (คืนโควต้าหากเคย approved) |
+| ค่า         | ความหมาย       | คำอธิบาย                                                                    |
+| ----------- | -------------- | --------------------------------------------------------------------------- |
+| `pending`   | รอการอนุมัติ   | พนักงานยื่นคำขอแล้ว อยู่ในระหว่างรอหัวหน้างาน/Admin ตรวจสอบ                 |
+| `approved`  | อนุมัติแล้ว    | ผ่านการอนุมัติ โควต้าวันลาถูกหัก และระบบ Attendance ปรับสถานะเป็น `excused` |
+| `rejected`  | ปฏิเสธ         | ไม่อนุมัติคำขอ พร้อมระบุเหตุผลใน `review_note` โควต้าไม่ถูกหัก              |
+| `cancelled` | ยกเลิกโดยผู้ขอ | พนักงานกดยกเลิกคำขอก่อนหรือหลังการพิจารณา (คืนโควต้าหากเคย approved)        |
 
 #### `leave_unit`
+
 หน่วยการนับเวลาที่ขอลา
 
-| ค่า | ความหมาย | คำอธิบาย |
-|---|---|---|
-| `day` | เต็มวัน | นับเป็นจำนวนเต็มวัน เช่น 1 วัน, 2 วัน |
-| `half_day` | ครึ่งวัน | นับเป็น 0.5 วัน (เช้า หรือ บ่าย) |
-| `hour` | ชั่วโมง | นับเป็นจำนวนชั่วโมง (สำหรับการลาเฉพาะช่วงเวลาสั้นๆ) |
+| ค่า        | ความหมาย | คำอธิบาย                                            |
+| ---------- | -------- | --------------------------------------------------- |
+| `day`      | เต็มวัน  | นับเป็นจำนวนเต็มวัน เช่น 1 วัน, 2 วัน               |
+| `half_day` | ครึ่งวัน | นับเป็น 0.5 วัน (เช้า หรือ บ่าย)                    |
+| `hour`     | ชั่วโมง  | นับเป็นจำนวนชั่วโมง (สำหรับการลาเฉพาะช่วงเวลาสั้นๆ) |
 
 ---
 
@@ -409,21 +416,22 @@ Composite unique index `(company_id, feature_id)` ป้องกัน assign �
 
 ตารางนิยามประเภทการลาที่บริษัทเปิดให้พนักงานลาได้
 
-| Column | Type | คำอธิบาย |
-|---|---|---|
-| `id` | uuid (PK) | UUIDv7 Primary Key |
-| `company_id` | uuid (FK) | อ้างอิงไปยัง `company.id` (Tenant Scoped) |
-| `name` | text | ชื่อประเภทการลา เช่น *"ลาป่วย"*, *"ลากิจ"*, *"ลาพักร้อน"*, *"ลาคลอด"*, *"ลาบวช"* |
-| `description` | text | รายละเอียดเงื่อนไขและข้อกำหนดในการลา |
-| `unit` | enum | หน่วยนับเริ่มต้น (`day`, `half_day`, `hour`) |
-| `requires_proof` | boolean | บังคับแนบเอกสาร/ใบรับรองแพทย์หรือไม่ (เช่น ลาป่วยเกิน 2 วัน) |
-| `max_days_per_year` | integer | จำนวนวันลาสูงสุดตามสิทธิ์ต่อปี (`NULL` = ไม่จำกัดจำนวนวัน) |
-| `is_paid` | boolean | ลาโดยได้รับค่าจ้างหรือไม่ (`true` = Paid Leave, `false` = Unpaid Leave) |
-| `is_active` | boolean | เปิดใช้งานประเภทการลานี้หรือไม่ (default: `true`) |
-| `created_at` | timestamp | วันเวลาที่สร้าง |
-| `updated_at` | timestamp | วันเวลาที่แก้ไขล่าสุด |
+| Column              | Type      | คำอธิบาย                                                                         |
+| ------------------- | --------- | -------------------------------------------------------------------------------- |
+| `id`                | uuid (PK) | UUIDv7 Primary Key                                                               |
+| `company_id`        | uuid (FK) | อ้างอิงไปยัง `company.id` (Tenant Scoped)                                        |
+| `name`              | text      | ชื่อประเภทการลา เช่น _"ลาป่วย"_, _"ลากิจ"_, _"ลาพักร้อน"_, _"ลาคลอด"_, _"ลาบวช"_ |
+| `description`       | text      | รายละเอียดเงื่อนไขและข้อกำหนดในการลา                                             |
+| `unit`              | enum      | หน่วยนับเริ่มต้น (`day`, `half_day`, `hour`)                                     |
+| `requires_proof`    | boolean   | บังคับแนบเอกสาร/ใบรับรองแพทย์หรือไม่ (เช่น ลาป่วยเกิน 2 วัน)                     |
+| `max_days_per_year` | integer   | จำนวนวันลาสูงสุดตามสิทธิ์ต่อปี (`NULL` = ไม่จำกัดจำนวนวัน)                       |
+| `is_paid`           | boolean   | ลาโดยได้รับค่าจ้างหรือไม่ (`true` = Paid Leave, `false` = Unpaid Leave)          |
+| `is_active`         | boolean   | เปิดใช้งานประเภทการลานี้หรือไม่ (default: `true`)                                |
+| `created_at`        | timestamp | วันเวลาที่สร้าง                                                                  |
+| `updated_at`        | timestamp | วันเวลาที่แก้ไขล่าสุด                                                            |
 
 **Indexes & Constraints:**
+
 - `company_id` (Index: `leave_type_company_id_idx`)
 - `(company_id, name)` (Composite Unique: `leave_type_company_name_unique`) — ชื่อประเภทการลาต้องไม่ซ้ำกันภายในบริษัทเดียวกัน
 
@@ -435,18 +443,19 @@ Composite unique index `(company_id, feature_id)` ป้องกัน assign �
 
 ตารางเก็บยอดโควต้าวันลาต่อปีของสมาชิกแต่ละคนในแต่ละประเภทการลา
 
-| Column | Type | คำอธิบาย |
-|---|---|---|
-| `id` | uuid (PK) | UUIDv7 Primary Key |
-| `company_member_id` | uuid (FK) | อ้างอิงไปยัง `company_member.id` |
-| `leave_type_id` | uuid (FK) | อ้างอิงไปยัง `leave_types.id` |
-| `year` | integer | ปีที่ได้รับสิทธิ์ (ค.ศ. เช่น `2026`) |
-| `total_days` | decimal | โควตาวันลาทั้งหมดที่ได้รับในปีนั้น (รองรับทศนิยม เช่น `6.0`, `15.0`) |
-| `used_days` | decimal | จำนวนวันลาที่ใช้ไปแล้ว (default: `0`, ปรับปรุงอัตโนมัติเมื่ออนุมัติ) |
-| `created_at` | timestamp | วันเวลาที่สร้างเรคคอร์ด |
-| `updated_at` | timestamp | วันเวลาที่แก้ไขล่าสุด |
+| Column              | Type      | คำอธิบาย                                                             |
+| ------------------- | --------- | -------------------------------------------------------------------- |
+| `id`                | uuid (PK) | UUIDv7 Primary Key                                                   |
+| `company_member_id` | uuid (FK) | อ้างอิงไปยัง `company_member.id`                                     |
+| `leave_type_id`     | uuid (FK) | อ้างอิงไปยัง `leave_types.id`                                        |
+| `year`              | integer   | ปีที่ได้รับสิทธิ์ (ค.ศ. เช่น `2026`)                                 |
+| `total_days`        | decimal   | โควตาวันลาทั้งหมดที่ได้รับในปีนั้น (รองรับทศนิยม เช่น `6.0`, `15.0`) |
+| `used_days`         | decimal   | จำนวนวันลาที่ใช้ไปแล้ว (default: `0`, ปรับปรุงอัตโนมัติเมื่ออนุมัติ) |
+| `created_at`        | timestamp | วันเวลาที่สร้างเรคคอร์ด                                              |
+| `updated_at`        | timestamp | วันเวลาที่แก้ไขล่าสุด                                                |
 
 **Indexes & Constraints:**
+
 - `company_member_id` (Index: `leave_quota_member_id_idx`)
 - `leave_type_id` (Index: `leave_quota_type_id_idx`)
 - `(company_member_id, leave_type_id, year)` (Composite Unique: `leave_quota_member_type_year_unique`) — พนักงาน 1 คน มีโควต้าประเภทการลาเดียวกันในปีเดียวกันได้ 1 เรคคอร์ดเท่านั้น
@@ -461,25 +470,26 @@ $$\text{วันลาคงเหลือ} = \text{total\_days} - \text{used\
 
 ตารางบันทึกคำขอลาหยุดงานและประวัติการพิจารณาอนุมัติ
 
-| Column | Type | คำอธิบาย |
-|---|---|---|
-| `id` | uuid (PK) | UUIDv7 Primary Key |
-| `company_member_id` | uuid (FK) | อ้างอิงไปยัง `company_member.id` (ผู้ยื่นขอลา) |
-| `leave_type_id` | uuid (FK) | อ้างอิงไปยัง `leave_types.id` (ประเภทการลาที่ขอ) |
-| `start_date` | date | วันที่เริ่มต้นลา (YYYY-MM-DD) |
-| `end_date` | date | วันที่สิ้นสุดการลา (YYYY-MM-DD) |
-| `total_days` | decimal | จำนวนวันที่ขอลาทั้งหมด (คำนวณตามปฏิทินวันทำงาน) |
-| `unit` | enum | หน่วยการลาที่ระบุ (`day`, `half_day`, `hour`) |
-| `reason` | text | เหตุผลและความจำเป็นในการลา |
-| `proof_url` | text | ลิงก์ไฟล์แนบหลักฐาน (รูปถ่ายใบรับรองแพทย์, เอกสารราชการ) |
-| `status` | enum | สถานะคำขอ (`pending`, `approved`, `rejected`, `cancelled`) |
-| `reviewed_by` | uuid (FK) | อ้างอิงไปยัง `user.id` ของผู้อนุมัติ/ปฏิเสธ (`NULL` ระหว่างรอพิจารณา) |
-| `reviewed_at` | timestamp | วันเวลาที่มีการอนุมัติหรือปฏิเสธคำขอ |
-| `review_note` | text | บันทึกความเห็นจากผู้อนุมัติ (เช่น เหตุผลในการไม่อนุมัติ) |
-| `created_at` | timestamp | วันเวลาที่ยื่นคำขอ |
-| `updated_at` | timestamp | วันเวลาที่แก้ไขล่าสุด |
+| Column              | Type      | คำอธิบาย                                                              |
+| ------------------- | --------- | --------------------------------------------------------------------- |
+| `id`                | uuid (PK) | UUIDv7 Primary Key                                                    |
+| `company_member_id` | uuid (FK) | อ้างอิงไปยัง `company_member.id` (ผู้ยื่นขอลา)                        |
+| `leave_type_id`     | uuid (FK) | อ้างอิงไปยัง `leave_types.id` (ประเภทการลาที่ขอ)                      |
+| `start_date`        | date      | วันที่เริ่มต้นลา (YYYY-MM-DD)                                         |
+| `end_date`          | date      | วันที่สิ้นสุดการลา (YYYY-MM-DD)                                       |
+| `total_days`        | decimal   | จำนวนวันที่ขอลาทั้งหมด (คำนวณตามปฏิทินวันทำงาน)                       |
+| `unit`              | enum      | หน่วยการลาที่ระบุ (`day`, `half_day`, `hour`)                         |
+| `reason`            | text      | เหตุผลและความจำเป็นในการลา                                            |
+| `proof_url`         | text      | ลิงก์ไฟล์แนบหลักฐาน (รูปถ่ายใบรับรองแพทย์, เอกสารราชการ)              |
+| `status`            | enum      | สถานะคำขอ (`pending`, `approved`, `rejected`, `cancelled`)            |
+| `reviewed_by`       | uuid (FK) | อ้างอิงไปยัง `user.id` ของผู้อนุมัติ/ปฏิเสธ (`NULL` ระหว่างรอพิจารณา) |
+| `reviewed_at`       | timestamp | วันเวลาที่มีการอนุมัติหรือปฏิเสธคำขอ                                  |
+| `review_note`       | text      | บันทึกความเห็นจากผู้อนุมัติ (เช่น เหตุผลในการไม่อนุมัติ)              |
+| `created_at`        | timestamp | วันเวลาที่ยื่นคำขอ                                                    |
+| `updated_at`        | timestamp | วันเวลาที่แก้ไขล่าสุด                                                 |
 
 **Indexes & Constraints:**
+
 - `company_member_id` (Index: `leave_request_member_id_idx`)
 - `leave_type_id` (Index: `leave_request_type_id_idx`)
 - `status` (Index: `leave_request_status_idx`) — กรองคำขอที่รอการอนุมัติ (`pending`) สำหรับ Dashboard หัวหน้างาน
@@ -494,6 +504,7 @@ $$\text{วันลาคงเหลือ} = \text{total\_days} - \text{used\
 ### 6.1 การแมปแนวคิดระดับโดเมน (Core Domain Mapping)
 
 ในการออกแบบระบบให้สอดคล้องกับโครงสร้างเดิมโดยไม่ต้องสร้างตารางซ้ำซ้อน:
+
 1. **"ตำแหน่งงาน" (Position) $\rightarrow$ ใช้ตาราง `role`**  
    ในแต่ละบริษัท Role ทำหน้าที่เป็นทั้งตำแหน่งงานทางธุรกิจ (เช่น แม่บ้าน, พนักงานทั่วไป, หัวหน้างาน) และเป็นตัวกำหนด Role Type ทางการเข้าถึงระบบ โดย `check_in_schedules.role_id` เชื่อมตรงไปยัง `role.id` แบบ 1:1
 2. **"พนักงาน" (Employee) $\rightarrow$ ใช้ตาราง `company_member`**  
@@ -548,6 +559,7 @@ $$\text{วันลาคงเหลือ} = \text{total\_days} - \text{used\
 ```
 
 **กฎการตรวจสอบเวลา (Window Validation Logic):**
+
 - ถ้า `checked_in_at` อยู่ในช่วง `[window_start, window_end]` $\rightarrow$ `status = 'present'`
 - ถ้า `checked_in_at` เกินเกณฑ์เวลาเข้างานปกติแต่ยังอยู่ในช่วงสายที่อนุญาต $\rightarrow$ `status = 'late'`
 - หากหมดช่วงเวลา `window_end` แล้วยังไม่มีบันทึก $\rightarrow$ บันทึก `status = 'absent'`
@@ -612,13 +624,13 @@ $$\text{วันลาคงเหลือ} = \text{total\_days} - \text{used\
 
 ### 7.1 ภาพรวม Table Groups ทั้ง 5 กลุ่ม
 
-| Table Group | ตารางที่สังกัด | ขอบเขตหน้าที่ |
-|---|---|---|
-| **1. auth_management** | `user`, `account`, `session`, `verification`, `jwks` | Identity, Session, Credentials, OAuth, JWT Verification |
+| Table Group                  | ตารางที่สังกัด                                                                         | ขอบเขตหน้าที่                                                             |
+| ---------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **1. auth_management**       | `user`, `account`, `session`, `verification`, `jwks`                                   | Identity, Session, Credentials, OAuth, JWT Verification                   |
 | **2. organization_and_rbac** | `company`, `company_branch`, `company_member`, `role`, `permission`, `role_permission` | Multi-Tenant Workspace, สาขา, พนักงาน/สมาชิก, ตำแหน่งงาน, สิทธิ์ granular |
-| **3. feature_management** | `feature`, `company_feature`, `role_feature` | Master Catalog ฟีเจอร์, Tenant Entitlement, สิทธิ์ระดับ Role |
-| **4. attendance_module** | `check_in_schedules`, `schedule_slots`, `attendance_logs` | นโยบายการเช็คชื่อตามตำแหน่ง, รอบเวลา dynamic, บันทึกการลงเวลาจริง |
-| **5. leave_management** | `leave_types`, `leave_quotas`, `leave_requests` | ประเภทการลา, โควต้าสะสมประจำปี, คำขอและการอนุมัติการลา |
+| **3. feature_management**    | `feature`, `company_feature`, `role_feature`                                           | Master Catalog ฟีเจอร์, Tenant Entitlement, สิทธิ์ระดับ Role              |
+| **4. attendance_module**     | `check_in_schedules`, `schedule_slots`, `attendance_logs`                              | นโยบายการเช็คชื่อตามตำแหน่ง, รอบเวลา dynamic, บันทึกการลงเวลาจริง         |
+| **5. leave_management**      | `leave_types`, `leave_quotas`, `leave_requests`                                        | ประเภทการลา, โควต้าสะสมประจำปี, คำขอและการอนุมัติการลา                    |
 
 ---
 

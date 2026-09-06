@@ -9,6 +9,42 @@ import type {
 } from './client';
 import { client } from './client.gen';
 import type {
+  AttendanceServicesCheckInData,
+  AttendanceServicesCheckInErrors,
+  AttendanceServicesCheckInResponses,
+  AttendanceServicesCreateScheduleData,
+  AttendanceServicesCreateScheduleErrors,
+  AttendanceServicesCreateScheduleResponses,
+  AttendanceServicesCreateSlotData,
+  AttendanceServicesCreateSlotErrors,
+  AttendanceServicesCreateSlotResponses,
+  AttendanceServicesDeleteSlotData,
+  AttendanceServicesDeleteSlotErrors,
+  AttendanceServicesDeleteSlotResponses,
+  AttendanceServicesGetCompanyLogsData,
+  AttendanceServicesGetCompanyLogsErrors,
+  AttendanceServicesGetCompanyLogsResponses,
+  AttendanceServicesGetMemberLogsData,
+  AttendanceServicesGetMemberLogsErrors,
+  AttendanceServicesGetMemberLogsResponses,
+  AttendanceServicesGetScheduleByRoleData,
+  AttendanceServicesGetScheduleByRoleErrors,
+  AttendanceServicesGetScheduleByRoleResponses,
+  AttendanceServicesGetSchedulesByCompanyData,
+  AttendanceServicesGetSchedulesByCompanyErrors,
+  AttendanceServicesGetSchedulesByCompanyResponses,
+  AttendanceServicesGetSlotsByScheduleData,
+  AttendanceServicesGetSlotsByScheduleErrors,
+  AttendanceServicesGetSlotsByScheduleResponses,
+  AttendanceServicesManualCheckInData,
+  AttendanceServicesManualCheckInErrors,
+  AttendanceServicesManualCheckInResponses,
+  AttendanceServicesUpdateScheduleData,
+  AttendanceServicesUpdateScheduleErrors,
+  AttendanceServicesUpdateScheduleResponses,
+  AttendanceServicesUpdateSlotData,
+  AttendanceServicesUpdateSlotErrors,
+  AttendanceServicesUpdateSlotResponses,
   CompanyServicesAddCompanyMemberData,
   CompanyServicesAddCompanyMemberErrors,
   CompanyServicesAddCompanyMemberResponses,
@@ -105,6 +141,39 @@ import type {
   FeatureServicesUpdateFeatureData,
   FeatureServicesUpdateFeatureErrors,
   FeatureServicesUpdateFeatureResponses,
+  LeaveServicesCancelRequestData,
+  LeaveServicesCancelRequestErrors,
+  LeaveServicesCancelRequestResponses,
+  LeaveServicesCreateQuotaData,
+  LeaveServicesCreateQuotaErrors,
+  LeaveServicesCreateQuotaResponses,
+  LeaveServicesCreateTypeData,
+  LeaveServicesCreateTypeErrors,
+  LeaveServicesCreateTypeResponses,
+  LeaveServicesGetCompanyRequestsData,
+  LeaveServicesGetCompanyRequestsErrors,
+  LeaveServicesGetCompanyRequestsResponses,
+  LeaveServicesGetMemberRequestsData,
+  LeaveServicesGetMemberRequestsErrors,
+  LeaveServicesGetMemberRequestsResponses,
+  LeaveServicesGetQuotasByMemberData,
+  LeaveServicesGetQuotasByMemberErrors,
+  LeaveServicesGetQuotasByMemberResponses,
+  LeaveServicesGetTypesByCompanyData,
+  LeaveServicesGetTypesByCompanyErrors,
+  LeaveServicesGetTypesByCompanyResponses,
+  LeaveServicesReviewRequestData,
+  LeaveServicesReviewRequestErrors,
+  LeaveServicesReviewRequestResponses,
+  LeaveServicesSubmitRequestData,
+  LeaveServicesSubmitRequestErrors,
+  LeaveServicesSubmitRequestResponses,
+  LeaveServicesUpdateQuotaData,
+  LeaveServicesUpdateQuotaErrors,
+  LeaveServicesUpdateQuotaResponses,
+  LeaveServicesUpdateTypeData,
+  LeaveServicesUpdateTypeErrors,
+  LeaveServicesUpdateTypeResponses,
   PermissionServicesCreatePermissionData,
   PermissionServicesCreatePermissionErrors,
   PermissionServicesCreatePermissionResponses,
@@ -181,6 +250,292 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
+
+/**
+ * Check in attendance
+ */
+export const attendanceServicesCheckIn = <ThrowOnError extends boolean = false>(
+  options: Options<AttendanceServicesCheckInData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCheckInResponses,
+  AttendanceServicesCheckInErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCheckInResponses,
+    AttendanceServicesCheckInErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/check-in',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get company attendance logs by date range
+ */
+export const attendanceServicesGetCompanyLogs = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetCompanyLogsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetCompanyLogsResponses,
+  AttendanceServicesGetCompanyLogsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetCompanyLogsResponses,
+    AttendanceServicesGetCompanyLogsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/companies/{companyId}/logs',
+    ...options,
+  });
+
+/**
+ * Get check-in schedules by company
+ */
+export const attendanceServicesGetSchedulesByCompany = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetSchedulesByCompanyData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetSchedulesByCompanyResponses,
+  AttendanceServicesGetSchedulesByCompanyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetSchedulesByCompanyResponses,
+    AttendanceServicesGetSchedulesByCompanyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/companies/{companyId}/schedules',
+    ...options,
+  });
+
+/**
+ * Manual check in attendance by supervisor/admin
+ */
+export const attendanceServicesManualCheckIn = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesManualCheckInData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesManualCheckInResponses,
+  AttendanceServicesManualCheckInErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesManualCheckInResponses,
+    AttendanceServicesManualCheckInErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/manual-check-in',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get attendance logs by member
+ */
+export const attendanceServicesGetMemberLogs = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetMemberLogsData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetMemberLogsResponses,
+  AttendanceServicesGetMemberLogsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetMemberLogsResponses,
+    AttendanceServicesGetMemberLogsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/members/{memberId}/logs',
+    ...options,
+  });
+
+/**
+ * Get check-in schedule by role
+ */
+export const attendanceServicesGetScheduleByRole = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetScheduleByRoleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetScheduleByRoleResponses,
+  AttendanceServicesGetScheduleByRoleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetScheduleByRoleResponses,
+    AttendanceServicesGetScheduleByRoleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/roles/{roleId}/schedule',
+    ...options,
+  });
+
+/**
+ * Create check-in schedule
+ */
+export const attendanceServicesCreateSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateScheduleResponses,
+  AttendanceServicesCreateScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateScheduleResponses,
+    AttendanceServicesCreateScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/schedules',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update check-in schedule
+ */
+export const attendanceServicesUpdateSchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateScheduleResponses,
+  AttendanceServicesUpdateScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateScheduleResponses,
+    AttendanceServicesUpdateScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/schedules/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get schedule slots by schedule
+ */
+export const attendanceServicesGetSlotsBySchedule = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetSlotsByScheduleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetSlotsByScheduleResponses,
+  AttendanceServicesGetSlotsByScheduleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetSlotsByScheduleResponses,
+    AttendanceServicesGetSlotsByScheduleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/schedules/{scheduleId}/slots',
+    ...options,
+  });
+
+/**
+ * Create schedule slot
+ */
+export const attendanceServicesCreateSlot = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesCreateSlotData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesCreateSlotResponses,
+  AttendanceServicesCreateSlotErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    AttendanceServicesCreateSlotResponses,
+    AttendanceServicesCreateSlotErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/schedules/{scheduleId}/slots',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete schedule slot
+ */
+export const attendanceServicesDeleteSlot = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesDeleteSlotData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesDeleteSlotResponses,
+  AttendanceServicesDeleteSlotErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).delete<
+    AttendanceServicesDeleteSlotResponses,
+    AttendanceServicesDeleteSlotErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/slots/{id}',
+    ...options,
+  });
+
+/**
+ * Update schedule slot
+ */
+export const attendanceServicesUpdateSlot = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesUpdateSlotData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesUpdateSlotResponses,
+  AttendanceServicesUpdateSlotErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    AttendanceServicesUpdateSlotResponses,
+    AttendanceServicesUpdateSlotErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/slots/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Get all companies
@@ -930,6 +1285,264 @@ export const featureServicesToggleFeature = <
   >({
     responseType: 'json',
     url: '/features/{id}/toggle',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get company leave requests
+ */
+export const leaveServicesGetCompanyRequests = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LeaveServicesGetCompanyRequestsData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesGetCompanyRequestsResponses,
+  LeaveServicesGetCompanyRequestsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    LeaveServicesGetCompanyRequestsResponses,
+    LeaveServicesGetCompanyRequestsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/companies/{companyId}/requests',
+    ...options,
+  });
+
+/**
+ * Get company leave types
+ */
+export const leaveServicesGetTypesByCompany = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LeaveServicesGetTypesByCompanyData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesGetTypesByCompanyResponses,
+  LeaveServicesGetTypesByCompanyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    LeaveServicesGetTypesByCompanyResponses,
+    LeaveServicesGetTypesByCompanyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/companies/{companyId}/types',
+    ...options,
+  });
+
+/**
+ * Get member leave quotas for year
+ */
+export const leaveServicesGetQuotasByMember = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LeaveServicesGetQuotasByMemberData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesGetQuotasByMemberResponses,
+  LeaveServicesGetQuotasByMemberErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    LeaveServicesGetQuotasByMemberResponses,
+    LeaveServicesGetQuotasByMemberErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/members/{memberId}/quotas/{year}',
+    ...options,
+  });
+
+/**
+ * Get member leave requests
+ */
+export const leaveServicesGetMemberRequests = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LeaveServicesGetMemberRequestsData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesGetMemberRequestsResponses,
+  LeaveServicesGetMemberRequestsErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    LeaveServicesGetMemberRequestsResponses,
+    LeaveServicesGetMemberRequestsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/members/{memberId}/requests',
+    ...options,
+  });
+
+/**
+ * Create leave quota
+ */
+export const leaveServicesCreateQuota = <ThrowOnError extends boolean = false>(
+  options: Options<LeaveServicesCreateQuotaData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesCreateQuotaResponses,
+  LeaveServicesCreateQuotaErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    LeaveServicesCreateQuotaResponses,
+    LeaveServicesCreateQuotaErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/quotas',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update leave quota
+ */
+export const leaveServicesUpdateQuota = <ThrowOnError extends boolean = false>(
+  options: Options<LeaveServicesUpdateQuotaData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesUpdateQuotaResponses,
+  LeaveServicesUpdateQuotaErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    LeaveServicesUpdateQuotaResponses,
+    LeaveServicesUpdateQuotaErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/quotas/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Submit leave request
+ */
+export const leaveServicesSubmitRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LeaveServicesSubmitRequestData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesSubmitRequestResponses,
+  LeaveServicesSubmitRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    LeaveServicesSubmitRequestResponses,
+    LeaveServicesSubmitRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/requests',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Cancel leave request
+ */
+export const leaveServicesCancelRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LeaveServicesCancelRequestData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesCancelRequestResponses,
+  LeaveServicesCancelRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    LeaveServicesCancelRequestResponses,
+    LeaveServicesCancelRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/requests/{id}/cancel',
+    ...options,
+  });
+
+/**
+ * Review leave request (approve / reject)
+ */
+export const leaveServicesReviewRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LeaveServicesReviewRequestData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesReviewRequestResponses,
+  LeaveServicesReviewRequestErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    LeaveServicesReviewRequestResponses,
+    LeaveServicesReviewRequestErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/requests/{id}/review',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create leave type
+ */
+export const leaveServicesCreateType = <ThrowOnError extends boolean = false>(
+  options: Options<LeaveServicesCreateTypeData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesCreateTypeResponses,
+  LeaveServicesCreateTypeErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    LeaveServicesCreateTypeResponses,
+    LeaveServicesCreateTypeErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/types',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update leave type
+ */
+export const leaveServicesUpdateType = <ThrowOnError extends boolean = false>(
+  options: Options<LeaveServicesUpdateTypeData, ThrowOnError>,
+): RequestResult<
+  LeaveServicesUpdateTypeResponses,
+  LeaveServicesUpdateTypeErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    LeaveServicesUpdateTypeResponses,
+    LeaveServicesUpdateTypeErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/leaves/types/{id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',

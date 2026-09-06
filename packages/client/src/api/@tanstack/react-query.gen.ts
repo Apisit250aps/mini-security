@@ -5,6 +5,18 @@ import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
 import {
+  attendanceServicesCheckIn,
+  attendanceServicesCreateSchedule,
+  attendanceServicesCreateSlot,
+  attendanceServicesDeleteSlot,
+  attendanceServicesGetCompanyLogs,
+  attendanceServicesGetMemberLogs,
+  attendanceServicesGetScheduleByRole,
+  attendanceServicesGetSchedulesByCompany,
+  attendanceServicesGetSlotsBySchedule,
+  attendanceServicesManualCheckIn,
+  attendanceServicesUpdateSchedule,
+  attendanceServicesUpdateSlot,
   companyServicesAddCompanyMember,
   companyServicesCreateCompany,
   companyServicesCreateCompanyBranch,
@@ -37,6 +49,17 @@ import {
   featureServicesToggleFeature,
   featureServicesToggleRoleFeature,
   featureServicesUpdateFeature,
+  leaveServicesCancelRequest,
+  leaveServicesCreateQuota,
+  leaveServicesCreateType,
+  leaveServicesGetCompanyRequests,
+  leaveServicesGetMemberRequests,
+  leaveServicesGetQuotasByMember,
+  leaveServicesGetTypesByCompany,
+  leaveServicesReviewRequest,
+  leaveServicesSubmitRequest,
+  leaveServicesUpdateQuota,
+  leaveServicesUpdateType,
   type Options,
   permissionServicesCreatePermission,
   permissionServicesDeletePermission,
@@ -59,6 +82,42 @@ import {
   userServicesUpdateUser,
 } from '../sdk.gen';
 import type {
+  AttendanceServicesCheckInData,
+  AttendanceServicesCheckInError,
+  AttendanceServicesCheckInResponse,
+  AttendanceServicesCreateScheduleData,
+  AttendanceServicesCreateScheduleError,
+  AttendanceServicesCreateScheduleResponse,
+  AttendanceServicesCreateSlotData,
+  AttendanceServicesCreateSlotError,
+  AttendanceServicesCreateSlotResponse,
+  AttendanceServicesDeleteSlotData,
+  AttendanceServicesDeleteSlotError,
+  AttendanceServicesDeleteSlotResponse,
+  AttendanceServicesGetCompanyLogsData,
+  AttendanceServicesGetCompanyLogsError,
+  AttendanceServicesGetCompanyLogsResponse,
+  AttendanceServicesGetMemberLogsData,
+  AttendanceServicesGetMemberLogsError,
+  AttendanceServicesGetMemberLogsResponse,
+  AttendanceServicesGetScheduleByRoleData,
+  AttendanceServicesGetScheduleByRoleError,
+  AttendanceServicesGetScheduleByRoleResponse,
+  AttendanceServicesGetSchedulesByCompanyData,
+  AttendanceServicesGetSchedulesByCompanyError,
+  AttendanceServicesGetSchedulesByCompanyResponse,
+  AttendanceServicesGetSlotsByScheduleData,
+  AttendanceServicesGetSlotsByScheduleError,
+  AttendanceServicesGetSlotsByScheduleResponse,
+  AttendanceServicesManualCheckInData,
+  AttendanceServicesManualCheckInError,
+  AttendanceServicesManualCheckInResponse,
+  AttendanceServicesUpdateScheduleData,
+  AttendanceServicesUpdateScheduleError,
+  AttendanceServicesUpdateScheduleResponse,
+  AttendanceServicesUpdateSlotData,
+  AttendanceServicesUpdateSlotError,
+  AttendanceServicesUpdateSlotResponse,
   CompanyServicesAddCompanyMemberData,
   CompanyServicesAddCompanyMemberError,
   CompanyServicesAddCompanyMemberResponse,
@@ -155,6 +214,39 @@ import type {
   FeatureServicesUpdateFeatureData,
   FeatureServicesUpdateFeatureError,
   FeatureServicesUpdateFeatureResponse,
+  LeaveServicesCancelRequestData,
+  LeaveServicesCancelRequestError,
+  LeaveServicesCancelRequestResponse,
+  LeaveServicesCreateQuotaData,
+  LeaveServicesCreateQuotaError,
+  LeaveServicesCreateQuotaResponse,
+  LeaveServicesCreateTypeData,
+  LeaveServicesCreateTypeError,
+  LeaveServicesCreateTypeResponse,
+  LeaveServicesGetCompanyRequestsData,
+  LeaveServicesGetCompanyRequestsError,
+  LeaveServicesGetCompanyRequestsResponse,
+  LeaveServicesGetMemberRequestsData,
+  LeaveServicesGetMemberRequestsError,
+  LeaveServicesGetMemberRequestsResponse,
+  LeaveServicesGetQuotasByMemberData,
+  LeaveServicesGetQuotasByMemberError,
+  LeaveServicesGetQuotasByMemberResponse,
+  LeaveServicesGetTypesByCompanyData,
+  LeaveServicesGetTypesByCompanyError,
+  LeaveServicesGetTypesByCompanyResponse,
+  LeaveServicesReviewRequestData,
+  LeaveServicesReviewRequestError,
+  LeaveServicesReviewRequestResponse,
+  LeaveServicesSubmitRequestData,
+  LeaveServicesSubmitRequestError,
+  LeaveServicesSubmitRequestResponse,
+  LeaveServicesUpdateQuotaData,
+  LeaveServicesUpdateQuotaError,
+  LeaveServicesUpdateQuotaResponse,
+  LeaveServicesUpdateTypeData,
+  LeaveServicesUpdateTypeError,
+  LeaveServicesUpdateTypeResponse,
   PermissionServicesCreatePermissionData,
   PermissionServicesCreatePermissionError,
   PermissionServicesCreatePermissionResponse,
@@ -214,6 +306,33 @@ import type {
   UserServicesUpdateUserResponse,
 } from '../types.gen';
 
+/**
+ * Check in attendance
+ */
+export const attendanceServicesCheckInMutation = (
+  options?: Partial<Options<AttendanceServicesCheckInData>>,
+): UseMutationOptions<
+  AttendanceServicesCheckInResponse,
+  AxiosError<AttendanceServicesCheckInError>,
+  Options<AttendanceServicesCheckInData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesCheckInResponse,
+    AxiosError<AttendanceServicesCheckInError>,
+    Options<AttendanceServicesCheckInData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesCheckIn({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
 export type QueryKey<TOptions extends Options> = [
   Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
     _id: string;
@@ -252,6 +371,308 @@ const createQueryKey = <TOptions extends Options>(
     params.query = options.query;
   }
   return [params];
+};
+
+export const attendanceServicesGetCompanyLogsQueryKey = (
+  options: Options<AttendanceServicesGetCompanyLogsData>,
+) => createQueryKey('attendanceServicesGetCompanyLogs', options);
+
+/**
+ * Get company attendance logs by date range
+ */
+export const attendanceServicesGetCompanyLogsOptions = (
+  options: Options<AttendanceServicesGetCompanyLogsData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetCompanyLogsResponse,
+    AxiosError<AttendanceServicesGetCompanyLogsError>,
+    AttendanceServicesGetCompanyLogsResponse,
+    ReturnType<typeof attendanceServicesGetCompanyLogsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetCompanyLogs({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetCompanyLogsQueryKey(options),
+  });
+
+export const attendanceServicesGetSchedulesByCompanyQueryKey = (
+  options: Options<AttendanceServicesGetSchedulesByCompanyData>,
+) => createQueryKey('attendanceServicesGetSchedulesByCompany', options);
+
+/**
+ * Get check-in schedules by company
+ */
+export const attendanceServicesGetSchedulesByCompanyOptions = (
+  options: Options<AttendanceServicesGetSchedulesByCompanyData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetSchedulesByCompanyResponse,
+    AxiosError<AttendanceServicesGetSchedulesByCompanyError>,
+    AttendanceServicesGetSchedulesByCompanyResponse,
+    ReturnType<typeof attendanceServicesGetSchedulesByCompanyQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetSchedulesByCompany({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetSchedulesByCompanyQueryKey(options),
+  });
+
+/**
+ * Manual check in attendance by supervisor/admin
+ */
+export const attendanceServicesManualCheckInMutation = (
+  options?: Partial<Options<AttendanceServicesManualCheckInData>>,
+): UseMutationOptions<
+  AttendanceServicesManualCheckInResponse,
+  AxiosError<AttendanceServicesManualCheckInError>,
+  Options<AttendanceServicesManualCheckInData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesManualCheckInResponse,
+    AxiosError<AttendanceServicesManualCheckInError>,
+    Options<AttendanceServicesManualCheckInData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesManualCheckIn({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const attendanceServicesGetMemberLogsQueryKey = (
+  options: Options<AttendanceServicesGetMemberLogsData>,
+) => createQueryKey('attendanceServicesGetMemberLogs', options);
+
+/**
+ * Get attendance logs by member
+ */
+export const attendanceServicesGetMemberLogsOptions = (
+  options: Options<AttendanceServicesGetMemberLogsData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetMemberLogsResponse,
+    AxiosError<AttendanceServicesGetMemberLogsError>,
+    AttendanceServicesGetMemberLogsResponse,
+    ReturnType<typeof attendanceServicesGetMemberLogsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetMemberLogs({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetMemberLogsQueryKey(options),
+  });
+
+export const attendanceServicesGetScheduleByRoleQueryKey = (
+  options: Options<AttendanceServicesGetScheduleByRoleData>,
+) => createQueryKey('attendanceServicesGetScheduleByRole', options);
+
+/**
+ * Get check-in schedule by role
+ */
+export const attendanceServicesGetScheduleByRoleOptions = (
+  options: Options<AttendanceServicesGetScheduleByRoleData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetScheduleByRoleResponse,
+    AxiosError<AttendanceServicesGetScheduleByRoleError>,
+    AttendanceServicesGetScheduleByRoleResponse,
+    ReturnType<typeof attendanceServicesGetScheduleByRoleQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetScheduleByRole({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetScheduleByRoleQueryKey(options),
+  });
+
+/**
+ * Create check-in schedule
+ */
+export const attendanceServicesCreateScheduleMutation = (
+  options?: Partial<Options<AttendanceServicesCreateScheduleData>>,
+): UseMutationOptions<
+  AttendanceServicesCreateScheduleResponse,
+  AxiosError<AttendanceServicesCreateScheduleError>,
+  Options<AttendanceServicesCreateScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesCreateScheduleResponse,
+    AxiosError<AttendanceServicesCreateScheduleError>,
+    Options<AttendanceServicesCreateScheduleData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesCreateSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Update check-in schedule
+ */
+export const attendanceServicesUpdateScheduleMutation = (
+  options?: Partial<Options<AttendanceServicesUpdateScheduleData>>,
+): UseMutationOptions<
+  AttendanceServicesUpdateScheduleResponse,
+  AxiosError<AttendanceServicesUpdateScheduleError>,
+  Options<AttendanceServicesUpdateScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesUpdateScheduleResponse,
+    AxiosError<AttendanceServicesUpdateScheduleError>,
+    Options<AttendanceServicesUpdateScheduleData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesUpdateSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const attendanceServicesGetSlotsByScheduleQueryKey = (
+  options: Options<AttendanceServicesGetSlotsByScheduleData>,
+) => createQueryKey('attendanceServicesGetSlotsBySchedule', options);
+
+/**
+ * Get schedule slots by schedule
+ */
+export const attendanceServicesGetSlotsByScheduleOptions = (
+  options: Options<AttendanceServicesGetSlotsByScheduleData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetSlotsByScheduleResponse,
+    AxiosError<AttendanceServicesGetSlotsByScheduleError>,
+    AttendanceServicesGetSlotsByScheduleResponse,
+    ReturnType<typeof attendanceServicesGetSlotsByScheduleQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetSlotsBySchedule({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetSlotsByScheduleQueryKey(options),
+  });
+
+/**
+ * Create schedule slot
+ */
+export const attendanceServicesCreateSlotMutation = (
+  options?: Partial<Options<AttendanceServicesCreateSlotData>>,
+): UseMutationOptions<
+  AttendanceServicesCreateSlotResponse,
+  AxiosError<AttendanceServicesCreateSlotError>,
+  Options<AttendanceServicesCreateSlotData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesCreateSlotResponse,
+    AxiosError<AttendanceServicesCreateSlotError>,
+    Options<AttendanceServicesCreateSlotData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesCreateSlot({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete schedule slot
+ */
+export const attendanceServicesDeleteSlotMutation = (
+  options?: Partial<Options<AttendanceServicesDeleteSlotData>>,
+): UseMutationOptions<
+  AttendanceServicesDeleteSlotResponse,
+  AxiosError<AttendanceServicesDeleteSlotError>,
+  Options<AttendanceServicesDeleteSlotData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesDeleteSlotResponse,
+    AxiosError<AttendanceServicesDeleteSlotError>,
+    Options<AttendanceServicesDeleteSlotData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesDeleteSlot({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Update schedule slot
+ */
+export const attendanceServicesUpdateSlotMutation = (
+  options?: Partial<Options<AttendanceServicesUpdateSlotData>>,
+): UseMutationOptions<
+  AttendanceServicesUpdateSlotResponse,
+  AxiosError<AttendanceServicesUpdateSlotError>,
+  Options<AttendanceServicesUpdateSlotData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AttendanceServicesUpdateSlotResponse,
+    AxiosError<AttendanceServicesUpdateSlotError>,
+    Options<AttendanceServicesUpdateSlotData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await attendanceServicesUpdateSlot({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
 };
 
 export const companyServicesGetCompaniesQueryKey = (
@@ -1121,6 +1542,307 @@ export const featureServicesToggleFeatureMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await featureServicesToggleFeature({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const leaveServicesGetCompanyRequestsQueryKey = (
+  options: Options<LeaveServicesGetCompanyRequestsData>,
+) => createQueryKey('leaveServicesGetCompanyRequests', options);
+
+/**
+ * Get company leave requests
+ */
+export const leaveServicesGetCompanyRequestsOptions = (
+  options: Options<LeaveServicesGetCompanyRequestsData>,
+) =>
+  queryOptions<
+    LeaveServicesGetCompanyRequestsResponse,
+    AxiosError<LeaveServicesGetCompanyRequestsError>,
+    LeaveServicesGetCompanyRequestsResponse,
+    ReturnType<typeof leaveServicesGetCompanyRequestsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await leaveServicesGetCompanyRequests({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: leaveServicesGetCompanyRequestsQueryKey(options),
+  });
+
+export const leaveServicesGetTypesByCompanyQueryKey = (
+  options: Options<LeaveServicesGetTypesByCompanyData>,
+) => createQueryKey('leaveServicesGetTypesByCompany', options);
+
+/**
+ * Get company leave types
+ */
+export const leaveServicesGetTypesByCompanyOptions = (
+  options: Options<LeaveServicesGetTypesByCompanyData>,
+) =>
+  queryOptions<
+    LeaveServicesGetTypesByCompanyResponse,
+    AxiosError<LeaveServicesGetTypesByCompanyError>,
+    LeaveServicesGetTypesByCompanyResponse,
+    ReturnType<typeof leaveServicesGetTypesByCompanyQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await leaveServicesGetTypesByCompany({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: leaveServicesGetTypesByCompanyQueryKey(options),
+  });
+
+export const leaveServicesGetQuotasByMemberQueryKey = (
+  options: Options<LeaveServicesGetQuotasByMemberData>,
+) => createQueryKey('leaveServicesGetQuotasByMember', options);
+
+/**
+ * Get member leave quotas for year
+ */
+export const leaveServicesGetQuotasByMemberOptions = (
+  options: Options<LeaveServicesGetQuotasByMemberData>,
+) =>
+  queryOptions<
+    LeaveServicesGetQuotasByMemberResponse,
+    AxiosError<LeaveServicesGetQuotasByMemberError>,
+    LeaveServicesGetQuotasByMemberResponse,
+    ReturnType<typeof leaveServicesGetQuotasByMemberQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await leaveServicesGetQuotasByMember({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: leaveServicesGetQuotasByMemberQueryKey(options),
+  });
+
+export const leaveServicesGetMemberRequestsQueryKey = (
+  options: Options<LeaveServicesGetMemberRequestsData>,
+) => createQueryKey('leaveServicesGetMemberRequests', options);
+
+/**
+ * Get member leave requests
+ */
+export const leaveServicesGetMemberRequestsOptions = (
+  options: Options<LeaveServicesGetMemberRequestsData>,
+) =>
+  queryOptions<
+    LeaveServicesGetMemberRequestsResponse,
+    AxiosError<LeaveServicesGetMemberRequestsError>,
+    LeaveServicesGetMemberRequestsResponse,
+    ReturnType<typeof leaveServicesGetMemberRequestsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await leaveServicesGetMemberRequests({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: leaveServicesGetMemberRequestsQueryKey(options),
+  });
+
+/**
+ * Create leave quota
+ */
+export const leaveServicesCreateQuotaMutation = (
+  options?: Partial<Options<LeaveServicesCreateQuotaData>>,
+): UseMutationOptions<
+  LeaveServicesCreateQuotaResponse,
+  AxiosError<LeaveServicesCreateQuotaError>,
+  Options<LeaveServicesCreateQuotaData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LeaveServicesCreateQuotaResponse,
+    AxiosError<LeaveServicesCreateQuotaError>,
+    Options<LeaveServicesCreateQuotaData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await leaveServicesCreateQuota({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Update leave quota
+ */
+export const leaveServicesUpdateQuotaMutation = (
+  options?: Partial<Options<LeaveServicesUpdateQuotaData>>,
+): UseMutationOptions<
+  LeaveServicesUpdateQuotaResponse,
+  AxiosError<LeaveServicesUpdateQuotaError>,
+  Options<LeaveServicesUpdateQuotaData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LeaveServicesUpdateQuotaResponse,
+    AxiosError<LeaveServicesUpdateQuotaError>,
+    Options<LeaveServicesUpdateQuotaData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await leaveServicesUpdateQuota({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Submit leave request
+ */
+export const leaveServicesSubmitRequestMutation = (
+  options?: Partial<Options<LeaveServicesSubmitRequestData>>,
+): UseMutationOptions<
+  LeaveServicesSubmitRequestResponse,
+  AxiosError<LeaveServicesSubmitRequestError>,
+  Options<LeaveServicesSubmitRequestData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LeaveServicesSubmitRequestResponse,
+    AxiosError<LeaveServicesSubmitRequestError>,
+    Options<LeaveServicesSubmitRequestData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await leaveServicesSubmitRequest({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Cancel leave request
+ */
+export const leaveServicesCancelRequestMutation = (
+  options?: Partial<Options<LeaveServicesCancelRequestData>>,
+): UseMutationOptions<
+  LeaveServicesCancelRequestResponse,
+  AxiosError<LeaveServicesCancelRequestError>,
+  Options<LeaveServicesCancelRequestData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LeaveServicesCancelRequestResponse,
+    AxiosError<LeaveServicesCancelRequestError>,
+    Options<LeaveServicesCancelRequestData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await leaveServicesCancelRequest({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Review leave request (approve / reject)
+ */
+export const leaveServicesReviewRequestMutation = (
+  options?: Partial<Options<LeaveServicesReviewRequestData>>,
+): UseMutationOptions<
+  LeaveServicesReviewRequestResponse,
+  AxiosError<LeaveServicesReviewRequestError>,
+  Options<LeaveServicesReviewRequestData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LeaveServicesReviewRequestResponse,
+    AxiosError<LeaveServicesReviewRequestError>,
+    Options<LeaveServicesReviewRequestData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await leaveServicesReviewRequest({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Create leave type
+ */
+export const leaveServicesCreateTypeMutation = (
+  options?: Partial<Options<LeaveServicesCreateTypeData>>,
+): UseMutationOptions<
+  LeaveServicesCreateTypeResponse,
+  AxiosError<LeaveServicesCreateTypeError>,
+  Options<LeaveServicesCreateTypeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LeaveServicesCreateTypeResponse,
+    AxiosError<LeaveServicesCreateTypeError>,
+    Options<LeaveServicesCreateTypeData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await leaveServicesCreateType({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Update leave type
+ */
+export const leaveServicesUpdateTypeMutation = (
+  options?: Partial<Options<LeaveServicesUpdateTypeData>>,
+): UseMutationOptions<
+  LeaveServicesUpdateTypeResponse,
+  AxiosError<LeaveServicesUpdateTypeError>,
+  Options<LeaveServicesUpdateTypeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LeaveServicesUpdateTypeResponse,
+    AxiosError<LeaveServicesUpdateTypeError>,
+    Options<LeaveServicesUpdateTypeData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await leaveServicesUpdateType({
         ...options,
         ...fnOptions,
         throwOnError: true,

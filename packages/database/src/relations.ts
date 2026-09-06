@@ -6,6 +6,8 @@ export const relations = defineRelationsPart(schema, (r) => ({
     sessions: r.many.session(),
     accounts: r.many.account(),
     memberships: r.many.companyMember(),
+    recordedAttendanceLogs: r.many.attendanceLogs(),
+    reviewedLeaveRequests: r.many.leaveRequests(),
   },
   session: {
     user: r.one.user({
@@ -24,6 +26,8 @@ export const relations = defineRelationsPart(schema, (r) => ({
     roles: r.many.role(),
     companyFeatures: r.many.companyFeature(),
     roleFeatures: r.many.roleFeature(),
+    checkInSchedules: r.many.checkInSchedules(),
+    leaveTypes: r.many.leaveTypes(),
   },
   companyBranch: {
     company: r.one.company({
@@ -49,6 +53,9 @@ export const relations = defineRelationsPart(schema, (r) => ({
       from: r.companyMember.companyBranchId,
       to: r.companyBranch.id,
     }),
+    attendanceLogs: r.many.attendanceLogs(),
+    leaveQuotas: r.many.leaveQuotas(),
+    leaveRequests: r.many.leaveRequests(),
   },
   role: {
     company: r.one.company({
@@ -58,6 +65,10 @@ export const relations = defineRelationsPart(schema, (r) => ({
     rolePermissions: r.many.rolePermission(),
     roleFeatures: r.many.roleFeature(),
     members: r.many.companyMember(),
+    checkInSchedule: r.one.checkInSchedules({
+      from: r.role.id,
+      to: r.checkInSchedules.roleId,
+    }),
   },
   permission: {
     rolePermissions: r.many.rolePermission(),
@@ -107,6 +118,70 @@ export const relations = defineRelationsPart(schema, (r) => ({
     feature: r.one.feature({
       from: r.roleFeature.featureId,
       to: r.feature.id,
+    }),
+  },
+  checkInSchedules: {
+    role: r.one.role({
+      from: r.checkInSchedules.roleId,
+      to: r.role.id,
+    }),
+    company: r.one.company({
+      from: r.checkInSchedules.companyId,
+      to: r.company.id,
+    }),
+    slots: r.many.scheduleSlots(),
+  },
+  scheduleSlots: {
+    schedule: r.one.checkInSchedules({
+      from: r.scheduleSlots.checkInScheduleId,
+      to: r.checkInSchedules.id,
+    }),
+    attendanceLogs: r.many.attendanceLogs(),
+  },
+  attendanceLogs: {
+    member: r.one.companyMember({
+      from: r.attendanceLogs.companyMemberId,
+      to: r.companyMember.id,
+    }),
+    slot: r.one.scheduleSlots({
+      from: r.attendanceLogs.scheduleSlotId,
+      to: r.scheduleSlots.id,
+    }),
+    recordedByUser: r.one.user({
+      from: r.attendanceLogs.recordedBy,
+      to: r.user.id,
+    }),
+  },
+  leaveTypes: {
+    company: r.one.company({
+      from: r.leaveTypes.companyId,
+      to: r.company.id,
+    }),
+    quotas: r.many.leaveQuotas(),
+    requests: r.many.leaveRequests(),
+  },
+  leaveQuotas: {
+    member: r.one.companyMember({
+      from: r.leaveQuotas.companyMemberId,
+      to: r.companyMember.id,
+    }),
+    leaveType: r.one.leaveTypes({
+      from: r.leaveQuotas.leaveTypeId,
+      to: r.leaveTypes.id,
+    }),
+  },
+  leaveRequests: {
+    member: r.one.companyMember({
+      from: r.leaveRequests.companyMemberId,
+      to: r.companyMember.id,
+    }),
+    leaveType: r.one.leaveTypes({
+      from: r.leaveRequests.leaveTypeId,
+      to: r.leaveTypes.id,
+    }),
+    reviewedByUser: r.one.user({
+      from: r.leaveRequests.reviewedBy,
+      to: r.user.id,
     }),
   },
 }));

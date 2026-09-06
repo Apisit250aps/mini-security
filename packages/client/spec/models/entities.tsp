@@ -14,6 +14,58 @@ namespace Domain.Entity;
     VIEWER: "VIEWER",
   }
 
+  enum AttendanceStatus {
+    present: "present",
+    absent: "absent",
+    late: "late",
+    excused: "excused",
+  }
+
+  enum LeaveRequestStatus {
+    pending: "pending",
+    approved: "approved",
+    rejected: "rejected",
+    cancelled: "cancelled",
+  }
+
+  enum LeaveUnit {
+    day: "day",
+    half_day: "half_day",
+    hour: "hour",
+  }
+
+  model CheckInSchedule {
+    ...BaseEntity;
+
+    roleId: string;
+    companyId: string;
+    name: string;
+    isActive: boolean;
+  }
+
+  model ScheduleSlot {
+    ...BaseEntity;
+
+    checkInScheduleId: string;
+    slotOrder: int32;
+    label: string;
+    windowStart: string;
+    windowEnd: string;
+    isRequired: boolean;
+  }
+
+  model AttendanceLog {
+    ...BaseEntity;
+
+    companyMemberId: string;
+    scheduleSlotId: string;
+    workDate: string;
+    checkedInAt?: utcDateTime | null;
+    status: AttendanceStatus;
+    note?: string | null;
+    recordedBy?: string | null;
+  }
+
   model Session {
     ...BaseEntity;
 
@@ -115,6 +167,46 @@ namespace Domain.Entity;
     roleId: string;
     featureId: string;
     isEnabled: boolean;
+  }
+
+  model LeaveType {
+    ...BaseEntity;
+
+    companyId: string;
+    name: string;
+    description?: string | null;
+    unit: LeaveUnit;
+    requiresProof: boolean;
+    maxDaysPerYear?: int32 | null;
+    isPaid: boolean;
+    isActive: boolean;
+  }
+
+  model LeaveQuota {
+    ...BaseEntity;
+
+    companyMemberId: string;
+    leaveTypeId: string;
+    year: int32;
+    totalDays: int32;
+    usedDays: int32;
+  }
+
+  model LeaveRequest {
+    ...BaseEntity;
+
+    companyMemberId: string;
+    leaveTypeId: string;
+    startDate: string;
+    endDate: string;
+    totalDays: int32;
+    unit: LeaveUnit;
+    reason: string;
+    proofUrl?: string | null;
+    status: LeaveRequestStatus;
+    reviewedBy?: string | null;
+    reviewedAt?: utcDateTime | null;
+    reviewNote?: string | null;
   }
 
   model Role {

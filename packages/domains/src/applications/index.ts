@@ -3,3 +3,5 @@ export * from './company';
 export * from './permission';
 export * from './auth';
 export * from './feature';
+export * from './attendance';
+export * from './leave';

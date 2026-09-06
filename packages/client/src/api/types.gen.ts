@@ -27,12 +27,41 @@ export type ApiInternalErrorResponse = {
   body: ApiErrorResponse;
 };
 
+export type AttendanceLog = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyMemberId: string;
+  scheduleSlotId: string;
+  workDate: string;
+  checkedInAt?: Date | null;
+  status: DomainEntityAttendanceStatus;
+  note?: string | null;
+  recordedBy?: string | null;
+};
+
 /**
  * Successful response without data payload
  */
 export type BasicResponse = {
   success: boolean;
   message: string;
+};
+
+export type CheckInRequest = {
+  companyMemberId: string;
+  scheduleSlotId?: string;
+  note?: string;
+};
+
+export type CheckInSchedule = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  roleId: string;
+  companyId: string;
+  name: string;
+  isActive: boolean;
 };
 
 export type Company = {
@@ -88,6 +117,29 @@ export type CompanyToggleFeatureRequest = {
 /**
  * The template for omitting properties.
  */
+export type CreateAttendanceLog = {
+  companyMemberId: string;
+  scheduleSlotId: string;
+  workDate: string;
+  checkedInAt?: Date | null;
+  status: DomainEntityAttendanceStatus;
+  note?: string | null;
+  recordedBy?: string | null;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateCheckInSchedule = {
+  roleId: string;
+  companyId: string;
+  name: string;
+  isActive: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
 export type CreateCompany = {
   name: string;
   slug: string;
@@ -138,6 +190,45 @@ export type CreateFeature = {
 /**
  * The template for omitting properties.
  */
+export type CreateLeaveQuota = {
+  companyMemberId: string;
+  leaveTypeId: string;
+  year: number;
+  totalDays: number;
+  usedDays: number;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateLeaveRequest = {
+  companyMemberId: string;
+  leaveTypeId: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  unit: DomainEntityLeaveUnit;
+  reason: string;
+  proofUrl?: string | null;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateLeaveType = {
+  companyId: string;
+  name: string;
+  description?: string | null;
+  unit: DomainEntityLeaveUnit;
+  requiresProof: boolean;
+  maxDaysPerYear?: number | null;
+  isPaid: boolean;
+  isActive: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
 export type CreatePermission = {
   featureId?: string | null;
   action: string;
@@ -177,6 +268,18 @@ export type CreateRolePermission = {
 /**
  * The template for omitting properties.
  */
+export type CreateScheduleSlot = {
+  checkInScheduleId: string;
+  slotOrder: number;
+  label: string;
+  windowStart: string;
+  windowEnd: string;
+  isRequired: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
 export type CreateUser = {
   name: string;
   email: string;
@@ -185,6 +288,20 @@ export type CreateUser = {
   isActive: boolean;
   password?: string | null;
 };
+
+export type DomainEntityAttendanceStatus =
+  | 'present'
+  | 'absent'
+  | 'late'
+  | 'excused';
+
+export type DomainEntityLeaveRequestStatus =
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'cancelled';
+
+export type DomainEntityLeaveUnit = 'day' | 'half_day' | 'hour';
 
 export type DomainEntityRoleType =
   | 'SUPER_ADMIN'
@@ -208,6 +325,49 @@ export type FeatureAccessResponse = {
   hasAccess: boolean;
 };
 
+export type LeaveQuota = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyMemberId: string;
+  leaveTypeId: string;
+  year: number;
+  totalDays: number;
+  usedDays: number;
+};
+
+export type LeaveRequest = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyMemberId: string;
+  leaveTypeId: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  unit: DomainEntityLeaveUnit;
+  reason: string;
+  proofUrl?: string | null;
+  status: DomainEntityLeaveRequestStatus;
+  reviewedBy?: string | null;
+  reviewedAt?: Date | null;
+  reviewNote?: string | null;
+};
+
+export type LeaveType = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  companyId: string;
+  name: string;
+  description?: string | null;
+  unit: DomainEntityLeaveUnit;
+  requiresProof: boolean;
+  maxDaysPerYear?: number | null;
+  isPaid: boolean;
+  isActive: boolean;
+};
+
 export type Permission = {
   id: string;
   createdAt: Date;
@@ -216,6 +376,11 @@ export type Permission = {
   action: string;
   module: string;
   description?: string | null;
+};
+
+export type ReviewLeaveRequestRequest = {
+  action: 'approved' | 'rejected';
+  reviewNote?: string;
 };
 
 export type Role = {
@@ -256,6 +421,18 @@ export type RoleToggleFeatureRequest = {
   isEnabled: boolean;
 };
 
+export type ScheduleSlot = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  checkInScheduleId: string;
+  slotOrder: number;
+  label: string;
+  windowStart: string;
+  windowEnd: string;
+  isRequired: boolean;
+};
+
 export type SwitchActiveCompanyResponse = {
   activeCompanyId: string;
   company: Company;
@@ -266,6 +443,29 @@ export type SwitchActiveCompanyResponse = {
  */
 export type ToggleFeatureRequest = {
   isActive: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateAttendanceLog = {
+  companyMemberId?: string;
+  scheduleSlotId?: string;
+  workDate?: string;
+  checkedInAt?: Date | null;
+  status?: DomainEntityAttendanceStatus;
+  note?: string | null;
+  recordedBy?: string | null;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateCheckInSchedule = {
+  roleId?: string;
+  companyId?: string;
+  name?: string;
+  isActive?: boolean;
 };
 
 /**
@@ -313,6 +513,31 @@ export type UpdateFeature = {
 /**
  * The template for adding optional properties.
  */
+export type UpdateLeaveQuota = {
+  companyMemberId?: string;
+  leaveTypeId?: string;
+  year?: number;
+  totalDays?: number;
+  usedDays?: number;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateLeaveType = {
+  companyId?: string;
+  name?: string;
+  description?: string | null;
+  unit?: DomainEntityLeaveUnit;
+  requiresProof?: boolean;
+  maxDaysPerYear?: number | null;
+  isPaid?: boolean;
+  isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
 export type UpdatePermission = {
   featureId?: string | null;
   action?: string;
@@ -329,6 +554,18 @@ export type UpdateRole = {
   description?: string | null;
   roleType?: DomainEntityRoleType;
   isSystemDefault?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateScheduleSlot = {
+  checkInScheduleId?: string;
+  slotOrder?: number;
+  label?: string;
+  windowStart?: string;
+  windowEnd?: string;
+  isRequired?: boolean;
 };
 
 /**
@@ -356,6 +593,439 @@ export type User = {
   isActive: boolean;
   lastLogin?: Date | null;
 };
+
+export type AttendanceServicesCheckInData = {
+  body: CheckInRequest;
+  path?: never;
+  query?: never;
+  url: '/attendances/check-in';
+};
+
+export type AttendanceServicesCheckInErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCheckInError =
+  AttendanceServicesCheckInErrors[keyof AttendanceServicesCheckInErrors];
+
+export type AttendanceServicesCheckInResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLog;
+  };
+};
+
+export type AttendanceServicesCheckInResponse =
+  AttendanceServicesCheckInResponses[keyof AttendanceServicesCheckInResponses];
+
+export type AttendanceServicesGetCompanyLogsData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query: {
+    startDate: string;
+    endDate: string;
+  };
+  url: '/attendances/companies/{companyId}/logs';
+};
+
+export type AttendanceServicesGetCompanyLogsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetCompanyLogsError =
+  AttendanceServicesGetCompanyLogsErrors[keyof AttendanceServicesGetCompanyLogsErrors];
+
+export type AttendanceServicesGetCompanyLogsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<AttendanceLog>;
+  };
+};
+
+export type AttendanceServicesGetCompanyLogsResponse =
+  AttendanceServicesGetCompanyLogsResponses[keyof AttendanceServicesGetCompanyLogsResponses];
+
+export type AttendanceServicesGetSchedulesByCompanyData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: never;
+  url: '/attendances/companies/{companyId}/schedules';
+};
+
+export type AttendanceServicesGetSchedulesByCompanyErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetSchedulesByCompanyError =
+  AttendanceServicesGetSchedulesByCompanyErrors[keyof AttendanceServicesGetSchedulesByCompanyErrors];
+
+export type AttendanceServicesGetSchedulesByCompanyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<CheckInSchedule>;
+  };
+};
+
+export type AttendanceServicesGetSchedulesByCompanyResponse =
+  AttendanceServicesGetSchedulesByCompanyResponses[keyof AttendanceServicesGetSchedulesByCompanyResponses];
+
+export type AttendanceServicesManualCheckInData = {
+  body: CreateAttendanceLog;
+  path?: never;
+  query?: never;
+  url: '/attendances/manual-check-in';
+};
+
+export type AttendanceServicesManualCheckInErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesManualCheckInError =
+  AttendanceServicesManualCheckInErrors[keyof AttendanceServicesManualCheckInErrors];
+
+export type AttendanceServicesManualCheckInResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: AttendanceLog;
+  };
+};
+
+export type AttendanceServicesManualCheckInResponse =
+  AttendanceServicesManualCheckInResponses[keyof AttendanceServicesManualCheckInResponses];
+
+export type AttendanceServicesGetMemberLogsData = {
+  body?: never;
+  path: {
+    memberId: string;
+  };
+  query?: {
+    workDate?: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  url: '/attendances/members/{memberId}/logs';
+};
+
+export type AttendanceServicesGetMemberLogsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetMemberLogsError =
+  AttendanceServicesGetMemberLogsErrors[keyof AttendanceServicesGetMemberLogsErrors];
+
+export type AttendanceServicesGetMemberLogsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<AttendanceLog>;
+  };
+};
+
+export type AttendanceServicesGetMemberLogsResponse =
+  AttendanceServicesGetMemberLogsResponses[keyof AttendanceServicesGetMemberLogsResponses];
+
+export type AttendanceServicesGetScheduleByRoleData = {
+  body?: never;
+  path: {
+    roleId: string;
+  };
+  query?: never;
+  url: '/attendances/roles/{roleId}/schedule';
+};
+
+export type AttendanceServicesGetScheduleByRoleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetScheduleByRoleError =
+  AttendanceServicesGetScheduleByRoleErrors[keyof AttendanceServicesGetScheduleByRoleErrors];
+
+export type AttendanceServicesGetScheduleByRoleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: CheckInSchedule;
+  };
+};
+
+export type AttendanceServicesGetScheduleByRoleResponse =
+  AttendanceServicesGetScheduleByRoleResponses[keyof AttendanceServicesGetScheduleByRoleResponses];
+
+export type AttendanceServicesCreateScheduleData = {
+  body: CreateCheckInSchedule;
+  path?: never;
+  query?: never;
+  url: '/attendances/schedules';
+};
+
+export type AttendanceServicesCreateScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateScheduleError =
+  AttendanceServicesCreateScheduleErrors[keyof AttendanceServicesCreateScheduleErrors];
+
+export type AttendanceServicesCreateScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: CheckInSchedule;
+  };
+};
+
+export type AttendanceServicesCreateScheduleResponse =
+  AttendanceServicesCreateScheduleResponses[keyof AttendanceServicesCreateScheduleResponses];
+
+export type AttendanceServicesUpdateScheduleData = {
+  body: UpdateCheckInSchedule;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendances/schedules/{id}';
+};
+
+export type AttendanceServicesUpdateScheduleErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateScheduleError =
+  AttendanceServicesUpdateScheduleErrors[keyof AttendanceServicesUpdateScheduleErrors];
+
+export type AttendanceServicesUpdateScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: CheckInSchedule;
+  };
+};
+
+export type AttendanceServicesUpdateScheduleResponse =
+  AttendanceServicesUpdateScheduleResponses[keyof AttendanceServicesUpdateScheduleResponses];
+
+export type AttendanceServicesGetSlotsByScheduleData = {
+  body?: never;
+  path: {
+    scheduleId: string;
+  };
+  query?: never;
+  url: '/attendances/schedules/{scheduleId}/slots';
+};
+
+export type AttendanceServicesGetSlotsByScheduleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetSlotsByScheduleError =
+  AttendanceServicesGetSlotsByScheduleErrors[keyof AttendanceServicesGetSlotsByScheduleErrors];
+
+export type AttendanceServicesGetSlotsByScheduleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<ScheduleSlot>;
+  };
+};
+
+export type AttendanceServicesGetSlotsByScheduleResponse =
+  AttendanceServicesGetSlotsByScheduleResponses[keyof AttendanceServicesGetSlotsByScheduleResponses];
+
+export type AttendanceServicesCreateSlotData = {
+  body: CreateScheduleSlot;
+  path: {
+    scheduleId: string;
+  };
+  query?: never;
+  url: '/attendances/schedules/{scheduleId}/slots';
+};
+
+export type AttendanceServicesCreateSlotErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type AttendanceServicesCreateSlotError =
+  AttendanceServicesCreateSlotErrors[keyof AttendanceServicesCreateSlotErrors];
+
+export type AttendanceServicesCreateSlotResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: ScheduleSlot;
+  };
+};
+
+export type AttendanceServicesCreateSlotResponse =
+  AttendanceServicesCreateSlotResponses[keyof AttendanceServicesCreateSlotResponses];
+
+export type AttendanceServicesDeleteSlotData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendances/slots/{id}';
+};
+
+export type AttendanceServicesDeleteSlotErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesDeleteSlotError =
+  AttendanceServicesDeleteSlotErrors[keyof AttendanceServicesDeleteSlotErrors];
+
+export type AttendanceServicesDeleteSlotResponses = {
+  /**
+   * 200 OK without data
+   */
+  200: BasicResponse;
+};
+
+export type AttendanceServicesDeleteSlotResponse =
+  AttendanceServicesDeleteSlotResponses[keyof AttendanceServicesDeleteSlotResponses];
+
+export type AttendanceServicesUpdateSlotData = {
+  body: UpdateScheduleSlot;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/attendances/slots/{id}';
+};
+
+export type AttendanceServicesUpdateSlotErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesUpdateSlotError =
+  AttendanceServicesUpdateSlotErrors[keyof AttendanceServicesUpdateSlotErrors];
+
+export type AttendanceServicesUpdateSlotResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: ScheduleSlot;
+  };
+};
+
+export type AttendanceServicesUpdateSlotResponse =
+  AttendanceServicesUpdateSlotResponses[keyof AttendanceServicesUpdateSlotResponses];
 
 export type CompanyServicesGetCompaniesData = {
   body?: never;
@@ -1505,6 +2175,412 @@ export type FeatureServicesToggleFeatureResponses = {
 
 export type FeatureServicesToggleFeatureResponse =
   FeatureServicesToggleFeatureResponses[keyof FeatureServicesToggleFeatureResponses];
+
+export type LeaveServicesGetCompanyRequestsData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: {
+    status?: string;
+  };
+  url: '/leaves/companies/{companyId}/requests';
+};
+
+export type LeaveServicesGetCompanyRequestsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type LeaveServicesGetCompanyRequestsError =
+  LeaveServicesGetCompanyRequestsErrors[keyof LeaveServicesGetCompanyRequestsErrors];
+
+export type LeaveServicesGetCompanyRequestsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<LeaveRequest>;
+  };
+};
+
+export type LeaveServicesGetCompanyRequestsResponse =
+  LeaveServicesGetCompanyRequestsResponses[keyof LeaveServicesGetCompanyRequestsResponses];
+
+export type LeaveServicesGetTypesByCompanyData = {
+  body?: never;
+  path: {
+    companyId: string;
+  };
+  query?: {
+    onlyActive?: boolean;
+  };
+  url: '/leaves/companies/{companyId}/types';
+};
+
+export type LeaveServicesGetTypesByCompanyErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type LeaveServicesGetTypesByCompanyError =
+  LeaveServicesGetTypesByCompanyErrors[keyof LeaveServicesGetTypesByCompanyErrors];
+
+export type LeaveServicesGetTypesByCompanyResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<LeaveType>;
+  };
+};
+
+export type LeaveServicesGetTypesByCompanyResponse =
+  LeaveServicesGetTypesByCompanyResponses[keyof LeaveServicesGetTypesByCompanyResponses];
+
+export type LeaveServicesGetQuotasByMemberData = {
+  body?: never;
+  path: {
+    memberId: string;
+    year: number;
+  };
+  query?: never;
+  url: '/leaves/members/{memberId}/quotas/{year}';
+};
+
+export type LeaveServicesGetQuotasByMemberErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type LeaveServicesGetQuotasByMemberError =
+  LeaveServicesGetQuotasByMemberErrors[keyof LeaveServicesGetQuotasByMemberErrors];
+
+export type LeaveServicesGetQuotasByMemberResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<LeaveQuota>;
+  };
+};
+
+export type LeaveServicesGetQuotasByMemberResponse =
+  LeaveServicesGetQuotasByMemberResponses[keyof LeaveServicesGetQuotasByMemberResponses];
+
+export type LeaveServicesGetMemberRequestsData = {
+  body?: never;
+  path: {
+    memberId: string;
+  };
+  query?: never;
+  url: '/leaves/members/{memberId}/requests';
+};
+
+export type LeaveServicesGetMemberRequestsErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type LeaveServicesGetMemberRequestsError =
+  LeaveServicesGetMemberRequestsErrors[keyof LeaveServicesGetMemberRequestsErrors];
+
+export type LeaveServicesGetMemberRequestsResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<LeaveRequest>;
+  };
+};
+
+export type LeaveServicesGetMemberRequestsResponse =
+  LeaveServicesGetMemberRequestsResponses[keyof LeaveServicesGetMemberRequestsResponses];
+
+export type LeaveServicesCreateQuotaData = {
+  body: CreateLeaveQuota;
+  path?: never;
+  query?: never;
+  url: '/leaves/quotas';
+};
+
+export type LeaveServicesCreateQuotaErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type LeaveServicesCreateQuotaError =
+  LeaveServicesCreateQuotaErrors[keyof LeaveServicesCreateQuotaErrors];
+
+export type LeaveServicesCreateQuotaResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: LeaveQuota;
+  };
+};
+
+export type LeaveServicesCreateQuotaResponse =
+  LeaveServicesCreateQuotaResponses[keyof LeaveServicesCreateQuotaResponses];
+
+export type LeaveServicesUpdateQuotaData = {
+  body: UpdateLeaveQuota;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/leaves/quotas/{id}';
+};
+
+export type LeaveServicesUpdateQuotaErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type LeaveServicesUpdateQuotaError =
+  LeaveServicesUpdateQuotaErrors[keyof LeaveServicesUpdateQuotaErrors];
+
+export type LeaveServicesUpdateQuotaResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: LeaveQuota;
+  };
+};
+
+export type LeaveServicesUpdateQuotaResponse =
+  LeaveServicesUpdateQuotaResponses[keyof LeaveServicesUpdateQuotaResponses];
+
+export type LeaveServicesSubmitRequestData = {
+  body: CreateLeaveRequest;
+  path?: never;
+  query?: never;
+  url: '/leaves/requests';
+};
+
+export type LeaveServicesSubmitRequestErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type LeaveServicesSubmitRequestError =
+  LeaveServicesSubmitRequestErrors[keyof LeaveServicesSubmitRequestErrors];
+
+export type LeaveServicesSubmitRequestResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: LeaveRequest;
+  };
+};
+
+export type LeaveServicesSubmitRequestResponse =
+  LeaveServicesSubmitRequestResponses[keyof LeaveServicesSubmitRequestResponses];
+
+export type LeaveServicesCancelRequestData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/leaves/requests/{id}/cancel';
+};
+
+export type LeaveServicesCancelRequestErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type LeaveServicesCancelRequestError =
+  LeaveServicesCancelRequestErrors[keyof LeaveServicesCancelRequestErrors];
+
+export type LeaveServicesCancelRequestResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: LeaveRequest;
+  };
+};
+
+export type LeaveServicesCancelRequestResponse =
+  LeaveServicesCancelRequestResponses[keyof LeaveServicesCancelRequestResponses];
+
+export type LeaveServicesReviewRequestData = {
+  body: ReviewLeaveRequestRequest;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/leaves/requests/{id}/review';
+};
+
+export type LeaveServicesReviewRequestErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type LeaveServicesReviewRequestError =
+  LeaveServicesReviewRequestErrors[keyof LeaveServicesReviewRequestErrors];
+
+export type LeaveServicesReviewRequestResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: LeaveRequest;
+  };
+};
+
+export type LeaveServicesReviewRequestResponse =
+  LeaveServicesReviewRequestResponses[keyof LeaveServicesReviewRequestResponses];
+
+export type LeaveServicesCreateTypeData = {
+  body: CreateLeaveType;
+  path?: never;
+  query?: never;
+  url: '/leaves/types';
+};
+
+export type LeaveServicesCreateTypeErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+};
+
+export type LeaveServicesCreateTypeError =
+  LeaveServicesCreateTypeErrors[keyof LeaveServicesCreateTypeErrors];
+
+export type LeaveServicesCreateTypeResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  201: {
+    success: boolean;
+    message: string;
+    data?: LeaveType;
+  };
+};
+
+export type LeaveServicesCreateTypeResponse =
+  LeaveServicesCreateTypeResponses[keyof LeaveServicesCreateTypeResponses];
+
+export type LeaveServicesUpdateTypeData = {
+  body: UpdateLeaveType;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/leaves/types/{id}';
+};
+
+export type LeaveServicesUpdateTypeErrors = {
+  /**
+   * 400 Bad Request — INVALID_DATA
+   */
+  400: ApiErrorResponse;
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type LeaveServicesUpdateTypeError =
+  LeaveServicesUpdateTypeErrors[keyof LeaveServicesUpdateTypeErrors];
+
+export type LeaveServicesUpdateTypeResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: LeaveType;
+  };
+};
+
+export type LeaveServicesUpdateTypeResponse =
+  LeaveServicesUpdateTypeResponses[keyof LeaveServicesUpdateTypeResponses];
 
 export type PermissionServicesGetPermissionsData = {
   body?: never;
