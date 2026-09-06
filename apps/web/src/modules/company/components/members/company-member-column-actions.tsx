@@ -6,6 +6,7 @@ import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useCompanyMemberRemove } from '../../hooks/company-mutations';
 import { useOverlay } from '@repo/ui/hooks';
 import CompanyMemberEditForm from './company-member-edit-form';
+import MemberQuotasModal from '@/modules/leave/components/quotas/member-quotas-modal';
 
 interface CompanyMemberColumnActionsProps<T extends CompanyMember> {
   cell: CellContext<T, unknown>;
@@ -62,9 +63,21 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
     );
   }
 
+  const actionManageQuotas = () => {
+    ui.dialog.open({
+      title: 'จัดการโควต้าวันลาพนักงาน',
+      description: `โควต้าและสถิติการใช้วันลาของสมาชิก`,
+      size: 'xl',
+      children: <MemberQuotasModal member={member} companyId={companyId} />,
+    });
+  };
+
   return (
     <ColumnActions
       actions={{
+        จัดการโควต้าวันลา: {
+          onAction: actionManageQuotas,
+        },
         แก้ไขบทบาท: {
           onAction: actionEdit,
         },

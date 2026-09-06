@@ -26,6 +26,34 @@ export const companyPageConfigs: PageConfigs = {
     url: '/company/role',
   },
 
+  // Attendance Module
+  companyAttendanceSchedule: {
+    name: 'ตารางเวลาเช็คชื่อ',
+    title: 'จัดการตารางเวลาเช็คชื่อ',
+    description: 'กำหนดตารางเวลาและรอบการลงเวลาเข้างานตามตำแหน่ง (Role)',
+    url: '/company/attendance/schedules',
+  },
+  companyAttendanceLog: {
+    name: 'บันทึกเวลาเข้างาน',
+    title: 'ประวัติและบันทึกเวลาเข้างาน',
+    description: 'ตรวจสอบประวัติการลงเวลาและบันทึกเวลาการทำงานของพนักงาน',
+    url: '/company/attendance/logs',
+  },
+
+  // Leave Management Module
+  companyLeaveRequest: {
+    name: 'คำขอลาหยุดงาน',
+    title: 'จัดการคำขอลาหยุดงาน',
+    description: 'ตรวจสอบ ยื่น และพิจารณาอนุมัติคำขอลาของพนักงาน',
+    url: '/company/leave/requests',
+  },
+  companyLeaveType: {
+    name: 'ประเภทและโควต้าวันลา',
+    title: 'ประเภทการลาและโควต้า',
+    description: 'กำหนดนโยบายประเภทการลาและโควต้าวันลาประจำปี',
+    url: '/company/leave/types',
+  },
+
   companySettings: {
     name: 'ข้อมูลบริษัท',
     title: 'ตั้งค่าบริษัท',

@@ -31,4 +31,16 @@ export const adminPageConfigs: PageConfigs = {
     description: 'จัดการรายการสิทธิ์และขอบเขตการเข้าถึง',
     url: '/admin/permission',
   },
+  adminAttendance: {
+    name: 'ระบบลงเวลา',
+    title: 'กำกับดูแลระบบลงเวลาเข้างาน',
+    description: 'ตรวจสอบข้อมูลตารางเวลาและบันทึกการเข้างานระดับองค์กร',
+    url: '/admin/attendance',
+  },
+  adminLeave: {
+    name: 'ระบบการลา',
+    title: 'กำกับดูแลระบบจัดการการลา',
+    description: 'ตรวจสอบประเภทการลาและคำขอลาหยุดงานระดับองค์กร',
+    url: '/admin/leave',
+  },
 } as const satisfies PageConfigs;

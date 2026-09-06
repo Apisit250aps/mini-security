@@ -64,3 +64,28 @@ export const featureKeys = {
   companyRoles: (companyId: string) =>
     ['FEATURE', 'COMPANY_ROLES', companyId] as const,
 };
+
+export const attendanceKeys = {
+  ...createQueryKeys('ATTENDANCE'),
+  schedules: (companyId: string) =>
+    ['ATTENDANCE', 'SCHEDULES', companyId] as const,
+  scheduleByRole: (roleId: string) =>
+    ['ATTENDANCE', 'SCHEDULE', 'ROLE', roleId] as const,
+  slots: (scheduleId: string) => ['ATTENDANCE', 'SLOTS', scheduleId] as const,
+  memberLogs: (memberId: string, filters?: Record<string, unknown>) =>
+    ['ATTENDANCE', 'LOGS', 'MEMBER', memberId, filters] as const,
+  companyLogs: (companyId: string, filters?: Record<string, unknown>) =>
+    ['ATTENDANCE', 'LOGS', 'COMPANY', companyId, filters] as const,
+};
+
+export const leaveKeys = {
+  ...createQueryKeys('LEAVE'),
+  types: (companyId: string, onlyActive?: boolean) =>
+    ['LEAVE', 'TYPES', companyId, { onlyActive }] as const,
+  quotas: (memberId: string, year: number) =>
+    ['LEAVE', 'QUOTAS', memberId, year] as const,
+  memberRequests: (memberId: string) =>
+    ['LEAVE', 'REQUESTS', 'MEMBER', memberId] as const,
+  companyRequests: (companyId: string, status?: string) =>
+    ['LEAVE', 'REQUESTS', 'COMPANY', companyId, status || 'ALL'] as const,
+};

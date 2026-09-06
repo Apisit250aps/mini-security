@@ -1,6 +1,8 @@
 import React from 'react';
 import {
   BuildingIcon,
+  CalendarCheckIcon,
+  CalendarDaysIcon,
   KeyIcon,
   LayoutDashboardIcon,
   ShieldIcon,
@@ -24,6 +26,16 @@ export const adminSidebarConfig: NavItem[] = [
     {
       id: 'company',
       icon: <BuildingIcon />,
+    },
+  ]),
+  sidebarGroupBuilder('time-attendance', 'ระบบเวลาและการลา', [
+    {
+      id: 'adminAttendance',
+      icon: <CalendarCheckIcon />,
+    },
+    {
+      id: 'adminLeave',
+      icon: <CalendarDaysIcon />,
     },
   ]),
   sidebarGroupBuilder('security', 'ระบบความปลอดภัย & RBAC', [

@@ -3,5 +3,6 @@ export { SelectField } from './select-field';
 export { SwitchField } from './boolean-fields';
 export { CheckboxGroup } from './checkbox-field';
 export { TextareaField } from './textarea-field';
-export { DateField, DateRangeField } from './field-date';
+export { DateField, DateRangeField } from './date-field';
+export { TimeField, TimeRangeField } from './time-field';
 export { FileDropzoneField } from './dropzone';
