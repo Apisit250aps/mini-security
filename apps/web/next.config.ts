@@ -6,6 +6,13 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   experimental: {
     authInterrupts: true,
+    optimizePackageImports: [
+      'lucide-react',
+      'date-fns',
+      'recharts',
+      'react-aria-components',
+      '@internationalized/date',
+    ],
   },
   async rewrites() {
     return [

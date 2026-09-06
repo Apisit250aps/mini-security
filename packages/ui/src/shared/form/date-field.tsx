@@ -13,6 +13,8 @@ import { RangeCalendar } from '@repo/ui/components/calendar';
 import { Popover, PopoverTrigger } from '@repo/ui/components/popover';
 import { CalendarIcon } from 'lucide-react';
 
+const ISO_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})/;
+
 function toDateValue(value: unknown): CalendarDate | null {
   if (!value) return null;
   if (value instanceof CalendarDate) return value;
@@ -20,7 +22,7 @@ function toDateValue(value: unknown): CalendarDate | null {
   if (value instanceof Date) {
     date = value;
   } else if (typeof value === 'string' && value.trim()) {
-    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
+    const match = ISO_DATE_REGEX.exec(value.trim());
     if (match && match[1] && match[2] && match[3]) {
       return new CalendarDate(
         parseInt(match[1], 10),

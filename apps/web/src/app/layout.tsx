@@ -6,8 +6,7 @@ import { SessionProvider } from '@/modules/auth/hooks/session-provider';
 import { PermissionProvider } from '@/modules/auth/hooks/permission-provider';
 import { OverlayProvider } from '@repo/ui/hooks';
 import { Toaster } from '@repo/ui/components/sonner';
-import auth from '@repo/infrastructures/auth';
-import { headers } from 'next/headers';
+import { getCachedSession } from '@/modules/auth/lib/get-cached-session';
 
 const kanit = Kanit({
   subsets: ['latin', 'thai'],
@@ -25,9 +24,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getCachedSession();
 
   return (
     <html lang="th" className={`h-full antialiased ${kanit.variable}`}>

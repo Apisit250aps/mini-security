@@ -86,6 +86,6 @@ export const leaveKeys = {
     ['LEAVE', 'QUOTAS', memberId, year] as const,
   memberRequests: (memberId: string) =>
     ['LEAVE', 'REQUESTS', 'MEMBER', memberId] as const,
-  companyRequests: (companyId: string, status?: string) =>
-    ['LEAVE', 'REQUESTS', 'COMPANY', companyId, status || 'ALL'] as const,
+  companyRequests: (companyId: string, filters?: Record<string, unknown>) =>
+    ['LEAVE', 'REQUESTS', 'COMPANY', companyId, filters] as const,
 };

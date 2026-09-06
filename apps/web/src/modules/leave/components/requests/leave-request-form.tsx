@@ -41,6 +41,8 @@ interface LeaveRequestFormProps extends FormProps<LeaveRequestFormValues> {
   companyId: string;
 }
 
+const getTodayString = () => new Date().toISOString().split('T')[0]!;
+
 export default function LeaveRequestForm({
   companyId,
   onSubmit,
@@ -57,7 +59,7 @@ export default function LeaveRequestForm({
     return membersQuery.data.find((m) => m.userId === userId) || null;
   }, [session?.user?.id, membersQuery.data]);
 
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0]!, []);
+  const todayStr = getTodayString();
 
   const methods = useForm<LeaveRequestFormValues>({
     resolver: zodResolver(leaveRequestFormSchema as never),

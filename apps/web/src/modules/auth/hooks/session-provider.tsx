@@ -32,7 +32,10 @@ export function SessionProvider({
 }) {
   const data = session;
   const status: SessionStatus = session ? 'authenticated' : 'unauthenticated';
-  const value: SessionContext = { signIn, signUp, signOut, data, status };
+  const value = React.useMemo<SessionContext>(
+    () => ({ signIn, signUp, signOut, data, status }),
+    [data, status],
+  );
 
   return (
     <sessionContext.Provider value={value}>{children}</sessionContext.Provider>

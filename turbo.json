@@ -1,26 +1,22 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "stream",
-  "globalEnv": [
-    "NODE_ENV",
-    "DATABASE_URL",
-    "PORT",
-    "BETTER_AUTH_*",
-    "BACKEND_*",
-    "NEXT_PUBLIC_*",
-    "VERCEL_URL"
-  ],
+  "globalEnv": ["NODE_ENV", "VERCEL_URL"],
   "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"],
+      "env": ["DATABASE_URL", "PORT", "BETTER_AUTH_*", "BACKEND_*"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["transit"]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["transit"]
     },
     "dev": {
       "cache": false,

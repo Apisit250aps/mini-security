@@ -55,7 +55,7 @@ export function useCompanyLeaveRequestsQueries(
   },
 ) {
   return useQuery({
-    queryKey: leaveKeys.companyRequests(companyId, filters?.status),
+    queryKey: leaveKeys.companyRequests(companyId, filters),
     queryFn: async ({ signal }) => {
       const response = await leaveServicesGetCompanyRequests({
         signal,

@@ -1,6 +1,7 @@
 {
   "name": "@repo/configs",
   "version": "1.0.0",
+  "private": true,
   "main": "src/index.ts",
   "scripts": {
     "check-types": "tsc --noEmit",
@@ -11,10 +12,10 @@
     "./client": "./src/client.ts",
     "./typescript/*": "./typescript/*",
     "./typescript/*.json": "./typescript/*.json",
-    "./eslint/*": "./eslint/*.js",
-    "./eslint/base": "./eslint/base.js",
-    "./eslint/next-js": "./eslint/next.js",
-    "./eslint/react-internal": "./eslint/react-internal.js"
+    "./eslint/*": "./eslint/*.mjs",
+    "./eslint/base": "./eslint/base.mjs",
+    "./eslint/next-js": "./eslint/next.mjs",
+    "./eslint/react-internal": "./eslint/react-internal.mjs"
   },
   "dependencies": {
     "@eslint/js": "^9.22.0",
