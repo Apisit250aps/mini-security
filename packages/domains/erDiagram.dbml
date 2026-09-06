@@ -323,4 +323,213 @@ TableGroup feature_management {
   role_feature
 }
 
+// ==========================================
+// Attendance Module (ระบบเช็คชื่อเข้างาน)
+// ==========================================
+// หมายเหตุ:
+//   "ตำแหน่งงาน" (position) → ใช้ตาราง `role` ที่มีอยู่แล้ว
+//   "พนักงาน"    (employee)  → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
+// ตารางใหม่ที่เพิ่มคือ: check_in_schedules, schedule_slots, attendance_logs
 
+Enum attendance_status {
+  present   [note: 'มาทำงาน']
+  absent    [note: 'ขาดงาน']
+  late      [note: 'มาสาย']
+  excused   [note: 'ลา (มีเหตุผล)']
+}
+
+// กำหนดรูปแบบการเช็คชื่อต่อ Role/ตำแหน่ง (1 role : 1 schedule)
+// role ที่ใช้คือ role ที่ผูกกับ company เช่น แม่บ้าน, พนักงานทั่วไป, หัวหน้างาน
+Table check_in_schedules {
+  id         uuid [pk, note: 'UUIDv7 Primary Key']
+  role_id    uuid [not null, unique, note: 'FK -> role.id  (1 role : 1 schedule — role แทน "ตำแหน่งงาน")']
+  company_id uuid [not null, note: 'FK -> company.id  (denormalized สำหรับ Tenant Boundary Check)']
+  name       text [not null, note: 'ชื่อ schedule เช่น แม่บ้าน 2 รอบ, พนักงาน 3 รอบ, หัวหน้า 1 รอบ']
+  is_active  boolean [not null, default: true]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null]
+
+  Indexes {
+    role_id    [unique, name: 'check_in_schedule_role_id_unique']
+    company_id [name: 'check_in_schedule_company_id_idx']
+  }
+
+  Note: 'Config การเช็คชื่อต่อ Role (ตำแหน่งงาน) — dynamic ตั้งค่าได้ต่อ role'
+}
+
+// แต่ละรอบการเช็คชื่อในวัน (1 schedule มีได้หลาย slot — dynamic)
+Table schedule_slots {
+  id                   uuid    [pk, note: 'UUIDv7 Primary Key']
+  check_in_schedule_id uuid    [not null, note: 'FK -> check_in_schedules.id']
+  slot_order           integer [not null, note: 'ลำดับรอบในวัน เช่น 1=เช้า 2=กลางวัน 3=เย็น']
+  label                text    [not null, note: 'ชื่อรอบ เช่น เช้า, กลางวัน, เย็น']
+  window_start         time    [not null, note: 'เปิดรับการเช็คตั้งแต่เวลานี้']
+  window_end           time    [not null, note: 'ปิดรับการเช็ค']
+  is_required          boolean [not null, default: true, note: 'บังคับเช็คในรอบนี้หรือไม่']
+  created_at           timestamp [not null, default: `now()`]
+  updated_at           timestamp [not null]
+
+  Indexes {
+    check_in_schedule_id [name: 'schedule_slot_schedule_id_idx']
+    (check_in_schedule_id, slot_order) [unique, name: 'schedule_slot_order_unique']
+  }
+
+  Note: '1 slot = 1 รอบการเช็คต่อวัน — เพิ่ม/ลดได้อิสระ'
+}
+
+// บันทึกการเช็คชื่อ — 1 record = 1 company_member × 1 slot × 1 วัน
+Table attendance_logs {
+  id                 uuid [pk, note: 'UUIDv7 Primary Key']
+  company_member_id  uuid [not null, note: 'FK -> company_member.id  (company_member แทน "พนักงาน")']
+  schedule_slot_id   uuid [not null, note: 'FK -> schedule_slots.id — ระบุรอบที่เช็ค']
+  work_date          date [not null, note: 'วันที่ทำงาน']
+  checked_in_at      timestamp [note: 'เวลาเช็คจริง (null = ขาด / ยังไม่เช็ค)']
+  status             attendance_status [not null, default: 'absent']
+  note               text [note: 'หมายเหตุ เช่น ลาป่วย ลากิจ']
+  recorded_by        uuid [note: 'FK -> user.id  ของ Admin/หัวหน้าที่บันทึกแทน (Nullable)']
+  created_at         timestamp [not null, default: `now()`]
+  updated_at         timestamp [not null]
+
+  Indexes {
+    company_member_id [name: 'attendance_log_member_id_idx']
+    schedule_slot_id  [name: 'attendance_log_slot_id_idx']
+    work_date         [name: 'attendance_log_work_date_idx']
+    (company_member_id, schedule_slot_id, work_date) [unique, name: 'attendance_log_unique_per_slot_per_day']
+  }
+
+  Note: '1 record = 1 company_member × 1 รอบ × 1 วัน — Unique constraint กันเช็คซ้ำ'
+}
+
+// --- Attendance Foreign Key Relationships ---
+
+// check_in_schedules → role (ตำแหน่งงาน) และ company
+Ref: check_in_schedules.role_id    > role.id    [delete: cascade]
+Ref: check_in_schedules.company_id > company.id [delete: cascade]
+
+// schedule_slots → check_in_schedules
+Ref: schedule_slots.check_in_schedule_id > check_in_schedules.id [delete: cascade]
+
+// attendance_logs → company_member (พนักงาน), schedule_slots, user (ผู้บันทึกแทน)
+Ref: attendance_logs.company_member_id > company_member.id [delete: cascade]
+Ref: attendance_logs.schedule_slot_id  > schedule_slots.id [delete: restrict]
+Ref: attendance_logs.recorded_by       > user.id           [delete: set null]
+
+// --- Attendance Table Group ---
+
+TableGroup attendance_module {
+  check_in_schedules
+  schedule_slots
+  attendance_logs
+}
+
+// ==========================================
+// Leave Management Module (ระบบขอลา)
+// ==========================================
+// หมายเหตุ:
+//   "พนักงาน" → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
+//   ตารางใหม่: leave_types, leave_quotas, leave_requests
+
+Enum leave_request_status {
+  pending    [note: 'รอการอนุมัติ']
+  approved   [note: 'อนุมัติแล้ว']
+  rejected   [note: 'ปฏิเสธ']
+  cancelled  [note: 'ยกเลิกโดยผู้ขอ']
+}
+
+Enum leave_unit {
+  day       [note: 'นับเป็นวัน']
+  half_day  [note: 'ลาครึ่งวัน']
+  hour      [note: 'นับเป็นชั่วโมง']
+}
+
+// ประเภทการลา — กำหนดต่อบริษัท (ลาป่วย, ลากิจ, ลาพักร้อน ฯลฯ)
+Table leave_types {
+  id                 uuid    [pk, note: 'UUIDv7 Primary Key']
+  company_id         uuid    [not null, note: 'FK -> company.id  (scoped ต่อบริษัท)']
+  name               text    [not null, note: 'ชื่อประเภทการลา เช่น ลาป่วย, ลากิจ, ลาพักร้อน']
+  description        text    [note: 'รายละเอียดเงื่อนไขการลา']
+  unit               leave_unit [not null, default: 'day', note: 'หน่วยการนับ: วัน / ครึ่งวัน / ชั่วโมง']
+  requires_proof     boolean [not null, default: false, note: 'ต้องแนบเอกสาร/ใบรับรองแพทย์หรือไม่']
+  max_days_per_year  integer [note: 'วันลาสูงสุดต่อปี (null = ไม่จำกัด)']
+  is_paid            boolean [not null, default: true, note: 'ลาโดยได้รับค่าจ้างหรือไม่']
+  is_active          boolean [not null, default: true]
+  created_at         timestamp [not null, default: `now()`]
+  updated_at         timestamp [not null]
+
+  Indexes {
+    company_id [name: 'leave_type_company_id_idx']
+    (company_id, name) [unique, name: 'leave_type_company_name_unique']
+  }
+
+  Note: 'ประเภทการลาที่บริษัทกำหนด — Admin สร้าง/แก้ไขได้ dynamic'
+}
+
+// โควต้าวันลาต่อปีของสมาชิกแต่ละคน ต่อประเภทการลา
+Table leave_quotas {
+  id                uuid    [pk, note: 'UUIDv7 Primary Key']
+  company_member_id uuid    [not null, note: 'FK -> company_member.id']
+  leave_type_id     uuid    [not null, note: 'FK -> leave_types.id']
+  year              integer [not null, note: 'ปี ค.ศ. ที่ใช้ quota นี้']
+  total_days        decimal [not null, note: 'โควต้ารวมทั้งปี (รองรับทศนิยมสำหรับครึ่งวัน)']
+  used_days         decimal [not null, default: 0, note: 'จำนวนวันที่ใช้ไปแล้ว (อัปเดตเมื่อ approved)']
+  created_at        timestamp [not null, default: `now()`]
+  updated_at        timestamp [not null]
+
+  Indexes {
+    company_member_id [name: 'leave_quota_member_id_idx']
+    leave_type_id     [name: 'leave_quota_type_id_idx']
+    (company_member_id, leave_type_id, year) [unique, name: 'leave_quota_member_type_year_unique']
+  }
+
+  Note: 'โควต้าวันลาต่อปีต่อคน — ใช้ track ยอดคงเหลือ'
+}
+
+// คำขอลา — 1 request = 1 ช่วงลา (อาจครอบคลุมหลายวัน)
+Table leave_requests {
+  id                uuid    [pk, note: 'UUIDv7 Primary Key']
+  company_member_id uuid    [not null, note: 'FK -> company_member.id  (ผู้ขอลา)']
+  leave_type_id     uuid    [not null, note: 'FK -> leave_types.id']
+  start_date        date    [not null, note: 'วันเริ่มลา']
+  end_date          date    [not null, note: 'วันสุดท้ายที่ลา']
+  total_days        decimal [not null, note: 'จำนวนวันลา (คำนวณจาก start_date - end_date)']
+  unit              leave_unit [not null, default: 'day']
+  reason            text    [not null, note: 'เหตุผลการลา']
+  proof_url         text    [note: 'URL เอกสาร/ใบรับรองแพทย์ (ถ้ามี)']
+  status            leave_request_status [not null, default: 'pending']
+  reviewed_by       uuid    [note: 'FK -> user.id  ผู้อนุมัติ/ปฏิเสธ (Nullable ก่อนตรวจ)']
+  reviewed_at       timestamp [note: 'เวลาที่ตรวจสอบ']
+  review_note       text    [note: 'หมายเหตุจากผู้อนุมัติ เช่น เหตุผลปฏิเสธ']
+  created_at        timestamp [not null, default: `now()`]
+  updated_at        timestamp [not null]
+
+  Indexes {
+    company_member_id [name: 'leave_request_member_id_idx']
+    leave_type_id     [name: 'leave_request_type_id_idx']
+    status            [name: 'leave_request_status_idx']
+    (company_member_id, start_date, end_date) [name: 'leave_request_member_date_idx']
+  }
+
+  Note: 'คำขอลา — มี approval flow (pending → approved/rejected) เชื่อมกับ attendance_logs ผ่าน work_date + excused status'
+}
+
+// --- Leave Management Foreign Key Relationships ---
+
+// leave_types → company
+Ref: leave_types.company_id > company.id [delete: cascade]
+
+// leave_quotas → company_member, leave_type
+Ref: leave_quotas.company_member_id > company_member.id [delete: cascade]
+Ref: leave_quotas.leave_type_id     > leave_types.id   [delete: cascade]
+
+// leave_requests → company_member, leave_type, reviewer (user)
+Ref: leave_requests.company_member_id > company_member.id [delete: cascade]
+Ref: leave_requests.leave_type_id     > leave_types.id   [delete: restrict]
+Ref: leave_requests.reviewed_by       > user.id          [delete: set null]
+
+// --- Leave Management Table Group ---
+
+TableGroup leave_management {
+  leave_types
+  leave_quotas
+  leave_requests
+}
