@@ -26,11 +26,16 @@ export function useScheduleCreate(companyId: string) {
       const res = await attendanceServicesCreateSchedule({ body: data });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('สร้างตารางเวลาเช็คชื่อสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: attendanceKeys.schedules(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: attendanceKeys.schedules(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['ATTENDANCE', 'SCHEDULE', 'ROLE'],
+        }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการสร้างตารางเวลา'));
@@ -54,11 +59,16 @@ export function useScheduleUpdate(companyId: string) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('อัปเดตตารางเวลาสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: attendanceKeys.schedules(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: attendanceKeys.schedules(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['ATTENDANCE', 'SCHEDULE', 'ROLE'],
+        }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการแก้ไขตารางเวลา'));
@@ -76,9 +86,9 @@ export function useSlotCreate(scheduleId: string) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('เพิ่มรอบเวลาเช็คชื่อสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: attendanceKeys.slots(scheduleId),
       });
     },
@@ -104,9 +114,9 @@ export function useSlotUpdate(scheduleId: string) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('แก้ไขรอบเวลาสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: attendanceKeys.slots(scheduleId),
       });
     },
@@ -125,11 +135,14 @@ export function useSlotDelete(scheduleId: string) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบรอบเวลาสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: attendanceKeys.slots(scheduleId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: attendanceKeys.slots(scheduleId),
+        }),
+        queryClient.invalidateQueries({ queryKey: ['ATTENDANCE', 'LOGS'] }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบรอบเวลา'));
@@ -144,9 +157,15 @@ export function useAttendanceCheckIn(_companyId: string) {
       const res = await attendanceServicesCheckIn({ body: data });
       return res.data;
     },
-    onSuccess: () => {
-      toast.success('บันทึกเวลาเข้างานสำเร็จ');
-      queryClient.invalidateQueries({
+    onSuccess: async (result) => {
+      toast.success(
+        result?.data?.status === 'late'
+          ? 'บันทึกเวลาเข้างานสำเร็จ · มาสาย'
+          : result?.data?.status === 'present'
+            ? 'บันทึกเวลาเข้างานสำเร็จ · มาตรงเวลา'
+            : 'บันทึกเวลาเข้างานสำเร็จ',
+      );
+      await queryClient.invalidateQueries({
         queryKey: attendanceKeys.all,
       });
     },
@@ -163,9 +182,9 @@ export function useAttendanceManualCheckIn(_companyId: string) {
       const res = await attendanceServicesManualCheckIn({ body: data });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('บันทึกเวลาเข้างานแทนพนักงานสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: attendanceKeys.all,
       });
     },

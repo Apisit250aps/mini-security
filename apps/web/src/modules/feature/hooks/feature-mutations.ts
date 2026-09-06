@@ -41,18 +41,24 @@ export function useCompanyFeatureToggle() {
       });
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       toast.success(
         variables.isEnabled
           ? 'เปิดใช้งานฟีเจอร์สำหรับบริษัทเรียบร้อยแล้ว'
           : 'ปิดการใช้งานฟีเจอร์สำหรับบริษัทเรียบร้อยแล้ว',
       );
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.company(variables.companyId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.companyAvailable(variables.companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.company(variables.companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.companyAvailable(variables.companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FEATURE', 'COMPANY_ROLES'],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'ROLE'] }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -75,14 +81,19 @@ export function useCompanyFeatureAssign(companyId: string) {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('มอบหมายฟีเจอร์ให้บริษัทสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.company(companyId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.companyAvailable(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.company(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.companyAvailable(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FEATURE', 'COMPANY_ROLES'],
+        }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -101,14 +112,20 @@ export function useCompanyFeatureRemove(companyId: string) {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบฟีเจอร์ออกจากบริษัทสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.company(companyId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.companyAvailable(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.company(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.companyAvailable(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FEATURE', 'COMPANY_ROLES'],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'ROLE'] }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -132,12 +149,15 @@ export function useRoleFeatureAssign(roleId: string) {
       });
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       toast.success('มอบหมายฟีเจอร์ให้บทบาทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: featureKeys.role(roleId) });
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.companyRoles(variables.companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: featureKeys.role(roleId) }),
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.companyRoles(variables.companyId),
+        }),
+        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'COMPANY'] }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -167,18 +187,21 @@ export function useRoleFeatureToggle() {
       });
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       toast.success(
         variables.isEnabled
           ? 'เปิดสิทธิ์ฟีเจอร์ให้บทบาทเรียบร้อยแล้ว'
           : 'ปิดสิทธิ์ฟีเจอร์สำหรับบทบาทเรียบร้อยแล้ว',
       );
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.role(variables.roleId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.companyRoles(variables.companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.role(variables.roleId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.companyRoles(variables.companyId),
+        }),
+        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'COMPANY'] }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -201,12 +224,15 @@ export function useRoleFeatureRevoke(roleId: string, companyId: string) {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('เพิกถอนสิทธิ์ฟีเจอร์จากบทบาทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: featureKeys.role(roleId) });
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.companyRoles(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: featureKeys.role(roleId) }),
+        queryClient.invalidateQueries({
+          queryKey: featureKeys.companyRoles(companyId),
+        }),
+        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'COMPANY'] }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -230,9 +256,9 @@ export function useFeatureCreate() {
       const res = await featureServicesCreateFeature({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('สร้างฟีเจอร์ใหม่ในระบบสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: featureKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: featureKeys.lists() });
     },
     onError: (error: unknown) => {
       toast.error(
@@ -252,12 +278,9 @@ export function useFeatureUpdate() {
       });
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async () => {
       toast.success('อัปเดตข้อมูลฟีเจอร์สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: featureKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: featureKeys.detail(variables.id),
-      });
+      await queryClient.invalidateQueries({ queryKey: featureKeys.all });
     },
     onError: (error: unknown) => {
       toast.error(
@@ -277,9 +300,9 @@ export function useFeatureToggle() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('เปลี่ยนสถานะฟีเจอร์ในระบบสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: featureKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: featureKeys.all });
     },
     onError: (error: unknown) => {
       toast.error(

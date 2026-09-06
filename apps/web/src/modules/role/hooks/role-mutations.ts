@@ -1,4 +1,11 @@
 import {
+  attendanceKeys,
+  companyKeys,
+  featureKeys,
+  permissionKeys,
+  sessionKeys,
+} from '@/shared/utils/query';
+import {
   roleServicesCreateRole,
   roleServicesDeleteRole,
   roleServicesUpdateRole,
@@ -21,9 +28,15 @@ function useRoleDelete() {
       const res = await roleServicesDeleteRole({ path: { id: roleId } });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบบทบาทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: roleKeys.all }),
+        queryClient.invalidateQueries({ queryKey: companyKeys.all }),
+        queryClient.invalidateQueries({ queryKey: featureKeys.all }),
+        queryClient.invalidateQueries({ queryKey: attendanceKeys.all }),
+        queryClient.invalidateQueries({ queryKey: permissionKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบบทบาท'));
@@ -48,9 +61,9 @@ function useRoleUpdate() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('บันทึกข้อมูลบทบาทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.all });
+      await queryClient.invalidateQueries({ queryKey: roleKeys.all });
     },
     onError: (error: unknown) => {
       toast.error(
@@ -68,9 +81,9 @@ function useRoleCreate() {
       const res = await roleServicesCreateRole({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('สร้างบทบาทใหม่สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.all });
+      await queryClient.invalidateQueries({ queryKey: roleKeys.all });
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการสร้างบทบาท'));
@@ -86,9 +99,13 @@ function useRoleAssignPermission() {
       const res = await roleServicesAssignPermissionToRole({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('กำหนดสิทธิ์แก่บทบาทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: roleKeys.all }),
+        queryClient.invalidateQueries({ queryKey: permissionKeys.all }),
+        queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการกำหนดสิทธิ์'));
@@ -112,9 +129,13 @@ function useRoleRevokePermission() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ยกเลิกสิทธิ์สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: roleKeys.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: roleKeys.all }),
+        queryClient.invalidateQueries({ queryKey: permissionKeys.all }),
+        queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการยกเลิกสิทธิ์'));

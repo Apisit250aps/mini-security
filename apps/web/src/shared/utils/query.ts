@@ -80,6 +80,7 @@ export const attendanceKeys = {
 
 export const leaveKeys = {
   ...createQueryKeys('LEAVE'),
+  typeLists: (companyId: string) => ['LEAVE', 'TYPES', companyId] as const,
   types: (companyId: string, onlyActive?: boolean) =>
     ['LEAVE', 'TYPES', companyId, { onlyActive }] as const,
   quotas: (memberId: string, year: number) =>

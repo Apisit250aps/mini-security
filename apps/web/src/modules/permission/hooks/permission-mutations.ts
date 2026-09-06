@@ -1,3 +1,4 @@
+import { roleKeys } from '@/shared/utils/query';
 import {
   permissionServicesCreatePermission,
   permissionServicesDeletePermission,
@@ -17,9 +18,12 @@ function usePermissionDelete() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบสิทธิ์สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: permissionKeys.lists() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: permissionKeys.all }),
+        queryClient.invalidateQueries({ queryKey: roleKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบสิทธิ์'));
@@ -44,9 +48,12 @@ function usePermissionUpdate() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('บันทึกข้อมูลสิทธิ์สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: permissionKeys.lists() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: permissionKeys.all }),
+        queryClient.invalidateQueries({ queryKey: roleKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -64,9 +71,9 @@ function usePermissionCreate() {
       const res = await permissionServicesCreatePermission({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('สร้างสิทธิ์ใหม่สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: permissionKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: permissionKeys.lists() });
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการสร้างสิทธิ์'));

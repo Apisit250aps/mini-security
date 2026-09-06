@@ -1,3 +1,4 @@
+import { companyKeys } from '@/shared/utils/query';
 import {
   userServicesCreateUser,
   userServicesDeleteUser,
@@ -15,9 +16,13 @@ function useUserDelete() {
       const res = await userServicesDeleteUser({ path: { id: userId } });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบผู้ใช้สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: userKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: userKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: companyKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบผู้ใช้'));
@@ -42,9 +47,12 @@ function useUserUpdate() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('บันทึกข้อมูลผู้ใช้สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: userKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: userKeys.details() }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -62,9 +70,9 @@ function useUserCreate() {
       const res = await userServicesCreateUser({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('สร้างผู้ใช้ใหม่สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการสร้างผู้ใช้'));

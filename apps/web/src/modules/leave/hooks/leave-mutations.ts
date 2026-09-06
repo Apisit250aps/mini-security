@@ -1,3 +1,4 @@
+import { attendanceKeys } from '@/shared/utils/query';
 import {
   leaveServicesCancelRequest,
   leaveServicesCreateQuota,
@@ -26,10 +27,10 @@ export function useLeaveTypeCreate(companyId: string) {
       const res = await leaveServicesCreateType({ body: data });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('สร้างประเภทการลาสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: leaveKeys.types(companyId),
+      await queryClient.invalidateQueries({
+        queryKey: leaveKeys.typeLists(companyId),
       });
     },
     onError: (error: unknown) => {
@@ -50,10 +51,10 @@ export function useLeaveTypeUpdate(companyId: string) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('อัปเดตประเภทการลาสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: leaveKeys.types(companyId),
+      await queryClient.invalidateQueries({
+        queryKey: leaveKeys.typeLists(companyId),
       });
     },
     onError: (error: unknown) => {
@@ -71,9 +72,9 @@ export function useLeaveQuotaCreate(memberId: string, year: number) {
       const res = await leaveServicesCreateQuota({ body: data });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('กำหนดโควต้าวันลาสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: leaveKeys.quotas(memberId, year),
       });
     },
@@ -101,9 +102,9 @@ export function useLeaveQuotaUpdate(memberId: string, year: number) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('อัปเดตโควต้าวันลาสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: leaveKeys.quotas(memberId, year),
       });
     },
@@ -120,9 +121,9 @@ export function useLeaveRequestSubmit(_companyId: string) {
       const res = await leaveServicesSubmitRequest({ body: data });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ส่งคำขอลาหยุดงานสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: leaveKeys.all,
       });
     },
@@ -148,11 +149,14 @@ export function useLeaveRequestReview(_companyId: string) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('บันทึกผลการพิจารณาคำขอลาเรียบร้อย');
-      queryClient.invalidateQueries({
-        queryKey: leaveKeys.all,
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: leaveKeys.all,
+        }),
+        queryClient.invalidateQueries({ queryKey: attendanceKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการพิจารณาคำขอลา'));
@@ -169,9 +173,9 @@ export function useLeaveRequestCancel(_companyId: string) {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ยกเลิกคำขอลาสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: leaveKeys.all,
       });
     },

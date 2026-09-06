@@ -2,9 +2,9 @@ import type { PageConfigs } from '../page-configs';
 
 export const companyPageConfigs: PageConfigs = {
   companyDashboard: {
-    name: 'แดชบอร์ด',
-    title: 'ภาพรวมองค์กร',
-    description: 'สถิติและภาพรวมการทำงานของบริษัท',
+    name: 'ลงเวลาเข้างาน',
+    title: 'ลงเวลาเข้างาน',
+    description: 'เลือกรอบและบันทึกเวลาเข้างานประจำวัน',
     url: '/company',
   },
   companyEmployee: {

@@ -1,4 +1,12 @@
 import {
+  attendanceKeys,
+  featureKeys,
+  leaveKeys,
+  permissionKeys,
+  roleKeys,
+  sessionKeys,
+} from '@/shared/utils/query';
+import {
   companyServicesAddCompanyMember,
   companyServicesCreateCompany,
   companyServicesCreateCompanyBranch,
@@ -30,9 +38,16 @@ function useCompanyDelete() {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบข้อมูลบริษัทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: companyKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: companyKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: roleKeys.all }),
+        queryClient.invalidateQueries({ queryKey: featureKeys.all }),
+        queryClient.invalidateQueries({ queryKey: attendanceKeys.all }),
+        queryClient.invalidateQueries({ queryKey: leaveKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบบริษัท'));
@@ -57,12 +72,14 @@ function useCompanyUpdate() {
       });
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       toast.success('บันทึกข้อมูลบริษัทสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: companyKeys.detail(variables.companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: companyKeys.lists() }),
+        queryClient.invalidateQueries({
+          queryKey: companyKeys.detail(variables.companyId),
+        }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(
@@ -80,9 +97,9 @@ function useCompanyCreate() {
       const res = await companyServicesCreateCompany({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('สร้างบริษัทใหม่สำเร็จ');
-      queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการสร้างบริษัท'));
@@ -98,9 +115,9 @@ function useCompanyMemberAdd(companyId: string) {
       const res = await companyServicesAddCompanyMember({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('เพิ่มสมาชิกในบริษัทสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: companyKeys.members(companyId),
       });
     },
@@ -127,11 +144,17 @@ function useCompanyMemberUpdate(companyId: string) {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('อัปเดตข้อมูลสมาชิกสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: companyKeys.members(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: companyKeys.members(companyId),
+        }),
+        queryClient.invalidateQueries({ queryKey: attendanceKeys.all }),
+        queryClient.invalidateQueries({ queryKey: featureKeys.all }),
+        queryClient.invalidateQueries({ queryKey: permissionKeys.all }),
+        queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการแก้ไขสมาชิก'));
@@ -149,11 +172,18 @@ function useCompanyMemberRemove(companyId: string) {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบสมาชิกออกจากบริษัทสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: companyKeys.members(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: companyKeys.members(companyId),
+        }),
+        queryClient.invalidateQueries({ queryKey: attendanceKeys.all }),
+        queryClient.invalidateQueries({ queryKey: leaveKeys.all }),
+        queryClient.invalidateQueries({ queryKey: featureKeys.all }),
+        queryClient.invalidateQueries({ queryKey: permissionKeys.all }),
+        queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
+      ]);
     },
 
     onError: (error: unknown) => {
@@ -170,9 +200,9 @@ function useCompanyBranchCreate(companyId: string) {
       const res = await companyServicesCreateCompanyBranch({ body: data });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('เพิ่มสาขาใหม่สำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: companyKeys.branches(companyId),
       });
     },
@@ -199,9 +229,9 @@ function useCompanyBranchUpdate(companyId: string) {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('อัปเดตข้อมูลสาขาสำเร็จ');
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: companyKeys.branches(companyId),
       });
     },
@@ -222,11 +252,16 @@ function useCompanyBranchDelete(companyId: string) {
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('ลบข้อมูลสาขาสำเร็จ');
-      queryClient.invalidateQueries({
-        queryKey: companyKeys.branches(companyId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: companyKeys.branches(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: companyKeys.members(companyId),
+        }),
+      ]);
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบสาขา'));

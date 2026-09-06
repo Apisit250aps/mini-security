@@ -1,3 +1,4 @@
+import { attendanceClock, resolveAttendanceSlot } from './attendance-time';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICheckInAttendanceContext,
@@ -59,28 +60,11 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
     }
 
     const now = new Date();
-    const today = now.toISOString().slice(0, 10);
-    const currentTime = now.toTimeString().slice(0, 8); // "HH:MM:SS"
-
-    let targetSlot = context.scheduleSlotId
-      ? slots.find((s) => s.id === context.scheduleSlotId)
-      : undefined;
-
-    if (!targetSlot) {
-      // Find slot by current time window
-      targetSlot = slots.find(
-        (s) => currentTime >= s.windowStart && currentTime <= s.windowEnd,
-      );
-
-      // If outside windows, pick the closest/next slot
-      if (!targetSlot) {
-        targetSlot = slots[0];
-      }
-    }
-
-    if (!targetSlot) {
-      throw new NotFoundError('Target schedule slot not found');
-    }
+    const {
+      slot: targetSlot,
+      workDate: today,
+      status,
+    } = resolveAttendanceSlot(slots, now, context.scheduleSlotId);
 
     const existingLog =
       await this.attendanceLogRepository.findByMemberAndSlotAndDate(
@@ -92,12 +76,6 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
       throw new DuplicateError(
         `Attendance already recorded for slot "${targetSlot.label}" on ${today}`,
       );
-    }
-
-    // Determine status
-    let status: 'present' | 'late' = 'present';
-    if (currentTime > targetSlot.windowEnd) {
-      status = 'late';
     }
 
     const logData = {
@@ -168,7 +146,7 @@ export class GetAttendanceLogsByMemberUseCase
       );
     }
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = attendanceClock(new Date()).workDate;
     return this.attendanceLogRepository.findByMemberAndDate(
       context.companyMemberId,
       today,
