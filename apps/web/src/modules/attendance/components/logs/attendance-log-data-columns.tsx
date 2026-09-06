@@ -6,6 +6,7 @@ import type {
   AttendanceLog,
   CompanyMember,
   ScheduleSlot,
+  User,
 } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
@@ -13,6 +14,7 @@ import { formatDate } from '@/shared/utils';
 interface AttendanceLogColumnsOptions {
   members?: CompanyMember[];
   slots?: ScheduleSlot[];
+  usersMap?: Map<string, User>;
 }
 
 const STATUS_MAP: Record<
@@ -31,8 +33,9 @@ const STATUS_MAP: Record<
 export const attendanceLogDataColumns = ({
   members = [],
   slots = [],
+  usersMap,
 }: AttendanceLogColumnsOptions = {}): ColumnDef<AttendanceLog>[] => {
-  const memberMap = new Map(members.map((m) => [m.id, m.userId || m.id]));
+  const memberObjMap = new Map(members.map((m) => [m.id, m]));
   const slotMap = new Map(slots.map((s) => [s.id, s.label]));
 
   return [
@@ -48,8 +51,20 @@ export const attendanceLogDataColumns = ({
       header: 'พนักงาน',
       cell: ({ getValue }) => {
         const memberId = getValue<string>();
-        const memberLabel = memberMap.get(memberId) || memberId;
-        return <span className="font-medium">{memberLabel}</span>;
+        const member = memberObjMap.get(memberId);
+        const user = member ? usersMap?.get(member.userId) : undefined;
+        return (
+          <div className="flex flex-col">
+            <span className="font-medium text-sm">
+              {user ? user.name : member?.userId || memberId}
+            </span>
+            {user?.email && (
+              <span className="text-xs text-muted-foreground">
+                {user.email}
+              </span>
+            )}
+          </div>
+        );
       },
     },
     {

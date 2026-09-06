@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import type { CellContext } from '@tanstack/react-table';
 import type { LeaveType } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
@@ -21,7 +21,32 @@ export default function LeaveTypeColumnActions<T extends LeaveType>({
   const updateMutation = useLeaveTypeUpdate(companyId);
   const leaveType = cell.row.original;
 
-  const actionEdit = () => {
+  const handleUpdate = useCallback(
+    (data: LeaveTypeFormValues) => {
+      updateMutation.mutate(
+        {
+          id: leaveType.id,
+          data: {
+            name: data.name,
+            description: data.description || null,
+            unit: data.unit,
+            requiresProof: data.requiresProof,
+            maxDaysPerYear: data.maxDaysPerYear ?? null,
+            isPaid: data.isPaid,
+            isActive: data.isActive,
+          },
+        },
+        {
+          onSuccess: () => {
+            ui.dialog.close();
+          },
+        },
+      );
+    },
+    [updateMutation, leaveType.id, ui.dialog],
+  );
+
+  const actionEdit = useCallback(() => {
     ui.dialog.open({
       title: 'แก้ไขประเภทการลา',
       description: 'ปรับปรุงเงื่อนไข โควต้า และสถานะของประเภทการลา',
@@ -38,31 +63,22 @@ export default function LeaveTypeColumnActions<T extends LeaveType>({
             isPaid: leaveType.isPaid,
             isActive: leaveType.isActive,
           }}
-          onSubmit={(data: LeaveTypeFormValues) => {
-            updateMutation.mutate(
-              {
-                id: leaveType.id,
-                data: {
-                  name: data.name,
-                  description: data.description || null,
-                  unit: data.unit,
-                  requiresProof: data.requiresProof,
-                  maxDaysPerYear: data.maxDaysPerYear ?? null,
-                  isPaid: data.isPaid,
-                  isActive: data.isActive,
-                },
-              },
-              {
-                onSuccess: () => {
-                  ui.dialog.close();
-                },
-              },
-            );
-          }}
+          onSubmit={handleUpdate}
         />
       ),
     });
-  };
+  }, [
+    ui.dialog,
+    updateMutation.isPending,
+    leaveType.name,
+    leaveType.description,
+    leaveType.unit,
+    leaveType.requiresProof,
+    leaveType.maxDaysPerYear,
+    leaveType.isPaid,
+    leaveType.isActive,
+    handleUpdate,
+  ]);
 
   return (
     <ColumnActions

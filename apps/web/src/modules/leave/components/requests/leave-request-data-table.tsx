@@ -10,6 +10,7 @@ import {
   useCompanyLeaveTypesQueries,
 } from '../../hooks/leave-queries';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import leaveRequestDataColumns from './leave-request-data-columns';
 
 interface LeaveRequestDataTableProps {
@@ -21,7 +22,7 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
   { value: 'pending', label: 'รอพิจารณา (Pending)' },
   { value: 'approved', label: 'อนุมัติแล้ว (Approved)' },
   { value: 'rejected', label: 'ปฏิเสธ (Rejected)' },
-  { value: 'cancelled', label: 'ยกเลิก (Cancelled)' },
+  { value: 'cancelled', label: 'ยกเลิกแล้ว (Cancelled)' },
 ];
 
 export default function LeaveRequestDataTable({
@@ -49,6 +50,11 @@ export default function LeaveRequestDataTable({
   });
   const typesQuery = useCompanyLeaveTypesQueries(companyId);
   const membersQuery = useCompanyMembersQueries(companyId);
+  const usersQuery = useUserListQueries();
+
+  const usersMap = useMemo(() => {
+    return new Map((usersQuery.data || []).map((u) => [u.id, u]));
+  }, [usersQuery.data]);
 
   const columns = useMemo(
     () =>
@@ -56,12 +62,16 @@ export default function LeaveRequestDataTable({
         companyId,
         types: typesQuery.data || [],
         members: membersQuery.data || [],
+        usersMap,
       }),
-    [companyId, typesQuery.data, membersQuery.data],
+    [companyId, typesQuery.data, membersQuery.data, usersMap],
   );
 
   const isLoading =
-    requestsQuery.isLoading || typesQuery.isLoading || membersQuery.isLoading;
+    requestsQuery.isLoading ||
+    typesQuery.isLoading ||
+    membersQuery.isLoading ||
+    usersQuery.isLoading;
   const data = requestsQuery.data || [];
 
   return (

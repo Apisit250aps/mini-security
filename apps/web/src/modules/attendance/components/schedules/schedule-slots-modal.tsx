@@ -30,7 +30,7 @@ export default function ScheduleSlotsModal({
   const updateMutation = useSlotUpdate(schedule.id);
   const deleteMutation = useSlotDelete(schedule.id);
 
-  const openCreateSlot = () => {
+  const openCreateSlot = React.useCallback(() => {
     ui.dialog.open({
       title: `เพิ่มรอบเวลา: ${schedule.name}`,
       description: 'กำหนดช่วงเวลาและลำดับของรอบการลงชื่อเข้างาน',
@@ -57,7 +57,7 @@ export default function ScheduleSlotsModal({
         />
       ),
     });
-  };
+  }, [ui, schedule, createMutation]);
 
   const openEditSlot = React.useCallback(
     (slot: ScheduleSlot) => {

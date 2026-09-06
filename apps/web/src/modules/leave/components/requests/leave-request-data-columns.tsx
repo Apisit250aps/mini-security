@@ -6,6 +6,7 @@ import type {
   CompanyMember,
   LeaveRequest,
   LeaveType,
+  User,
 } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import LeaveRequestColumnActions from './leave-request-column-actions';
@@ -14,6 +15,7 @@ interface LeaveRequestColumnsOptions {
   companyId: string;
   types?: LeaveType[];
   members?: CompanyMember[];
+  usersMap?: Map<string, User>;
 }
 
 const STATUS_MAP: Record<
@@ -33,9 +35,10 @@ export const leaveRequestDataColumns = ({
   companyId,
   types = [],
   members = [],
+  usersMap,
 }: LeaveRequestColumnsOptions): ColumnDef<LeaveRequest>[] => {
   const typeMap = new Map(types.map((t) => [t.id, t.name]));
-  const memberMap = new Map(members.map((m) => [m.id, m.userId || m.id]));
+  const memberObjMap = new Map(members.map((m) => [m.id, m]));
 
   return [
     {
@@ -43,8 +46,20 @@ export const leaveRequestDataColumns = ({
       header: 'พนักงาน',
       cell: ({ getValue }) => {
         const memberId = getValue<string>();
-        const label = memberMap.get(memberId) || memberId;
-        return <span className="font-semibold">{label}</span>;
+        const member = memberObjMap.get(memberId);
+        const user = member ? usersMap?.get(member.userId) : undefined;
+        return (
+          <div className="flex flex-col">
+            <span className="font-semibold text-sm">
+              {user ? user.name : member?.userId || memberId}
+            </span>
+            {user?.email && (
+              <span className="text-xs text-muted-foreground">
+                {user.email}
+              </span>
+            )}
+          </div>
+        );
       },
     },
     {
@@ -60,7 +75,7 @@ export const leaveRequestDataColumns = ({
       id: 'dates',
       header: 'ช่วงวันที่ลา',
       cell: ({ row }) => (
-        <span className="font-medium text-sm">
+        <span className="text-sm">
           {row.original.startDate} ถึง {row.original.endDate}
         </span>
       ),
@@ -68,8 +83,10 @@ export const leaveRequestDataColumns = ({
     {
       accessorKey: 'totalDays',
       header: 'จำนวนวัน',
-      cell: ({ getValue }) => (
-        <span className="font-mono text-sm">{getValue<number>()} วัน</span>
+      cell: ({ row }) => (
+        <span className="font-medium">
+          {row.original.totalDays} {row.original.unit}
+        </span>
       ),
     },
     {
@@ -79,7 +96,7 @@ export const leaveRequestDataColumns = ({
         const status = getValue<string>();
         const info = STATUS_MAP[status] || {
           label: status,
-          variant: 'outline' as const,
+          variant: 'outline',
         };
         return <Badge variant={info.variant}>{info.label}</Badge>;
       },
@@ -87,22 +104,34 @@ export const leaveRequestDataColumns = ({
     {
       accessorKey: 'reason',
       header: 'เหตุผล',
-      cell: ({ getValue }) => (
-        <span className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]">
-          {getValue<string>()}
-        </span>
-      ),
+      cell: ({ getValue }) => {
+        const reason = getValue<string>();
+        return (
+          <span
+            className="max-w-[200px] truncate block text-xs text-muted-foreground"
+            title={reason}
+          >
+            {reason}
+          </span>
+        );
+      },
     },
     {
       id: 'actions',
       header: 'จัดการ',
       cell: (cell) => {
         const typeName = typeMap.get(cell.row.original.leaveTypeId);
+        const member = memberObjMap.get(cell.row.original.companyMemberId);
+        const user = member ? usersMap?.get(member.userId) : undefined;
+        const memberName = user
+          ? `${user.name} (${user.email})`
+          : member?.userId || cell.row.original.companyMemberId;
         return (
           <LeaveRequestColumnActions
             cell={cell}
             companyId={companyId}
             leaveTypeName={typeName}
+            memberName={memberName}
           />
         );
       },

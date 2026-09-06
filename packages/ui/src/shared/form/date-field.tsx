@@ -58,6 +58,7 @@ export type DateRangeFieldProps<T extends FieldValues> = {
   required?: boolean;
   id?: string;
   valueFormat?: 'date' | 'string';
+  onChangeRange?: (start: string | null, end: string | null) => void;
 };
 
 /** Stores a React Aria DateRange or { start: string, end: string } in React Hook Form. */
@@ -72,6 +73,7 @@ function DateRangeField<T extends FieldValues>({
   required,
   id,
   valueFormat = 'string',
+  onChangeRange,
 }: DateRangeFieldProps<T>) {
   const generatedId = React.useId();
   const inputId = id ?? generatedId;
@@ -151,11 +153,12 @@ function DateRangeField<T extends FieldValues>({
                             if (!range || !range.start || !range.end) {
                               startField.onChange(null);
                               endField.onChange(null);
+                              onChangeRange?.(null, null);
                               return;
                             }
+                            const s = `${range.start.year}-${String(range.start.month).padStart(2, '0')}-${String(range.start.day).padStart(2, '0')}`;
+                            const e = `${range.end.year}-${String(range.end.month).padStart(2, '0')}-${String(range.end.day).padStart(2, '0')}`;
                             if (valueFormat === 'string') {
-                              const s = `${range.start.year}-${String(range.start.month).padStart(2, '0')}-${String(range.start.day).padStart(2, '0')}`;
-                              const e = `${range.end.year}-${String(range.end.month).padStart(2, '0')}-${String(range.end.day).padStart(2, '0')}`;
                               startField.onChange(s);
                               endField.onChange(e);
                             } else {
@@ -166,6 +169,7 @@ function DateRangeField<T extends FieldValues>({
                                 range.end.toDate(getLocalTimeZone()),
                               );
                             }
+                            onChangeRange?.(s, e);
                           }}
                           isDisabled={
                             disabled || startField.disabled || endField.disabled
@@ -242,15 +246,17 @@ function DateRangeField<T extends FieldValues>({
                     onChange={(range) => {
                       if (!range || !range.start || !range.end) {
                         field.onChange(range);
+                        onChangeRange?.(null, null);
                         return;
                       }
+                      const s = `${range.start.year}-${String(range.start.month).padStart(2, '0')}-${String(range.start.day).padStart(2, '0')}`;
+                      const e = `${range.end.year}-${String(range.end.month).padStart(2, '0')}-${String(range.end.day).padStart(2, '0')}`;
                       if (valueFormat === 'string') {
-                        const s = `${range.start.year}-${String(range.start.month).padStart(2, '0')}-${String(range.start.day).padStart(2, '0')}`;
-                        const e = `${range.end.year}-${String(range.end.month).padStart(2, '0')}-${String(range.end.day).padStart(2, '0')}`;
                         field.onChange({ start: s, end: e });
                       } else {
                         field.onChange(range);
                       }
+                      onChangeRange?.(s, e);
                     }}
                     isDisabled={field.disabled}
                     isInvalid={fieldState.invalid}

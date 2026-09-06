@@ -6,6 +6,7 @@ import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { DateRangeField } from '@repo/ui/form';
 import { useCompanyAttendanceLogsQueries } from '../../hooks/attendance-queries';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import attendanceLogDataColumns from './attendance-log-data-columns';
 
 interface AttendanceLogDataTableProps {
@@ -38,16 +39,23 @@ export default function AttendanceLogDataTable({
     endDate,
   });
   const membersQuery = useCompanyMembersQueries(companyId);
+  const usersQuery = useUserListQueries();
+
+  const usersMap = useMemo(() => {
+    return new Map((usersQuery.data || []).map((u) => [u.id, u]));
+  }, [usersQuery.data]);
 
   const columns = useMemo(
     () =>
       attendanceLogDataColumns({
         members: membersQuery.data || [],
+        usersMap,
       }),
-    [membersQuery.data],
+    [membersQuery.data, usersMap],
   );
 
-  const isLoading = logsQuery.isLoading || membersQuery.isLoading;
+  const isLoading =
+    logsQuery.isLoading || membersQuery.isLoading || usersQuery.isLoading;
   const data = logsQuery.data || [];
 
   return (

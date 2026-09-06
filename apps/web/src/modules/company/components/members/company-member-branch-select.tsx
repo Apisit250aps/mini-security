@@ -22,15 +22,18 @@ export default function CompanyMemberBranchSelect({
     );
   }, [branches, member.companyBranchId]);
 
-  const handleBranchChange = async (key: React.Key | null) => {
-    if (!key || key === member.companyBranchId) return;
-    await updateMutation.mutateAsync({
-      id: member.id,
-      data: {
-        companyBranchId: key as string,
-      },
-    });
-  };
+  const handleBranchChange = React.useCallback(
+    async (key: React.Key | null) => {
+      if (!key || key === member.companyBranchId) return;
+      await updateMutation.mutateAsync({
+        id: member.id,
+        data: {
+          companyBranchId: key as string,
+        },
+      });
+    },
+    [member.companyBranchId, member.id, updateMutation],
+  );
 
   return (
     <OptionsSelect

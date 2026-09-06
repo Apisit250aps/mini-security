@@ -22,6 +22,7 @@ interface LeaveRequestReviewModalProps {
   request: LeaveRequest;
   companyId: string;
   leaveTypeName?: string;
+  memberName?: string;
   onSuccess: () => void;
 }
 
@@ -29,6 +30,7 @@ export default function LeaveRequestReviewModal({
   request,
   companyId,
   leaveTypeName = 'การลา',
+  memberName,
   onSuccess,
 }: LeaveRequestReviewModalProps) {
   const reviewMutation = useLeaveRequestReview(companyId);
@@ -41,27 +43,36 @@ export default function LeaveRequestReviewModal({
     },
   });
 
-  const onSubmit = (data: ReviewFormValues) => {
-    reviewMutation.mutate(
-      {
-        id: request.id,
-        data: {
-          action: data.action,
-          reviewNote: data.reviewNote || undefined,
+  const onSubmit = React.useCallback(
+    (data: ReviewFormValues) => {
+      reviewMutation.mutate(
+        {
+          id: request.id,
+          data: {
+            action: data.action,
+            reviewNote: data.reviewNote || undefined,
+          },
         },
-      },
-      {
-        onSuccess: () => {
-          onSuccess();
+        {
+          onSuccess: () => {
+            onSuccess();
+          },
         },
-      },
-    );
-  };
+      );
+    },
+    [reviewMutation, request.id, onSuccess],
+  );
 
   return (
     <div className="flex flex-col gap-6">
       {/* Request Details Summary */}
       <div className="rounded-lg border bg-muted/30 p-4 space-y-2 text-sm">
+        {memberName && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">พนักงาน:</span>
+            <span className="font-semibold">{memberName}</span>
+          </div>
+        )}
         <div className="flex justify-between">
           <span className="text-muted-foreground">ประเภทการลา:</span>
           <span className="font-semibold">{leaveTypeName}</span>

@@ -17,16 +17,19 @@ import {
   useLeaveQuotaCreate,
   useLeaveQuotaUpdate,
 } from '../../hooks/leave-mutations';
+import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import QuotaForm, { QuotaFormValues } from './quota-form';
 
 interface MemberQuotasModalProps {
   member: CompanyMember;
   companyId: string;
+  userName?: string;
 }
 
 export default function MemberQuotasModal({
   member,
   companyId,
+  userName,
 }: MemberQuotasModalProps) {
   const ui = useOverlay();
   const currentYear = new Date().getFullYear();
@@ -34,6 +37,17 @@ export default function MemberQuotasModal({
 
   const quotasQuery = useMemberLeaveQuotasQueries(member.id, selectedYear);
   const typesQuery = useCompanyLeaveTypesQueries(companyId);
+  const usersQuery = useUserListQueries();
+
+  const user = useMemo(() => {
+    return (usersQuery.data || []).find((u) => u.id === member.userId);
+  }, [usersQuery.data, member.userId]);
+
+  const memberDisplayName = useMemo(() => {
+    if (userName) return userName;
+    if (user) return `${user.name} (${user.email})`;
+    return member.userId || member.id;
+  }, [userName, user, member.userId, member.id]);
 
   const createMutation = useLeaveQuotaCreate(member.id, selectedYear);
   const updateMutation = useLeaveQuotaUpdate(member.id, selectedYear);
@@ -42,9 +56,9 @@ export default function MemberQuotasModal({
     return new Map((typesQuery.data || []).map((t) => [t.id, t.name]));
   }, [typesQuery.data]);
 
-  const openCreateQuota = () => {
+  const openCreateQuota = React.useCallback(() => {
     ui.dialog.open({
-      title: `กำหนดโควต้าวันลา: ${member.userId || member.id}`,
+      title: `กำหนดโควต้าวันลา: ${memberDisplayName}`,
       description: `กำหนดจำนวนวันลาที่สามารถใช้ได้ในปี ${selectedYear}`,
       children: (
         <QuotaForm
@@ -75,7 +89,14 @@ export default function MemberQuotasModal({
         />
       ),
     });
-  };
+  }, [
+    ui,
+    memberDisplayName,
+    selectedYear,
+    companyId,
+    createMutation,
+    member.id,
+  ]);
 
   const openEditQuota = React.useCallback(
     (quota: LeaveQuota) => {
@@ -182,6 +203,10 @@ export default function MemberQuotasModal({
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center pb-2 border-b">
         <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-foreground">
+            พนักงาน: <span className="font-semibold">{memberDisplayName}</span>
+          </span>
+          <span className="text-xs text-muted-foreground">|</span>
           <span className="text-xs text-muted-foreground">เลือกปี:</span>
           <select
             value={selectedYear}

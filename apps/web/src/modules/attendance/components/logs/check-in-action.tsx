@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Button } from '@repo/ui/components/button';
 import { useOverlay } from '@repo/ui/hooks';
 import { LogIn } from 'lucide-react';
@@ -79,21 +79,24 @@ function CheckInDialogContent({
     }));
   }, [slotsQuery.data]);
 
-  const onSubmit = (values: CheckInFormValues) => {
-    const memberId = currentMember?.id || (membersQuery.data?.[0]?.id ?? '');
-    checkInMutation.mutate(
-      {
-        companyMemberId: memberId,
-        scheduleSlotId: values.scheduleSlotId,
-        note: values.note || undefined,
-      },
-      {
-        onSuccess: () => {
-          onSuccess();
+  const onSubmit = useCallback(
+    (values: CheckInFormValues) => {
+      const memberId = currentMember?.id || (membersQuery.data?.[0]?.id ?? '');
+      checkInMutation.mutate(
+        {
+          companyMemberId: memberId,
+          scheduleSlotId: values.scheduleSlotId,
+          note: values.note || undefined,
         },
-      },
-    );
-  };
+        {
+          onSuccess: () => {
+            onSuccess();
+          },
+        },
+      );
+    },
+    [currentMember?.id, membersQuery.data, checkInMutation, onSuccess],
+  );
 
   return (
     <form
@@ -145,7 +148,7 @@ function CheckInDialogContent({
 export default function CheckInAction({ companyId }: CheckInActionProps) {
   const ui = useOverlay();
 
-  const openDialog = () => {
+  const openDialog = useCallback(() => {
     ui.dialog.open({
       title: 'เช็คชื่อลงเวลาเข้างาน (Check In)',
       description: 'เลือกรอบเวลาและบันทึกเวลาเข้าทำงานประจำวัน',
@@ -156,7 +159,7 @@ export default function CheckInAction({ companyId }: CheckInActionProps) {
         />
       ),
     });
-  };
+  }, [ui.dialog, companyId]);
 
   return (
     <Button onPress={openDialog}>

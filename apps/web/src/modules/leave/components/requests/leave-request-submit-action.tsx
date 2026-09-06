@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from '@repo/ui/components/button';
 import { useOverlay } from '@repo/ui/hooks';
 import { FilePlus2 } from 'lucide-react';
@@ -17,7 +17,30 @@ export default function LeaveRequestSubmitAction({
   const ui = useOverlay();
   const submitMutation = useLeaveRequestSubmit(companyId);
 
-  const openDialog = () => {
+  const handleSubmit = useCallback(
+    (data: LeaveRequestFormValues) => {
+      submitMutation.mutate(
+        {
+          companyMemberId: data.companyMemberId,
+          leaveTypeId: data.leaveTypeId,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          totalDays: data.totalDays,
+          unit: data.unit,
+          reason: data.reason,
+          proofUrl: data.proofUrl || null,
+        },
+        {
+          onSuccess: () => {
+            ui.dialog.close();
+          },
+        },
+      );
+    },
+    [submitMutation, ui.dialog],
+  );
+
+  const openDialog = useCallback(() => {
     ui.dialog.open({
       title: 'ยื่นคำขอลาหยุดงาน',
       description: 'กรอกรายละเอียดการลา ช่วงวันที่ และเหตุผลความจำเป็น',
@@ -26,29 +49,11 @@ export default function LeaveRequestSubmitAction({
         <LeaveRequestForm
           companyId={companyId}
           isLoading={submitMutation.isPending}
-          onSubmit={(data: LeaveRequestFormValues) => {
-            submitMutation.mutate(
-              {
-                companyMemberId: data.companyMemberId,
-                leaveTypeId: data.leaveTypeId,
-                startDate: data.startDate,
-                endDate: data.endDate,
-                totalDays: data.totalDays,
-                unit: data.unit,
-                reason: data.reason,
-                proofUrl: data.proofUrl || null,
-              },
-              {
-                onSuccess: () => {
-                  ui.dialog.close();
-                },
-              },
-            );
-          }}
+          onSubmit={handleSubmit}
         />
       ),
     });
-  };
+  }, [ui.dialog, companyId, submitMutation.isPending, handleSubmit]);
 
   return (
     <Button onPress={openDialog}>

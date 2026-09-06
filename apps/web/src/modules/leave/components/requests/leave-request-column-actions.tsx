@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import type { CellContext } from '@tanstack/react-table';
 import type { LeaveRequest } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
@@ -13,18 +13,20 @@ interface LeaveRequestColumnActionsProps<T extends LeaveRequest> {
   cell: CellContext<T, unknown>;
   companyId: string;
   leaveTypeName?: string;
+  memberName?: string;
 }
 
 export default function LeaveRequestColumnActions<T extends LeaveRequest>({
   cell,
   companyId,
   leaveTypeName,
+  memberName,
 }: LeaveRequestColumnActionsProps<T>) {
   const ui = useOverlay();
   const cancelMutation = useLeaveRequestCancel(companyId);
   const request = cell.row.original;
 
-  const actionReview = () => {
+  const actionReview = useCallback(() => {
     ui.dialog.open({
       title: 'พิจารณาคำขอลาหยุดงาน',
       description: 'ตรวจสอบความถูกต้องและอนุมัติหรือปฏิเสธคำขอนี้',
@@ -34,13 +36,14 @@ export default function LeaveRequestColumnActions<T extends LeaveRequest>({
           request={request}
           companyId={companyId}
           leaveTypeName={leaveTypeName}
+          memberName={memberName}
           onSuccess={() => ui.dialog.close()}
         />
       ),
     });
-  };
+  }, [ui.dialog, request, companyId, leaveTypeName, memberName]);
 
-  const actionCancel = () => {
+  const actionCancel = useCallback(() => {
     ui.alert.open({
       title: 'ยืนยันการยกเลิกคำขอลา',
       description: 'คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำขอลานี้?',
@@ -53,14 +56,20 @@ export default function LeaveRequestColumnActions<T extends LeaveRequest>({
         });
       },
     });
-  };
+  }, [ui.alert, cancelMutation, request.id]);
 
-  const actionViewDetails = () => {
+  const actionViewDetails = useCallback(() => {
     ui.dialog.open({
       title: 'รายละเอียดคำขอลา',
       description: `สถานะ: ${request.status}`,
       children: (
         <div className="space-y-3 text-sm">
+          {memberName && (
+            <div>
+              <span className="text-muted-foreground text-xs">พนักงาน:</span>
+              <p className="mt-0.5 font-medium">{memberName}</p>
+            </div>
+          )}
           <div>
             <span className="text-muted-foreground text-xs">เหตุผลการลา:</span>
             <p className="mt-1 p-2 bg-muted rounded border">{request.reason}</p>
@@ -83,7 +92,7 @@ export default function LeaveRequestColumnActions<T extends LeaveRequest>({
         </div>
       ),
     });
-  };
+  }, [ui.dialog, request, memberName]);
 
   if (request.status === 'pending') {
     return (

@@ -38,15 +38,18 @@ export default function CompanyMemberRoleSelect({
     );
   }, [roles, companyId]);
 
-  const handleRoleChange = async (key: React.Key | null) => {
-    if (!key || key === member.roleId || isOwner) return;
-    await updateMutation.mutateAsync({
-      id: member.id,
-      data: {
-        roleId: key as string,
-      },
-    });
-  };
+  const handleRoleChange = React.useCallback(
+    async (key: React.Key | null) => {
+      if (!key || key === member.roleId || isOwner) return;
+      await updateMutation.mutateAsync({
+        id: member.id,
+        data: {
+          roleId: key as string,
+        },
+      });
+    },
+    [member.roleId, isOwner, updateMutation, member.id],
+  );
 
   // If member is Owner, do not allow changing roles
   if (isOwner && !isSuperAdmin) {

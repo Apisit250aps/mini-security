@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import {
   QuerySelectField,
@@ -14,14 +15,22 @@ export function CompanyMemberSelectField<T extends FieldValues>({
 }: QuerySelectFieldProps<T> & { companyId: string }) {
   const members = useCompanyMembersQueries(companyId);
   const users = useUserListQueries();
-  const usersById = new Map((users.data ?? []).map((user) => [user.id, user]));
-  const options = (members.data ?? []).map((member) => {
-    const user = usersById.get(member.userId);
-    return {
-      value: member.id,
-      label: user ? `${user.name} (${user.email})` : `พนักงาน ID: ${member.id}`,
-    };
-  });
+
+  const options = useMemo(() => {
+    const usersById = new Map(
+      (users.data ?? []).map((user) => [user.id, user]),
+    );
+    return (members.data ?? []).map((member) => {
+      const user = usersById.get(member.userId);
+      return {
+        value: member.id,
+        label: user
+          ? `${user.name} (${user.email})`
+          : `พนักงาน ID: ${member.id}`,
+      };
+    });
+  }, [members.data, users.data]);
+
   return (
     <QuerySelectField
       {...props}

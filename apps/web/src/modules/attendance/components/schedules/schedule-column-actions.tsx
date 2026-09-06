@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import type { CellContext } from '@tanstack/react-table';
 import type { CheckInSchedule } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
@@ -22,16 +22,37 @@ export default function ScheduleColumnActions<T extends CheckInSchedule>({
   const updateMutation = useScheduleUpdate(companyId);
   const schedule = cell.row.original;
 
-  const actionManageSlots = () => {
+  const actionManageSlots = useCallback(() => {
     ui.dialog.open({
       title: `จัดการรอบเวลา - ${schedule.name}`,
       description: 'กำหนดรอบการเข้างาน (Slots) ลำดับ และช่วงเวลาสำหรับตารางนี้',
       size: 'xl',
       children: <ScheduleSlotsModal schedule={schedule} />,
     });
-  };
+  }, [ui.dialog, schedule]);
 
-  const actionEdit = () => {
+  const handleUpdate = useCallback(
+    (data: ScheduleFormValues) => {
+      updateMutation.mutate(
+        {
+          id: schedule.id,
+          data: {
+            name: data.name,
+            roleId: data.roleId,
+            isActive: data.isActive,
+          },
+        },
+        {
+          onSuccess: () => {
+            ui.dialog.close();
+          },
+        },
+      );
+    },
+    [updateMutation, schedule.id, ui.dialog],
+  );
+
+  const actionEdit = useCallback(() => {
     ui.dialog.open({
       title: 'แก้ไขตารางเวลาเข้างาน',
       description: 'ปรับปรุงชื่อบทบาทหรือสถานะการใช้งานตารางเวลา',
@@ -45,27 +66,19 @@ export default function ScheduleColumnActions<T extends CheckInSchedule>({
             roleId: schedule.roleId,
             isActive: schedule.isActive,
           }}
-          onSubmit={(data: ScheduleFormValues) => {
-            updateMutation.mutate(
-              {
-                id: schedule.id,
-                data: {
-                  name: data.name,
-                  roleId: data.roleId,
-                  isActive: data.isActive,
-                },
-              },
-              {
-                onSuccess: () => {
-                  ui.dialog.close();
-                },
-              },
-            );
-          }}
+          onSubmit={handleUpdate}
         />
       ),
     });
-  };
+  }, [
+    ui.dialog,
+    companyId,
+    updateMutation.isPending,
+    schedule.name,
+    schedule.roleId,
+    schedule.isActive,
+    handleUpdate,
+  ]);
 
   return (
     <ColumnActions

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from '@repo/ui/components/button';
 import { useOverlay } from '@repo/ui/hooks';
 import { Plus } from 'lucide-react';
@@ -17,7 +17,26 @@ export default function ScheduleCreateAction({
   const ui = useOverlay();
   const createMutation = useScheduleCreate(companyId);
 
-  const openCreateDialog = () => {
+  const handleSubmit = useCallback(
+    (data: ScheduleFormValues) => {
+      createMutation.mutate(
+        {
+          companyId,
+          name: data.name,
+          roleId: data.roleId,
+          isActive: data.isActive,
+        },
+        {
+          onSuccess: () => {
+            ui.dialog.close();
+          },
+        },
+      );
+    },
+    [createMutation, companyId, ui.dialog],
+  );
+
+  const openCreateDialog = useCallback(() => {
     ui.dialog.open({
       title: 'เพิ่มตารางเวลาเช็คชื่อใหม่',
       description: 'กำหนดบทบาทและเงื่อนไขของตารางเวลาเข้างาน',
@@ -26,25 +45,11 @@ export default function ScheduleCreateAction({
         <ScheduleForm
           companyId={companyId}
           isLoading={createMutation.isPending}
-          onSubmit={(data: ScheduleFormValues) => {
-            createMutation.mutate(
-              {
-                companyId,
-                name: data.name,
-                roleId: data.roleId,
-                isActive: data.isActive,
-              },
-              {
-                onSuccess: () => {
-                  ui.dialog.close();
-                },
-              },
-            );
-          }}
+          onSubmit={handleSubmit}
         />
       ),
     });
-  };
+  }, [ui.dialog, companyId, createMutation.isPending, handleSubmit]);
 
   return (
     <Button onPress={openCreateDialog}>

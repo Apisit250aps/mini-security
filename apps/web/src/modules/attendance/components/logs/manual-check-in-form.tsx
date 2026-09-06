@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { SelectField, TextareaField, DateField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { CompanyMemberSelectField } from '@/modules/company/components/members/company-member-select-field';
 import {
   useCompanySchedulesQueries,
   useScheduleSlotsQueries,
@@ -16,10 +16,10 @@ import type { FormProps } from '@/types';
 
 export const manualCheckInFormSchema = z.object({
   companyMemberId: z.string().uuid('กรุณาเลือกพนักงาน'),
-  scheduleId: z.string().uuid('กรุณาเลือกตารางเวลา'),
   scheduleSlotId: z.string().uuid('กรุณาเลือกรอบเวลา'),
-  workDate: z.string().min(1, 'กรุณาระบุวันที่ทำงาน'),
-  status: z.enum(['present', 'late', 'absent', 'excused']),
+  scheduleId: z.string().uuid('กรุณาเลือกตารางเวลา'),
+  workDate: z.string().min(1, 'กรุณาระบุวันที่'),
+  status: z.enum(['present', 'late', 'absent', 'excused']).default('present'),
   note: z.string().optional(),
 });
 
@@ -29,7 +29,7 @@ const STATUS_OPTIONS = [
   { value: 'present', label: 'มาตรงเวลา (Present)' },
   { value: 'late', label: 'มาสาย (Late)' },
   { value: 'absent', label: 'ขาดงาน (Absent)' },
-  { value: 'excused', label: 'ลาได้รับอนุญาต (Excused)' },
+  { value: 'excused', label: 'ลา/มีเหตุจำเป็น (Excused)' },
 ];
 
 interface ManualCheckInFormProps extends FormProps<ManualCheckInFormValues> {
@@ -42,12 +42,9 @@ export default function ManualCheckInForm({
   defaultValues,
   isLoading,
 }: ManualCheckInFormProps) {
-  const membersQuery = useCompanyMembersQueries(companyId);
   const schedulesQuery = useCompanySchedulesQueries(companyId);
 
-  const todayStr = useMemo(() => {
-    return new Date().toISOString().split('T')[0]!;
-  }, []);
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0]!, []);
 
   const methods = useForm<ManualCheckInFormValues>({
     resolver: zodResolver(manualCheckInFormSchema as never),
@@ -66,13 +63,6 @@ export default function ManualCheckInForm({
     name: 'scheduleId',
   });
   const slotsQuery = useScheduleSlotsQueries(selectedScheduleId);
-
-  const memberOptions = useMemo(() => {
-    return (membersQuery.data || []).map((m) => ({
-      value: m.id,
-      label: m.userId || m.id,
-    }));
-  }, [membersQuery.data]);
 
   const scheduleOptions = useMemo(() => {
     return (schedulesQuery.data || []).map((s) => ({
@@ -94,13 +84,12 @@ export default function ManualCheckInForm({
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <SelectField
+        <CompanyMemberSelectField
+          companyId={companyId}
           name="companyMemberId"
           label="พนักงาน"
           placeholder="เลือกพนักงาน..."
-          options={memberOptions}
           control={methods.control}
-          disabled={membersQuery.isLoading}
           required
         />
 

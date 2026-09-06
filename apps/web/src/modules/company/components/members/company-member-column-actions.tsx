@@ -12,12 +12,14 @@ interface CompanyMemberColumnActionsProps<T extends CompanyMember> {
   cell: CellContext<T, unknown>;
   companyId: string;
   roles?: Role[];
+  userName?: string;
 }
 
 export default function CompanyMemberColumnActions<T extends CompanyMember>({
   cell,
   companyId,
   roles = [],
+  userName,
 }: CompanyMemberColumnActionsProps<T>) {
   const ui = useOverlay();
   const removeMutation = useCompanyMemberRemove(companyId);
@@ -33,7 +35,7 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
     [removeMutation],
   );
 
-  const actionDelete = () => {
+  const actionDelete = useCallback(() => {
     ui.alert.open({
       title: 'ยืนยันการลบสมาชิก',
       description: 'คุณแน่ใจหรือไม่ว่าต้องการลบสมาชิกนี้ออกจากบริษัท?',
@@ -43,16 +45,31 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
         ui.hideAll();
       },
     });
-  };
+  }, [ui, handleRemove, member.id]);
 
-  const actionEdit = () => {
+  const actionEdit = useCallback(() => {
     ui.dialog.open({
       title: 'แก้ไขสมาชิกและบทบาท',
       description: 'ปรับเปลี่ยนบทบาทและสถานะการทำงานของสมาชิกในบริษัท',
       size: 'lg',
       children: <CompanyMemberEditForm companyId={companyId} member={member} />,
     });
-  };
+  }, [ui.dialog, companyId, member]);
+
+  const actionManageQuotas = useCallback(() => {
+    ui.dialog.open({
+      title: 'จัดการโควต้าวันลาพนักงาน',
+      description: `โควต้าและสถิติการใช้วันลาของ ${userName || 'สมาชิก'}`,
+      size: 'xl',
+      children: (
+        <MemberQuotasModal
+          member={member}
+          companyId={companyId}
+          userName={userName}
+        />
+      ),
+    });
+  }, [ui.dialog, userName, member, companyId]);
 
   // If member is the Owner and the current user is not a Super Admin, they cannot be modified or deleted
   if (isOwner && !isSuperAdmin) {
@@ -62,15 +79,6 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
       </span>
     );
   }
-
-  const actionManageQuotas = () => {
-    ui.dialog.open({
-      title: 'จัดการโควต้าวันลาพนักงาน',
-      description: `โควต้าและสถิติการใช้วันลาของสมาชิก`,
-      size: 'xl',
-      children: <MemberQuotasModal member={member} companyId={companyId} />,
-    });
-  };
 
   return (
     <ColumnActions

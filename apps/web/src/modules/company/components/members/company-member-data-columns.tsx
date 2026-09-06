@@ -83,13 +83,18 @@ export const companyMemberListColumns = ({
     {
       id: 'actions',
       header: 'จัดการ',
-      cell: (cell) => (
-        <CompanyMemberColumnActions
-          cell={cell}
-          companyId={companyId}
-          roles={roles}
-        />
-      ),
+      cell: (cell) => {
+        const user = usersMap.get(cell.row.original.userId);
+        const userName = user ? `${user.name} (${user.email})` : undefined;
+        return (
+          <CompanyMemberColumnActions
+            cell={cell}
+            companyId={companyId}
+            roles={roles}
+            userName={userName}
+          />
+        );
+      },
     },
   ];
 };

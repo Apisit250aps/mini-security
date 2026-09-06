@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo, useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import React, { useMemo, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
+import { CompanyMemberSelectField } from '@/modules/company/components/members/company-member-select-field';
 import { useCompanyLeaveTypesQueries } from '../../hooks/leave-queries';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useSession } from '@/modules/auth/hooks/session-provider';
@@ -72,32 +73,24 @@ export default function LeaveRequestForm({
     },
   });
 
-  const startDate = useWatch({ control: methods.control, name: 'startDate' });
-  const endDate = useWatch({ control: methods.control, name: 'endDate' });
-  const unit = useWatch({ control: methods.control, name: 'unit' });
-
-  useEffect(() => {
-    if (unit === 'day' && startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      if (
-        !Number.isNaN(start.getTime()) &&
-        !Number.isNaN(end.getTime()) &&
-        end >= start
-      ) {
-        const diffTime = Math.abs(end.getTime() - start.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        methods.setValue('totalDays', diffDays);
+  const handleRangeChange = useCallback(
+    (start: string | null, end: string | null) => {
+      if (start && end && methods.getValues('unit') === 'day') {
+        const s = new Date(start);
+        const e = new Date(end);
+        if (
+          !Number.isNaN(s.getTime()) &&
+          !Number.isNaN(e.getTime()) &&
+          e >= s
+        ) {
+          const diffTime = Math.abs(e.getTime() - s.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+          methods.setValue('totalDays', diffDays);
+        }
       }
-    }
-  }, [startDate, endDate, unit, methods]);
-
-  const memberOptions = useMemo(() => {
-    return (membersQuery.data || []).map((m) => ({
-      value: m.id,
-      label: m.userId || m.id,
-    }));
-  }, [membersQuery.data]);
+    },
+    [methods],
+  );
 
   const typeOptions = useMemo(() => {
     return (typesQuery.data || []).map((t) => ({
@@ -106,19 +99,25 @@ export default function LeaveRequestForm({
     }));
   }, [typesQuery.data]);
 
+  const handleFormSubmit = useCallback(
+    (values: LeaveRequestFormValues) => {
+      onSubmit(values);
+    },
+    [onSubmit],
+  );
+
   return (
     <form
-      onSubmit={methods.handleSubmit(onSubmit)}
+      onSubmit={methods.handleSubmit(handleFormSubmit)}
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <SelectField
+        <CompanyMemberSelectField
+          companyId={companyId}
           name="companyMemberId"
           label="พนักงานผู้ยื่นคำขอ"
           placeholder="เลือกพนักงาน..."
-          options={memberOptions}
           control={methods.control}
-          disabled={membersQuery.isLoading}
           required
         />
 
@@ -138,6 +137,7 @@ export default function LeaveRequestForm({
           endName="endDate"
           label="ช่วงวันที่ลา (Leave Period)"
           placeholder="เลือกวันเริ่มต้น - สิ้นสุดการลา..."
+          onChangeRange={handleRangeChange}
           required
         />
 

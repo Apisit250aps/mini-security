@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import CompanyMemberAddForm from './company-member-add-form';
 import { useOverlay } from '@repo/ui/hooks';
 import { Button } from '@repo/ui/components/button';
@@ -12,14 +12,14 @@ export default function CompanyMemberAddAction({
   companyId: string;
 }) {
   const ui = useOverlay();
-  const handleAddMember = () => {
+  const handleAddMember = useCallback(() => {
     ui.dialog.open({
       title: 'เพิ่มสมาชิก / มอบหมายสิทธิ์',
       description: 'เลือกผู้ใช้งานและมอบหมายบทบาทการทำงานในบริษัทนี้',
       size: 'lg',
       children: <CompanyMemberAddForm companyId={companyId} />,
     });
-  };
+  }, [ui.dialog, companyId]);
 
   return (
     <Button onPress={handleAddMember}>
