@@ -1,11 +1,7 @@
 import React from 'react';
 import {
   Building2Icon,
-  CalendarCheckIcon,
-  CalendarDaysIcon,
-  CalendarRangeIcon,
   LayoutDashboardIcon,
-  MapPinIcon,
   ShieldCheckIcon,
   UsersIcon,
 } from 'lucide-react';
@@ -28,28 +24,6 @@ export const companySidebarConfig: NavItem[] = [
       id: 'companyRole',
       icon: <ShieldCheckIcon />,
       featureCode: 'ROLE_PERMISSION_MANAGEMENT',
-    },
-  ]),
-  sidebarGroupBuilder('attendance-management', 'ระบบลงเวลาและกะงาน', [
-    {
-      id: 'companyAttendance',
-      icon: <CalendarCheckIcon />,
-      featureCode: 'ATTENDANCE_MANAGEMENT',
-    },
-    {
-      id: 'companyAttendanceSchedules',
-      icon: <CalendarRangeIcon />,
-      featureCode: 'ATTENDANCE_MANAGEMENT',
-    },
-    {
-      id: 'companyAttendancePolicies',
-      icon: <MapPinIcon />,
-      featureCode: 'ATTENDANCE_MANAGEMENT',
-    },
-    {
-      id: 'companyAttendanceLeave',
-      icon: <CalendarDaysIcon />,
-      featureCode: 'LEAVE_MANAGEMENT',
     },
   ]),
   sidebarGroupBuilder('settings', 'ตั้งค่าองค์กร', [

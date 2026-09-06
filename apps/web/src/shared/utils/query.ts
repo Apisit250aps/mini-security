@@ -55,45 +55,6 @@ export const sessionKeys = {
     ['SESSION', 'PERMISSIONS', companyId || 'GLOBAL'] as const,
 };
 
-export const attendanceKeys = {
-  schedules: (companyId: string) =>
-    ['ATTENDANCE', 'SCHEDULES', companyId] as const,
-  scheduleDetail: (id: string) => ['ATTENDANCE', 'SCHEDULE', id] as const,
-  companyShifts: (companyId: string) =>
-    ['ATTENDANCE', 'COMPANY_SHIFTS', companyId] as const,
-  shifts: (scheduleId: string) => ['ATTENDANCE', 'SHIFTS', scheduleId] as const,
-  shiftDetail: (id: string) => ['ATTENDANCE', 'SHIFT', id] as const,
-  policies: (companyId: string) =>
-    ['ATTENDANCE', 'POLICIES', companyId] as const,
-  policyDetail: (id: string) => ['ATTENDANCE', 'POLICY', id] as const,
-  checkpoints: (policyId: string) =>
-    ['ATTENDANCE', 'CHECKPOINTS', policyId] as const,
-  checkpointDetail: (id: string) => ['ATTENDANCE', 'CHECKPOINT', id] as const,
-  rolePolicies: (roleId: string) =>
-    ['ATTENDANCE', 'ROLE_POLICIES', roleId] as const,
-  locations: (companyId: string) =>
-    ['ATTENDANCE', 'LOCATIONS', companyId] as const,
-  locationDetail: (id: string) => ['ATTENDANCE', 'LOCATION', id] as const,
-  checkpointLocations: (checkpointId: string) =>
-    ['ATTENDANCE', 'CHECKPOINT_LOCATIONS', checkpointId] as const,
-  roleSchedules: (companyId: string) =>
-    ['ATTENDANCE', 'ROLE_SCHEDULES', companyId] as const,
-  currentRoleSchedule: (roleId: string) =>
-    ['ATTENDANCE', 'ROLE_SCHEDULES', roleId, 'CURRENT'] as const,
-  records: (companyId: string, filters?: Record<string, unknown>) =>
-    filters
-      ? (['ATTENDANCE', 'RECORDS', companyId, filters] as const)
-      : (['ATTENDANCE', 'RECORDS', companyId] as const),
-  recordDetail: (id: string) => ['ATTENDANCE', 'RECORD', id] as const,
-  recordLogs: (recordId: string) =>
-    ['ATTENDANCE', 'RECORD_LOGS', recordId] as const,
-  leaveRequests: (companyId: string, filters?: Record<string, unknown>) =>
-    filters
-      ? (['ATTENDANCE', 'LEAVE_REQUESTS', companyId, filters] as const)
-      : (['ATTENDANCE', 'LEAVE_REQUESTS', companyId] as const),
-  leaveDetail: (id: string) => ['ATTENDANCE', 'LEAVE_REQUEST', id] as const,
-};
-
 export const featureKeys = {
   ...createQueryKeys('FEATURE'),
   company: (companyId: string) => ['FEATURE', 'COMPANY', companyId] as const,
