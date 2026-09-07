@@ -9,20 +9,18 @@ import LeaveRequestSubmitAction from '../components/requests/leave-request-submi
 export default function CompanyLeaveRequestView() {
   const { activeCompanyId, isLoading } = useActiveCompany();
 
-  if (isLoading || !activeCompanyId) {
-    return (
-      <PageLayout pageId="companyLeaveRequest">
-        <div className="p-8 text-center text-muted-foreground">
-          กำลังโหลดข้อมูลองค์กร...
-        </div>
-      </PageLayout>
-    );
-  }
+  const isPageLoading = isLoading || !activeCompanyId;
 
   return (
     <PageLayout
       pageId="companyLeaveRequest"
-      actions={<LeaveRequestSubmitAction companyId={activeCompanyId} />}
+      isLoading={isPageLoading}
+      loadingText="กำลังโหลดข้อมูลองค์กร..."
+      actions={
+        !isPageLoading ? (
+          <LeaveRequestSubmitAction companyId={activeCompanyId} />
+        ) : null
+      }
     >
       <LeaveRequestDataTable companyId={activeCompanyId} />
     </PageLayout>

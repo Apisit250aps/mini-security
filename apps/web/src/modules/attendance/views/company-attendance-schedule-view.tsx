@@ -9,20 +9,18 @@ import ScheduleCreateAction from '../components/schedules/schedule-create-action
 export default function CompanyAttendanceScheduleView() {
   const { activeCompanyId, isLoading } = useActiveCompany();
 
-  if (isLoading || !activeCompanyId) {
-    return (
-      <PageLayout pageId="companyAttendanceSchedule">
-        <div className="p-8 text-center text-muted-foreground">
-          กำลังโหลดข้อมูลองค์กร...
-        </div>
-      </PageLayout>
-    );
-  }
+  const isPageLoading = isLoading || !activeCompanyId;
 
   return (
     <PageLayout
       pageId="companyAttendanceSchedule"
-      actions={<ScheduleCreateAction companyId={activeCompanyId} />}
+      isLoading={isPageLoading}
+      loadingText="กำลังโหลดข้อมูลองค์กร..."
+      actions={
+        !isPageLoading ? (
+          <ScheduleCreateAction companyId={activeCompanyId} />
+        ) : null
+      }
     >
       <ScheduleDataTable companyId={activeCompanyId} />
     </PageLayout>

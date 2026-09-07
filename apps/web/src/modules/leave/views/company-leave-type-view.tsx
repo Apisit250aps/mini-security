@@ -9,20 +9,18 @@ import LeaveTypeCreateAction from '../components/types/leave-type-create-action'
 export default function CompanyLeaveTypeView() {
   const { activeCompanyId, isLoading } = useActiveCompany();
 
-  if (isLoading || !activeCompanyId) {
-    return (
-      <PageLayout pageId="companyLeaveType">
-        <div className="p-8 text-center text-muted-foreground">
-          กำลังโหลดข้อมูลองค์กร...
-        </div>
-      </PageLayout>
-    );
-  }
+  const isPageLoading = isLoading || !activeCompanyId;
 
   return (
     <PageLayout
       pageId="companyLeaveType"
-      actions={<LeaveTypeCreateAction companyId={activeCompanyId} />}
+      isLoading={isPageLoading}
+      loadingText="กำลังโหลดข้อมูลองค์กร..."
+      actions={
+        !isPageLoading ? (
+          <LeaveTypeCreateAction companyId={activeCompanyId} />
+        ) : null
+      }
     >
       <LeaveTypeDataTable companyId={activeCompanyId} />
     </PageLayout>

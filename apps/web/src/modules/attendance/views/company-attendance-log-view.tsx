@@ -10,24 +10,20 @@ import ManualCheckInAction from '../components/logs/manual-check-in-action';
 export default function CompanyAttendanceLogView() {
   const { activeCompanyId, isLoading } = useActiveCompany();
 
-  if (isLoading || !activeCompanyId) {
-    return (
-      <PageLayout pageId="companyAttendanceLog">
-        <div className="p-8 text-center text-muted-foreground">
-          กำลังโหลดข้อมูลองค์กร...
-        </div>
-      </PageLayout>
-    );
-  }
+  const isPageLoading = isLoading || !activeCompanyId;
 
   return (
     <PageLayout
       pageId="companyAttendanceLog"
+      isLoading={isPageLoading}
+      loadingText="กำลังโหลดข้อมูลองค์กร..."
       actions={
-        <div className="flex items-center gap-2">
-          <CheckInAction companyId={activeCompanyId} />
-          <ManualCheckInAction companyId={activeCompanyId} />
-        </div>
+        !isPageLoading ? (
+          <div className="flex items-center gap-2">
+            <CheckInAction companyId={activeCompanyId} />
+            <ManualCheckInAction companyId={activeCompanyId} />
+          </div>
+        ) : null
       }
     >
       <AttendanceLogDataTable companyId={activeCompanyId} />
