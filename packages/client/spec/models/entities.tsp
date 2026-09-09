@@ -34,6 +34,34 @@ namespace Domain.Entity;
     hour: "hour",
   }
 
+  enum FormVersionStatus {
+    DRAFT: "DRAFT",
+    PUBLISHED: "PUBLISHED",
+    ARCHIVED: "ARCHIVED",
+  }
+
+  enum FormFieldType {
+    TEXT: "TEXT",
+    NUMBER: "NUMBER",
+    SELECT: "SELECT",
+    BOOLEAN: "BOOLEAN",
+    DATE: "DATE",
+    IMAGE: "IMAGE",
+    FILE: "FILE",
+  }
+
+  enum FormSubmissionStatus {
+    DRAFT: "DRAFT",
+    SUBMITTED: "SUBMITTED",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+  }
+
+  enum SubmissionReviewAction {
+    APPROVE: "APPROVE",
+    REJECT: "REJECT",
+  }
+
   model CheckInSchedule {
     ...BaseEntity;
 
@@ -167,6 +195,121 @@ namespace Domain.Entity;
     roleId: string;
     featureId: string;
     isEnabled: boolean;
+  }
+
+  model FormTemplate {
+    ...BaseEntity;
+
+    companyId: string;
+    name: string;
+    description?: string | null;
+    isActive: boolean;
+    createdBy: string;
+  }
+
+  model FormTemplateRole {
+    ...BaseEntity;
+
+    companyId: string;
+    formTemplateId: string;
+    roleId: string;
+    isEnabled: boolean;
+  }
+
+  model FormVersion {
+    ...BaseEntity;
+
+    companyId: string;
+    formTemplateId: string;
+    version: int32;
+    status: FormVersionStatus;
+    title: string;
+    description?: string | null;
+    createdBy: string;
+    publishedBy?: string | null;
+    publishedAt?: utcDateTime | null;
+  }
+
+  model FormSection {
+    ...BaseEntity;
+
+    companyId: string;
+    formVersionId: string;
+    title: string;
+    description?: string | null;
+    sortOrder: int32;
+  }
+
+  model FormField {
+    ...BaseEntity;
+
+    companyId: string;
+    formVersionId: string;
+    formSectionId: string;
+    type: FormFieldType;
+    label: string;
+    description?: string | null;
+    isRequired: boolean;
+    sortOrder: int32;
+    config: Record<unknown>;
+  }
+
+  model FormSubmission {
+    ...BaseEntity;
+
+    companyId: string;
+    formTemplateId: string;
+    formVersionId: string;
+    roleId: string;
+    startedBy: string;
+    submittedBy?: string | null;
+    revision: int32;
+    supersedesSubmissionId?: string | null;
+    status: FormSubmissionStatus;
+    startedAt: utcDateTime;
+    submittedAt?: utcDateTime | null;
+  }
+
+  model FormSubmissionContributor {
+    ...BaseEntity;
+
+    companyId: string;
+    submissionId: string;
+    memberId: string;
+  }
+
+  model FormAnswer {
+    ...BaseEntity;
+
+    companyId: string;
+    formVersionId: string;
+    submissionId: string;
+    fieldId: string;
+    value?: unknown;
+    updatedBy: string;
+  }
+
+  model FormAnswerAttachment {
+    ...BaseEntity;
+
+    companyId: string;
+    answerId: string;
+    storageKey: string;
+    originalName: string;
+    mimeType: string;
+    sizeBytes: int32;
+    sortOrder: int32;
+    uploadedBy: string;
+  }
+
+  model SubmissionReview {
+    ...BaseEntity;
+
+    companyId: string;
+    submissionId: string;
+    reviewedBy: string;
+    action: SubmissionReviewAction;
+    note?: string | null;
   }
 
   model LeaveType {

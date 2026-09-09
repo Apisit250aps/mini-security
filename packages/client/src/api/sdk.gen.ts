@@ -141,6 +141,51 @@ import type {
   FeatureServicesUpdateFeatureData,
   FeatureServicesUpdateFeatureErrors,
   FeatureServicesUpdateFeatureResponses,
+  FormServicesAssignRolesData,
+  FormServicesAssignRolesErrors,
+  FormServicesAssignRolesResponses,
+  FormServicesCloneData,
+  FormServicesCloneErrors,
+  FormServicesCloneResponses,
+  FormServicesCreateFieldData,
+  FormServicesCreateFieldErrors,
+  FormServicesCreateFieldResponses,
+  FormServicesCreateSectionData,
+  FormServicesCreateSectionErrors,
+  FormServicesCreateSectionResponses,
+  FormServicesCreateTemplateData,
+  FormServicesCreateTemplateErrors,
+  FormServicesCreateTemplateResponses,
+  FormServicesGetSubmissionData,
+  FormServicesGetSubmissionErrors,
+  FormServicesGetSubmissionResponses,
+  FormServicesGetTemplateData,
+  FormServicesGetTemplateErrors,
+  FormServicesGetTemplateResponses,
+  FormServicesListSubmissionsData,
+  FormServicesListSubmissionsErrors,
+  FormServicesListSubmissionsResponses,
+  FormServicesListTemplatesByCompanyData,
+  FormServicesListTemplatesByCompanyErrors,
+  FormServicesListTemplatesByCompanyResponses,
+  FormServicesPublishVersionData,
+  FormServicesPublishVersionErrors,
+  FormServicesPublishVersionResponses,
+  FormServicesReviewData,
+  FormServicesReviewErrors,
+  FormServicesReviewResponses,
+  FormServicesSaveDraftData,
+  FormServicesSaveDraftErrors,
+  FormServicesSaveDraftResponses,
+  FormServicesStartSubmissionData,
+  FormServicesStartSubmissionErrors,
+  FormServicesStartSubmissionResponses,
+  FormServicesSubmitData,
+  FormServicesSubmitErrors,
+  FormServicesSubmitResponses,
+  FormServicesUpdateTemplateData,
+  FormServicesUpdateTemplateErrors,
+  FormServicesUpdateTemplateResponses,
   LeaveServicesCancelRequestData,
   LeaveServicesCancelRequestErrors,
   LeaveServicesCancelRequestResponses,
@@ -1285,6 +1330,362 @@ export const featureServicesToggleFeature = <
   >({
     responseType: 'json',
     url: '/features/{id}/toggle',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * List company form templates
+ */
+export const formServicesListTemplatesByCompany = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<FormServicesListTemplatesByCompanyData, ThrowOnError>,
+): RequestResult<
+  FormServicesListTemplatesByCompanyResponses,
+  FormServicesListTemplatesByCompanyErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    FormServicesListTemplatesByCompanyResponses,
+    FormServicesListTemplatesByCompanyErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/companies/{companyId}/templates',
+    ...options,
+  });
+
+/**
+ * List form submissions
+ */
+export const formServicesListSubmissions = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<FormServicesListSubmissionsData, ThrowOnError>,
+): RequestResult<
+  FormServicesListSubmissionsResponses,
+  FormServicesListSubmissionsErrors,
+  ThrowOnError
+> =>
+  (options?.client ?? client).get<
+    FormServicesListSubmissionsResponses,
+    FormServicesListSubmissionsErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/submissions',
+    ...options,
+  });
+
+/**
+ * Start new form submission (shared draft)
+ */
+export const formServicesStartSubmission = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<FormServicesStartSubmissionData, ThrowOnError>,
+): RequestResult<
+  FormServicesStartSubmissionResponses,
+  FormServicesStartSubmissionErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesStartSubmissionResponses,
+    FormServicesStartSubmissionErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/submissions',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get form submission detail
+ */
+export const formServicesGetSubmission = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesGetSubmissionData, ThrowOnError>,
+): RequestResult<
+  FormServicesGetSubmissionResponses,
+  FormServicesGetSubmissionErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    FormServicesGetSubmissionResponses,
+    FormServicesGetSubmissionErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/submissions/{id}',
+    ...options,
+  });
+
+/**
+ * Clone rejected submission into new rework draft
+ */
+export const formServicesClone = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesCloneData, ThrowOnError>,
+): RequestResult<
+  FormServicesCloneResponses,
+  FormServicesCloneErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesCloneResponses,
+    FormServicesCloneErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/submissions/{id}/clone',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Save form submission draft answers (optimistic lock)
+ */
+export const formServicesSaveDraft = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesSaveDraftData, ThrowOnError>,
+): RequestResult<
+  FormServicesSaveDraftResponses,
+  FormServicesSaveDraftErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    FormServicesSaveDraftResponses,
+    FormServicesSaveDraftErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/submissions/{id}/draft',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Review form submission (approve or reject as owner)
+ */
+export const formServicesReview = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesReviewData, ThrowOnError>,
+): RequestResult<
+  FormServicesReviewResponses,
+  FormServicesReviewErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesReviewResponses,
+    FormServicesReviewErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/submissions/{id}/review',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Submit completed form submission
+ */
+export const formServicesSubmit = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesSubmitData, ThrowOnError>,
+): RequestResult<
+  FormServicesSubmitResponses,
+  FormServicesSubmitErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesSubmitResponses,
+    FormServicesSubmitErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/submissions/{id}/submit',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create form template
+ */
+export const formServicesCreateTemplate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<FormServicesCreateTemplateData, ThrowOnError>,
+): RequestResult<
+  FormServicesCreateTemplateResponses,
+  FormServicesCreateTemplateErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesCreateTemplateResponses,
+    FormServicesCreateTemplateErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/templates',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get form template detail
+ */
+export const formServicesGetTemplate = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesGetTemplateData, ThrowOnError>,
+): RequestResult<
+  FormServicesGetTemplateResponses,
+  FormServicesGetTemplateErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    FormServicesGetTemplateResponses,
+    FormServicesGetTemplateErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/templates/{id}',
+    ...options,
+  });
+
+/**
+ * Update form template
+ */
+export const formServicesUpdateTemplate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<FormServicesUpdateTemplateData, ThrowOnError>,
+): RequestResult<
+  FormServicesUpdateTemplateResponses,
+  FormServicesUpdateTemplateErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).put<
+    FormServicesUpdateTemplateResponses,
+    FormServicesUpdateTemplateErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/templates/{id}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create form field
+ */
+export const formServicesCreateField = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesCreateFieldData, ThrowOnError>,
+): RequestResult<
+  FormServicesCreateFieldResponses,
+  FormServicesCreateFieldErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesCreateFieldResponses,
+    FormServicesCreateFieldErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/templates/{id}/fields',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Publish form version
+ */
+export const formServicesPublishVersion = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<FormServicesPublishVersionData, ThrowOnError>,
+): RequestResult<
+  FormServicesPublishVersionResponses,
+  FormServicesPublishVersionErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesPublishVersionResponses,
+    FormServicesPublishVersionErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/templates/{id}/publish',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Assign roles to form template
+ */
+export const formServicesAssignRoles = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesAssignRolesData, ThrowOnError>,
+): RequestResult<
+  FormServicesAssignRolesResponses,
+  FormServicesAssignRolesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesAssignRolesResponses,
+    FormServicesAssignRolesErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/templates/{id}/roles',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create form section
+ */
+export const formServicesCreateSection = <ThrowOnError extends boolean = false>(
+  options: Options<FormServicesCreateSectionData, ThrowOnError>,
+): RequestResult<
+  FormServicesCreateSectionResponses,
+  FormServicesCreateSectionErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    FormServicesCreateSectionResponses,
+    FormServicesCreateSectionErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/forms/templates/{id}/sections',
     ...options,
     headers: {
       'Content-Type': 'application/json',

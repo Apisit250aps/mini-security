@@ -49,6 +49,21 @@ import {
   featureServicesToggleFeature,
   featureServicesToggleRoleFeature,
   featureServicesUpdateFeature,
+  formServicesAssignRoles,
+  formServicesClone,
+  formServicesCreateField,
+  formServicesCreateSection,
+  formServicesCreateTemplate,
+  formServicesGetSubmission,
+  formServicesGetTemplate,
+  formServicesListSubmissions,
+  formServicesListTemplatesByCompany,
+  formServicesPublishVersion,
+  formServicesReview,
+  formServicesSaveDraft,
+  formServicesStartSubmission,
+  formServicesSubmit,
+  formServicesUpdateTemplate,
   leaveServicesCancelRequest,
   leaveServicesCreateQuota,
   leaveServicesCreateType,
@@ -214,6 +229,51 @@ import type {
   FeatureServicesUpdateFeatureData,
   FeatureServicesUpdateFeatureError,
   FeatureServicesUpdateFeatureResponse,
+  FormServicesAssignRolesData,
+  FormServicesAssignRolesError,
+  FormServicesAssignRolesResponse,
+  FormServicesCloneData,
+  FormServicesCloneError,
+  FormServicesCloneResponse,
+  FormServicesCreateFieldData,
+  FormServicesCreateFieldError,
+  FormServicesCreateFieldResponse,
+  FormServicesCreateSectionData,
+  FormServicesCreateSectionError,
+  FormServicesCreateSectionResponse,
+  FormServicesCreateTemplateData,
+  FormServicesCreateTemplateError,
+  FormServicesCreateTemplateResponse,
+  FormServicesGetSubmissionData,
+  FormServicesGetSubmissionError,
+  FormServicesGetSubmissionResponse,
+  FormServicesGetTemplateData,
+  FormServicesGetTemplateError,
+  FormServicesGetTemplateResponse,
+  FormServicesListSubmissionsData,
+  FormServicesListSubmissionsError,
+  FormServicesListSubmissionsResponse,
+  FormServicesListTemplatesByCompanyData,
+  FormServicesListTemplatesByCompanyError,
+  FormServicesListTemplatesByCompanyResponse,
+  FormServicesPublishVersionData,
+  FormServicesPublishVersionError,
+  FormServicesPublishVersionResponse,
+  FormServicesReviewData,
+  FormServicesReviewError,
+  FormServicesReviewResponse,
+  FormServicesSaveDraftData,
+  FormServicesSaveDraftError,
+  FormServicesSaveDraftResponse,
+  FormServicesStartSubmissionData,
+  FormServicesStartSubmissionError,
+  FormServicesStartSubmissionResponse,
+  FormServicesSubmitData,
+  FormServicesSubmitError,
+  FormServicesSubmitResponse,
+  FormServicesUpdateTemplateData,
+  FormServicesUpdateTemplateError,
+  FormServicesUpdateTemplateResponse,
   LeaveServicesCancelRequestData,
   LeaveServicesCancelRequestError,
   LeaveServicesCancelRequestResponse,
@@ -1542,6 +1602,415 @@ export const featureServicesToggleFeatureMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await featureServicesToggleFeature({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const formServicesListTemplatesByCompanyQueryKey = (
+  options: Options<FormServicesListTemplatesByCompanyData>,
+) => createQueryKey('formServicesListTemplatesByCompany', options);
+
+/**
+ * List company form templates
+ */
+export const formServicesListTemplatesByCompanyOptions = (
+  options: Options<FormServicesListTemplatesByCompanyData>,
+) =>
+  queryOptions<
+    FormServicesListTemplatesByCompanyResponse,
+    AxiosError<FormServicesListTemplatesByCompanyError>,
+    FormServicesListTemplatesByCompanyResponse,
+    ReturnType<typeof formServicesListTemplatesByCompanyQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await formServicesListTemplatesByCompany({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: formServicesListTemplatesByCompanyQueryKey(options),
+  });
+
+export const formServicesListSubmissionsQueryKey = (
+  options?: Options<FormServicesListSubmissionsData>,
+) => createQueryKey('formServicesListSubmissions', options);
+
+/**
+ * List form submissions
+ */
+export const formServicesListSubmissionsOptions = (
+  options?: Options<FormServicesListSubmissionsData>,
+) =>
+  queryOptions<
+    FormServicesListSubmissionsResponse,
+    AxiosError<FormServicesListSubmissionsError>,
+    FormServicesListSubmissionsResponse,
+    ReturnType<typeof formServicesListSubmissionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await formServicesListSubmissions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: formServicesListSubmissionsQueryKey(options),
+  });
+
+/**
+ * Start new form submission (shared draft)
+ */
+export const formServicesStartSubmissionMutation = (
+  options?: Partial<Options<FormServicesStartSubmissionData>>,
+): UseMutationOptions<
+  FormServicesStartSubmissionResponse,
+  AxiosError<FormServicesStartSubmissionError>,
+  Options<FormServicesStartSubmissionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesStartSubmissionResponse,
+    AxiosError<FormServicesStartSubmissionError>,
+    Options<FormServicesStartSubmissionData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesStartSubmission({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const formServicesGetSubmissionQueryKey = (
+  options: Options<FormServicesGetSubmissionData>,
+) => createQueryKey('formServicesGetSubmission', options);
+
+/**
+ * Get form submission detail
+ */
+export const formServicesGetSubmissionOptions = (
+  options: Options<FormServicesGetSubmissionData>,
+) =>
+  queryOptions<
+    FormServicesGetSubmissionResponse,
+    AxiosError<FormServicesGetSubmissionError>,
+    FormServicesGetSubmissionResponse,
+    ReturnType<typeof formServicesGetSubmissionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await formServicesGetSubmission({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: formServicesGetSubmissionQueryKey(options),
+  });
+
+/**
+ * Clone rejected submission into new rework draft
+ */
+export const formServicesCloneMutation = (
+  options?: Partial<Options<FormServicesCloneData>>,
+): UseMutationOptions<
+  FormServicesCloneResponse,
+  AxiosError<FormServicesCloneError>,
+  Options<FormServicesCloneData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesCloneResponse,
+    AxiosError<FormServicesCloneError>,
+    Options<FormServicesCloneData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesClone({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Save form submission draft answers (optimistic lock)
+ */
+export const formServicesSaveDraftMutation = (
+  options?: Partial<Options<FormServicesSaveDraftData>>,
+): UseMutationOptions<
+  FormServicesSaveDraftResponse,
+  AxiosError<FormServicesSaveDraftError>,
+  Options<FormServicesSaveDraftData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesSaveDraftResponse,
+    AxiosError<FormServicesSaveDraftError>,
+    Options<FormServicesSaveDraftData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesSaveDraft({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Review form submission (approve or reject as owner)
+ */
+export const formServicesReviewMutation = (
+  options?: Partial<Options<FormServicesReviewData>>,
+): UseMutationOptions<
+  FormServicesReviewResponse,
+  AxiosError<FormServicesReviewError>,
+  Options<FormServicesReviewData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesReviewResponse,
+    AxiosError<FormServicesReviewError>,
+    Options<FormServicesReviewData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesReview({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Submit completed form submission
+ */
+export const formServicesSubmitMutation = (
+  options?: Partial<Options<FormServicesSubmitData>>,
+): UseMutationOptions<
+  FormServicesSubmitResponse,
+  AxiosError<FormServicesSubmitError>,
+  Options<FormServicesSubmitData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesSubmitResponse,
+    AxiosError<FormServicesSubmitError>,
+    Options<FormServicesSubmitData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesSubmit({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Create form template
+ */
+export const formServicesCreateTemplateMutation = (
+  options?: Partial<Options<FormServicesCreateTemplateData>>,
+): UseMutationOptions<
+  FormServicesCreateTemplateResponse,
+  AxiosError<FormServicesCreateTemplateError>,
+  Options<FormServicesCreateTemplateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesCreateTemplateResponse,
+    AxiosError<FormServicesCreateTemplateError>,
+    Options<FormServicesCreateTemplateData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesCreateTemplate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const formServicesGetTemplateQueryKey = (
+  options: Options<FormServicesGetTemplateData>,
+) => createQueryKey('formServicesGetTemplate', options);
+
+/**
+ * Get form template detail
+ */
+export const formServicesGetTemplateOptions = (
+  options: Options<FormServicesGetTemplateData>,
+) =>
+  queryOptions<
+    FormServicesGetTemplateResponse,
+    AxiosError<FormServicesGetTemplateError>,
+    FormServicesGetTemplateResponse,
+    ReturnType<typeof formServicesGetTemplateQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await formServicesGetTemplate({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: formServicesGetTemplateQueryKey(options),
+  });
+
+/**
+ * Update form template
+ */
+export const formServicesUpdateTemplateMutation = (
+  options?: Partial<Options<FormServicesUpdateTemplateData>>,
+): UseMutationOptions<
+  FormServicesUpdateTemplateResponse,
+  AxiosError<FormServicesUpdateTemplateError>,
+  Options<FormServicesUpdateTemplateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesUpdateTemplateResponse,
+    AxiosError<FormServicesUpdateTemplateError>,
+    Options<FormServicesUpdateTemplateData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesUpdateTemplate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Create form field
+ */
+export const formServicesCreateFieldMutation = (
+  options?: Partial<Options<FormServicesCreateFieldData>>,
+): UseMutationOptions<
+  FormServicesCreateFieldResponse,
+  AxiosError<FormServicesCreateFieldError>,
+  Options<FormServicesCreateFieldData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesCreateFieldResponse,
+    AxiosError<FormServicesCreateFieldError>,
+    Options<FormServicesCreateFieldData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesCreateField({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Publish form version
+ */
+export const formServicesPublishVersionMutation = (
+  options?: Partial<Options<FormServicesPublishVersionData>>,
+): UseMutationOptions<
+  FormServicesPublishVersionResponse,
+  AxiosError<FormServicesPublishVersionError>,
+  Options<FormServicesPublishVersionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesPublishVersionResponse,
+    AxiosError<FormServicesPublishVersionError>,
+    Options<FormServicesPublishVersionData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesPublishVersion({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Assign roles to form template
+ */
+export const formServicesAssignRolesMutation = (
+  options?: Partial<Options<FormServicesAssignRolesData>>,
+): UseMutationOptions<
+  FormServicesAssignRolesResponse,
+  AxiosError<FormServicesAssignRolesError>,
+  Options<FormServicesAssignRolesData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesAssignRolesResponse,
+    AxiosError<FormServicesAssignRolesError>,
+    Options<FormServicesAssignRolesData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesAssignRoles({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Create form section
+ */
+export const formServicesCreateSectionMutation = (
+  options?: Partial<Options<FormServicesCreateSectionData>>,
+): UseMutationOptions<
+  FormServicesCreateSectionResponse,
+  AxiosError<FormServicesCreateSectionError>,
+  Options<FormServicesCreateSectionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FormServicesCreateSectionResponse,
+    AxiosError<FormServicesCreateSectionError>,
+    Options<FormServicesCreateSectionData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await formServicesCreateSection({
         ...options,
         ...fnOptions,
         throwOnError: true,

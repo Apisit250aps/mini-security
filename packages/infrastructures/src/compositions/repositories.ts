@@ -8,6 +8,15 @@ import {
   CompanyMemberRepository,
   CompanyRepository,
   FeatureRepository,
+  FormAnswerAttachmentRepository,
+  FormAnswerRepository,
+  FormFieldRepository,
+  FormSectionRepository,
+  FormSubmissionContributorRepository,
+  FormSubmissionRepository,
+  FormTemplateRepository,
+  FormTemplateRoleRepository,
+  FormVersionRepository,
   LeaveQuotaRepository,
   LeaveRequestRepository,
   LeaveTypeRepository,
@@ -17,6 +26,7 @@ import {
   RoleRepository,
   ScheduleSlotRepository,
   SessionRepository,
+  SubmissionReviewRepository,
   UserRepository,
 } from '#repositories';
 
@@ -44,3 +54,16 @@ export const attendanceLogRepository = new AttendanceLogRepository(db);
 export const leaveTypeRepository = new LeaveTypeRepository(db);
 export const leaveQuotaRepository = new LeaveQuotaRepository(db);
 export const leaveRequestRepository = new LeaveRequestRepository(db);
+
+export const formTemplateRepository = new FormTemplateRepository(db);
+export const formTemplateRoleRepository = new FormTemplateRoleRepository(db);
+export const formVersionRepository = new FormVersionRepository(db);
+export const formSectionRepository = new FormSectionRepository(db);
+export const formFieldRepository = new FormFieldRepository(db);
+export const formSubmissionRepository = new FormSubmissionRepository(db);
+export const formSubmissionContributorRepository =
+  new FormSubmissionContributorRepository(db);
+export const formAnswerRepository = new FormAnswerRepository(db);
+export const formAnswerAttachmentRepository =
+  new FormAnswerAttachmentRepository(db);
+export const submissionReviewRepository = new SubmissionReviewRepository(db);

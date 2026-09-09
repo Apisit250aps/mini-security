@@ -43,6 +43,18 @@ function tsTypeToTsp(typeName: string): string {
       return 'LeaveRequestStatus';
     case 'LeaveUnit':
       return 'LeaveUnit';
+    case 'FormVersionStatus':
+      return 'FormVersionStatus';
+    case 'FormFieldType':
+      return 'FormFieldType';
+    case 'FormSubmissionStatus':
+      return 'FormSubmissionStatus';
+    case 'SubmissionReviewAction':
+      return 'SubmissionReviewAction';
+    case 'Record<string, unknown>':
+      return 'Record<unknown>';
+    case 'unknown':
+      return 'unknown';
     default:
       return t;
   }
@@ -218,6 +230,34 @@ const baseEntityTemplate = `  model BaseEntity {
     day: "day",
     half_day: "half_day",
     hour: "hour",
+  }
+
+  enum FormVersionStatus {
+    DRAFT: "DRAFT",
+    PUBLISHED: "PUBLISHED",
+    ARCHIVED: "ARCHIVED",
+  }
+
+  enum FormFieldType {
+    TEXT: "TEXT",
+    NUMBER: "NUMBER",
+    SELECT: "SELECT",
+    BOOLEAN: "BOOLEAN",
+    DATE: "DATE",
+    IMAGE: "IMAGE",
+    FILE: "FILE",
+  }
+
+  enum FormSubmissionStatus {
+    DRAFT: "DRAFT",
+    SUBMITTED: "SUBMITTED",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+  }
+
+  enum SubmissionReviewAction {
+    APPROVE: "APPROVE",
+    REJECT: "REJECT",
   }`;
 
 const finalTspContent = `namespace Domain.Entity;\n\n${baseEntityTemplate}\n\n${blocks.join('\n\n')}\n`;

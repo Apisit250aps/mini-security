@@ -5,6 +5,7 @@ import permissionRoutes from './permission.route';
 import featureRoutes from './feature.route';
 import attendanceRoutes from './attendance.route';
 import leaveRoutes from './leave.route';
+import formRoutes from './form.route';
 
 const apiRoutes = new Hono();
 
@@ -14,5 +15,6 @@ apiRoutes.route('/permissions', permissionRoutes);
 apiRoutes.route('/features', featureRoutes);
 apiRoutes.route('/attendances', attendanceRoutes);
 apiRoutes.route('/leaves', leaveRoutes);
+apiRoutes.route('/forms', formRoutes);
 
 export default apiRoutes;

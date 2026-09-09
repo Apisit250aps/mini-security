@@ -6,4 +6,3 @@ client.setConfig({
 
 export * from './api';
 export { client };
-

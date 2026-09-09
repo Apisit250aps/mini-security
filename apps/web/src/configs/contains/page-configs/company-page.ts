@@ -54,6 +54,20 @@ export const companyPageConfigs: PageConfigs = {
     url: '/company/leave/types',
   },
 
+  // Form Management Module
+  companyFormTemplates: {
+    name: 'แบบฟอร์มตรวจสอบ',
+    title: 'จัดการแบบฟอร์ม',
+    description: 'สร้างและเผยแพร่แบบฟอร์มสำหรับบทบาทต่างๆ',
+    url: '/company/forms/templates',
+  },
+  companyFormSubmissions: {
+    name: 'รายการตรวจและคำตอบ',
+    title: 'รายการตรวจและผลคำตอบ',
+    description: 'ชุดคำตอบแบบฟอร์มตามบทบาทและการอนุมัติ',
+    url: '/company/forms/submissions',
+  },
+
   companySettings: {
     name: 'ข้อมูลบริษัท',
     title: 'ตั้งค่าบริษัท',

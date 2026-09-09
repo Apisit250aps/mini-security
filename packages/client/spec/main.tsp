@@ -12,6 +12,7 @@ import "./models/permission.tsp";
 import "./models/feature.tsp";
 import "./models/attendance.tsp";
 import "./models/leave.tsp";
+import "./models/form.tsp";
 
 // Module Services
 import "./services/user.tsp";
@@ -20,6 +21,7 @@ import "./services/permission.tsp";
 import "./services/feature.tsp";
 import "./services/attendance.tsp";
 import "./services/leave.tsp";
+import "./services/form.tsp";
 
 @service(#{ title: "MiniSecurity API Service" })
 namespace MiniSecurity;

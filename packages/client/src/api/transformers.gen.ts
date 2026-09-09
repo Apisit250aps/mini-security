@@ -38,6 +38,21 @@ import type {
   FeatureServicesToggleFeatureResponse,
   FeatureServicesToggleRoleFeatureResponse,
   FeatureServicesUpdateFeatureResponse,
+  FormServicesAssignRolesResponse,
+  FormServicesCloneResponse,
+  FormServicesCreateFieldResponse,
+  FormServicesCreateSectionResponse,
+  FormServicesCreateTemplateResponse,
+  FormServicesGetSubmissionResponse,
+  FormServicesGetTemplateResponse,
+  FormServicesListSubmissionsResponse,
+  FormServicesListTemplatesByCompanyResponse,
+  FormServicesPublishVersionResponse,
+  FormServicesReviewResponse,
+  FormServicesSaveDraftResponse,
+  FormServicesStartSubmissionResponse,
+  FormServicesSubmitResponse,
+  FormServicesUpdateTemplateResponse,
   LeaveServicesCancelRequestResponse,
   LeaveServicesCreateQuotaResponse,
   LeaveServicesCreateTypeResponse,
@@ -486,6 +501,256 @@ export const featureServicesToggleFeatureResponseTransformer = async (
 ): Promise<FeatureServicesToggleFeatureResponse> => {
   if (data.data) {
     data.data = featureSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+const formTemplateSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+export const formServicesListTemplatesByCompanyResponseTransformer = async (
+  data: any,
+): Promise<FormServicesListTemplatesByCompanyResponse> => {
+  if (data.data) {
+    data.data = data.data.map((item: any) =>
+      formTemplateSchemaResponseTransformer(item),
+    );
+  }
+  return data;
+};
+
+const formSubmissionSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  data.startedAt = new Date(data.startedAt);
+  if (data.submittedAt) {
+    data.submittedAt = new Date(data.submittedAt);
+  }
+  return data;
+};
+
+export const formServicesListSubmissionsResponseTransformer = async (
+  data: any,
+): Promise<FormServicesListSubmissionsResponse> => {
+  if (data.data) {
+    data.data = data.data.map((item: any) =>
+      formSubmissionSchemaResponseTransformer(item),
+    );
+  }
+  return data;
+};
+
+export const formServicesStartSubmissionResponseTransformer = async (
+  data: any,
+): Promise<FormServicesStartSubmissionResponse> => {
+  if (data.data) {
+    data.data = formSubmissionSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+const formVersionSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  if (data.publishedAt) {
+    data.publishedAt = new Date(data.publishedAt);
+  }
+  return data;
+};
+
+const formSectionSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+const formFieldSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+const formAnswerSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+const formSubmissionContributorSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+const submissionReviewSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+const formSubmissionDetailSchemaResponseTransformer = (data: any) => {
+  data.submission = formSubmissionSchemaResponseTransformer(data.submission);
+  if (data.template) {
+    data.template = formTemplateSchemaResponseTransformer(data.template);
+  }
+  if (data.version) {
+    data.version = formVersionSchemaResponseTransformer(data.version);
+  }
+  data.sections = data.sections.map((item: any) =>
+    formSectionSchemaResponseTransformer(item),
+  );
+  data.fields = data.fields.map((item: any) =>
+    formFieldSchemaResponseTransformer(item),
+  );
+  data.answers = data.answers.map((item: any) =>
+    formAnswerSchemaResponseTransformer(item),
+  );
+  data.contributors = data.contributors.map((item: any) =>
+    formSubmissionContributorSchemaResponseTransformer(item),
+  );
+  if (data.review) {
+    data.review = submissionReviewSchemaResponseTransformer(data.review);
+  }
+  return data;
+};
+
+export const formServicesGetSubmissionResponseTransformer = async (
+  data: any,
+): Promise<FormServicesGetSubmissionResponse> => {
+  if (data.data) {
+    data.data = formSubmissionDetailSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesCloneResponseTransformer = async (
+  data: any,
+): Promise<FormServicesCloneResponse> => {
+  if (data.data) {
+    data.data = formSubmissionSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesSaveDraftResponseTransformer = async (
+  data: any,
+): Promise<FormServicesSaveDraftResponse> => {
+  if (data.data) {
+    data.data = formSubmissionSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesReviewResponseTransformer = async (
+  data: any,
+): Promise<FormServicesReviewResponse> => {
+  if (data.data) {
+    data.data = submissionReviewSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesSubmitResponseTransformer = async (
+  data: any,
+): Promise<FormServicesSubmitResponse> => {
+  if (data.data) {
+    data.data = formSubmissionSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesCreateTemplateResponseTransformer = async (
+  data: any,
+): Promise<FormServicesCreateTemplateResponse> => {
+  if (data.data) {
+    data.data = formTemplateSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+const formTemplateRoleSchemaResponseTransformer = (data: any) => {
+  data.createdAt = new Date(data.createdAt);
+  data.updatedAt = new Date(data.updatedAt);
+  return data;
+};
+
+const formTemplateDetailSchemaResponseTransformer = (data: any) => {
+  data.template = formTemplateSchemaResponseTransformer(data.template);
+  if (data.activeVersion) {
+    data.activeVersion = formVersionSchemaResponseTransformer(
+      data.activeVersion,
+    );
+  }
+  if (data.draftVersion) {
+    data.draftVersion = formVersionSchemaResponseTransformer(data.draftVersion);
+  }
+  data.roles = data.roles.map((item: any) =>
+    formTemplateRoleSchemaResponseTransformer(item),
+  );
+  data.sections = data.sections.map((item: any) =>
+    formSectionSchemaResponseTransformer(item),
+  );
+  data.fields = data.fields.map((item: any) =>
+    formFieldSchemaResponseTransformer(item),
+  );
+  return data;
+};
+
+export const formServicesGetTemplateResponseTransformer = async (
+  data: any,
+): Promise<FormServicesGetTemplateResponse> => {
+  if (data.data) {
+    data.data = formTemplateDetailSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesUpdateTemplateResponseTransformer = async (
+  data: any,
+): Promise<FormServicesUpdateTemplateResponse> => {
+  if (data.data) {
+    data.data = formTemplateSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesCreateFieldResponseTransformer = async (
+  data: any,
+): Promise<FormServicesCreateFieldResponse> => {
+  if (data.data) {
+    data.data = formFieldSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesPublishVersionResponseTransformer = async (
+  data: any,
+): Promise<FormServicesPublishVersionResponse> => {
+  if (data.data) {
+    data.data = formVersionSchemaResponseTransformer(data.data);
+  }
+  return data;
+};
+
+export const formServicesAssignRolesResponseTransformer = async (
+  data: any,
+): Promise<FormServicesAssignRolesResponse> => {
+  if (data.data) {
+    data.data = data.data.map((item: any) =>
+      formTemplateRoleSchemaResponseTransformer(item),
+    );
+  }
+  return data;
+};
+
+export const formServicesCreateSectionResponseTransformer = async (
+  data: any,
+): Promise<FormServicesCreateSectionResponse> => {
+  if (data.data) {
+    data.data = formSectionSchemaResponseTransformer(data.data);
   }
   return data;
 };

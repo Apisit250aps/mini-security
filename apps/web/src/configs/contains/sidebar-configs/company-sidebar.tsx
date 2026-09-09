@@ -1,9 +1,10 @@
-import React from 'react';
 import {
   Building2Icon,
   CalendarCheckIcon,
   CalendarDaysIcon,
+  ClipboardListIcon,
   ClockIcon,
+  FileCheck2Icon,
   FileTextIcon,
   LayoutDashboardIcon,
   ShieldCheckIcon,
@@ -50,6 +51,18 @@ export const companySidebarConfig: NavItem[] = [
       id: 'companyLeaveType',
       icon: <CalendarDaysIcon />,
       featureCode: 'LEAVE_MANAGEMENT',
+    },
+  ]),
+  sidebarGroupBuilder('forms', 'ระบบแบบฟอร์ม', [
+    {
+      id: 'companyFormTemplates',
+      icon: <ClipboardListIcon />,
+      featureCode: 'FORM_MANAGEMENT',
+    },
+    {
+      id: 'companyFormSubmissions',
+      icon: <FileCheck2Icon />,
+      featureCode: 'FORM_MANAGEMENT',
     },
   ]),
   sidebarGroupBuilder('settings', 'ตั้งค่าองค์กร', [
