@@ -61,6 +61,18 @@ export const companyPageConfigs: PageConfigs = {
     description: 'สร้างและเผยแพร่แบบฟอร์มสำหรับบทบาทต่างๆ',
     url: '/company/forms/templates',
   },
+  companyFormCreate: {
+    name: 'สร้างแบบฟอร์มใหม่',
+    title: 'สร้างแบบฟอร์มใหม่',
+    description: 'กำหนดชื่อ คำอธิบาย และบทบาทที่สามารถเข้าถึงแบบฟอร์มนี้ได้',
+    url: '/company/forms/templates/create',
+  },
+  companyFormBuilder: {
+    name: 'ออกแบบแบบฟอร์ม',
+    title: 'ออกแบบและจัดการฟิลด์แบบฟอร์ม',
+    description: 'กำหนดหมวดหมู่คำถาม ฟิลด์ข้อมูล และตรวจสอบตัวอย่างก่อนเผยแพร่',
+    url: '/company/forms/templates',
+  },
   companyFormSubmissions: {
     name: 'รายการตรวจและคำตอบ',
     title: 'รายการตรวจและผลคำตอบ',

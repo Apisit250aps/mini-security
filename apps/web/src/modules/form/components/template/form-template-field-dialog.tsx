@@ -51,6 +51,7 @@ interface FormTemplateFieldDialogProps {
   templateId: string;
   formVersionId: string;
   sections: FormSection[];
+  defaultSectionId?: string;
   onClose: () => void;
 }
 
@@ -59,6 +60,7 @@ export default function FormTemplateFieldDialog({
   templateId,
   formVersionId,
   sections,
+  defaultSectionId,
   onClose,
 }: FormTemplateFieldDialogProps) {
   const createFieldMutation = useFormFieldCreate(companyId, templateId);
@@ -71,7 +73,7 @@ export default function FormTemplateFieldDialog({
   const methods = useForm<FormFieldValues>({
     resolver: zodResolver(formFieldSchema as never),
     defaultValues: {
-      formSectionId: sections[0]?.id ?? '',
+      formSectionId: defaultSectionId || sections[0]?.id || '',
       type: 'TEXT',
       label: '',
       description: '',

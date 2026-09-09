@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { FormTemplate } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
@@ -18,14 +19,19 @@ export const formTemplateDataColumns = ({
     accessorKey: 'name',
     header: 'ชื่อแบบฟอร์ม',
     cell: ({ row }) => (
-      <div className="flex flex-col">
-        <span className="font-semibold text-sm">{row.original.name}</span>
+      <Link
+        href={`/company/forms/templates/${row.original.id}/builder`}
+        className="flex flex-col group hover:underline cursor-pointer"
+      >
+        <span className="font-semibold text-sm group-hover:text-primary transition-colors">
+          {row.original.name}
+        </span>
         {row.original.description && (
           <span className="text-xs text-muted-foreground line-clamp-1">
             {row.original.description}
           </span>
         )}
-      </div>
+      </Link>
     ),
   },
   {

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import type { CellContext } from '@tanstack/react-table';
 import type { FormTemplate } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
@@ -26,6 +27,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
   cell,
   companyId,
 }: FormTemplateColumnActionsProps<T>) {
+  const router = useRouter();
   const ui = useOverlay();
   const template = cell.row.original;
   const publishMutation = useFormVersionPublish(companyId, template.id);
@@ -187,6 +189,10 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
   return (
     <ColumnActions
       actions={{
+        'ออกแบบและจัดการฟิลด์ (Builder)': {
+          onAction: () =>
+            router.push(`/company/forms/templates/${template.id}/builder`),
+        },
         ดูตัวอย่างแบบฟอร์ม: {
           onAction: actionPreview,
         },
