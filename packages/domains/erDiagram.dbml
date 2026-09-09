@@ -69,6 +69,7 @@ Table session {
   ip_address text
   user_agent text
   active_company_id uuid
+  permissions text [note: 'Current Drizzle: permission snapshot scoped to active company; authorization still checks the resource']
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null]
 
@@ -281,12 +282,14 @@ Table role_feature {
 
 Ref: account.user_id > user.id [delete: cascade]
 Ref: session.user_id > user.id [delete: cascade]
+// Logical reference in this design; current Drizzle does not declare this FK.
 Ref: session.active_company_id > company.id
 
 Ref: company_branch.company_id > company.id [delete: cascade]
 Ref: company_member.company_branch_id > company_branch.id [delete: cascade]
 Ref: company_member.company_id > company.id [delete: cascade]
 Ref: company_member.user_id > user.id [delete: cascade]
+// Logical reference in this design; current Drizzle validates roles in use cases, not with this FK.
 Ref: company_member.role_id > role.id
 
 Ref: role.company_id > company.id [delete: cascade]

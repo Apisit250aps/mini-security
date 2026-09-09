@@ -37,7 +37,8 @@ erDiagram
     form_version ||--o{ form_section : contains
     form_section ||--o{ form_field : contains
     form_version ||--o{ form_submission : defines
-    company_member ||--o{ form_submission : starts_or_submits
+    company_member ||--o{ form_submission : starts
+    company_member o|--o{ form_submission : submits
     form_submission ||--|{ form_submission_contributor : records
     company_member ||--o{ form_submission_contributor : contributes
     form_submission ||--o{ form_answer : contains
@@ -49,6 +50,8 @@ erDiagram
 ```
 
 เพิ่มเพียง 2 ตารางจาก MVP เดิม: สิทธิ์ฟอร์มตาม Role และรายชื่อผู้มีส่วนร่วม ไม่เพิ่ม task, invitation, realtime session หรือประวัติการแก้ไขเต็มรูปแบบ
+
+Mermaid แสดง cardinality เชิงธุรกิจ: ผู้เริ่มต้องมีหนึ่งคน ส่วนผู้ส่งยังไม่มีได้ใน DRAFT; การมี contributor อย่างน้อยหนึ่งคนต้องสร้างพร้อม submission ใน use case เพราะ FK ไม่บังคับจำนวนแถวลูกขั้นต่ำ
 
 ## Flow และการรักษาประวัติ
 
@@ -66,6 +69,8 @@ erDiagram
 ## Role access และผู้ดำเนินการ
 
 สมาชิกใช้ `company_member.roleId` ปัจจุบัน **เทียบ role ID จริง** ไม่เทียบชื่อหรือ `roleType` เพราะ Role แม่บ้านกับ รปภ. อาจมี roleType เป็น MEMBER เหมือนกัน Schema ปัจจุบันมี roleId เดียวต่อ membership; ไม่เพิ่มระบบตำแหน่งหรือหลาย Role ต่อสมาชิก
+
+ข้อจำกัดฐานเดิม: `(company_id, user_id)` ยังไม่เป็น unique constraint แม้ use case ตรวจซ้ำก่อนสร้าง จึงห้ามถือว่าการค้นพบ membership หนึ่งแถวพิสูจน์ว่าไม่มีแถวอื่น หากพบ active membership ซ้ำของผู้ใช้ในบริษัทเดียวกันต้องปฏิเสธการตัดสิน Role ที่กำกวมและแก้ข้อมูลก่อน ไม่เลือก Role จากแถวแรกโดยพลการ
 
 `form_template_role` เป็นรายการอนุญาต: Owner เลือกได้เฉพาะ Role บริษัทเดียวกัน หรือ system default (`company_id IS NULL`, `is_system_default = true`) ที่ระบบเดิมใช้ได้; ไม่ให้ SUPER_ADMIN เป็นกลุ่มผู้กรอก ไม่มีรายการที่ enabled หมายถึงสมาชิกไม่มีสิทธิ์ทำฟอร์ม ไม่ได้หมายถึงเปิดทุก Role เงื่อนไขบริษัทของ Role ต้องตรวจใน use case เพราะ FK role_id อย่างเดียวไม่บังคับ tenant
 
@@ -86,6 +91,8 @@ Contributor เพิ่มครั้งแรกด้วย upsert ใน tr
 ## ป้องกันการบันทึกทับและส่งระหว่างมีคนแก้
 
 ใช้ optimistic concurrency ที่ระดับ submission เพียงจุดเดียว: client อ่าน `revision` แล้วส่ง `expected_revision` พร้อม patch เฉพาะคำตอบ/รายการไฟล์ที่ต้องการเปลี่ยน Server ตรวจสิทธิ์ปัจจุบันและทำ transaction ที่ lock submission, ตรวจว่า status ยัง DRAFT และ revision ตรง แล้วจึงแก้ข้อมูล/actor/contributor และเพิ่ม revision ทีเดียว ทั้งหมดสำเร็จหรือ rollback พร้อมกัน
+
+การอ่านชุดคำตอบต้องคืน revision, answers และ attachments จาก snapshot เดียวกัน เช่น read-only REPEATABLE READ transaction ไม่อ่าน revision ใหม่ปนกับคำตอบเก่า การแก้/ส่งตรวจ membership, Role และ ACL ภายใน transaction โดยถือ lock ของข้อมูลสิทธิ์ที่ใช้ตัดสินจน commit; การเปลี่ยนสิทธิ์ใช้ลำดับ lock เดียวกันเพื่อให้การถอนสิทธิ์กับการเขียนมีลำดับชัดเจน
 
 หาก A กับ B อ่าน revision 5 แล้ว A บันทึกสำเร็จเป็น 6 การบันทึกของ B ด้วย 5 ต้องคืน conflict โดยไม่เขียนทับ B โหลดข้อมูลล่าสุด ตรวจและส่งใหม่ ห้าม retry อัตโนมัติด้วย revision ใหม่จากเนื้อหาเก่า ข้อแลกเปลี่ยนคือแม้แก้คนละ field ก็อาจ conflict ซึ่งยอมรับเพื่อให้ MVP เรียบง่าย ไม่เพิ่ม per-field merge
 
@@ -142,6 +149,8 @@ ON form_version (form_template_id) WHERE status = 'PUBLISHED';
 ```
 
 Publish/clone ต้อง lock template เพื่อจัดสรรเลข version และตรวจสถานะให้สอดคล้องกัน กฎ immutable content, latest revision, contributor tracking, Role access, Owner authorization และ validation เป็นหน้าที่ use case/transaction ไม่ได้เกิดขึ้นจาก FK หรือ DBML note เอง
+
+ตัวอย่างขอบเขตการบังคับกฎ: FK ปฏิเสธ answer ที่อยู่คนละ version ได้ แต่ฐานข้อมูลตามแบบนี้เพียงอย่างเดียวยังรับ review ของ DRAFT หรือผู้ที่ไม่ใช่ Owner ได้ การเขียนผ่าน use case ที่ตรวจสถานะและสิทธิ์จึงเป็นข้อกำหนดของการ implement ไม่ใช่ความสามารถที่ DBML ทำให้แล้ว เช่นเดียวกับ revision ที่ CHECK บังคับแค่ค่าบวก ส่วน expected_revision ต้องตรวจในคำสั่งเขียนจริง
 
 FK ใหม่ใช้ RESTRICT เพื่อรักษาประวัติ ใช้ปิด template/deactivate member แทนลบเมื่อมีประวัติ; draft ที่ไม่ถูกใช้งานลบลูกก่อนแม่ได้ การ hard-delete user/company/branch เดิมที่ cascade ถึง member จะถูก restrict หากมีข้อมูลฟอร์มอ้างสมาชิกนั้น ต้องรองรับกรณีนี้เมื่อ implement deletion flow
 

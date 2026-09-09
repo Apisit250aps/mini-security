@@ -77,6 +77,8 @@ Composite index `(provider_id, account_id)` ทำให้ค้นหาว่
 `active_company_id` คือ **Tenant Context** — บอกระบบว่า request นี้ทำงานในนามบริษัทไหน  
 เมื่อ user logout หรือ token หมดอายุ → row นี้จะถูกลบออก
 
+Drizzle ปัจจุบันยังมี `permissions` (nullable text) สำหรับ permission snapshot ของ active company ซึ่งต้องใช้ร่วมกับการตรวจ resource scope ส่วนเส้น `session.active_company_id → company.id` ใน DBML เป็นความสัมพันธ์เชิงออกแบบ ยังไม่มี `.references()` ใน Drizzle ปัจจุบัน
+
 ---
 
 ### 1.4 `verification`
@@ -163,7 +165,9 @@ Better Auth ใช้ตารางนี้เพื่อ:
 
 **หน้าที่:** **Junction ระหว่าง User ↔ Company**  
 1 user สามารถเป็นสมาชิกในหลาย company ได้ (multi-tenant)  
-Composite unique index `(company_id, user_id)` บังคับว่าใน 1 บริษัท จะมี user แต่ละคนได้ 1 membership เท่านั้น
+กฎธุรกิจให้หนึ่ง user มีหนึ่ง membership ต่อบริษัท โดย CreateCompanyMemberUseCase ตรวจข้อมูลซ้ำก่อนสร้าง แต่ Drizzle/DBML ปัจจุบันมีเพียง index ธรรมดา `(company_id, user_id)` จึงยังไม่กันข้อมูลซ้ำจาก concurrent requests ในระดับฐานข้อมูล ไม่ควรถือว่ามี unique constraint แล้ว
+
+เส้น `company_member.role_id → role.id` ใน DBML แสดงความสัมพันธ์เชิงออกแบบ; Drizzle ปัจจุบันไม่ได้ประกาศ FK นี้ และตรวจ Role ผ่าน use case
 
 > **เหตุผลที่มี `company_member` แยก:** แยก "ตัวตน" (user) ออกจาก "สมาชิกภาพในองค์กร" (company_member)  
 > ทำให้ user คนเดียวทำงานได้หลายบริษัทด้วย role ที่ต่างกัน
@@ -185,7 +189,7 @@ Composite unique index `(company_id, user_id)` บังคับว่าใน
 - `company_id = NULL` + `is_system_default = true` → Role ระดับ Platform (เช่น SUPER_ADMIN)
 - `company_id = <uuid>` → Role ที่บริษัทสร้างเอง (Custom Role)
 
-`role_type` ใช้ inherit permission baseline เช่น OWNER ได้ทุกอย่าง, VIEWER ดูได้อย่างเดียว
+`role_type` ระบุประเภทบทบาทและใช้กับกฎเฉพาะ เช่นการตรวจ Owner; สิทธิ์ action ต้องตรวจ permission ที่มอบหมายจริง ไม่ได้ให้ OWNER ทุกสิทธิ์โดยอัตโนมัติจากค่า enum เพียงอย่างเดียว
 
 ---
 
@@ -220,7 +224,7 @@ Composite unique index `(company_id, user_id)` บังคับว่าใน
 
 **หน้าที่:** **Many-to-Many junction** ระหว่าง `role` ↔ `permission`  
 กำหนดว่า role ไหน ทำอะไรได้บ้าง  
-Composite unique index `(role_id, permission_id)` ป้องกัน duplicate
+Drizzle/DBML ปัจจุบันมี index ธรรมดา `(role_id, permission_id)` แม้ชื่อ index คือ `role_permission_unique_idx` จึงยังไม่บังคับป้องกันคู่ซ้ำในฐานข้อมูล
 
 ---
 
