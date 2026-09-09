@@ -90,3 +90,13 @@ export const leaveKeys = {
   companyRequests: (companyId: string, filters?: Record<string, unknown>) =>
     ['LEAVE', 'REQUESTS', 'COMPANY', companyId, filters] as const,
 };
+
+export const formKeys = {
+  ...createQueryKeys('FORM'),
+  templates: (companyId: string) => ['FORM', 'TEMPLATES', companyId] as const,
+  template: (templateId: string) => ['FORM', 'TEMPLATE', templateId] as const,
+  submissions: (companyId?: string, filters?: Record<string, unknown>) =>
+    ['FORM', 'SUBMISSIONS', companyId ?? 'ALL', filters] as const,
+  submission: (submissionId: string) =>
+    ['FORM', 'SUBMISSION', submissionId] as const,
+};
