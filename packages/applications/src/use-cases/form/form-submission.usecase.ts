@@ -76,6 +76,28 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
       );
     }
 
+    // If an active shared draft already exists for this role & template, join it!
+    const existingDraft = await this.submissionRepo.findDraftByRoleAndTemplate(
+      context.roleId,
+      context.formTemplateId,
+      template.companyId,
+    );
+
+    if (existingDraft) {
+      const alreadyContributor = await this.contributorRepo.isContributor(
+        existingDraft.id,
+        context.memberId,
+      );
+      if (!alreadyContributor) {
+        await this.contributorRepo.create({
+          companyId: template.companyId,
+          submissionId: existingDraft.id,
+          memberId: context.memberId,
+        });
+      }
+      return existingDraft;
+    }
+
     const submission = await this.submissionRepo.create({
       companyId: template.companyId,
       formTemplateId: template.id,

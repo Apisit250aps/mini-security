@@ -79,6 +79,12 @@ export const companyPageConfigs: PageConfigs = {
     description: 'ชุดคำตอบแบบฟอร์มตามบทบาทและการอนุมัติ',
     url: '/company/forms/submissions',
   },
+  companyFormSubmissionDetail: {
+    name: 'บันทึกแบบฟอร์ม',
+    title: 'บันทึกแบบฟอร์มตรวจสอบ',
+    description: 'กรอกข้อมูลและบันทึกผลการตรวจสอบตามแบบฟอร์ม',
+    url: '/company/forms/submissions',
+  },
 
   companySettings: {
     name: 'ข้อมูลบริษัท',

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import type { CellContext } from '@tanstack/react-table';
 import type { FormSubmission } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
@@ -8,7 +9,6 @@ import { useOverlay } from '@repo/ui/hooks';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useFormSubmissionClone } from '../../hooks/form-mutations';
-import FormFillerModal from '../fill/form-filler-modal';
 import FormSubmissionReviewDialog from './form-submission-review-dialog';
 
 interface FormSubmissionColumnActionsProps<T extends FormSubmission> {
@@ -20,6 +20,7 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
   cell,
   companyId,
 }: FormSubmissionColumnActionsProps<T>) {
+  const router = useRouter();
   const ui = useOverlay();
   const submission = cell.row.original;
   const cloneMutation = useFormSubmissionClone(companyId);
@@ -33,20 +34,8 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
   const memberId = currentMember?.id || '';
 
   const actionFill = useCallback(() => {
-    ui.dialog.open({
-      title: 'บันทึกแบบฟอร์ม',
-      description: 'กรอกหรือแก้ไขข้อมูลแบบฟอร์ม',
-      size: 'lg',
-      children: (
-        <FormFillerModal
-          submissionId={submission.id}
-          companyId={companyId}
-          memberId={memberId}
-          onClose={() => ui.dialog.close()}
-        />
-      ),
-    });
-  }, [ui.dialog, submission.id, companyId, memberId]);
+    router.push(`/company/forms/submissions/${submission.id}`);
+  }, [router, submission.id]);
 
   const actionReview = useCallback(() => {
     ui.dialog.open({
@@ -77,14 +66,18 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
             data: { memberId },
           },
           {
-            onSuccess: () => {
+            onSuccess: (res) => {
               ui.alert.close();
+              const newSub = res?.data;
+              if (newSub?.id) {
+                router.push(`/company/forms/submissions/${newSub.id}`);
+              }
             },
           },
         );
       },
     });
-  }, [ui.alert, cloneMutation, submission.id, memberId]);
+  }, [ui.alert, cloneMutation, submission.id, memberId, router]);
 
   if (submission.status === 'DRAFT') {
     return (

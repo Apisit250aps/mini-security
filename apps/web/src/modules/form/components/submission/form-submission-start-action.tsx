@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useId } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useOverlay } from '@repo/ui/hooks';
@@ -9,7 +10,6 @@ import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useCompanyFormTemplatesQueries } from '../../hooks/form-queries';
 import { useFormSubmissionStart } from '../../hooks/form-mutations';
-import FormFillerModal from '../fill/form-filler-modal';
 
 interface FormSubmissionStartActionProps {
   companyId: string;
@@ -80,8 +80,7 @@ function StartSubmissionModalContent({
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">
-        เลือกแบบฟอร์มที่ต้องการเริ่มบันทึกข้อมูล
-        ระบบจะสร้างฉบับร่างร่วมสำหรับบทบาทของคุณ
+        เลือกแบบฟอร์มที่ต้องการบันทึกข้อมูล
       </p>
 
       {templatesQuery.isLoading ? (
@@ -135,27 +134,15 @@ function StartSubmissionModalContent({
 export default function FormSubmissionStartAction({
   companyId,
 }: FormSubmissionStartActionProps) {
+  const router = useRouter();
   const ui = useOverlay();
 
-  const handleOpenFiller = useCallback(
-    (submissionId: string, memberId: string) => {
+  const handleStartSuccess = useCallback(
+    (submissionId: string) => {
       ui.dialog.close();
-      // Open filler immediately
-      ui.dialog.open({
-        title: 'บันทึกแบบฟอร์ม',
-        description: 'กรอกข้อมูลตามหัวข้อและบันทึกฉบับร่างหรือส่งเพื่ออนุมัติ',
-        size: 'lg',
-        children: (
-          <FormFillerModal
-            submissionId={submissionId}
-            companyId={companyId}
-            memberId={memberId}
-            onClose={() => ui.dialog.close()}
-          />
-        ),
-      });
+      router.push(`/company/forms/submissions/${submissionId}`);
     },
-    [ui.dialog, companyId],
+    [ui.dialog, router],
   );
 
   const handleOpenStart = useCallback(() => {
@@ -166,12 +153,12 @@ export default function FormSubmissionStartAction({
       children: (
         <StartSubmissionModalContent
           companyId={companyId}
-          onSuccess={handleOpenFiller}
+          onSuccess={handleStartSuccess}
           onClose={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, companyId, handleOpenFiller]);
+  }, [ui.dialog, companyId, handleStartSuccess]);
 
   return (
     <Button onPress={handleOpenStart}>

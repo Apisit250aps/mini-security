@@ -5,7 +5,7 @@ import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { toast } from '@repo/ui/components/sonner';
-import { AlertCircle, CheckCircle2, Save, Send } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileText, Save, Send } from 'lucide-react';
 import { useFormSubmissionQueries } from '../../hooks/form-queries';
 import {
   useFormSubmissionSaveDraft,
@@ -180,6 +180,17 @@ export default function FormFillerModal({
           <p className="text-sm text-muted-foreground">
             {template.description}
           </p>
+        )}
+
+        {/* Draft Notice Banner */}
+        {submission.status === 'DRAFT' && (
+          <div className="flex items-center gap-2.5 p-3 bg-amber-500/10 text-amber-900 dark:text-amber-200 border border-amber-500/20 rounded-md text-xs">
+            <FileText className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>แบบฟอร์มฉบับร่าง (Draft):</strong>{' '}
+              กรอกข้อมูลตามหัวข้อและบันทึกฉบับร่าง หรือกดส่งเมื่อกรอกครบถ้วน
+            </span>
+          </div>
         )}
 
         {/* Rejection Alert if rejected */}
