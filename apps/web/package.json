@@ -14,6 +14,7 @@
     "@repo/client": "*",
     "@repo/domains": "*",
     "@repo/infrastructures": "*",
+    "@repo/ui": "*",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-query-devtools": "^5.102.8",
     "@tanstack/react-table": "^8.21.3",

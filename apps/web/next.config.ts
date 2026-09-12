@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 import config from '@repo/configs';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   /* config options here */
   reactCompiler: true,
   experimental: {
