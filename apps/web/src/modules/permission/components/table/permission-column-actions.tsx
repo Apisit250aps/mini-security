@@ -32,8 +32,8 @@ function PermissionColumnActions<T extends Permission>(
 
   const actionEdit = () => {
     ui.dialog.open({
-      title: 'แก้ไขสิทธิ์',
-      description: 'แก้ไขรายละเอียดและการกำหนดสิทธิ์',
+      title: 'แก้ไขรายละเอียดสิทธิ์',
+      description: `แก้ไขคำอธิบายสำหรับสิทธิ์ ${cell.row.original.action}`,
       children: <PermissionEditForm permission={cell.row.original} />,
     });
   };

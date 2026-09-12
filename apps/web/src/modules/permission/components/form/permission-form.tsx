@@ -5,7 +5,10 @@ import { InputField, TextareaField } from '@repo/ui/form';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createPermissionSchema } from '@repo/domains/schema/permission';
+import {
+  createPermissionSchema,
+  updatePermissionSchema,
+} from '@repo/domains/schema/permission';
 import type { FormProps } from '@/types';
 import { z } from 'zod';
 
@@ -14,13 +17,22 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 
 export type PermissionFormValues = z.infer<typeof createPermissionSchema>;
 
+interface PermissionFormProps extends FormProps<PermissionFormValues> {
+  hideModuleAndAction?: boolean;
+}
+
 export default function PermissionForm({
   onSubmit,
   defaultValues,
   isLoading,
-}: FormProps<PermissionFormValues>) {
+  hideModuleAndAction = false,
+}: PermissionFormProps) {
   const methods = useForm<PermissionFormValues>({
-    resolver: zodResolver(createPermissionSchema as never),
+    resolver: zodResolver(
+      (hideModuleAndAction
+        ? updatePermissionSchema
+        : createPermissionSchema) as never,
+    ),
     defaultValues: defaultValues ?? {
       action: '',
       module: '',
@@ -34,21 +46,25 @@ export default function PermissionForm({
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <InputField
-          name="module"
-          label="โมดูล (Module / Resource)"
-          placeholder="เช่น user, company, role"
-          control={methods.control}
-          required
-        />
+        {!hideModuleAndAction && (
+          <>
+            <InputField
+              name="module"
+              label="โมดูล (Module / Resource)"
+              placeholder="เช่น user, company, role"
+              control={methods.control}
+              required
+            />
 
-        <InputField
-          name="action"
-          label="การกระทำ (Action)"
-          placeholder="เช่น create, read, update, delete"
-          control={methods.control}
-          required
-        />
+            <InputField
+              name="action"
+              label="การกระทำ (Action)"
+              placeholder="เช่น create, read, update, delete"
+              control={methods.control}
+              required
+            />
+          </>
+        )}
 
         <TextareaField
           name="description"

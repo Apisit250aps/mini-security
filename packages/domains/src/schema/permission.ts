@@ -55,9 +55,13 @@ export const createPermissionSchema = permissionSchema.omit({
   updatedAt: true,
 });
 
-export const updatePermissionSchema = permissionSchema
-  .partial()
-  .omit({ id: true, createdAt: true, updatedAt: true });
+export const updatePermissionSchema = permissionSchema.partial().omit({
+  id: true,
+  action: true,
+  module: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 export type PermissionEntity = z.infer<typeof permissionSchema>;
 export type CreatePermission = z.infer<typeof createPermissionSchema>;
