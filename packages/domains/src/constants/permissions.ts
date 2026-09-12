@@ -27,8 +27,8 @@ export type WithSecurityContext<T> = T & ISecurityContext;
  * These are not configurable by company/tenant roles.
  */
 export const SYSTEM_PERMISSION_MODULES = [
-  'permission',
-  'feature',
+  // 'permission',
+  // 'feature',
   // 'company_feature',
   // 'role_feature',
 ] as const;
