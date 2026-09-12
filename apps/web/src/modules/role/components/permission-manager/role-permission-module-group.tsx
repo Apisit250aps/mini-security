@@ -13,6 +13,19 @@ interface RolePermissionModuleGroupProps {
   permissions: Permission[];
 }
 
+const MODULE_DISPLAY_NAMES: Record<string, string> = {
+  company: 'ข้อมูลองค์กร (Company)',
+  company_branch: 'สาขาองค์กร (Branches)',
+  company_member: 'สมาชิกและพนักงาน (Members)',
+  role: 'บทบาทหน้าที่ (Roles)',
+  attendance: 'การลงเวลาเข้างาน (Attendance)',
+  attendance_schedule: 'ตารางเวลาและกะงาน (Schedules)',
+  leave: 'การลาและโควต้า (Leave)',
+  form_template: 'เทมเพลตแบบฟอร์ม (Form Templates)',
+  form_submission: 'การส่งแบบฟอร์ม (Form Submissions)',
+  user: 'บัญชีผู้ใช้งาน (User Profile)',
+};
+
 export function RolePermissionModuleGroup({
   moduleName,
   permissions,
@@ -24,6 +37,10 @@ export function RolePermissionModuleGroup({
     toggleModuleAll,
     isMutatingModule,
   } = useRolePermissionContext();
+
+  const displayName =
+    MODULE_DISPLAY_NAMES[moduleName] ||
+    moduleName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   const isAllSelected = isModuleAllSelected(moduleName);
   const isModulePending = isMutatingModule === moduleName;
@@ -41,7 +58,7 @@ export function RolePermissionModuleGroup({
     <div className="flex flex-col gap-2.5 rounded-lg border bg-card p-3 shadow-xs">
       <div className="flex items-center justify-between border-b pb-2">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm capitalize">{moduleName}</span>
+          <span className="font-semibold text-sm">{displayName}</span>
           <Badge
             variant={assignedCount > 0 ? 'default' : 'secondary'}
             className="text-[11px] px-1.5 py-0"

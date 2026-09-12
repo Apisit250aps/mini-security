@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import type { Permission, Role } from '@repo/domains/entities';
+import { isTenantConfigurablePermission } from '@repo/domains/constants';
 
 import {
   useRoleAssignPermission,
@@ -57,12 +58,13 @@ export function RolePermissionProvider({
   const revokeMutation = useRoleRevokePermission();
 
   const allPermissions = useMemo<Permission[]>(
-    () => permissionsQuery.data || [],
+    () => (permissionsQuery.data || []).filter(isTenantConfigurablePermission),
     [permissionsQuery.data],
   );
 
   const assignedPermissions = useMemo<Permission[]>(
-    () => rolePermissionsQuery.data || [],
+    () =>
+      (rolePermissionsQuery.data || []).filter(isTenantConfigurablePermission),
     [rolePermissionsQuery.data],
   );
 

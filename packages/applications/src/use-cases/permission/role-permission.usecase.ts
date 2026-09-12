@@ -22,6 +22,7 @@ import type {
 } from '@repo/domains/repositories/permission';
 import type { IUserRepository } from '@repo/domains/repositories/user';
 import { createRolePermissionSchema } from '@repo/domains/schema/permission';
+import { isTenantConfigurablePermission } from '@repo/domains/constants';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import { NotFoundError, ValidationError } from '../../lib/error';
 
@@ -68,6 +69,12 @@ export class AssignPermissionToRoleUseCase
     if (!perm) {
       throw new NotFoundError(
         `Permission with id ${parsed.data.permissionId} not found`,
+      );
+    }
+
+    if (!isAdmin && !isTenantConfigurablePermission(perm)) {
+      throw new ValidationError(
+        'ไม่สามารถกำหนดสิทธิ์ระดับระบบหรือสิทธิ์ที่จำกัดให้กับบทบาทขององค์กรได้',
       );
     }
 
