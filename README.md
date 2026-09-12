@@ -20,8 +20,7 @@ docker compose up -d --build
 
 The copy commands replace the current `.env`. Dev connects to `localhost`;
 Docker connects to PostgreSQL at `host.docker.internal:5432` and the API at
-`api:8000`. All Compose services load
-`.env` through `env_file`. API and web keep their image-specific ports (8000 and
+`api:8000`. The API and web load `.env` through `env_file`. API and web keep their image-specific ports (8000 and
 3000); do not add a shared `PORT` variable to these profiles.
 
 Start PostgreSQL on your machine and create the `security` database before running
@@ -33,9 +32,22 @@ PostgreSQL or a database volume.
 Next.js embeds API rewrites during its build, so Compose also passes the
 non-secret `BACKEND_URL` as a web build argument. Rebuild the web image when
 changing that URL. `BETTER_AUTH_URL` and CORS origins remain browser-facing URLs.
-Compose runs only the API and web. Run database migrations on the host with
+Compose runs the API, web and Nginx reverse proxy. Run database migrations on the host with
 `npm run db:migrate --workspace=@repo/database` using the local development env
 before switching to `.env.docker`.
+
+## Single public URL through Nginx
+
+Docker serves the app at `http://localhost:8080`. Set `NGINX_PORT` in `.env` to
+change the published port. Nginx forwards `/api` and `/api/*` (including auth) to
+`api:8000`, and all other paths to `web:3000`. The API and web use `expose` only;
+they have no published host ports. WebSockets and streamed responses are supported.
+
+When changing the public domain or port, also update `BETTER_AUTH_URL`,
+`BACKEND_ORIGIN` and `BACKEND_CORS_ORIGINS` to that public origin, then recreate
+containers with `docker compose up -d`. Keep `BACKEND_URL=http://api:8000` for
+internal server calls. This configuration serves HTTP; HTTPS requires TLS setup.
+Local development continues to use the direct app ports from `.env.dev`.
 
 # Turborepo starter
 
