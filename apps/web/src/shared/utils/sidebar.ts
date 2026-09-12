@@ -9,6 +9,7 @@ export type NavItemSingle = {
   icon?: React.ReactNode;
   isActive?: boolean;
   featureCode?: string;
+  requiredPermissions?: string | string[];
 };
 
 export type NavSubItem = {
@@ -19,6 +20,7 @@ export type NavSubItem = {
   url: string;
   icon?: React.ReactNode;
   featureCode?: string;
+  requiredPermissions?: string | string[];
 };
 
 export type NavItemGroup = {
@@ -29,6 +31,7 @@ export type NavItemGroup = {
   icon?: React.ReactNode;
   isActive?: boolean;
   featureCode?: string;
+  requiredPermissions?: string | string[];
   items: NavSubItem[];
 };
 
@@ -39,11 +42,17 @@ export const sidebarGroupBuilder = (
   groupTitle: string,
   items: Array<
     | PageConfigId
-    | { id: PageConfigId; icon?: React.ReactNode; featureCode?: string }
+    | {
+        id: PageConfigId;
+        icon?: React.ReactNode;
+        featureCode?: string;
+        requiredPermissions?: string | string[];
+      }
   >,
   icon?: React.ReactNode,
   isActive: boolean = false,
   featureCode?: string,
+  requiredPermissions?: string | string[],
 ): NavItemGroup => {
   return {
     id: groupId,
@@ -53,11 +62,14 @@ export const sidebarGroupBuilder = (
     icon,
     isActive,
     featureCode,
+    requiredPermissions,
     items: items.map((item) => {
       const itemId = typeof item === 'string' ? item : item.id;
       const itemIcon = typeof item === 'object' ? item.icon : undefined;
       const itemFeatureCode =
         typeof item === 'object' ? item.featureCode : undefined;
+      const itemRequiredPermissions =
+        typeof item === 'object' ? item.requiredPermissions : undefined;
       const page = PAGE_CONFIGS[itemId];
 
       if (!page) {
@@ -69,6 +81,7 @@ export const sidebarGroupBuilder = (
         ...page,
         icon: itemIcon,
         featureCode: itemFeatureCode,
+        requiredPermissions: itemRequiredPermissions,
       };
     }),
   };
@@ -79,6 +92,7 @@ export const sidebarItemBuilder = (
   icon?: React.ReactNode,
   isActive: boolean = false,
   featureCode?: string,
+  requiredPermissions?: string | string[],
 ): NavItemSingle => {
   const page = PAGE_CONFIGS[pageId];
 
@@ -93,5 +107,6 @@ export const sidebarItemBuilder = (
     icon,
     isActive,
     featureCode,
+    requiredPermissions,
   };
 };

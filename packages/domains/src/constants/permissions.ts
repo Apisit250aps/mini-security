@@ -29,8 +29,8 @@ export type WithSecurityContext<T> = T & ISecurityContext;
 export const SYSTEM_PERMISSION_MODULES = [
   'permission',
   'feature',
-  'company_feature',
-  'role_feature',
+  // 'company_feature',
+  // 'role_feature',
 ] as const;
 
 export type SystemPermissionModule = (typeof SYSTEM_PERMISSION_MODULES)[number];

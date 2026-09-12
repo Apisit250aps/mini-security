@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { NavItem } from '@/shared/utils';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 
 import {
   SidebarGroup,
@@ -16,10 +17,56 @@ import {
 
 export function NavMain({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const { hasAnyPermission } = usePermission();
+
+  const visibleItems = React.useMemo(() => {
+    return items
+      .map((item) => {
+        // Group with sub-items
+        if ('items' in item && Array.isArray(item.items)) {
+          if (
+            item.requiredPermissions &&
+            !hasAnyPermission(item.requiredPermissions)
+          ) {
+            return null;
+          }
+
+          const allowedSubItems = item.items.filter((sub) => {
+            if (
+              sub.requiredPermissions &&
+              !hasAnyPermission(sub.requiredPermissions)
+            ) {
+              return false;
+            }
+            return true;
+          });
+
+          if (allowedSubItems.length === 0) {
+            return null;
+          }
+
+          return {
+            ...item,
+            items: allowedSubItems,
+          };
+        }
+
+        // Single Nav Item
+        if (
+          item.requiredPermissions &&
+          !hasAnyPermission(item.requiredPermissions)
+        ) {
+          return null;
+        }
+
+        return item;
+      })
+      .filter((item): item is NavItem => item !== null);
+  }, [items, hasAnyPermission]);
 
   return (
     <div className="flex flex-col gap-2">
-      {items.map((item) => {
+      {visibleItems.map((item) => {
         // Group with sub-items
         if ('items' in item && Array.isArray(item.items)) {
           return (

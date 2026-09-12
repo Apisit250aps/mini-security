@@ -24,11 +24,13 @@ export const companySidebarConfig: NavItem[] = [
       id: 'companyEmployee',
       icon: <UsersIcon />,
       featureCode: 'EMPLOYEE_MANAGEMENT',
+      requiredPermissions: 'company_member:read',
     },
     {
       id: 'companyRole',
       icon: <ShieldCheckIcon />,
       featureCode: 'ROLE_PERMISSION_MANAGEMENT',
+      requiredPermissions: 'role:read',
     },
   ]),
   sidebarGroupBuilder('time-attendance', 'ระบบเวลาและการลา', [
@@ -36,21 +38,25 @@ export const companySidebarConfig: NavItem[] = [
       id: 'companyAttendanceSchedule',
       icon: <ClockIcon />,
       featureCode: 'ATTENDANCE_MANAGEMENT',
+      requiredPermissions: 'attendance_schedule:read',
     },
     {
       id: 'companyAttendanceLog',
       icon: <CalendarCheckIcon />,
       featureCode: 'ATTENDANCE_MANAGEMENT',
+      requiredPermissions: 'attendance:read',
     },
     {
       id: 'companyLeaveRequest',
       icon: <FileTextIcon />,
       featureCode: 'LEAVE_MANAGEMENT',
+      requiredPermissions: 'leave_request:read',
     },
     {
       id: 'companyLeaveType',
       icon: <CalendarDaysIcon />,
       featureCode: 'LEAVE_MANAGEMENT',
+      requiredPermissions: 'leave_type:read',
     },
   ]),
   sidebarGroupBuilder('forms', 'ระบบแบบฟอร์ม', [
@@ -58,11 +64,13 @@ export const companySidebarConfig: NavItem[] = [
       id: 'companyFormTemplates',
       icon: <ClipboardListIcon />,
       featureCode: 'FORM_MANAGEMENT',
+      requiredPermissions: 'form_template:read',
     },
     {
       id: 'companyFormSubmissions',
       icon: <FileCheck2Icon />,
       featureCode: 'FORM_MANAGEMENT',
+      requiredPermissions: 'form_submission:read',
     },
   ]),
   sidebarGroupBuilder('settings', 'ตั้งค่าองค์กร', [
@@ -70,6 +78,7 @@ export const companySidebarConfig: NavItem[] = [
       id: 'companySettings',
       icon: <Building2Icon />,
       featureCode: 'COMPANY_MANAGEMENT',
+      requiredPermissions: 'company:read',
     },
   ]),
 ];

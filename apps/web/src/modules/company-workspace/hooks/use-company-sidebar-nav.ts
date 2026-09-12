@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useActiveCompany } from './use-active-company';
 import { useCompanyAvailableFeaturesQueries } from '@/modules/feature/hooks/feature-queries';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import { companySidebarConfig } from '@/configs/contains/sidebar-configs/company-sidebar';
 import type { NavItem, NavItemGroup } from '@/shared/utils';
 
@@ -13,6 +14,8 @@ export function useCompanySidebarNav() {
     isSuperAdmin,
     isLoading: isCompanyLoading,
   } = useActiveCompany();
+
+  const { hasAnyPermission } = usePermission();
 
   const availableFeaturesQuery =
     useCompanyAvailableFeaturesQueries(activeCompanyId);
@@ -47,10 +50,29 @@ export function useCompanySidebarNav() {
           continue;
         }
 
-        // Filter sub-items by their individual featureCode
+        // If the group itself requires permissions that the user lacks, skip it
+        if (
+          group.requiredPermissions &&
+          !hasAnyPermission(group.requiredPermissions)
+        ) {
+          continue;
+        }
+
+        // Filter sub-items by their individual featureCode and requiredPermissions
         const allowedSubItems = group.items.filter((subItem) => {
-          if (!subItem.featureCode) return true;
-          return availableFeatureCodes.has(subItem.featureCode);
+          if (
+            subItem.featureCode &&
+            !availableFeatureCodes.has(subItem.featureCode)
+          ) {
+            return false;
+          }
+          if (
+            subItem.requiredPermissions &&
+            !hasAnyPermission(subItem.requiredPermissions)
+          ) {
+            return false;
+          }
+          return true;
         });
 
         // Only render the group if it has at least one allowed sub-item
@@ -62,7 +84,13 @@ export function useCompanySidebarNav() {
         }
       } else {
         // Single Nav Item
-        if (!item.featureCode || availableFeatureCodes.has(item.featureCode)) {
+        const hasFeature =
+          !item.featureCode || availableFeatureCodes.has(item.featureCode);
+        const hasPerm =
+          !item.requiredPermissions ||
+          hasAnyPermission(item.requiredPermissions);
+
+        if (hasFeature && hasPerm) {
           result.push(item);
         }
       }
@@ -74,6 +102,7 @@ export function useCompanySidebarNav() {
     activeCompanyId,
     availableFeaturesQuery.isLoading,
     availableFeatureCodes,
+    hasAnyPermission,
   ]);
 
   return {
