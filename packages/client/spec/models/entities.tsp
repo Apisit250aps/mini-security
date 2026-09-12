@@ -65,7 +65,7 @@ namespace Domain.Entity;
   model CheckInSchedule {
     ...BaseEntity;
 
-    roleId: string;
+    roleIds: string[];
     companyId: string;
     name: string;
     isActive: boolean;
@@ -92,6 +92,15 @@ namespace Domain.Entity;
     status: AttendanceStatus;
     note?: string | null;
     recordedBy?: string | null;
+  }
+
+  model CheckInScheduleRole {
+    ...BaseEntity;
+
+    companyId: string;
+    checkInScheduleId: string;
+    roleId: string;
+    isActive: boolean;
   }
 
   model Session {

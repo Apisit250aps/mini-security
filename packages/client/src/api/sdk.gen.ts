@@ -27,12 +27,12 @@ import type {
   AttendanceServicesGetMemberLogsData,
   AttendanceServicesGetMemberLogsErrors,
   AttendanceServicesGetMemberLogsResponses,
-  AttendanceServicesGetScheduleByRoleData,
-  AttendanceServicesGetScheduleByRoleErrors,
-  AttendanceServicesGetScheduleByRoleResponses,
   AttendanceServicesGetSchedulesByCompanyData,
   AttendanceServicesGetSchedulesByCompanyErrors,
   AttendanceServicesGetSchedulesByCompanyResponses,
+  AttendanceServicesGetSchedulesByRoleData,
+  AttendanceServicesGetSchedulesByRoleErrors,
+  AttendanceServicesGetSchedulesByRoleResponses,
   AttendanceServicesGetSlotsByScheduleData,
   AttendanceServicesGetSlotsByScheduleErrors,
   AttendanceServicesGetSlotsByScheduleResponses,
@@ -343,6 +343,28 @@ export const attendanceServicesGetCompanyLogs = <
   });
 
 /**
+ * Get active check-in schedules assigned to a role in a company
+ */
+export const attendanceServicesGetSchedulesByRole = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AttendanceServicesGetSchedulesByRoleData, ThrowOnError>,
+): RequestResult<
+  AttendanceServicesGetSchedulesByRoleResponses,
+  AttendanceServicesGetSchedulesByRoleErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).get<
+    AttendanceServicesGetSchedulesByRoleResponses,
+    AttendanceServicesGetSchedulesByRoleErrors,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/attendances/companies/{companyId}/roles/{roleId}/schedules',
+    ...options,
+  });
+
+/**
  * Get check-in schedules by company
  */
 export const attendanceServicesGetSchedulesByCompany = <
@@ -409,28 +431,6 @@ export const attendanceServicesGetMemberLogs = <
   >({
     responseType: 'json',
     url: '/attendances/members/{memberId}/logs',
-    ...options,
-  });
-
-/**
- * Get check-in schedule by role
- */
-export const attendanceServicesGetScheduleByRole = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AttendanceServicesGetScheduleByRoleData, ThrowOnError>,
-): RequestResult<
-  AttendanceServicesGetScheduleByRoleResponses,
-  AttendanceServicesGetScheduleByRoleErrors,
-  ThrowOnError
-> =>
-  (options.client ?? client).get<
-    AttendanceServicesGetScheduleByRoleResponses,
-    AttendanceServicesGetScheduleByRoleErrors,
-    ThrowOnError
-  >({
-    responseType: 'json',
-    url: '/attendances/roles/{roleId}/schedule',
     ...options,
   });
 

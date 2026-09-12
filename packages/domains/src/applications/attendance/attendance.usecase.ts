@@ -26,7 +26,8 @@ export type IUpdateCheckInScheduleContext = ISecurityContext & {
   data: UpdateCheckInSchedule;
 };
 
-export type IGetCheckInScheduleByRoleContext = ISecurityContext & {
+export type IGetCheckInSchedulesByRoleContext = ISecurityContext & {
+  companyId: string;
   roleId: string;
 };
 
@@ -44,9 +45,9 @@ export type IUpdateCheckInScheduleUseCase = BaseUseCase<
   CheckInSchedule
 >;
 
-export type IGetCheckInScheduleByRoleUseCase = BaseUseCase<
-  IGetCheckInScheduleByRoleContext,
-  CheckInSchedule | null
+export type IGetCheckInSchedulesByRoleUseCase = BaseUseCase<
+  IGetCheckInSchedulesByRoleContext,
+  CheckInSchedule[]
 >;
 
 export type IGetCheckInSchedulesByCompanyUseCase = BaseUseCase<
@@ -101,7 +102,7 @@ export type IGetScheduleSlotsByScheduleUseCase = BaseUseCase<
 
 export type ICheckInAttendanceContext = ISecurityContext & {
   companyMemberId: string;
-  scheduleSlotId?: string;
+  scheduleSlotId: string;
   note?: string;
 };
 

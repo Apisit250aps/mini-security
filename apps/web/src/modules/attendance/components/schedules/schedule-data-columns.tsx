@@ -29,13 +29,20 @@ export const scheduleDataColumns = ({
       ),
     },
     {
-      accessorKey: 'roleId',
-      header: 'บทบาทที่บังคับใช้',
-      cell: ({ getValue }) => {
-        const roleId = getValue<string>();
-        const roleName = roleMap.get(roleId) || 'บทบาททั่วไป';
-        return <Badge variant="secondary">{roleName}</Badge>;
-      },
+      accessorKey: 'roleIds',
+      header: 'บทบาทที่ได้รับมอบหมาย',
+      cell: ({ row }) =>
+        row.original.roleIds.length ? (
+          <div className="flex flex-wrap gap-1">
+            {row.original.roleIds.map((roleId) => (
+              <Badge key={roleId} variant="secondary">
+                {roleMap.get(roleId) ?? roleId}
+              </Badge>
+            ))}
+          </div>
+        ) : (
+          <span className="text-muted-foreground">ยังไม่มอบหมาย</span>
+        ),
     },
     {
       accessorKey: 'isActive',

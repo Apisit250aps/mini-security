@@ -140,11 +140,12 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
     );
 
     if (member) {
-      const schedule = await this.checkInScheduleRepository.findByRoleId(
+      const schedules = await this.checkInScheduleRepository.findByRoleId(
+        member.companyId,
         member.roleId,
       );
 
-      if (schedule && schedule.isActive) {
+      for (const schedule of schedules.filter((item) => item.isActive)) {
         const slots = await this.scheduleSlotRepository.findByScheduleId(
           schedule.id,
         );

@@ -48,7 +48,7 @@ for (const moduleName of readdirSync(modules)) {
         keys.featureKeys.role('role'),
         keys.featureKeys.companyRoles('company'),
         keys.attendanceKeys.schedules('company'),
-        keys.attendanceKeys.scheduleByRole('role'),
+        keys.attendanceKeys.scheduleByRole('company', 'role'),
         keys.attendanceKeys.slots('schedule'),
         keys.attendanceKeys.memberLogs('member'),
         keys.leaveKeys.types('company', true),
@@ -106,7 +106,9 @@ for (const moduleName of readdirSync(modules)) {
         }
         if (name === 'useScheduleCreate' || name === 'useScheduleUpdate')
           assert.equal(
-            client.getQueryData(keys.attendanceKeys.scheduleByRole('role')),
+            client.getQueryData(
+              keys.attendanceKeys.scheduleByRole('company', 'role'),
+            ),
             1,
           );
         if (name === 'useUserUpdate')

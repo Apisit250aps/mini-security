@@ -5,9 +5,8 @@ import type { CellContext } from '@tanstack/react-table';
 import type { CheckInSchedule } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useOverlay } from '@repo/ui/hooks';
-import { useScheduleUpdate } from '../../hooks/attendance-mutations';
 import ScheduleSlotsModal from './schedule-slots-modal';
-import ScheduleForm, { ScheduleFormValues } from './schedule-form';
+import ScheduleEditForm from './schedule-edit-form';
 
 interface ScheduleColumnActionsProps<T extends CheckInSchedule> {
   cell: CellContext<T, unknown>;
@@ -16,69 +15,32 @@ interface ScheduleColumnActionsProps<T extends CheckInSchedule> {
 
 export default function ScheduleColumnActions<T extends CheckInSchedule>({
   cell,
-  companyId,
 }: ScheduleColumnActionsProps<T>) {
   const ui = useOverlay();
-  const updateMutation = useScheduleUpdate(companyId);
   const schedule = cell.row.original;
 
   const actionManageSlots = useCallback(() => {
     ui.dialog.open({
       title: `จัดการรอบเวลา - ${schedule.name}`,
-      description: 'กำหนดรอบการเข้างาน (Slots) ลำดับ และช่วงเวลาสำหรับตารางนี้',
+      description: 'การแก้รอบเวลามีผลกับทุกบทบาทที่ได้รับมอบหมายตารางนี้',
       size: 'xl',
       children: <ScheduleSlotsModal schedule={schedule} />,
     });
   }, [ui.dialog, schedule]);
 
-  const handleUpdate = useCallback(
-    (data: ScheduleFormValues) => {
-      updateMutation.mutate(
-        {
-          id: schedule.id,
-          data: {
-            name: data.name,
-            roleId: data.roleId,
-            isActive: data.isActive,
-          },
-        },
-        {
-          onSuccess: () => {
-            ui.dialog.close();
-          },
-        },
-      );
-    },
-    [updateMutation, schedule.id, ui.dialog],
-  );
-
   const actionEdit = useCallback(() => {
     ui.dialog.open({
       title: 'แก้ไขตารางเวลาเข้างาน',
-      description: 'ปรับปรุงชื่อบทบาทหรือสถานะการใช้งานตารางเวลา',
+      description: 'แก้ไขชื่อ เลือกหลายบทบาท และเปิดหรือปิดตารางเวลา',
       size: 'lg',
       children: (
-        <ScheduleForm
-          companyId={companyId}
-          isLoading={updateMutation.isPending}
-          defaultValues={{
-            name: schedule.name,
-            roleId: schedule.roleId,
-            isActive: schedule.isActive,
-          }}
-          onSubmit={handleUpdate}
+        <ScheduleEditForm
+          schedule={schedule}
+          onSuccess={() => ui.dialog.close()}
         />
       ),
     });
-  }, [
-    ui.dialog,
-    companyId,
-    updateMutation.isPending,
-    schedule.name,
-    schedule.roleId,
-    schedule.isActive,
-    handleUpdate,
-  ]);
+  }, [ui.dialog, schedule]);
 
   return (
     <ColumnActions

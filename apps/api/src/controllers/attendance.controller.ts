@@ -6,7 +6,7 @@ import {
   DeleteScheduleSlotUseCase,
   GetAttendanceLogsByCompanyUseCase,
   GetAttendanceLogsByMemberUseCase,
-  GetCheckInScheduleByRoleUseCase,
+  GetCheckInSchedulesByRoleUseCase,
   GetCheckInSchedulesByCompanyUseCase,
   GetScheduleSlotsByScheduleUseCase,
   ManualCheckInAttendanceUseCase,
@@ -23,14 +23,17 @@ import {
 import Controller from './base.controller';
 
 const idParamSchema = z.object({ id: z.string().uuid() });
-const roleIdParamSchema = z.object({ roleId: z.string().uuid() });
+const roleIdParamSchema = z.object({
+  companyId: z.string().uuid(),
+  roleId: z.string().uuid(),
+});
 const companyIdParamSchema = z.object({ companyId: z.string().uuid() });
 const scheduleIdParamSchema = z.object({ scheduleId: z.string().uuid() });
 const memberIdParamSchema = z.object({ memberId: z.string().uuid() });
 
 const checkInBodySchema = z.object({
   companyMemberId: z.string().uuid(),
-  scheduleSlotId: z.string().uuid().optional(),
+  scheduleSlotId: z.string().uuid(),
   note: z.string().optional(),
 });
 
@@ -49,7 +52,7 @@ export class AttendanceController extends Controller {
   constructor(
     private readonly createCheckInScheduleUseCase: CreateCheckInScheduleUseCase,
     private readonly updateCheckInScheduleUseCase: UpdateCheckInScheduleUseCase,
-    private readonly getCheckInScheduleByRoleUseCase: GetCheckInScheduleByRoleUseCase,
+    private readonly getCheckInSchedulesByRoleUseCase: GetCheckInSchedulesByRoleUseCase,
     private readonly getCheckInSchedulesByCompanyUseCase: GetCheckInSchedulesByCompanyUseCase,
     private readonly createScheduleSlotUseCase: CreateScheduleSlotUseCase,
     private readonly updateScheduleSlotUseCase: UpdateScheduleSlotUseCase,
@@ -91,12 +94,13 @@ export class AttendanceController extends Controller {
     },
   );
 
-  public getScheduleByRole = this.validator(
+  public getSchedulesByRole = this.validator(
     { params: roleIdParamSchema },
     async (c) => {
-      const { roleId } = c.get('params');
-      const schedule = await this.getCheckInScheduleByRoleUseCase.execute({
+      const { companyId, roleId } = c.get('params');
+      const schedule = await this.getCheckInSchedulesByRoleUseCase.execute({
         ...this.securityContext(c),
+        companyId,
         roleId,
       });
       return this.success(c, 'Schedule retrieved successfully', schedule);

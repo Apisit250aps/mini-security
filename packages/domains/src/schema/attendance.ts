@@ -27,7 +27,13 @@ export type AttendanceStatus = (typeof AttendanceStatusValues)[number];
 // ==========================================
 
 export const checkInScheduleSchema = BaseEntity({
-  roleId: UUIDField({ required: true }),
+  // Active assignments, stored in check_in_schedule_roles by the repository.
+  roleIds: z
+    .array(UUIDField({ required: true }))
+    .refine(
+      (ids) => new Set(ids).size === ids.length,
+      'Role assignments must be unique',
+    ),
   companyId: UUIDField({ required: true }),
   name: StringField({ required: true }),
   isActive: BooleanField({ default: () => true }),
@@ -41,7 +47,19 @@ export const createCheckInScheduleSchema = checkInScheduleSchema.omit({
 
 export const updateCheckInScheduleSchema = checkInScheduleSchema
   .partial()
-  .omit({ id: true, createdAt: true, updatedAt: true });
+  .omit({ id: true, companyId: true, createdAt: true, updatedAt: true })
+  .extend({ isActive: BooleanField({ required: false }) })
+  .strict();
+
+export const checkInScheduleRoleSchema = BaseEntity({
+  companyId: UUIDField({ required: true }),
+  checkInScheduleId: UUIDField({ required: true }),
+  roleId: UUIDField({ required: true }),
+  isActive: BooleanField({ default: () => true }),
+});
+export type CheckInScheduleRoleEntity = z.infer<
+  typeof checkInScheduleRoleSchema
+>;
 
 export type CheckInScheduleEntity = z.infer<typeof checkInScheduleSchema>;
 export type CreateCheckInSchedule = z.infer<typeof createCheckInScheduleSchema>;
@@ -68,7 +86,9 @@ export const createScheduleSlotSchema = scheduleSlotSchema.omit({
 
 export const updateScheduleSlotSchema = scheduleSlotSchema
   .partial()
-  .omit({ id: true, createdAt: true, updatedAt: true });
+  .omit({ id: true, checkInScheduleId: true, createdAt: true, updatedAt: true })
+  .extend({ isRequired: BooleanField({ required: false }) })
+  .strict();
 
 export type ScheduleSlotEntity = z.infer<typeof scheduleSlotSchema>;
 export type CreateScheduleSlot = z.infer<typeof createScheduleSlotSchema>;

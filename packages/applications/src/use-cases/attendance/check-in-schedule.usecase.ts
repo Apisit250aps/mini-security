@@ -1,3 +1,5 @@
+import { PermissionGuard } from '../../lib/guard';
+import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICreateCheckInScheduleContext,
@@ -6,8 +8,8 @@ import type {
   ICreateScheduleSlotUseCase,
   IDeleteScheduleSlotContext,
   IDeleteScheduleSlotUseCase,
-  IGetCheckInScheduleByRoleContext,
-  IGetCheckInScheduleByRoleUseCase,
+  IGetCheckInSchedulesByRoleContext,
+  IGetCheckInSchedulesByRoleUseCase,
   IGetCheckInSchedulesByCompanyContext,
   IGetCheckInSchedulesByCompanyUseCase,
   IGetScheduleSlotsByScheduleContext,
@@ -37,6 +39,26 @@ import {
   ValidationError,
 } from '../../lib/error';
 
+async function validateAssignedRoles(
+  repository: IRoleRepository,
+  companyId: string,
+  roleIds: string[],
+) {
+  const roles = await Promise.all(roleIds.map((id) => repository.findById(id)));
+  if (
+    roles.some(
+      (role) =>
+        !role ||
+        (role.companyId !== companyId &&
+          !(role.companyId == null && role.isSystemDefault)),
+    )
+  ) {
+    throw new ValidationError(
+      'Schedules can only be assigned to company roles or system default roles',
+    );
+  }
+}
+
 // ==========================================
 // Check-In Schedules Use Cases
 // ==========================================
@@ -46,6 +68,7 @@ export class CreateCheckInScheduleUseCase
 {
   constructor(
     private readonly scheduleRepository: ICheckInScheduleRepository,
+    private readonly roleRepository: IRoleRepository,
   ) {}
 
   @RequirePermission('attendance_schedule:manage')
@@ -62,14 +85,11 @@ export class CreateCheckInScheduleUseCase
       );
     }
 
-    const existing = await this.scheduleRepository.findByRoleId(
-      parsed.data.roleId,
+    await validateAssignedRoles(
+      this.roleRepository,
+      parsed.data.companyId,
+      parsed.data.roleIds,
     );
-    if (existing) {
-      throw new DuplicateError(
-        `Check-in schedule already exists for role "${parsed.data.roleId}"`,
-      );
-    }
 
     return this.scheduleRepository.create(parsed.data);
   }
@@ -80,19 +100,21 @@ export class UpdateCheckInScheduleUseCase
 {
   constructor(
     private readonly scheduleRepository: ICheckInScheduleRepository,
+    private readonly roleRepository: IRoleRepository,
   ) {}
 
-  @RequirePermission('attendance_schedule:manage')
+  @RequirePermission<UpdateCheckInScheduleUseCase, CheckInSchedule>(
+    'attendance_schedule:manage',
+    {
+      resolveResource: (instance, context) =>
+        instance.scheduleRepository.findById(context.id!),
+      notFoundMessage: 'Check-in schedule not found',
+    },
+  )
   async execute(
     context: IUpdateCheckInScheduleContext,
+    schedule?: CheckInSchedule,
   ): Promise<CheckInSchedule> {
-    const existing = await this.scheduleRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(
-        `Check-in schedule with id "${context.id}" not found`,
-      );
-    }
-
     const parsed = await updateCheckInScheduleSchema.safeParseAsync(
       context.data,
     );
@@ -103,12 +125,19 @@ export class UpdateCheckInScheduleUseCase
       );
     }
 
+    if (parsed.data.roleIds) {
+      await validateAssignedRoles(
+        this.roleRepository,
+        schedule!.companyId,
+        parsed.data.roleIds,
+      );
+    }
     return this.scheduleRepository.update(context.id, parsed.data);
   }
 }
 
-export class GetCheckInScheduleByRoleUseCase
-  implements IGetCheckInScheduleByRoleUseCase
+export class GetCheckInSchedulesByRoleUseCase
+  implements IGetCheckInSchedulesByRoleUseCase
 {
   constructor(
     private readonly scheduleRepository: ICheckInScheduleRepository,
@@ -116,9 +145,12 @@ export class GetCheckInScheduleByRoleUseCase
 
   @RequirePermission('attendance_schedule:read')
   async execute(
-    context: IGetCheckInScheduleByRoleContext,
-  ): Promise<CheckInSchedule | null> {
-    return this.scheduleRepository.findByRoleId(context.roleId);
+    context: IGetCheckInSchedulesByRoleContext,
+  ): Promise<CheckInSchedule[]> {
+    return this.scheduleRepository.findByRoleId(
+      context.companyId,
+      context.roleId,
+    );
   }
 }
 
@@ -166,6 +198,8 @@ export class CreateScheduleSlotUseCase implements ICreateScheduleSlotUseCase {
       );
     }
 
+    PermissionGuard.requireCompanyScope(context, schedule.companyId);
+
     const existingOrder = await this.slotRepository.findByScheduleIdAndOrder(
       parsed.data.checkInScheduleId,
       parsed.data.slotOrder,
@@ -181,7 +215,10 @@ export class CreateScheduleSlotUseCase implements ICreateScheduleSlotUseCase {
 }
 
 export class UpdateScheduleSlotUseCase implements IUpdateScheduleSlotUseCase {
-  constructor(private readonly slotRepository: IScheduleSlotRepository) {}
+  constructor(
+    private readonly slotRepository: IScheduleSlotRepository,
+    private readonly scheduleRepository: ICheckInScheduleRepository,
+  ) {}
 
   @RequirePermission('attendance_schedule:manage')
   async execute(context: IUpdateScheduleSlotContext): Promise<ScheduleSlot> {
@@ -192,6 +229,11 @@ export class UpdateScheduleSlotUseCase implements IUpdateScheduleSlotUseCase {
       );
     }
 
+    const schedule = await this.scheduleRepository.findById(
+      existing.checkInScheduleId,
+    );
+    if (!schedule) throw new NotFoundError('Check-in schedule not found');
+    PermissionGuard.requireCompanyScope(context, schedule.companyId);
     const parsed = await updateScheduleSlotSchema.safeParseAsync(context.data);
     if (!parsed.success) {
       throw new ValidationError(
@@ -205,7 +247,10 @@ export class UpdateScheduleSlotUseCase implements IUpdateScheduleSlotUseCase {
 }
 
 export class DeleteScheduleSlotUseCase implements IDeleteScheduleSlotUseCase {
-  constructor(private readonly slotRepository: IScheduleSlotRepository) {}
+  constructor(
+    private readonly slotRepository: IScheduleSlotRepository,
+    private readonly scheduleRepository: ICheckInScheduleRepository,
+  ) {}
 
   @RequirePermission('attendance_schedule:manage')
   async execute(context: IDeleteScheduleSlotContext): Promise<void> {
@@ -216,6 +261,11 @@ export class DeleteScheduleSlotUseCase implements IDeleteScheduleSlotUseCase {
       );
     }
 
+    const schedule = await this.scheduleRepository.findById(
+      existing.checkInScheduleId,
+    );
+    if (!schedule) throw new NotFoundError('Check-in schedule not found');
+    PermissionGuard.requireCompanyScope(context, schedule.companyId);
     await this.slotRepository.delete(context.id);
   }
 }
@@ -223,12 +273,20 @@ export class DeleteScheduleSlotUseCase implements IDeleteScheduleSlotUseCase {
 export class GetScheduleSlotsByScheduleUseCase
   implements IGetScheduleSlotsByScheduleUseCase
 {
-  constructor(private readonly slotRepository: IScheduleSlotRepository) {}
+  constructor(
+    private readonly slotRepository: IScheduleSlotRepository,
+    private readonly scheduleRepository: ICheckInScheduleRepository,
+  ) {}
 
   @RequirePermission('attendance_schedule:read')
   async execute(
     context: IGetScheduleSlotsByScheduleContext,
   ): Promise<ScheduleSlot[]> {
+    const schedule = await this.scheduleRepository.findById(
+      context.checkInScheduleId,
+    );
+    if (!schedule) throw new NotFoundError('Check-in schedule not found');
+    PermissionGuard.requireCompanyScope(context, schedule.companyId);
     return this.slotRepository.findByScheduleId(context.checkInScheduleId);
   }
 }

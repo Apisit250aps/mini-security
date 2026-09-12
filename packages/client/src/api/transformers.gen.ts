@@ -6,8 +6,8 @@ import type {
   AttendanceServicesCreateSlotResponse,
   AttendanceServicesGetCompanyLogsResponse,
   AttendanceServicesGetMemberLogsResponse,
-  AttendanceServicesGetScheduleByRoleResponse,
   AttendanceServicesGetSchedulesByCompanyResponse,
+  AttendanceServicesGetSchedulesByRoleResponse,
   AttendanceServicesGetSlotsByScheduleResponse,
   AttendanceServicesManualCheckInResponse,
   AttendanceServicesUpdateScheduleResponse,
@@ -116,6 +116,17 @@ const checkInScheduleSchemaResponseTransformer = (data: any) => {
   return data;
 };
 
+export const attendanceServicesGetSchedulesByRoleResponseTransformer = async (
+  data: any,
+): Promise<AttendanceServicesGetSchedulesByRoleResponse> => {
+  if (data.data) {
+    data.data = data.data.map((item: any) =>
+      checkInScheduleSchemaResponseTransformer(item),
+    );
+  }
+  return data;
+};
+
 export const attendanceServicesGetSchedulesByCompanyResponseTransformer =
   async (
     data: any,
@@ -144,15 +155,6 @@ export const attendanceServicesGetMemberLogsResponseTransformer = async (
     data.data = data.data.map((item: any) =>
       attendanceLogSchemaResponseTransformer(item),
     );
-  }
-  return data;
-};
-
-export const attendanceServicesGetScheduleByRoleResponseTransformer = async (
-  data: any,
-): Promise<AttendanceServicesGetScheduleByRoleResponse> => {
-  if (data.data) {
-    data.data = checkInScheduleSchemaResponseTransformer(data.data);
   }
   return data;
 };

@@ -1,10 +1,21 @@
-import { and, asc, between, eq } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  between,
+  eq,
+  exists,
+  or,
+  isNull,
+  type SQL,
+} from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
 import {
   attendanceLogs,
   checkInSchedules,
+  checkInScheduleRoles,
   companyMember,
+  role,
   scheduleSlots,
 } from '@repo/database/schema';
 import {
@@ -38,24 +49,151 @@ export class CheckInScheduleRepository
     super(db, checkInSchedules);
   }
 
-  async findByRoleId(roleId: string): Promise<CheckInSchedule | null> {
-    const [result] = await this.db
-      .select()
+  private async load(where?: SQL): Promise<CheckInSchedule[]> {
+    const rows = await this.db
+      .select({
+        schedule: checkInSchedules,
+        roleId: checkInScheduleRoles.roleId,
+      })
       .from(checkInSchedules)
-      .where(eq(checkInSchedules.roleId, roleId));
-    return result
-      ? new CheckInSchedule(result as unknown as CheckInSchedule)
-      : null;
+      .leftJoin(
+        checkInScheduleRoles,
+        and(
+          eq(checkInScheduleRoles.checkInScheduleId, checkInSchedules.id),
+          eq(checkInScheduleRoles.isActive, true),
+        ),
+      )
+      .where(where)
+      .orderBy(
+        asc(checkInSchedules.name),
+        asc(checkInSchedules.id),
+        asc(checkInScheduleRoles.roleId),
+      );
+    const schedules = new Map<string, CheckInSchedule>();
+    for (const row of rows) {
+      let schedule = schedules.get(row.schedule.id);
+      if (!schedule) {
+        schedule = new CheckInSchedule({ ...row.schedule, roleIds: [] });
+        schedules.set(schedule.id, schedule);
+      }
+      if (row.roleId) schedule.roleIds.push(row.roleId);
+    }
+    return [...schedules.values()];
+  }
+
+  override async findAll(): Promise<CheckInSchedule[]> {
+    return this.load();
+  }
+
+  override async findById(id: string): Promise<CheckInSchedule | null> {
+    return (await this.load(eq(checkInSchedules.id, id)))[0] ?? null;
+  }
+
+  override async create(data: CreateCheckInSchedule): Promise<CheckInSchedule> {
+    const { roleIds, ...values } = data;
+    return this.db.transaction(async (tx) => {
+      const [schedule] = await tx
+        .insert(checkInSchedules)
+        .values(values)
+        .returning();
+      if (!schedule) throw new Error('Schedule creation failed');
+      if (roleIds.length) {
+        await tx.insert(checkInScheduleRoles).values(
+          roleIds.map((roleId) => ({
+            companyId: schedule.companyId,
+            checkInScheduleId: schedule.id,
+            roleId,
+          })),
+        );
+      }
+      return new CheckInSchedule({ ...schedule, roleIds });
+    });
+  }
+
+  override async update(
+    id: string,
+    data: UpdateCheckInSchedule,
+  ): Promise<CheckInSchedule> {
+    const { roleIds, ...values } = data;
+    return this.db.transaction(async (tx) => {
+      // Lock the aggregate root before replacing assignments, including roles-only edits.
+      const [schedule] = await tx
+        .update(checkInSchedules)
+        .set({ ...values, updatedAt: new Date() })
+        .where(eq(checkInSchedules.id, id))
+        .returning();
+      if (!schedule) throw new Error('Schedule no longer exists');
+      if (roleIds !== undefined) {
+        await tx
+          .update(checkInScheduleRoles)
+          .set({ isActive: false })
+          .where(eq(checkInScheduleRoles.checkInScheduleId, id));
+        if (roleIds.length) {
+          await tx
+            .insert(checkInScheduleRoles)
+            .values(
+              roleIds.map((roleId) => ({
+                companyId: schedule.companyId,
+                checkInScheduleId: id,
+                roleId,
+              })),
+            )
+            .onConflictDoUpdate({
+              target: [
+                checkInScheduleRoles.checkInScheduleId,
+                checkInScheduleRoles.roleId,
+              ],
+              set: { isActive: true, updatedAt: new Date() },
+            });
+        }
+      }
+      const assignments = await tx
+        .select({ roleId: checkInScheduleRoles.roleId })
+        .from(checkInScheduleRoles)
+        .where(
+          and(
+            eq(checkInScheduleRoles.checkInScheduleId, id),
+            eq(checkInScheduleRoles.isActive, true),
+          ),
+        );
+      return new CheckInSchedule({
+        ...schedule,
+        roleIds: assignments.map((assignment) => assignment.roleId),
+      });
+    });
+  }
+
+  async findByRoleId(
+    companyId: string,
+    roleId: string,
+  ): Promise<CheckInSchedule[]> {
+    const assigned = this.db
+      .select({ id: checkInScheduleRoles.id })
+      .from(checkInScheduleRoles)
+      .innerJoin(role, eq(role.id, checkInScheduleRoles.roleId))
+      .where(
+        and(
+          eq(checkInScheduleRoles.checkInScheduleId, checkInSchedules.id),
+          eq(checkInScheduleRoles.companyId, companyId),
+          eq(checkInScheduleRoles.roleId, roleId),
+          eq(checkInScheduleRoles.isActive, true),
+          or(
+            eq(role.companyId, companyId),
+            and(isNull(role.companyId), eq(role.isSystemDefault, true)),
+          ),
+        ),
+      );
+    return this.load(
+      and(
+        eq(checkInSchedules.companyId, companyId),
+        eq(checkInSchedules.isActive, true),
+        exists(assigned),
+      ),
+    );
   }
 
   async findByCompanyId(companyId: string): Promise<CheckInSchedule[]> {
-    const results = await this.db
-      .select()
-      .from(checkInSchedules)
-      .where(eq(checkInSchedules.companyId, companyId));
-    return results.map(
-      (r) => new CheckInSchedule(r as unknown as CheckInSchedule),
-    );
+    return this.load(eq(checkInSchedules.companyId, companyId));
   }
 }
 

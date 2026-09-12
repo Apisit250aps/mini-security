@@ -1,6 +1,7 @@
 import {
   boolean,
   date,
+  foreignKey,
   index,
   integer,
   pgEnum,
@@ -39,9 +40,6 @@ export const checkInSchedules = pgTable(
   'check_in_schedules',
   {
     id: primaryKeyUuid7('id'),
-    roleId: uuid('role_id')
-      .notNull()
-      .references(() => role.id, { onDelete: 'cascade' }),
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'cascade' }),
@@ -51,8 +49,37 @@ export const checkInSchedules = pgTable(
     updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
-    unique('check_in_schedule_role_id_unique').on(table.roleId),
+    unique('check_in_schedule_id_company_unique').on(table.id, table.companyId),
     index('check_in_schedule_company_id_idx').on(table.companyId),
+  ],
+);
+
+export const checkInScheduleRoles = pgTable(
+  'check_in_schedule_roles',
+  {
+    id: primaryKeyUuid7('id'),
+    companyId: uuid('company_id').notNull(),
+    checkInScheduleId: uuid('check_in_schedule_id').notNull(),
+    roleId: uuid('role_id')
+      .notNull()
+      .references(() => role.id, { onDelete: 'cascade' }),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: createdAtTimestamp('created_at'),
+    updatedAt: updatedAtTimestamp('updated_at'),
+  },
+  (table) => [
+    unique('check_in_schedule_role_pair_unique').on(
+      table.checkInScheduleId,
+      table.roleId,
+    ),
+    index('check_in_schedule_role_company_role_idx').on(
+      table.companyId,
+      table.roleId,
+    ),
+    foreignKey({
+      columns: [table.checkInScheduleId, table.companyId],
+      foreignColumns: [checkInSchedules.id, checkInSchedules.companyId],
+    }).onDelete('cascade'),
   ],
 );
 

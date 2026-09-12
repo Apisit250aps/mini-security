@@ -114,17 +114,24 @@ test('check-in persists calculated late status and Bangkok date, and prevents a 
     },
   } as import('@repo/domains/repositories/attendance').IAttendanceLogRepository;
   const slots = {
-    findByScheduleId: async () => [morning],
+    findById: async () => morning,
   } as import('@repo/domains/repositories/attendance').IScheduleSlotRepository;
   const schedules = {
-    findByRoleId: async () => ({ id: 'schedule', isActive: true }),
+    findByRoleId: async () => [{ id: 'schedule', isActive: true }],
   } as import('@repo/domains/repositories/attendance').ICheckInScheduleRepository;
   const members = {
-    findById: async () => ({ id: 'member', roleId: 'role' }),
+    findById: async () => ({
+      id: 'member',
+      roleId: 'role',
+      userId: 'actor',
+      companyId: 'company',
+      isActive: true,
+    }),
   } as import('@repo/domains/repositories/company').ICompanyMemberRepository;
   const useCase = new CheckInAttendanceUseCase(logs, slots, schedules, members);
   const context = {
     companyMemberId: 'member',
+    scheduleSlotId: morning.id,
     user: { id: 'actor', isAdmin: true, isActive: true },
   };
   const result = await useCase.execute(context);

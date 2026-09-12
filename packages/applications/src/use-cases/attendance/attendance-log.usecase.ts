@@ -1,4 +1,5 @@
 import { attendanceClock, resolveAttendanceSlot } from './attendance-time';
+import { PermissionGuard } from '../../lib/guard';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICheckInAttendanceContext,
@@ -20,6 +21,7 @@ import type { ICompanyMemberRepository } from '@repo/domains/repositories/compan
 import { createAttendanceLogSchema } from '@repo/domains/schema/attendance';
 import {
   DuplicateError,
+  ForbiddenError,
   NotFoundError,
   ValidationError,
 } from '../../lib/error';
@@ -43,20 +45,33 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
       );
     }
 
-    const schedule = await this.checkInScheduleRepository.findByRoleId(
-      member.roleId,
-    );
-    if (!schedule || !schedule.isActive) {
-      throw new ValidationError(
-        'No active check-in schedule configured for this role',
+    PermissionGuard.requireCompanyScope(context, member.companyId);
+    if (!member.isActive)
+      throw new ValidationError('Company member is inactive');
+    if (member.userId !== context.user?.id) {
+      throw new ForbiddenError(
+        'Use manual check-in to record attendance for another member',
       );
     }
-
-    const slots = await this.scheduleSlotRepository.findByScheduleId(
-      schedule.id,
+    if (!context.scheduleSlotId)
+      throw new ValidationError('Select a schedule slot');
+    const schedules = await this.checkInScheduleRepository.findByRoleId(
+      member.companyId,
+      member.roleId,
     );
-    if (slots.length === 0) {
-      throw new ValidationError('No schedule slots found for this schedule');
+    const slot = await this.scheduleSlotRepository.findById(
+      context.scheduleSlotId,
+    );
+    if (
+      !slot ||
+      !schedules.some(
+        (schedule) =>
+          schedule.id === slot.checkInScheduleId && schedule.isActive,
+      )
+    ) {
+      throw new ValidationError(
+        'Slot is not assigned to this member through an active schedule',
+      );
     }
 
     const now = new Date();
@@ -64,7 +79,7 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
       slot: targetSlot,
       workDate: today,
       status,
-    } = resolveAttendanceSlot(slots, now, context.scheduleSlotId);
+    } = resolveAttendanceSlot([slot], now, context.scheduleSlotId);
 
     const existingLog =
       await this.attendanceLogRepository.findByMemberAndSlotAndDate(
@@ -85,7 +100,7 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
       checkedInAt: now,
       status,
       note: context.note ?? null,
-      recordedBy: context.userId ?? null,
+      recordedBy: null,
     };
 
     return this.attendanceLogRepository.upsertLog(logData);
@@ -97,6 +112,9 @@ export class ManualCheckInAttendanceUseCase
 {
   constructor(
     private readonly attendanceLogRepository: IAttendanceLogRepository,
+    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly scheduleSlotRepository: IScheduleSlotRepository,
+    private readonly checkInScheduleRepository: ICheckInScheduleRepository,
   ) {}
 
   @RequirePermission('attendance:manage')
@@ -111,9 +129,34 @@ export class ManualCheckInAttendanceUseCase
       );
     }
 
+    const member = await this.companyMemberRepository.findById(
+      parsed.data.companyMemberId,
+    );
+    if (!member) throw new NotFoundError('Company member not found');
+    PermissionGuard.requireCompanyScope(context, member.companyId);
+    if (!member.isActive)
+      throw new ValidationError('Company member is inactive');
+    const [slot, schedules] = await Promise.all([
+      this.scheduleSlotRepository.findById(parsed.data.scheduleSlotId),
+      this.checkInScheduleRepository.findByRoleId(
+        member.companyId,
+        member.roleId,
+      ),
+    ]);
+    if (
+      !slot ||
+      !schedules.some(
+        (schedule) =>
+          schedule.id === slot.checkInScheduleId && schedule.isActive,
+      )
+    ) {
+      throw new ValidationError(
+        'Slot is not assigned to this member through an active schedule',
+      );
+    }
     const payload = {
       ...parsed.data,
-      recordedBy: parsed.data.recordedBy ?? context.userId ?? null,
+      recordedBy: context.user?.id ?? context.userId ?? null,
     };
 
     return this.attendanceLogRepository.upsertLog(payload);
@@ -125,12 +168,18 @@ export class GetAttendanceLogsByMemberUseCase
 {
   constructor(
     private readonly attendanceLogRepository: IAttendanceLogRepository,
+    private readonly companyMemberRepository: ICompanyMemberRepository,
   ) {}
 
   @RequirePermission('attendance:read')
   async execute(
     context: IGetAttendanceLogsByMemberContext,
   ): Promise<AttendanceLog[]> {
+    const member = await this.companyMemberRepository.findById(
+      context.companyMemberId,
+    );
+    if (!member) throw new NotFoundError('Company member not found');
+    PermissionGuard.requireCompanyScope(context, member.companyId);
     if (context.startDate && context.endDate) {
       return this.attendanceLogRepository.findByMemberAndDateRange(
         context.companyMemberId,

@@ -2,12 +2,13 @@ import type {
   AttendanceLogEntity,
   AttendanceStatus,
   CheckInScheduleEntity,
+  CheckInScheduleRoleEntity,
   ScheduleSlotEntity,
 } from '#schema/attendance';
 
 export class CheckInSchedule implements CheckInScheduleEntity {
   id: string;
-  roleId: string;
+  roleIds: string[];
   companyId: string;
   name: string;
   isActive: boolean;
@@ -16,7 +17,7 @@ export class CheckInSchedule implements CheckInScheduleEntity {
 
   constructor(data: CheckInScheduleEntity) {
     this.id = data.id;
-    this.roleId = data.roleId;
+    this.roleIds = data.roleIds;
     this.companyId = data.companyId;
     this.name = data.name;
     this.isActive = data.isActive;
@@ -70,6 +71,26 @@ export class AttendanceLog implements AttendanceLogEntity {
     this.status = data.status;
     this.note = data.note;
     this.recordedBy = data.recordedBy;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
+  }
+}
+
+export class CheckInScheduleRole implements CheckInScheduleRoleEntity {
+  id: string;
+  companyId: string;
+  checkInScheduleId: string;
+  roleId: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+
+  constructor(data: CheckInScheduleRoleEntity) {
+    this.id = data.id;
+    this.companyId = data.companyId;
+    this.checkInScheduleId = data.checkInScheduleId;
+    this.roleId = data.roleId;
+    this.isActive = data.isActive;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }

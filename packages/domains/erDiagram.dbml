@@ -1,8 +1,10 @@
 // ==========================================
 // Mini-Security Database Schema (DBML)
-// Existing modules + proposed Form Builder / Responses / Owner Approval MVP.
+// Existing modules + proposed Form Builder / Responses / Owner Approval MVP
+// and implemented many-to-many Check-in Schedule / Role assignments.
 // PROPOSED sections are not implemented in Drizzle or migrations yet.
 // Design decisions: docs/inspection-form-design.md
+// Attendance design: docs/check-in-schedule-design.md
 // ==========================================
 
 // --- Enum Definitions ---
@@ -337,7 +339,8 @@ TableGroup feature_management {
 // หมายเหตุ:
 //   "ตำแหน่งงาน" (position) → ใช้ตาราง `role` ที่มีอยู่แล้ว
 //   "พนักงาน"    (employee)  → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
-// ตารางใหม่ที่เพิ่มคือ: check_in_schedules, schedule_slots, attendance_logs
+// Schedule / Role เป็น M:N ผ่าน check_in_schedule_roles
+// Drizzle / API / UI implemented; migration: 20260912040000_check_in_schedule_roles
 
 Enum attendance_status {
   present   [note: 'มาทำงาน']
@@ -346,23 +349,39 @@ Enum attendance_status {
   excused   [note: 'ลา (มีเหตุผล)']
 }
 
-// กำหนดรูปแบบการเช็คชื่อต่อ Role/ตำแหน่ง (1 role : 1 schedule)
-// role ที่ใช้คือ role ที่ผูกกับ company เช่น แม่บ้าน, พนักงานทั่วไป, หัวหน้างาน
+// Schedule เป็นของบริษัท และมอบหมายให้หลาย Role ผ่านตารางกลาง
 Table check_in_schedules {
   id         uuid [pk, note: 'UUIDv7 Primary Key']
-  role_id    uuid [not null, unique, note: 'FK -> role.id  (1 role : 1 schedule — role แทน "ตำแหน่งงาน")']
-  company_id uuid [not null, note: 'FK -> company.id  (denormalized สำหรับ Tenant Boundary Check)']
-  name       text [not null, note: 'ชื่อ schedule เช่น แม่บ้าน 2 รอบ, พนักงาน 3 รอบ, หัวหน้า 1 รอบ']
+  company_id uuid [not null, note: 'FK -> company.id — บริษัทเจ้าของ Schedule']
+  name       text [not null, note: 'ชื่อ schedule เช่น รอบประจำวัน, รอบตรวจช่วงเย็น']
   is_active  boolean [not null, default: true]
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null]
 
   Indexes {
-    role_id    [unique, name: 'check_in_schedule_role_id_unique']
     company_id [name: 'check_in_schedule_company_id_idx']
+    (id, company_id) [unique, name: 'check_in_schedule_id_company_unique']
   }
 
-  Note: 'Config การเช็คชื่อต่อ Role (ตำแหน่งงาน) — dynamic ตั้งค่าได้ต่อ role'
+  Note: 'Schedule ใช้ร่วมกันได้หลาย Role; เอา role_id และ unique เดิมออกหลังย้ายข้อมูลเข้าตารางกลาง'
+}
+
+// 1 role มีหลาย schedule และ 1 schedule มอบหมายให้หลาย role
+Table check_in_schedule_roles {
+  id                   uuid [pk, note: 'UUIDv7 Primary Key']
+  company_id           uuid [not null, note: 'Composite FK บังคับบริษัทของ Schedule; use case ตรวจบริษัทของ Role หรือ system default']
+  check_in_schedule_id uuid [not null]
+  role_id              uuid [not null, note: 'Role ของบริษัทเดียวกัน หรือ global role ที่ is_system_default = true']
+  is_active            boolean [not null, default: true, note: 'เปิด/ปิดการมอบหมายเฉพาะ Role โดยไม่กระทบ Role อื่น']
+  created_at           timestamp [not null, default: `now()`]
+  updated_at           timestamp [not null]
+
+  Indexes {
+    (check_in_schedule_id, role_id) [unique, name: 'check_in_schedule_role_pair_unique']
+    (company_id, role_id) [name: 'check_in_schedule_role_company_role_idx']
+  }
+
+  Note: 'M:N assignment: มีผลเมื่อทั้ง Schedule และ assignment เปิดใช้งาน; เปิดคู่เดิมกลับมาใช้แทนการเพิ่มแถวซ้ำ'
 }
 
 // แต่ละรอบการเช็คชื่อในวัน (1 schedule มีได้หลาย slot — dynamic)
@@ -410,9 +429,10 @@ Table attendance_logs {
 
 // --- Attendance Foreign Key Relationships ---
 
-// check_in_schedules → role (ตำแหน่งงาน) และ company
-Ref: check_in_schedules.role_id    > role.id    [delete: cascade]
+// Schedule เป็นของบริษัท; assignment บังคับ tenant ผ่าน composite FKs
 Ref: check_in_schedules.company_id > company.id [delete: cascade]
+Ref: check_in_schedule_roles.(check_in_schedule_id, company_id) > check_in_schedules.(id, company_id) [delete: cascade]
+Ref: check_in_schedule_roles.role_id > role.id [delete: cascade]
 
 // schedule_slots → check_in_schedules
 Ref: schedule_slots.check_in_schedule_id > check_in_schedules.id [delete: cascade]
@@ -426,6 +446,7 @@ Ref: attendance_logs.recorded_by       > user.id           [delete: set null]
 
 TableGroup attendance_module {
   check_in_schedules
+  check_in_schedule_roles
   schedule_slots
   attendance_logs
 }

@@ -7,9 +7,12 @@ import { z } from 'zod';
 import { SelectField, TextareaField, DateField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { CompanyMemberSelectField } from '@/modules/company/components/members/company-member-select-field';
+import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useUserListQueries } from '@/modules/user/hooks/user-queries';
+import AttendanceSelectField from './attendance-select-field';
+import { getWorkDate } from '../../utils/check-in-slot';
 import {
-  useCompanySchedulesQueries,
+  useRoleSchedulesQueries,
   useScheduleSlotsQueries,
 } from '../../hooks/attendance-queries';
 import type { FormProps } from '@/types';
@@ -19,7 +22,7 @@ export const manualCheckInFormSchema = z.object({
   scheduleSlotId: z.string().uuid('กรุณาเลือกรอบเวลา'),
   scheduleId: z.string().uuid('กรุณาเลือกตารางเวลา'),
   workDate: z.string().min(1, 'กรุณาระบุวันที่'),
-  status: z.enum(['present', 'late', 'absent', 'excused']).default('present'),
+  status: z.enum(['present', 'late', 'absent', 'excused']),
   note: z.string().optional(),
 });
 
@@ -42,12 +45,13 @@ export default function ManualCheckInForm({
   defaultValues,
   isLoading,
 }: ManualCheckInFormProps) {
-  const schedulesQuery = useCompanySchedulesQueries(companyId);
+  const members = useCompanyMembersQueries(companyId);
+  const users = useUserListQueries();
 
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0]!, []);
+  const todayStr = useMemo(() => getWorkDate(new Date()), []);
 
   const methods = useForm<ManualCheckInFormValues>({
-    resolver: zodResolver(manualCheckInFormSchema as never),
+    resolver: zodResolver(manualCheckInFormSchema),
     defaultValues: defaultValues ?? {
       companyMemberId: '',
       scheduleId: '',
@@ -62,7 +66,41 @@ export default function ManualCheckInForm({
     control: methods.control,
     name: 'scheduleId',
   });
-  const slotsQuery = useScheduleSlotsQueries(selectedScheduleId);
+  const selectedMemberId = useWatch({
+    control: methods.control,
+    name: 'companyMemberId',
+  });
+  const selectedMember = members.data?.find(
+    (member) => member.id === selectedMemberId && member.isActive,
+  );
+  const schedulesQuery = useRoleSchedulesQueries(
+    companyId,
+    selectedMember?.roleId,
+  );
+  const validSchedule = schedulesQuery.data?.some(
+    (schedule) => schedule.id === selectedScheduleId,
+  );
+  const slotsQuery = useScheduleSlotsQueries(
+    validSchedule ? selectedScheduleId : undefined,
+  );
+  const memberOptions = (members.data ?? [])
+    .filter((member) => member.isActive)
+    .map((member) => ({
+      value: member.id,
+      label:
+        users.data?.find((user) => user.id === member.userId)?.name ??
+        member.id,
+    }));
+  const failed =
+    members.isError ||
+    users.isError ||
+    schedulesQuery.isError ||
+    slotsQuery.isError;
+  const loading =
+    members.isLoading ||
+    users.isLoading ||
+    schedulesQuery.isLoading ||
+    slotsQuery.isLoading;
 
   const scheduleOptions = useMemo(() => {
     return (schedulesQuery.data || []).map((s) => ({
@@ -80,39 +118,76 @@ export default function ManualCheckInForm({
 
   return (
     <form
-      onSubmit={methods.handleSubmit(onSubmit)}
+      onSubmit={methods.handleSubmit((values) => {
+        if (isLoading || loading || failed || !selectedMember || !validSchedule)
+          return;
+        if (
+          !slotsQuery.data?.some((slot) => slot.id === values.scheduleSlotId)
+        ) {
+          methods.setError('scheduleSlotId', {
+            message: 'กรุณาเลือกรอบของตารางที่ได้รับมอบหมาย',
+          });
+          return;
+        }
+        onSubmit(values);
+      })}
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <CompanyMemberSelectField
-          companyId={companyId}
+        <AttendanceSelectField
           name="companyMemberId"
           label="พนักงาน"
-          placeholder="เลือกพนักงาน..."
+          options={memberOptions}
           control={methods.control}
-          required
+          disabled={
+            isLoading ||
+            members.isLoading ||
+            users.isLoading ||
+            members.isError ||
+            users.isError
+          }
+          onChange={() => {
+            methods.setValue('scheduleId', '');
+            methods.setValue('scheduleSlotId', '');
+          }}
         />
+        {failed && (
+          <p role="alert">
+            โหลดข้อมูลไม่สำเร็จ กรุณาปิดแล้วเปิดแบบฟอร์มอีกครั้ง
+          </p>
+        )}
+        {selectedMember &&
+          !schedulesQuery.isLoading &&
+          !schedulesQuery.isError &&
+          !scheduleOptions.length && (
+            <p>พนักงานนี้ยังไม่มีตารางที่เปิดใช้งานและได้รับมอบหมาย</p>
+          )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <SelectField
+          <AttendanceSelectField
             name="scheduleId"
             label="ตารางเวลา"
-            placeholder="เลือกตาราง..."
             options={scheduleOptions}
             control={methods.control}
-            required
-          />
-
-          <SelectField
-            name="scheduleSlotId"
-            label="รอบเวลา (Slot)"
-            placeholder={
-              selectedScheduleId ? 'เลือกรอบเวลา...' : 'กรุณาเลือกตารางเวลาก่อน'
+            disabled={
+              isLoading ||
+              !selectedMember ||
+              schedulesQuery.isLoading ||
+              schedulesQuery.isError
             }
+            onChange={() => methods.setValue('scheduleSlotId', '')}
+          />
+          <AttendanceSelectField
+            name="scheduleSlotId"
+            label="รอบเวลา"
             options={slotOptions}
             control={methods.control}
-            disabled={!selectedScheduleId || slotsQuery.isLoading}
-            required
+            disabled={
+              isLoading ||
+              !validSchedule ||
+              slotsQuery.isLoading ||
+              slotsQuery.isError
+            }
           />
         </div>
 
@@ -144,7 +219,11 @@ export default function ManualCheckInForm({
       </FieldGroup>
 
       <div className="flex justify-end">
-        <ButtonLoading type="submit" isLoading={isLoading}>
+        <ButtonLoading
+          type="submit"
+          isLoading={isLoading}
+          isDisabled={loading || failed || !selectedMember || !validSchedule}
+        >
           บันทึกเวลา
         </ButtonLoading>
       </div>

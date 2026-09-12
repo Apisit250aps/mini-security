@@ -5,10 +5,7 @@ export const attendanceRelations = (r: RelationsHelper) => ({
     checkInSchedules: r.many.checkInSchedules(),
   },
   role: {
-    checkInSchedule: r.one.checkInSchedules({
-      from: r.role.id,
-      to: r.checkInSchedules.roleId,
-    }),
+    checkInScheduleRoles: r.many.checkInScheduleRoles(),
   },
   companyMember: {
     attendanceLogs: r.many.attendanceLogs(),
@@ -17,15 +14,25 @@ export const attendanceRelations = (r: RelationsHelper) => ({
     recordedAttendanceLogs: r.many.attendanceLogs(),
   },
   checkInSchedules: {
-    role: r.one.role({
-      from: r.checkInSchedules.roleId,
-      to: r.role.id,
-    }),
+    roleAssignments: r.many.checkInScheduleRoles(),
     company: r.one.company({
       from: r.checkInSchedules.companyId,
       to: r.company.id,
     }),
     slots: r.many.scheduleSlots(),
+  },
+  checkInScheduleRoles: {
+    schedule: r.one.checkInSchedules({
+      from: [
+        r.checkInScheduleRoles.checkInScheduleId,
+        r.checkInScheduleRoles.companyId,
+      ],
+      to: [r.checkInSchedules.id, r.checkInSchedules.companyId],
+    }),
+    role: r.one.role({
+      from: r.checkInScheduleRoles.roleId,
+      to: r.role.id,
+    }),
   },
   scheduleSlots: {
     schedule: r.one.checkInSchedules({

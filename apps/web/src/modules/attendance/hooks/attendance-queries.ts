@@ -1,11 +1,12 @@
 import {
   attendanceServicesGetCompanyLogs,
   attendanceServicesGetMemberLogs,
-  attendanceServicesGetScheduleByRole,
+  attendanceServicesGetSchedulesByRole,
   attendanceServicesGetSchedulesByCompany,
   attendanceServicesGetSlotsBySchedule,
 } from '@repo/client';
-import { useQuery } from '@tanstack/react-query';
+import type { CheckInSchedule } from '@repo/client';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { attendanceKeys } from '@/shared/utils';
 
 export function useCompanySchedulesQueries(companyId: string) {
@@ -22,20 +23,20 @@ export function useCompanySchedulesQueries(companyId: string) {
   });
 }
 
-export function useRoleScheduleQueries(roleId?: string) {
+export function useRoleSchedulesQueries(companyId: string, roleId?: string) {
   return useQuery({
     queryKey: roleId
-      ? attendanceKeys.scheduleByRole(roleId)
+      ? attendanceKeys.scheduleByRole(companyId, roleId)
       : ['ATTENDANCE', 'SCHEDULE', 'ROLE', 'NONE'],
     queryFn: async ({ signal }) => {
-      if (!roleId) return null;
-      const response = await attendanceServicesGetScheduleByRole({
+      if (!roleId) return [];
+      const response = await attendanceServicesGetSchedulesByRole({
         signal,
-        path: { roleId },
+        path: { companyId, roleId },
       });
-      return response.data?.data || null;
+      return response.data?.data || [];
     },
-    enabled: Boolean(roleId),
+    enabled: Boolean(companyId && roleId),
   });
 }
 
@@ -93,4 +94,31 @@ export function useCompanyAttendanceLogsQueries(
     },
     enabled: Boolean(companyId && filters.startDate && filters.endDate),
   });
+}
+
+/** Load each assigned schedule's slots concurrently through their existing cache keys. */
+export function useAssignedScheduleSlotsQueries(schedules: CheckInSchedule[]) {
+  const queries = useQueries({
+    queries: schedules.map((schedule) => ({
+      queryKey: attendanceKeys.slots(schedule.id),
+      queryFn: async ({ signal }: { signal: AbortSignal }) => {
+        const response = await attendanceServicesGetSlotsBySchedule({
+          signal,
+          path: { scheduleId: schedule.id },
+        });
+        return response.data?.data ?? [];
+      },
+    })),
+  });
+  return {
+    data: queries.flatMap((query, index) =>
+      (query.data ?? []).map((slot) => ({
+        ...slot,
+        scheduleName: schedules[index]!.name,
+      })),
+    ),
+    isLoading: queries.some((query) => query.isLoading),
+    isError: queries.some((query) => query.isError),
+    refetch: () => Promise.all(queries.map((query) => query.refetch())),
+  };
 }

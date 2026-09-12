@@ -11,8 +11,8 @@ import {
   attendanceServicesDeleteSlot,
   attendanceServicesGetCompanyLogs,
   attendanceServicesGetMemberLogs,
-  attendanceServicesGetScheduleByRole,
   attendanceServicesGetSchedulesByCompany,
+  attendanceServicesGetSchedulesByRole,
   attendanceServicesGetSlotsBySchedule,
   attendanceServicesManualCheckIn,
   attendanceServicesUpdateSchedule,
@@ -115,12 +115,12 @@ import type {
   AttendanceServicesGetMemberLogsData,
   AttendanceServicesGetMemberLogsError,
   AttendanceServicesGetMemberLogsResponse,
-  AttendanceServicesGetScheduleByRoleData,
-  AttendanceServicesGetScheduleByRoleError,
-  AttendanceServicesGetScheduleByRoleResponse,
   AttendanceServicesGetSchedulesByCompanyData,
   AttendanceServicesGetSchedulesByCompanyError,
   AttendanceServicesGetSchedulesByCompanyResponse,
+  AttendanceServicesGetSchedulesByRoleData,
+  AttendanceServicesGetSchedulesByRoleError,
+  AttendanceServicesGetSchedulesByRoleResponse,
   AttendanceServicesGetSlotsByScheduleData,
   AttendanceServicesGetSlotsByScheduleError,
   AttendanceServicesGetSlotsByScheduleResponse,
@@ -461,6 +461,34 @@ export const attendanceServicesGetCompanyLogsOptions = (
     queryKey: attendanceServicesGetCompanyLogsQueryKey(options),
   });
 
+export const attendanceServicesGetSchedulesByRoleQueryKey = (
+  options: Options<AttendanceServicesGetSchedulesByRoleData>,
+) => createQueryKey('attendanceServicesGetSchedulesByRole', options);
+
+/**
+ * Get active check-in schedules assigned to a role in a company
+ */
+export const attendanceServicesGetSchedulesByRoleOptions = (
+  options: Options<AttendanceServicesGetSchedulesByRoleData>,
+) =>
+  queryOptions<
+    AttendanceServicesGetSchedulesByRoleResponse,
+    AxiosError<AttendanceServicesGetSchedulesByRoleError>,
+    AttendanceServicesGetSchedulesByRoleResponse,
+    ReturnType<typeof attendanceServicesGetSchedulesByRoleQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await attendanceServicesGetSchedulesByRole({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: attendanceServicesGetSchedulesByRoleQueryKey(options),
+  });
+
 export const attendanceServicesGetSchedulesByCompanyQueryKey = (
   options: Options<AttendanceServicesGetSchedulesByCompanyData>,
 ) => createQueryKey('attendanceServicesGetSchedulesByCompany', options);
@@ -542,34 +570,6 @@ export const attendanceServicesGetMemberLogsOptions = (
       return data;
     },
     queryKey: attendanceServicesGetMemberLogsQueryKey(options),
-  });
-
-export const attendanceServicesGetScheduleByRoleQueryKey = (
-  options: Options<AttendanceServicesGetScheduleByRoleData>,
-) => createQueryKey('attendanceServicesGetScheduleByRole', options);
-
-/**
- * Get check-in schedule by role
- */
-export const attendanceServicesGetScheduleByRoleOptions = (
-  options: Options<AttendanceServicesGetScheduleByRoleData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetScheduleByRoleResponse,
-    AxiosError<AttendanceServicesGetScheduleByRoleError>,
-    AttendanceServicesGetScheduleByRoleResponse,
-    ReturnType<typeof attendanceServicesGetScheduleByRoleQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetScheduleByRole({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: attendanceServicesGetScheduleByRoleQueryKey(options),
   });
 
 /**

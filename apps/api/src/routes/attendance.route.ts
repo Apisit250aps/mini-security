@@ -6,7 +6,7 @@ import {
   deleteScheduleSlotUseCase,
   getAttendanceLogsByCompanyUseCase,
   getAttendanceLogsByMemberUseCase,
-  getCheckInScheduleByRoleUseCase,
+  getCheckInSchedulesByRoleUseCase,
   getCheckInSchedulesByCompanyUseCase,
   getScheduleSlotsByScheduleUseCase,
   manualCheckInAttendanceUseCase,
@@ -19,7 +19,7 @@ import { authMiddleware } from '../middleware';
 const attendanceController = new AttendanceController(
   createCheckInScheduleUseCase,
   updateCheckInScheduleUseCase,
-  getCheckInScheduleByRoleUseCase,
+  getCheckInSchedulesByRoleUseCase,
   getCheckInSchedulesByCompanyUseCase,
   createScheduleSlotUseCase,
   updateScheduleSlotUseCase,
@@ -39,8 +39,8 @@ attendanceRoutes.use('*', authMiddleware);
 attendanceRoutes.post('/schedules', attendanceController.createSchedule);
 attendanceRoutes.put('/schedules/:id', attendanceController.updateSchedule);
 attendanceRoutes.get(
-  '/roles/:roleId/schedule',
-  attendanceController.getScheduleByRole,
+  '/companies/:companyId/roles/:roleId/schedules',
+  attendanceController.getSchedulesByRole,
 );
 attendanceRoutes.get(
   '/companies/:companyId/schedules',

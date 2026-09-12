@@ -7,16 +7,16 @@ model CreateCheckInSchedule
   is OmitProperties<CheckInSchedule, "id" | "createdAt" | "updatedAt">;
 
 model UpdateCheckInSchedule
-  is OptionalProperties<OmitProperties<CheckInSchedule, "id" | "createdAt" | "updatedAt">>;
+  is OptionalProperties<OmitProperties<CheckInSchedule, "id" | "companyId" | "createdAt" | "updatedAt">>;
 
 // ─── ScheduleSlot ────────────────────────────────────────────────────────────
 model ScheduleSlot is Domain.Entity.ScheduleSlot;
 
 model CreateScheduleSlot
-  is OmitProperties<ScheduleSlot, "id" | "createdAt" | "updatedAt">;
+  is OmitProperties<ScheduleSlot, "id" | "checkInScheduleId" | "createdAt" | "updatedAt">;
 
 model UpdateScheduleSlot
-  is OptionalProperties<OmitProperties<ScheduleSlot, "id" | "createdAt" | "updatedAt">>;
+  is OptionalProperties<OmitProperties<ScheduleSlot, "id" | "checkInScheduleId" | "createdAt" | "updatedAt">>;
 
 // ─── AttendanceLog ───────────────────────────────────────────────────────────
 model AttendanceLog is Domain.Entity.AttendanceLog;
@@ -29,6 +29,6 @@ model UpdateAttendanceLog
 
 model CheckInRequest {
   companyMemberId: string;
-  scheduleSlotId?: string;
+  scheduleSlotId: string;
   note?: string;
 }

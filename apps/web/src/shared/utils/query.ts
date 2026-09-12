@@ -69,8 +69,8 @@ export const attendanceKeys = {
   ...createQueryKeys('ATTENDANCE'),
   schedules: (companyId: string) =>
     ['ATTENDANCE', 'SCHEDULES', companyId] as const,
-  scheduleByRole: (roleId: string) =>
-    ['ATTENDANCE', 'SCHEDULE', 'ROLE', roleId] as const,
+  scheduleByRole: (companyId: string, roleId: string) =>
+    ['ATTENDANCE', 'SCHEDULE', 'ROLE', companyId, roleId] as const,
   slots: (scheduleId: string) => ['ATTENDANCE', 'SLOTS', scheduleId] as const,
   memberLogs: (memberId: string, filters?: Record<string, unknown>) =>
     ['ATTENDANCE', 'LOGS', 'MEMBER', memberId, filters] as const,

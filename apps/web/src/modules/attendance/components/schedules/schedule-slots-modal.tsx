@@ -40,7 +40,6 @@ export default function ScheduleSlotsModal({
           onSubmit={(data: SlotFormValues) => {
             createMutation.mutate(
               {
-                checkInScheduleId: schedule.id,
                 label: data.label,
                 slotOrder: data.slotOrder,
                 windowStart: data.windowStart,

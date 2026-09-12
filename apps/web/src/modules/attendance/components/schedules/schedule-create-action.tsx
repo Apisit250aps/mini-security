@@ -4,8 +4,7 @@ import React, { useCallback } from 'react';
 import { Button } from '@repo/ui/components/button';
 import { useOverlay } from '@repo/ui/hooks';
 import { Plus } from 'lucide-react';
-import { useScheduleCreate } from '../../hooks/attendance-mutations';
-import ScheduleForm, { ScheduleFormValues } from './schedule-form';
+import ScheduleCreateForm from './schedule-create-form';
 
 interface ScheduleCreateActionProps {
   companyId: string;
@@ -15,41 +14,20 @@ export default function ScheduleCreateAction({
   companyId,
 }: ScheduleCreateActionProps) {
   const ui = useOverlay();
-  const createMutation = useScheduleCreate(companyId);
-
-  const handleSubmit = useCallback(
-    (data: ScheduleFormValues) => {
-      createMutation.mutate(
-        {
-          companyId,
-          name: data.name,
-          roleId: data.roleId,
-          isActive: data.isActive,
-        },
-        {
-          onSuccess: () => {
-            ui.dialog.close();
-          },
-        },
-      );
-    },
-    [createMutation, companyId, ui.dialog],
-  );
-
   const openCreateDialog = useCallback(() => {
     ui.dialog.open({
       title: 'เพิ่มตารางเวลาเช็คชื่อใหม่',
-      description: 'กำหนดบทบาทและเงื่อนไขของตารางเวลาเข้างาน',
+      description:
+        'ตั้งชื่อตารางและเลือกบทบาท จากนั้นจัดการรอบเวลาในรายการตาราง',
       size: 'lg',
       children: (
-        <ScheduleForm
+        <ScheduleCreateForm
           companyId={companyId}
-          isLoading={createMutation.isPending}
-          onSubmit={handleSubmit}
+          onSuccess={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, companyId, createMutation.isPending, handleSubmit]);
+  }, [ui.dialog, companyId]);
 
   return (
     <Button onPress={openCreateDialog}>

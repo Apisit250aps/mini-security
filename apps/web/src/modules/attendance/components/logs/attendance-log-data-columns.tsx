@@ -13,7 +13,7 @@ import { formatDate, formatDateTime } from '@/shared/utils';
 
 interface AttendanceLogColumnsOptions {
   members?: CompanyMember[];
-  slots?: ScheduleSlot[];
+  slots?: (ScheduleSlot & { scheduleName?: string })[];
   usersMap?: Map<string, User>;
 }
 
@@ -36,7 +36,12 @@ export const attendanceLogDataColumns = ({
   usersMap,
 }: AttendanceLogColumnsOptions = {}): ColumnDef<AttendanceLog>[] => {
   const memberObjMap = new Map(members.map((m) => [m.id, m]));
-  const slotMap = new Map(slots.map((s) => [s.id, s.label]));
+  const slotMap = new Map(
+    slots.map((s) => [
+      s.id,
+      s.scheduleName ? `${s.scheduleName} · ${s.label}` : s.label,
+    ]),
+  );
 
   return [
     {
@@ -69,7 +74,7 @@ export const attendanceLogDataColumns = ({
     },
     {
       accessorKey: 'scheduleSlotId',
-      header: 'รอบเวลา (Slot)',
+      header: 'ตารางและรอบเวลา',
       cell: ({ getValue }) => {
         const slotId = getValue<string>();
         const slotLabel = slotMap.get(slotId) || 'รอบเวลาเช็คชื่อ';

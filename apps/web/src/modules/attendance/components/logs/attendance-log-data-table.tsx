@@ -4,7 +4,11 @@ import React, { useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { DateRangeField } from '@repo/ui/form';
-import { useCompanyAttendanceLogsQueries } from '../../hooks/attendance-queries';
+import {
+  useCompanyAttendanceLogsQueries,
+  useCompanySchedulesQueries,
+  useAssignedScheduleSlotsQueries,
+} from '../../hooks/attendance-queries';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import attendanceLogDataColumns from './attendance-log-data-columns';
@@ -40,6 +44,8 @@ export default function AttendanceLogDataTable({
   });
   const membersQuery = useCompanyMembersQueries(companyId);
   const usersQuery = useUserListQueries();
+  const schedulesQuery = useCompanySchedulesQueries(companyId);
+  const slotsQuery = useAssignedScheduleSlotsQueries(schedulesQuery.data ?? []);
 
   const usersMap = useMemo(() => {
     return new Map((usersQuery.data || []).map((u) => [u.id, u]));
@@ -50,8 +56,9 @@ export default function AttendanceLogDataTable({
       attendanceLogDataColumns({
         members: membersQuery.data || [],
         usersMap,
+        slots: slotsQuery.data,
       }),
-    [membersQuery.data, usersMap],
+    [membersQuery.data, usersMap, slotsQuery.data],
   );
 
   const isLoading =

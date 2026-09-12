@@ -29,10 +29,10 @@ interface AttendanceServices {
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/roles/{roleId}/schedule")
-  @summary("Get check-in schedule by role")
-  getScheduleByRole(@path roleId: string):
-    | ApiOkResponse<CheckInSchedule>
+  @route("/companies/{companyId}/roles/{roleId}/schedules")
+  @summary("Get active check-in schedules assigned to a role in a company")
+  getSchedulesByRole(@path companyId: string, @path roleId: string):
+    | ApiOkResponse<CheckInSchedule[]>
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;
 

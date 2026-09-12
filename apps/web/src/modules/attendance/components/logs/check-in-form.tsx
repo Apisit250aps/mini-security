@@ -7,6 +7,7 @@ import {
   Select,
   SelectContent,
   SelectGroup,
+  SelectLabel,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -18,8 +19,8 @@ import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useHasPermission } from '@/modules/auth/hooks/permission-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import {
-  useRoleScheduleQueries,
-  useScheduleSlotsQueries,
+  useRoleSchedulesQueries,
+  useAssignedScheduleSlotsQueries,
   useMemberAttendanceLogsQueries,
 } from '../../hooks/attendance-queries';
 import { useAttendanceCheckIn } from '../../hooks/attendance-mutations';
@@ -48,13 +49,14 @@ export default function CheckInForm({
   const { data: session } = useSession();
   const canCheckIn = useHasPermission('attendance:check_in');
   const members = useCompanyMembersQueries(companyId);
-  const member = members.data?.find(
-    (item) => item.userId === session?.user.id && item.isActive,
-  );
-  const schedule = useRoleScheduleQueries(member?.roleId);
-  const slots = useScheduleSlotsQueries(
-    schedule.data?.isActive ? schedule.data.id : undefined,
-  );
+  const matchingMembers =
+    members.data?.filter(
+      (item) => item.userId === session?.user.id && item.isActive,
+    ) ?? [];
+  const member = matchingMembers.length === 1 ? matchingMembers[0] : undefined;
+  const schedule = useRoleSchedulesQueries(companyId, member?.roleId);
+  const schedules = schedule.data ?? [];
+  const slots = useAssignedScheduleSlotsQueries(schedules);
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     const initial = setTimeout(() => setNow(new Date()), 0);
@@ -74,15 +76,16 @@ export default function CheckInForm({
     scope: string;
     id: string;
   } | null>(null);
-  const scope = `${companyId}:${member?.id}:${schedule.data?.id}:${workDate}`;
+  const scope = `${companyId}:${member?.id}:${schedules.map((item) => item.id).join(',')}:${workDate}`;
   const recordedIds = new Set(
     logs.data
       ?.filter((log) => Boolean(log.checkedInAt))
       .map((log) => log.scheduleSlotId),
   );
-  const defaultId = now
-    ? getDefaultSlotId(slots.data ?? [], now, recordedIds)
-    : '';
+  const defaultId =
+    now && schedules.length === 1
+      ? getDefaultSlotId(slots.data ?? [], now, recordedIds)
+      : '';
   const selectedId =
     selection?.scope === scope &&
     slots.data?.some((slot) => slot.id === selection.id)
@@ -118,6 +121,8 @@ export default function CheckInForm({
         </Button>
       </div>
     );
+  if (matchingMembers.length > 1)
+    return <p role="alert">พบสมาชิกซ้ำในบริษัทนี้ กรุณาติดต่อผู้ดูแลระบบ</p>;
   if (!member)
     return (
       <p>
@@ -125,7 +130,7 @@ export default function CheckInForm({
         กรุณาติดต่อผู้ดูแลระบบ
       </p>
     );
-  if (!schedule.data?.isActive)
+  if (!schedules.length)
     return <p>ยังไม่มีตารางลงเวลาที่เปิดใช้งานสำหรับบทบาทของคุณ</p>;
   if (!slots.data?.length)
     return <p>ยังไม่มีรอบลงเวลา กรุณาติดต่อผู้ดูแลระบบ</p>;
@@ -138,8 +143,35 @@ export default function CheckInForm({
           {formatDate(now)} · {formatTime(now)}
         </p>
         <p className="text-sm text-muted-foreground">
-          {schedule.data.name} · เวลาไทย
+          {schedules.length} ตารางที่ได้รับมอบหมาย · เวลาไทย
         </p>
+      </div>
+      <div className="flex flex-col gap-3">
+        {schedules.map((item) => (
+          <section
+            key={item.id}
+            className="flex flex-col gap-2 rounded-lg border p-3"
+            aria-label={item.name}
+          >
+            <h2 className="font-semibold">{item.name}</h2>
+            {slots.data.filter((slot) => slot.checkInScheduleId === item.id)
+              .length ? (
+              slots.data
+                .filter((slot) => slot.checkInScheduleId === item.id)
+                .map((slot) => (
+                  <p key={slot.id} className="text-sm">
+                    {slot.label} · {slot.windowStart} – {slot.windowEnd} ·{' '}
+                    {slot.isRequired ? 'บังคับ' : 'ไม่บังคับ'} ·{' '}
+                    {recordedIds.has(slot.id) ? 'ลงชื่อแล้ว' : 'ยังไม่ลงชื่อ'}
+                  </p>
+                ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                ยังไม่มีรอบเวลา กรุณาติดต่อผู้ดูแลระบบ
+              </p>
+            )}
+          </section>
+        ))}
       </div>
       <form
         className="flex flex-col gap-4"
@@ -174,6 +206,7 @@ export default function CheckInForm({
             <FieldLabel htmlFor={slotInputId}>รอบลงเวลา</FieldLabel>
             <Select
               aria-label="รอบลงเวลา"
+              placeholder="เลือกรอบลงเวลา"
               selectedKey={selectedId || null}
               onSelectionChange={(key) =>
                 setSelection(key ? { scope, id: String(key) } : null)
@@ -181,26 +214,37 @@ export default function CheckInForm({
               isDisabled={mutation.isPending}
             >
               <SelectTrigger id={slotInputId}>
-                <SelectValue />
+                <SelectValue>
+                  {selectedSlot
+                    ? `${selectedSlot.scheduleName} · ${selectedSlot.label}`
+                    : 'เลือกรอบลงเวลา'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup>
-                  {slots.data.map((slot) => (
-                    <SelectItem
-                      key={slot.id}
-                      id={slot.id}
-                      textValue={slot.label}
-                    >
-                      {slot.label} ({slot.windowStart} – {slot.windowEnd})
-                      {recordedIds.has(slot.id) ? ' · ลงชื่อแล้ว' : ''}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
+                {schedules.map((item) => (
+                  <SelectGroup key={item.id}>
+                    <SelectLabel>{item.name}</SelectLabel>
+                    {slots.data
+                      .filter((slot) => slot.checkInScheduleId === item.id)
+                      .map((slot) => (
+                        <SelectItem
+                          key={slot.id}
+                          id={slot.id}
+                          textValue={`${item.name} · ${slot.label}`}
+                        >
+                          {slot.label} ({slot.windowStart} – {slot.windowEnd})
+                          {slot.isRequired ? ' · บังคับ' : ' · ไม่บังคับ'}
+                          {recordedIds.has(slot.id) ? ' · ลงชื่อแล้ว' : ''}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                ))}
               </SelectContent>
             </Select>
           </Field>
           <p className="text-sm text-muted-foreground">
-            ระบบเลือกรอบที่ยังไม่ได้ลงชื่อตามเวลาปัจจุบัน คุณสามารถเปลี่ยนรอบได้
+            ทุกตารางที่ได้รับมอบหมายมีผลร่วมกัน
+            เลือกรอบที่ต้องการลงเวลาให้ชัดเจน แม้เวลาแต่ละตารางจะทับกัน
           </p>
           <p role="status">
             {recorded
@@ -213,7 +257,9 @@ export default function CheckInForm({
                     ? 'รอบนี้ยังไม่รองรับการลงเวลา'
                     : selectedSlot
                       ? 'อยู่ในช่วงเวลาลงชื่อ'
-                      : 'ลงชื่อครบทุกรอบแล้ว'}
+                      : slots.data.every((slot) => recordedIds.has(slot.id))
+                        ? 'ลงชื่อครบทุกรอบแล้ว'
+                        : 'กรุณาเลือกรอบลงเวลา'}
           </p>
           <TextareaField
             name="note"
@@ -247,6 +293,9 @@ export default function CheckInForm({
               className="flex flex-wrap justify-between gap-2 rounded-lg border p-3"
             >
               <span>
+                {slots.data.find((slot) => slot.id === log.scheduleSlotId)
+                  ?.scheduleName ?? 'ตารางเดิม'}{' '}
+                ·{' '}
                 {slots.data.find((slot) => slot.id === log.scheduleSlotId)
                   ?.label ?? 'รอบลงเวลา'}
               </span>

@@ -19,7 +19,7 @@ export interface ICheckInScheduleRepository
     CreateCheckInSchedule,
     UpdateCheckInSchedule
   > {
-  findByRoleId(roleId: string): Promise<CheckInSchedule | null>;
+  findByRoleId(companyId: string, roleId: string): Promise<CheckInSchedule[]>;
   findByCompanyId(companyId: string): Promise<CheckInSchedule[]>;
 }
 

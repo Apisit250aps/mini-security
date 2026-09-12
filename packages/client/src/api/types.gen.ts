@@ -59,7 +59,7 @@ export type BasicResponse = {
 
 export type CheckInRequest = {
   companyMemberId: string;
-  scheduleSlotId?: string;
+  scheduleSlotId: string;
   note?: string;
 };
 
@@ -67,7 +67,7 @@ export type CheckInSchedule = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  roleId: string;
+  roleIds: Array<string>;
   companyId: string;
   name: string;
   isActive: boolean;
@@ -144,7 +144,7 @@ export type CreateAttendanceLog = {
  * The template for omitting properties.
  */
 export type CreateCheckInSchedule = {
-  roleId: string;
+  roleIds: Array<string>;
   companyId: string;
   name: string;
   isActive: boolean;
@@ -321,7 +321,6 @@ export type CreateRolePermission = {
  * The template for omitting properties.
  */
 export type CreateScheduleSlot = {
-  checkInScheduleId: string;
   slotOrder: number;
   label: string;
   windowStart: string;
@@ -707,8 +706,7 @@ export type UpdateAttendanceLog = {
  * The template for adding optional properties.
  */
 export type UpdateCheckInSchedule = {
-  roleId?: string;
-  companyId?: string;
+  roleIds?: Array<string>;
   name?: string;
   isActive?: boolean;
 };
@@ -816,7 +814,6 @@ export type UpdateRole = {
  * The template for adding optional properties.
  */
 export type UpdateScheduleSlot = {
-  checkInScheduleId?: string;
   slotOrder?: number;
   label?: string;
   windowStart?: string;
@@ -920,6 +917,44 @@ export type AttendanceServicesGetCompanyLogsResponses = {
 
 export type AttendanceServicesGetCompanyLogsResponse =
   AttendanceServicesGetCompanyLogsResponses[keyof AttendanceServicesGetCompanyLogsResponses];
+
+export type AttendanceServicesGetSchedulesByRoleData = {
+  body?: never;
+  path: {
+    companyId: string;
+    roleId: string;
+  };
+  query?: never;
+  url: '/attendances/companies/{companyId}/roles/{roleId}/schedules';
+};
+
+export type AttendanceServicesGetSchedulesByRoleErrors = {
+  /**
+   * 401 Unauthorized — UNAUTHORIZED
+   */
+  401: ApiErrorResponse;
+  /**
+   * 404 Not Found — NOT_FOUND
+   */
+  404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetSchedulesByRoleError =
+  AttendanceServicesGetSchedulesByRoleErrors[keyof AttendanceServicesGetSchedulesByRoleErrors];
+
+export type AttendanceServicesGetSchedulesByRoleResponses = {
+  /**
+   * Successful response wrapping data payload
+   */
+  200: {
+    success: boolean;
+    message: string;
+    data?: Array<CheckInSchedule>;
+  };
+};
+
+export type AttendanceServicesGetSchedulesByRoleResponse =
+  AttendanceServicesGetSchedulesByRoleResponses[keyof AttendanceServicesGetSchedulesByRoleResponses];
 
 export type AttendanceServicesGetSchedulesByCompanyData = {
   body?: never;
@@ -1025,43 +1060,6 @@ export type AttendanceServicesGetMemberLogsResponses = {
 
 export type AttendanceServicesGetMemberLogsResponse =
   AttendanceServicesGetMemberLogsResponses[keyof AttendanceServicesGetMemberLogsResponses];
-
-export type AttendanceServicesGetScheduleByRoleData = {
-  body?: never;
-  path: {
-    roleId: string;
-  };
-  query?: never;
-  url: '/attendances/roles/{roleId}/schedule';
-};
-
-export type AttendanceServicesGetScheduleByRoleErrors = {
-  /**
-   * 401 Unauthorized — UNAUTHORIZED
-   */
-  401: ApiErrorResponse;
-  /**
-   * 404 Not Found — NOT_FOUND
-   */
-  404: ApiErrorResponse;
-};
-
-export type AttendanceServicesGetScheduleByRoleError =
-  AttendanceServicesGetScheduleByRoleErrors[keyof AttendanceServicesGetScheduleByRoleErrors];
-
-export type AttendanceServicesGetScheduleByRoleResponses = {
-  /**
-   * Successful response wrapping data payload
-   */
-  200: {
-    success: boolean;
-    message: string;
-    data?: CheckInSchedule;
-  };
-};
-
-export type AttendanceServicesGetScheduleByRoleResponse =
-  AttendanceServicesGetScheduleByRoleResponses[keyof AttendanceServicesGetScheduleByRoleResponses];
 
 export type AttendanceServicesCreateScheduleData = {
   body: CreateCheckInSchedule;
