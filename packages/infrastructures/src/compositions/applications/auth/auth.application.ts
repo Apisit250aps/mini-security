@@ -1,3 +1,4 @@
+import { unitOfWork } from '../../unit-of-work';
 import {
   SignInEmailUseCase,
   SignOutUseCase,
@@ -17,11 +18,13 @@ export const signInEmailUseCase = new SignInEmailUseCase(
   sessionRepository,
 );
 export const signUpEmailUseCase = new SignUpEmailUseCase(
+  unitOfWork,
   userRepository,
   accountRepository,
   sessionRepository,
 );
 export const socialLoginUseCase = new SocialLoginUseCase(
+  unitOfWork,
   userRepository,
   accountRepository,
   sessionRepository,

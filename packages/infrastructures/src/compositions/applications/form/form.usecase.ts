@@ -1,3 +1,4 @@
+import { unitOfWork } from '../../unit-of-work';
 import {
   AssignFormRolesUseCase,
   CloneFormSubmissionUseCase,
@@ -35,6 +36,7 @@ import {
 // ==========================================
 
 export const createFormTemplateUseCase = new CreateFormTemplateUseCase(
+  unitOfWork,
   formTemplateRepository,
   formVersionRepository,
 );
@@ -44,6 +46,7 @@ export const updateFormTemplateUseCase = new UpdateFormTemplateUseCase(
 );
 
 export const getFormTemplateUseCase = new GetFormTemplateUseCase(
+  unitOfWork,
   formTemplateRepository,
   formVersionRepository,
   formTemplateRoleRepository,
@@ -55,21 +58,25 @@ export const listFormTemplatesByCompanyUseCase =
   new ListFormTemplatesByCompanyUseCase(formTemplateRepository);
 
 export const assignFormRolesUseCase = new AssignFormRolesUseCase(
+  unitOfWork,
   formTemplateRepository,
   formTemplateRoleRepository,
 );
 
 export const createFormSectionUseCase = new CreateFormSectionUseCase(
+  unitOfWork,
   formVersionRepository,
   formSectionRepository,
 );
 
 export const createFormFieldUseCase = new CreateFormFieldUseCase(
+  unitOfWork,
   formVersionRepository,
   formFieldRepository,
 );
 
 export const publishFormVersionUseCase = new PublishFormVersionUseCase(
+  unitOfWork,
   formVersionRepository,
   formTemplateRoleRepository,
   formSectionRepository,
@@ -81,6 +88,7 @@ export const publishFormVersionUseCase = new PublishFormVersionUseCase(
 // ==========================================
 
 export const startFormSubmissionUseCase = new StartFormSubmissionUseCase(
+  unitOfWork,
   formSubmissionRepository,
   formTemplateRepository,
   formTemplateRoleRepository,
@@ -90,12 +98,14 @@ export const startFormSubmissionUseCase = new StartFormSubmissionUseCase(
 
 export const saveFormSubmissionDraftUseCase =
   new SaveFormSubmissionDraftUseCase(
+    unitOfWork,
     formSubmissionRepository,
     formAnswerRepository,
     formSubmissionContributorRepository,
   );
 
 export const submitFormSubmissionUseCase = new SubmitFormSubmissionUseCase(
+  unitOfWork,
   formSubmissionRepository,
   formFieldRepository,
   formAnswerRepository,
@@ -104,6 +114,7 @@ export const submitFormSubmissionUseCase = new SubmitFormSubmissionUseCase(
 );
 
 export const cloneFormSubmissionUseCase = new CloneFormSubmissionUseCase(
+  unitOfWork,
   formSubmissionRepository,
   formAnswerRepository,
   formAnswerAttachmentRepository,
@@ -111,6 +122,7 @@ export const cloneFormSubmissionUseCase = new CloneFormSubmissionUseCase(
 );
 
 export const getFormSubmissionUseCase = new GetFormSubmissionUseCase(
+  unitOfWork,
   formSubmissionRepository,
   formTemplateRepository,
   formVersionRepository,
@@ -130,6 +142,7 @@ export const listFormSubmissionsUseCase = new ListFormSubmissionsUseCase(
 // ==========================================
 
 export const reviewFormSubmissionUseCase = new ReviewFormSubmissionUseCase(
+  unitOfWork,
   formSubmissionRepository,
   submissionReviewRepository,
   formSubmissionContributorRepository,

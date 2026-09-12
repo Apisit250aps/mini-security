@@ -328,6 +328,7 @@ test('leave approval synchronizes every assigned schedule across every leave day
     },
   } as IAttendanceLogRepository;
   await new ReviewLeaveRequestUseCase(
+    { transaction: async (work) => work() },
     requests,
     quotas,
     types,

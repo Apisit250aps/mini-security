@@ -1,3 +1,4 @@
+import { unitOfWork } from '../../unit-of-work';
 import {
   CancelLeaveRequestUseCase,
   CreateLeaveQuotaUseCase,
@@ -51,6 +52,7 @@ export const submitLeaveRequestUseCase = new SubmitLeaveRequestUseCase(
 );
 
 export const reviewLeaveRequestUseCase = new ReviewLeaveRequestUseCase(
+  unitOfWork,
   leaveRequestRepository,
   leaveQuotaRepository,
   leaveTypeRepository,
@@ -61,6 +63,7 @@ export const reviewLeaveRequestUseCase = new ReviewLeaveRequestUseCase(
 );
 
 export const cancelLeaveRequestUseCase = new CancelLeaveRequestUseCase(
+  unitOfWork,
   leaveRequestRepository,
   leaveQuotaRepository,
 );

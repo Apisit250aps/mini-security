@@ -1,3 +1,4 @@
+import { unitOfWork } from '../../unit-of-work';
 import {
   AddCompanyMemberUseCase,
   GetCompanyMembersUseCase,
@@ -13,6 +14,7 @@ import {
 } from '../../repositories';
 
 export const addCompanyMemberUseCase = new AddCompanyMemberUseCase(
+  unitOfWork,
   companyMemberRepository,
   companyRepository,
   roleRepository,

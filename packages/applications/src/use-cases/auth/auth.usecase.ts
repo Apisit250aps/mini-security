@@ -1,3 +1,4 @@
+import type { IUnitOfWork } from '@repo/domains';
 import type {
   IAuthResponse,
   ISignInEmailContext,
@@ -67,6 +68,7 @@ export class SignInEmailUseCase implements ISignInEmailUseCase {
 
 export class SignUpEmailUseCase implements ISignUpEmailUseCase {
   constructor(
+    private readonly unitOfWork: IUnitOfWork,
     private readonly userRepository: IUserRepository,
     private readonly accountRepository: IAccountRepository,
     private readonly sessionRepository: ISessionRepository,
@@ -74,95 +76,99 @@ export class SignUpEmailUseCase implements ISignUpEmailUseCase {
   ) {}
 
   async execute(context: ISignUpEmailContext): Promise<IAuthResponse> {
-    const email = context.email.toLowerCase().trim();
-    const existing = await this.userRepository.findByEmail(email);
-    if (existing) {
-      throw new ValidationError('Email already registered');
-    }
-
-    const user = await this.userRepository.create({
-      name: context.name,
-      email,
-      isAdmin: false,
-      isActive: true,
-    });
-
     const hashedPassword = this.passwordHasher
       ? await this.passwordHasher(context.password)
       : context.password;
+    return this.unitOfWork.transaction(async () => {
+      const email = context.email.toLowerCase().trim();
+      const existing = await this.userRepository.findByEmail(email);
+      if (existing) {
+        throw new ValidationError('Email already registered');
+      }
 
-    await this.accountRepository.create({
-      userId: user.id,
-      accountId: user.id,
-      providerId: 'credential',
-      password: hashedPassword,
+      const user = await this.userRepository.create({
+        name: context.name,
+        email,
+        isAdmin: false,
+        isActive: true,
+      });
+
+      await this.accountRepository.create({
+        userId: user.id,
+        accountId: user.id,
+        providerId: 'credential',
+        password: hashedPassword,
+      });
+
+      const session = await this.sessionRepository.create({
+        userId: user.id,
+        token: crypto.randomUUID(),
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
+
+      return {
+        user,
+        session,
+      };
     });
-
-    const session = await this.sessionRepository.create({
-      userId: user.id,
-      token: crypto.randomUUID(),
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-    });
-
-    return {
-      user,
-      session,
-    };
   }
 }
 
 export class SocialLoginUseCase implements ISocialLoginUseCase {
   constructor(
+    private readonly unitOfWork: IUnitOfWork,
     private readonly userRepository: IUserRepository,
     private readonly accountRepository: IAccountRepository,
     private readonly sessionRepository: ISessionRepository,
   ) {}
 
   async execute(context: ISocialLoginContext): Promise<IAuthResponse> {
-    const existingAccount = await this.accountRepository.findByProvider(
-      context.providerId,
-      context.accountId,
-    );
+    return this.unitOfWork.transaction(async () => {
+      const existingAccount = await this.accountRepository.findByProvider(
+        context.providerId,
+        context.accountId,
+      );
 
-    let user = existingAccount
-      ? await this.userRepository.findById(existingAccount.userId)
-      : null;
-
-    if (!user) {
-      const email = context.email.toLowerCase().trim();
-      user = await this.userRepository.findByEmail(email);
+      let user = existingAccount
+        ? await this.userRepository.findById(existingAccount.userId)
+        : null;
 
       if (!user) {
-        user = await this.userRepository.create({
-          name: context.name,
-          email,
-          image: context.image,
-          isAdmin: false,
-          isActive: true,
-        });
+        const email = context.email.toLowerCase().trim();
+        user = await this.userRepository.findByEmail(email);
+
+        if (!user) {
+          user = await this.userRepository.create({
+            name: context.name,
+            email,
+            image: context.image,
+            isAdmin: false,
+            isActive: true,
+          });
+        }
+
+        if (!existingAccount) {
+          await this.accountRepository.create({
+            userId: user.id,
+            accountId: context.accountId,
+            providerId: context.providerId,
+          });
+        }
       }
 
-      if (!existingAccount) {
-        await this.accountRepository.create({
-          userId: user.id,
-          accountId: context.accountId,
-          providerId: context.providerId,
-        });
-      }
-    }
+      const session = await this.sessionRepository.create({
+        userId: user.id,
+        token: crypto.randomUUID(),
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      });
 
-    const session = await this.sessionRepository.create({
-      userId: user.id,
-      token: crypto.randomUUID(),
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      return {
+        user,
+        session,
+      };
     });
-
-    return {
-      user,
-      session,
-    };
   }
 }
 

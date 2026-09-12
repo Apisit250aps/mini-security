@@ -14,7 +14,8 @@
     ".": "./src/index.ts",
     "./db": "./src/db.ts",
     "./schema": "./src/schema/index.ts",
-    "./repository": "./src/repository.ts"
+    "./repository": "./src/repository.ts",
+    "./transaction": "./src/transaction.ts"
   },
   "imports": {
     "#lib/*": "./src/lib/*.ts",

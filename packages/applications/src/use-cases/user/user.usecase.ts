@@ -1,3 +1,4 @@
+import type { IUnitOfWork } from '@repo/domains';
 import type {
   ICreateUserContext,
   ICreateUserUseCase,
@@ -25,6 +26,7 @@ import {
 
 export class CreateUserUseCase implements ICreateUserUseCase {
   constructor(
+    private readonly unitOfWork: IUnitOfWork,
     private readonly userRepository: IUserRepository,
     private readonly accountRepository?: IAccountRepository,
     private readonly passwordHasher?: (password: string) => Promise<string>,
@@ -38,31 +40,35 @@ export class CreateUserUseCase implements ICreateUserUseCase {
     }
 
     const email = parsed.data.email.toLowerCase().trim();
-    const existing = await this.userRepository.findByEmail(email);
-    if (existing) {
-      throw new DuplicateError('User with this email already exists');
-    }
-
     const { password, ...userData } = parsed.data;
-    const user = await this.userRepository.create({
-      ...userData,
-      email,
-    });
+    const hashedPassword =
+      password && this.accountRepository
+        ? this.passwordHasher
+          ? await this.passwordHasher(password)
+          : password
+        : undefined;
+    return this.unitOfWork.transaction(async () => {
+      const existing = await this.userRepository.findByEmail(email);
+      if (existing) {
+        throw new DuplicateError('User with this email already exists');
+      }
 
-    if (password && this.accountRepository) {
-      const hashedPassword = this.passwordHasher
-        ? await this.passwordHasher(password)
-        : password;
-
-      await this.accountRepository.create({
-        userId: user.id,
-        accountId: user.id,
-        providerId: 'credential',
-        password: hashedPassword,
+      const user = await this.userRepository.create({
+        ...userData,
+        email,
       });
-    }
 
-    return user;
+      if (password && this.accountRepository) {
+        await this.accountRepository.create({
+          userId: user.id,
+          accountId: user.id,
+          providerId: 'credential',
+          password: hashedPassword,
+        });
+      }
+
+      return user;
+    });
   }
 }
 

@@ -1,3 +1,4 @@
+import type { IUnitOfWork } from '@repo/domains';
 import type {
   IAddCompanyMemberContext,
   IAddCompanyMemberUseCase,
@@ -31,6 +32,7 @@ import {
 
 export class AddCompanyMemberUseCase implements IAddCompanyMemberUseCase {
   constructor(
+    private readonly unitOfWork: IUnitOfWork,
     private readonly memberRepository: ICompanyMemberRepository,
     private readonly companyRepository: ICompanyRepository,
     private readonly roleRepository: IRoleRepository,
@@ -41,90 +43,99 @@ export class AddCompanyMemberUseCase implements IAddCompanyMemberUseCase {
     companyId: ctx.data?.companyId,
   }))
   async execute(context: IAddCompanyMemberContext): Promise<CompanyMember> {
-    const parsed = await createCompanyMemberSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid company member data',
-        parsed.error.format(),
+    return this.unitOfWork.transaction(async () => {
+      const parsed = await createCompanyMemberSchema.safeParseAsync(
+        context.data,
       );
-    }
-
-    const company = await this.companyRepository.findById(
-      parsed.data.companyId,
-    );
-    if (!company) {
-      throw new NotFoundError(
-        `Company with id ${parsed.data.companyId} not found`,
-      );
-    }
-
-    const existing = await this.memberRepository.findByCompanyAndUser(
-      parsed.data.companyId,
-      parsed.data.userId,
-    );
-    if (existing) {
-      throw new DuplicateError('User is already a member of this company');
-    }
-
-    // Role verification: ensure role belongs to this company and is not super admin/system default
-    if (this.roleRepository) {
-      const targetRole = await this.roleRepository.findById(parsed.data.roleId);
-      if (!targetRole) {
-        throw new NotFoundError(`Role with id ${parsed.data.roleId} not found`);
-      }
-      if (
-        targetRole.roleType === 'SUPER_ADMIN' ||
-        (targetRole.companyId && targetRole.companyId !== parsed.data.companyId)
-      ) {
+      if (!parsed.success) {
         throw new ValidationError(
-          'บริษัทไม่สามารถมอบหมายบทบาท Super Admin หรือบทบาทข้ามองค์กรได้',
+          'Invalid company member data',
+          parsed.error.format(),
         );
       }
-    }
 
-    // Branch verification & default branch assignment
-    let targetBranchId = parsed.data.companyBranchId;
-    if (this.branchRepository) {
-      if (targetBranchId) {
-        const branch = await this.branchRepository.findById(targetBranchId);
-        if (!branch || branch.companyId !== parsed.data.companyId) {
-          throw new NotFoundError('ไม่พบสาขาที่ระบุในบริษัทนี้');
+      const company = await this.companyRepository.findById(
+        parsed.data.companyId,
+      );
+      if (!company) {
+        throw new NotFoundError(
+          `Company with id ${parsed.data.companyId} not found`,
+        );
+      }
+
+      const existing = await this.memberRepository.findByCompanyAndUser(
+        parsed.data.companyId,
+        parsed.data.userId,
+      );
+      if (existing) {
+        throw new DuplicateError('User is already a member of this company');
+      }
+
+      // Role verification: ensure role belongs to this company and is not super admin/system default
+      if (this.roleRepository) {
+        const targetRole = await this.roleRepository.findById(
+          parsed.data.roleId,
+        );
+        if (!targetRole) {
+          throw new NotFoundError(
+            `Role with id ${parsed.data.roleId} not found`,
+          );
         }
-      } else {
-        // Auto-assign to default branch
-        const defaultBranch =
-          await this.branchRepository.findDefaultByCompanyId(
-            parsed.data.companyId,
+        if (
+          targetRole.roleType === 'SUPER_ADMIN' ||
+          (targetRole.companyId &&
+            targetRole.companyId !== parsed.data.companyId)
+        ) {
+          throw new ValidationError(
+            'บริษัทไม่สามารถมอบหมายบทบาท Super Admin หรือบทบาทข้ามองค์กรได้',
           );
-        if (defaultBranch) {
-          targetBranchId = defaultBranch.id;
+        }
+      }
+
+      // Branch verification & default branch assignment
+      let targetBranchId = parsed.data.companyBranchId;
+      if (this.branchRepository) {
+        if (targetBranchId) {
+          const branch = await this.branchRepository.findById(targetBranchId);
+          if (!branch || branch.companyId !== parsed.data.companyId) {
+            throw new NotFoundError('ไม่พบสาขาที่ระบุในบริษัทนี้');
+          }
         } else {
-          const branches = await this.branchRepository.findByCompanyId(
-            parsed.data.companyId,
-          );
-          const firstBranch = branches[0];
-          if (firstBranch) {
-            targetBranchId = firstBranch.id;
+          // Auto-assign to default branch
+          const defaultBranch =
+            await this.branchRepository.findDefaultByCompanyId(
+              parsed.data.companyId,
+            );
+          if (defaultBranch) {
+            targetBranchId = defaultBranch.id;
           } else {
-            const newBranch = await this.branchRepository.create({
-              companyId: parsed.data.companyId,
-              name: 'สำนักงานใหญ่ (Headquarters)',
-              address: null,
-              isActive: true,
-            });
-            targetBranchId = newBranch.id;
+            const branches = await this.branchRepository.findByCompanyId(
+              parsed.data.companyId,
+            );
+            const firstBranch = branches[0];
+            if (firstBranch) {
+              targetBranchId = firstBranch.id;
+            } else {
+              const newBranch = await this.branchRepository.create({
+                companyId: parsed.data.companyId,
+                name: 'สำนักงานใหญ่ (Headquarters)',
+                address: null,
+                isActive: true,
+              });
+              targetBranchId = newBranch.id;
+            }
           }
         }
       }
-    }
 
-    if (!targetBranchId) {
-      throw new ValidationError('ไม่พบสาขาสำหรับกำหนดให้พนักงาน');
-    }
+      if (!targetBranchId) {
+        throw new ValidationError('ไม่พบสาขาสำหรับกำหนดให้พนักงาน');
+      }
 
-    return this.memberRepository.create({
-      ...parsed.data,
-      companyBranchId: targetBranchId,
+      return this.memberRepository.create({
+        ...parsed.data,
+        companyBranchId: targetBranchId,
+      });
     });
   }
 }

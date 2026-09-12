@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray } from 'drizzle-orm';
+import { resolveDatabase } from '@repo/database/transaction';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
 import {
@@ -409,7 +410,11 @@ export class FormSubmissionRepository
 export class FormSubmissionContributorRepository
   implements IFormSubmissionContributorRepository
 {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly database: Database) {}
+
+  private get db() {
+    return resolveDatabase(this.database);
+  }
 
   async findBySubmissionId(
     submissionId: string,
@@ -537,7 +542,11 @@ export class FormAnswerRepository
 export class FormAnswerAttachmentRepository
   implements IFormAnswerAttachmentRepository
 {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly database: Database) {}
+
+  private get db() {
+    return resolveDatabase(this.database);
+  }
 
   async findById(id: string): Promise<FormAnswerAttachment | null> {
     const [result] = await this.db
@@ -594,7 +603,11 @@ export class FormAnswerAttachmentRepository
 // ==========================================
 
 export class SubmissionReviewRepository implements ISubmissionReviewRepository {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly database: Database) {}
+
+  private get db() {
+    return resolveDatabase(this.database);
+  }
 
   async findById(id: string): Promise<SubmissionReview | null> {
     const [result] = await this.db

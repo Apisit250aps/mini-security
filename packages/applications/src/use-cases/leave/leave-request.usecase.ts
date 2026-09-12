@@ -1,3 +1,4 @@
+import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICancelLeaveRequestContext,
@@ -67,6 +68,7 @@ export class SubmitLeaveRequestUseCase implements ISubmitLeaveRequestUseCase {
 
 export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
   constructor(
+    private readonly unitOfWork: IUnitOfWork,
     private readonly leaveRequestRepository: ILeaveRequestRepository,
     private readonly leaveQuotaRepository: ILeaveQuotaRepository,
     private readonly leaveTypeRepository: ILeaveTypeRepository,
@@ -78,101 +80,108 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
 
   @RequirePermission('leave_request:approve')
   async execute(context: IReviewLeaveRequestContext): Promise<LeaveRequest> {
-    const leaveRequest = await this.leaveRequestRepository.findById(context.id);
-    if (!leaveRequest) {
-      throw new NotFoundError(
-        `Leave request with id "${context.id}" not found`,
+    return this.unitOfWork.transaction(async () => {
+      const leaveRequest = await this.leaveRequestRepository.findById(
+        context.id,
       );
-    }
+      if (!leaveRequest) {
+        throw new NotFoundError(
+          `Leave request with id "${context.id}" not found`,
+        );
+      }
 
-    if (leaveRequest.status !== 'pending') {
-      throw new ValidationError(
-        `Cannot review leave request with status "${leaveRequest.status}"`,
-      );
-    }
+      if (leaveRequest.status !== 'pending') {
+        throw new ValidationError(
+          `Cannot review leave request with status "${leaveRequest.status}"`,
+        );
+      }
 
-    const now = new Date();
-    const reviewerId = context.userId ?? null;
+      const now = new Date();
+      const reviewerId = context.userId ?? null;
 
-    if (context.action === 'rejected') {
-      return this.leaveRequestRepository.update(context.id, {
-        status: 'rejected',
-        reviewedBy: reviewerId,
-        reviewedAt: now,
-        reviewNote: context.reviewNote ?? null,
-      });
-    }
+      if (context.action === 'rejected') {
+        return this.leaveRequestRepository.update(context.id, {
+          status: 'rejected',
+          reviewedBy: reviewerId,
+          reviewedAt: now,
+          reviewNote: context.reviewNote ?? null,
+        });
+      }
 
-    // --- Action: Approved ---
-    // 1. Update Leave Request Status
-    const updatedRequest = await this.leaveRequestRepository.update(
-      context.id,
-      {
-        status: 'approved',
-        reviewedBy: reviewerId,
-        reviewedAt: now,
-        reviewNote: context.reviewNote ?? null,
-      },
-    );
-
-    // 2. Deduct Leave Quota
-    const year = new Date(leaveRequest.startDate).getFullYear();
-    const quota = await this.leaveQuotaRepository.findByMemberTypeAndYear(
-      leaveRequest.companyMemberId,
-      leaveRequest.leaveTypeId,
-      year,
-    );
-
-    if (quota) {
-      const updatedUsedDays =
-        Number(quota.usedDays) + Number(leaveRequest.totalDays);
-      await this.leaveQuotaRepository.updateUsedDays(quota.id, updatedUsedDays);
-    }
-
-    // 3. Auto-Sync to Attendance Logs (Excused Status)
-    const leaveType = await this.leaveTypeRepository.findById(
-      leaveRequest.leaveTypeId,
-    );
-    const leaveTypeName = leaveType ? leaveType.name : 'อนุมัติแล้ว';
-
-    const member = await this.companyMemberRepository.findById(
-      leaveRequest.companyMemberId,
-    );
-
-    if (member) {
-      const schedules = await this.checkInScheduleRepository.findByRoleId(
-        member.companyId,
-        member.roleId,
+      // --- Action: Approved ---
+      // 1. Update Leave Request Status
+      const updatedRequest = await this.leaveRequestRepository.update(
+        context.id,
+        {
+          status: 'approved',
+          reviewedBy: reviewerId,
+          reviewedAt: now,
+          reviewNote: context.reviewNote ?? null,
+        },
       );
 
-      for (const schedule of schedules.filter((item) => item.isActive)) {
-        const slots = await this.scheduleSlotRepository.findByScheduleId(
-          schedule.id,
+      // 2. Deduct Leave Quota
+      const year = new Date(leaveRequest.startDate).getFullYear();
+      const quota = await this.leaveQuotaRepository.findByMemberTypeAndYear(
+        leaveRequest.companyMemberId,
+        leaveRequest.leaveTypeId,
+        year,
+      );
+
+      if (quota) {
+        const updatedUsedDays =
+          Number(quota.usedDays) + Number(leaveRequest.totalDays);
+        await this.leaveQuotaRepository.updateUsedDays(
+          quota.id,
+          updatedUsedDays,
+        );
+      }
+
+      // 3. Auto-Sync to Attendance Logs (Excused Status)
+      const leaveType = await this.leaveTypeRepository.findById(
+        leaveRequest.leaveTypeId,
+      );
+      const leaveTypeName = leaveType ? leaveType.name : 'อนุมัติแล้ว';
+
+      const member = await this.companyMemberRepository.findById(
+        leaveRequest.companyMemberId,
+      );
+
+      if (member) {
+        const schedules = await this.checkInScheduleRepository.findByRoleId(
+          member.companyId,
+          member.roleId,
         );
 
-        // Generate all dates in the range [startDate, endDate]
-        const dates = this.getDateRange(
-          leaveRequest.startDate,
-          leaveRequest.endDate,
-        );
+        for (const schedule of schedules.filter((item) => item.isActive)) {
+          const slots = await this.scheduleSlotRepository.findByScheduleId(
+            schedule.id,
+          );
 
-        for (const dateStr of dates) {
-          for (const slot of slots) {
-            await this.attendanceLogRepository.upsertLog({
-              companyMemberId: member.id,
-              scheduleSlotId: slot.id,
-              workDate: dateStr,
-              checkedInAt: null,
-              status: 'excused',
-              note: `ลางาน: ${leaveTypeName}`,
-              recordedBy: reviewerId,
-            });
+          // Generate all dates in the range [startDate, endDate]
+          const dates = this.getDateRange(
+            leaveRequest.startDate,
+            leaveRequest.endDate,
+          );
+
+          for (const dateStr of dates) {
+            for (const slot of slots) {
+              await this.attendanceLogRepository.upsertLog({
+                companyMemberId: member.id,
+                scheduleSlotId: slot.id,
+                workDate: dateStr,
+                checkedInAt: null,
+                status: 'excused',
+                note: `ลางาน: ${leaveTypeName}`,
+                recordedBy: reviewerId,
+              });
+            }
           }
         }
       }
-    }
 
-    return updatedRequest;
+      return updatedRequest;
+    });
   }
 
   private getDateRange(startDateStr: string, endDateStr: string): string[] {
@@ -191,51 +200,56 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
 
 export class CancelLeaveRequestUseCase implements ICancelLeaveRequestUseCase {
   constructor(
+    private readonly unitOfWork: IUnitOfWork,
     private readonly leaveRequestRepository: ILeaveRequestRepository,
     private readonly leaveQuotaRepository: ILeaveQuotaRepository,
   ) {}
 
   @RequirePermission('leave_request:cancel')
   async execute(context: ICancelLeaveRequestContext): Promise<LeaveRequest> {
-    const leaveRequest = await this.leaveRequestRepository.findById(context.id);
-    if (!leaveRequest) {
-      throw new NotFoundError(
-        `Leave request with id "${context.id}" not found`,
+    return this.unitOfWork.transaction(async () => {
+      const leaveRequest = await this.leaveRequestRepository.findById(
+        context.id,
       );
-    }
-
-    if (
-      leaveRequest.status !== 'pending' &&
-      leaveRequest.status !== 'approved'
-    ) {
-      throw new ValidationError(
-        `Cannot cancel leave request with status "${leaveRequest.status}"`,
-      );
-    }
-
-    // If already approved, revert quota used_days
-    if (leaveRequest.status === 'approved') {
-      const year = new Date(leaveRequest.startDate).getFullYear();
-      const quota = await this.leaveQuotaRepository.findByMemberTypeAndYear(
-        leaveRequest.companyMemberId,
-        leaveRequest.leaveTypeId,
-        year,
-      );
-
-      if (quota) {
-        const revertedUsedDays = Math.max(
-          0,
-          Number(quota.usedDays) - Number(leaveRequest.totalDays),
-        );
-        await this.leaveQuotaRepository.updateUsedDays(
-          quota.id,
-          revertedUsedDays,
+      if (!leaveRequest) {
+        throw new NotFoundError(
+          `Leave request with id "${context.id}" not found`,
         );
       }
-    }
 
-    return this.leaveRequestRepository.update(context.id, {
-      status: 'cancelled',
+      if (
+        leaveRequest.status !== 'pending' &&
+        leaveRequest.status !== 'approved'
+      ) {
+        throw new ValidationError(
+          `Cannot cancel leave request with status "${leaveRequest.status}"`,
+        );
+      }
+
+      // If already approved, revert quota used_days
+      if (leaveRequest.status === 'approved') {
+        const year = new Date(leaveRequest.startDate).getFullYear();
+        const quota = await this.leaveQuotaRepository.findByMemberTypeAndYear(
+          leaveRequest.companyMemberId,
+          leaveRequest.leaveTypeId,
+          year,
+        );
+
+        if (quota) {
+          const revertedUsedDays = Math.max(
+            0,
+            Number(quota.usedDays) - Number(leaveRequest.totalDays),
+          );
+          await this.leaveQuotaRepository.updateUsedDays(
+            quota.id,
+            revertedUsedDays,
+          );
+        }
+      }
+
+      return this.leaveRequestRepository.update(context.id, {
+        status: 'cancelled',
+      });
     });
   }
 }

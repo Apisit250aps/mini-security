@@ -1,3 +1,4 @@
+import { unitOfWork } from '../../unit-of-work';
 import {
   CreateCompanyUseCase,
   DeleteCompanyUseCase,
@@ -9,6 +10,7 @@ import {
 import { companyBranchRepository, companyRepository } from '../../repositories';
 
 export const createCompanyUseCase = new CreateCompanyUseCase(
+  unitOfWork,
   companyRepository,
   companyBranchRepository,
 );

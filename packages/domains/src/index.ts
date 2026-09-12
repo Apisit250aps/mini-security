@@ -2,6 +2,10 @@ export abstract class BaseUseCase<Context, TOutput> {
   abstract execute(context: Context): Promise<TOutput>;
 }
 
+export interface IUnitOfWork {
+  transaction<T>(work: () => Promise<T>): Promise<T>;
+}
+
 export abstract class BaseRepository<T, Create, Update> {
   abstract findAll(): Promise<T[]>;
   abstract findById(id: string): Promise<T | null>;

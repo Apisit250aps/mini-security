@@ -1,3 +1,4 @@
+import type { IUnitOfWork } from '@repo/domains';
 import type {
   ICreateCompanyContext,
   ICreateCompanyUseCase,
@@ -30,40 +31,48 @@ import {
 
 export class CreateCompanyUseCase implements ICreateCompanyUseCase {
   constructor(
+    private readonly unitOfWork: IUnitOfWork,
     private readonly companyRepository: ICompanyRepository,
     private readonly branchRepository?: ICompanyBranchRepository,
   ) {}
 
   @RequirePermission('company:create')
   async execute(context: ICreateCompanyContext): Promise<Company> {
-    const parsed = await createCompanySchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError('Invalid company data', parsed.error.format());
-    }
-
-    const existing = await this.companyRepository.findBySlug(parsed.data.slug);
-    if (existing) {
-      throw new DuplicateError('Company with this slug already exists');
-    }
-
-    const newCompany = await this.companyRepository.create(parsed.data);
-
-    // Auto-create default branch if no branch exists yet
-    if (this.branchRepository) {
-      const existingBranches = await this.branchRepository.findByCompanyId(
-        newCompany.id,
-      );
-      if (existingBranches.length === 0) {
-        await this.branchRepository.create({
-          companyId: newCompany.id,
-          name: 'สำนักงานใหญ่ (Headquarters)',
-          address: null,
-          isActive: true,
-        });
+    return this.unitOfWork.transaction(async () => {
+      const parsed = await createCompanySchema.safeParseAsync(context.data);
+      if (!parsed.success) {
+        throw new ValidationError(
+          'Invalid company data',
+          parsed.error.format(),
+        );
       }
-    }
 
-    return newCompany;
+      const existing = await this.companyRepository.findBySlug(
+        parsed.data.slug,
+      );
+      if (existing) {
+        throw new DuplicateError('Company with this slug already exists');
+      }
+
+      const newCompany = await this.companyRepository.create(parsed.data);
+
+      // Auto-create default branch if no branch exists yet
+      if (this.branchRepository) {
+        const existingBranches = await this.branchRepository.findByCompanyId(
+          newCompany.id,
+        );
+        if (existingBranches.length === 0) {
+          await this.branchRepository.create({
+            companyId: newCompany.id,
+            name: 'สำนักงานใหญ่ (Headquarters)',
+            address: null,
+            isActive: true,
+          });
+        }
+      }
+
+      return newCompany;
+    });
   }
 }
 

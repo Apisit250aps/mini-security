@@ -1,5 +1,6 @@
 import { BaseRepository } from '@repo/domains';
 import type { Database } from './db';
+import { resolveDatabase } from './transaction';
 import { PgTable, type PgColumn } from 'drizzle-orm/pg-core';
 import { eq } from 'drizzle-orm';
 
@@ -11,10 +12,14 @@ export abstract class Repository<
   U extends Record<string, unknown>,
 > extends BaseRepository<T, C, U> {
   constructor(
-    protected readonly db: Database,
+    private readonly database: Database,
     protected readonly table: TableWithId,
   ) {
     super();
+  }
+
+  protected get db() {
+    return resolveDatabase(this.database);
   }
 
   async create(entity: C): Promise<T> {

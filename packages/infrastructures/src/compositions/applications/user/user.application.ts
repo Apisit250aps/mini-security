@@ -1,3 +1,4 @@
+import { unitOfWork } from '../../unit-of-work';
 import { hash } from '#lib/password';
 import {
   CreateUserUseCase,
@@ -10,6 +11,7 @@ import {
 import { accountRepository, userRepository } from '../../repositories';
 
 export const createUserUseCase = new CreateUserUseCase(
+  unitOfWork,
   userRepository,
   accountRepository,
   hash,
