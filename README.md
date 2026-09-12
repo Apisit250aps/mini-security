@@ -1,3 +1,42 @@
+# Environment setup
+
+Choose a profile and copy it to the root `.env` before starting the project.
+`.env.dev` and `.env.docker` are templates; edit credentials in your local `.env`.
+
+Local development (apps and PostgreSQL on the host):
+
+```sh
+cp .env.dev .env
+npm run db:migrate --workspace=@repo/database
+npm run dev
+```
+
+Run the application services in Docker with PostgreSQL on the host:
+
+```sh
+cp .env.docker .env
+docker compose up -d --build
+```
+
+The copy commands replace the current `.env`. Dev connects to `localhost`;
+Docker connects to PostgreSQL at `host.docker.internal:5432` and the API at
+`api:8000`. All Compose services load
+`.env` through `env_file`. API and web keep their image-specific ports (8000 and
+3000); do not add a shared `PORT` variable to these profiles.
+
+Start PostgreSQL on your machine and create the `security` database before running
+the apps or migrations. Set the database credentials and port in `DATABASE_URL`.
+On Docker Desktop for Mac, containers reach the host via `host.docker.internal`;
+PostgreSQL must accept connections from Docker. Compose does not create or manage
+PostgreSQL or a database volume.
+
+Next.js embeds API rewrites during its build, so Compose also passes the
+non-secret `BACKEND_URL` as a web build argument. Rebuild the web image when
+changing that URL. `BETTER_AUTH_URL` and CORS origins remain browser-facing URLs.
+Compose runs only the API and web. Run database migrations on the host with
+`npm run db:migrate --workspace=@repo/database` using the local development env
+before switching to `.env.docker`.
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.

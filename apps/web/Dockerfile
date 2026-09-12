@@ -25,6 +25,9 @@ RUN npm ci
 COPY --from=pruner /app/out/full/ .
 COPY turbo.json turbo.json
 
+ARG BACKEND_URL=http://api:8000
+ENV BACKEND_URL=$BACKEND_URL
+
 ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/security"
