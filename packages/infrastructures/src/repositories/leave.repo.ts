@@ -1,4 +1,4 @@
-import { and, desc, eq, or } from 'drizzle-orm';
+import { and, desc, eq, gte, lte, or } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
 import {
@@ -108,17 +108,23 @@ export class LeaveQuotaRepository
     return result ? new LeaveQuota(result as unknown as LeaveQuota) : null;
   }
 
-  async updateUsedDays(id: string, usedDays: number): Promise<LeaveQuota> {
+  async lockByMemberTypeAndYear(
+    memberId: string,
+    leaveTypeId: string,
+    year: number,
+  ): Promise<LeaveQuota | null> {
     const [result] = await this.db
-      .update(leaveQuotas)
-      .set({
-        usedDays: usedDays.toString(),
-        updatedAt: new Date(),
-      })
-      .where(eq(leaveQuotas.id, id))
-      .returning();
-
-    return new LeaveQuota(result as unknown as LeaveQuota);
+      .select()
+      .from(leaveQuotas)
+      .where(
+        and(
+          eq(leaveQuotas.companyMemberId, memberId),
+          eq(leaveQuotas.leaveTypeId, leaveTypeId),
+          eq(leaveQuotas.year, year),
+        ),
+      )
+      .for('update');
+    return result ? new LeaveQuota(result as unknown as LeaveQuota) : null;
   }
 }
 
@@ -157,7 +163,9 @@ export class LeaveRequestRepository
         leaveTypeId: leaveRequests.leaveTypeId,
         startDate: leaveRequests.startDate,
         endDate: leaveRequests.endDate,
-        totalDays: leaveRequests.totalDays,
+        startTime: leaveRequests.startTime,
+        endTime: leaveRequests.endTime,
+        minutesPerDaySnapshot: leaveRequests.minutesPerDaySnapshot,
         unit: leaveRequests.unit,
         reason: leaveRequests.reason,
         proofUrl: leaveRequests.proofUrl,
@@ -196,6 +204,28 @@ export class LeaveRequestRepository
               eq(leaveRequests.endDate, endDate),
             ),
           ),
+        ),
+      );
+    return results.map((r) => new LeaveRequest(r as unknown as LeaveRequest));
+  }
+
+  async findApprovedByMemberTypeAndYear(
+    memberId: string,
+    leaveTypeId: string,
+    year: number,
+  ): Promise<LeaveRequest[]> {
+    const yearStart = `${year}-01-01`;
+    const yearEnd = `${year}-12-31`;
+    const results = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(
+        and(
+          eq(leaveRequests.companyMemberId, memberId),
+          eq(leaveRequests.leaveTypeId, leaveTypeId),
+          eq(leaveRequests.status, 'approved'),
+          gte(leaveRequests.startDate, yearStart),
+          lte(leaveRequests.startDate, yearEnd),
         ),
       );
     return results.map((r) => new LeaveRequest(r as unknown as LeaveRequest));

@@ -1,5 +1,7 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   date,
   index,
   integer,
@@ -7,6 +9,7 @@ import {
   pgEnum,
   pgTable,
   text,
+  time,
   timestamp,
   unique,
   uuid,
@@ -75,9 +78,6 @@ export const leaveQuotas = pgTable(
       .references(() => leaveTypes.id, { onDelete: 'cascade' }),
     year: integer('year').notNull(),
     totalDays: numeric('total_days', { precision: 5, scale: 2 }).notNull(),
-    usedDays: numeric('used_days', { precision: 5, scale: 2 })
-      .default('0')
-      .notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
@@ -89,6 +89,7 @@ export const leaveQuotas = pgTable(
       table.leaveTypeId,
       table.year,
     ),
+    check('leave_quota_total_days_check', sql`total_days >= 0`),
   ],
 );
 
@@ -108,7 +109,9 @@ export const leaveRequests = pgTable(
       .references(() => leaveTypes.id, { onDelete: 'restrict' }),
     startDate: date('start_date').notNull(),
     endDate: date('end_date').notNull(),
-    totalDays: numeric('total_days', { precision: 5, scale: 2 }).notNull(),
+    startTime: time('start_time'),
+    endTime: time('end_time'),
+    minutesPerDaySnapshot: integer('minutes_per_day_snapshot'),
     unit: leaveUnitEnum('unit').default('day').notNull(),
     reason: text('reason').notNull(),
     proofUrl: text('proof_url'),
@@ -129,6 +132,11 @@ export const leaveRequests = pgTable(
       table.companyMemberId,
       table.startDate,
       table.endDate,
+    ),
+    check('leave_request_date_order_check', sql`end_date >= start_date`),
+    check(
+      'leave_request_source_interval_check',
+      sql`((unit IN ('day', 'half_day') AND start_time IS NULL AND end_time IS NULL AND minutes_per_day_snapshot IS NULL) OR (unit = 'hour' AND start_date = end_date AND start_time IS NOT NULL AND end_time IS NOT NULL AND end_time > start_time AND minutes_per_day_snapshot IS NOT NULL AND minutes_per_day_snapshot > 0))`,
     ),
   ],
 );

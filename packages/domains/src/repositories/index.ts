@@ -6,3 +6,4 @@ export * from './feature.repo';
 export * from './attendance.repo';
 export * from './leave.repo';
 export * from './form.repo';
+export * from './location.repo';

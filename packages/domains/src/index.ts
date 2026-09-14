@@ -15,5 +15,6 @@ export abstract class BaseRepository<T, Create, Update> {
 }
 
 export * from './lib/entity';
+export * from './lib/leave';
 export * from './entities';
 export * from './constants';

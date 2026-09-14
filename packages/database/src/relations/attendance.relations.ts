@@ -39,6 +39,7 @@ export const attendanceRelations = (r: RelationsHelper) => ({
       from: r.scheduleSlots.checkInScheduleId,
       to: r.checkInSchedules.id,
     }),
+    locations: r.many.scheduleSlotLocation(),
     attendanceLogs: r.many.attendanceLogs(),
   },
   attendanceLogs: {
@@ -49,6 +50,10 @@ export const attendanceRelations = (r: RelationsHelper) => ({
     slot: r.one.scheduleSlots({
       from: r.attendanceLogs.scheduleSlotId,
       to: r.scheduleSlots.id,
+    }),
+    location: r.one.locations({
+      from: [r.attendanceLogs.locationId, r.attendanceLogs.companyId],
+      to: [r.locations.id, r.locations.companyId],
     }),
     recordedByUser: r.one.user({
       from: r.attendanceLogs.recordedBy,

@@ -11,19 +11,26 @@ export const authMiddleware: MiddlewareHandler = createMiddleware(
       query: { disableCookieCache: true },
     });
 
-    if (!session || !session.user.isActive) {
+    const user = session?.user as
+      | { id: string; isActive?: boolean }
+      | undefined;
+    if (!session || !user || user.isActive === false) {
       throw new UnauthorizedError('Unauthorized access');
     }
 
+    const sessionObj = session.session as {
+      activeCompanyId?: string | null;
+      permissions?: string;
+    };
     const { actions, companyId } = await getUserPermissionActions(
-      session.user.id,
-      session.session.activeCompanyId,
+      user.id,
+      sessionObj.activeCompanyId,
     );
-    session.session.permissions = actions.join(',');
-    session.session.activeCompanyId = companyId;
+    sessionObj.permissions = actions.join(',');
+    sessionObj.activeCompanyId = companyId;
     c.set('user', session.user);
     c.set('session', session.session);
-    c.set('permissions', session.session.permissions);
+    c.set('permissions', sessionObj.permissions);
     return await next();
   },
 );

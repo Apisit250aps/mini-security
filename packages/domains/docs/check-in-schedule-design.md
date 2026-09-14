@@ -2,6 +2,8 @@
 
 สถานะ: **Implement แล้ว 2026-09-12** ครอบคลุม Domain, Drizzle, Application, Infrastructure, API/SDK และ UI; [erDiagram.dbml](../erDiagram.dbml) อัปเดตตาม implementation
 
+ส่วน Location และ composite keys ของ Slots/Logs ที่เพิ่มใน ER diagram เป็น **แบบเสนอ ยังไม่ implement** ดู [check-in-location-design.md](check-in-location-design.md)
+
 หนึ่ง Role มีได้หลาย Schedule และหนึ่ง Schedule มอบหมายได้หลาย Role โดยเพิ่มตารางกลาง `check_in_schedule_roles` ส่วนรอบเช็คอิน (`schedule_slots`) ยังเป็นของ Schedule และบันทึก (`attendance_logs`) ยังแยกตามสมาชิก × Slot × วัน
 
 ```mermaid

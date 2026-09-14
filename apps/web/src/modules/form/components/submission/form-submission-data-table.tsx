@@ -40,7 +40,8 @@ export default function FormSubmissionDataTable({
   const filteredData = useMemo(() => {
     const list = submissionsQuery.data || [];
     if (selectedStatus === 'ALL') return list;
-    return list.filter((s) => s.status === selectedStatus);
+    if (selectedStatus === 'DRAFT') return list.filter((s) => !s.submittedAt);
+    return list.filter((s) => Boolean(s.submittedAt));
   }, [submissionsQuery.data, selectedStatus]);
 
   const isLoading = submissionsQuery.isLoading || templatesQuery.isLoading;

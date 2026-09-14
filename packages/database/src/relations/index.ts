@@ -5,6 +5,7 @@ import type { ModuleRelationsConfig } from './types';
 import { authRelations } from './auth.relations';
 import { companyRelations } from './company.relations';
 import { roleRelations } from './role.relations';
+import { locationRelations } from './location.relations';
 import { attendanceRelations } from './attendance.relations';
 import { leaveRelations } from './leave.relations';
 import { formRelations } from './form.relations';
@@ -13,6 +14,7 @@ export * from './types';
 export * from './auth.relations';
 export * from './company.relations';
 export * from './role.relations';
+export * from './location.relations';
 export * from './attendance.relations';
 export * from './leave.relations';
 export * from './form.relations';
@@ -45,6 +47,7 @@ export const relations = defineRelationsPart(schema, (r) =>
     authRelations(r),
     companyRelations(r),
     roleRelations(r),
+    locationRelations(r),
     attendanceRelations(r),
     leaveRelations(r),
     formRelations(r),

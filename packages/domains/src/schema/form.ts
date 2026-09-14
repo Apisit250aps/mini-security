@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  AppendOnlyBaseEntity,
   BaseEntity,
   BooleanField,
   DateField,
@@ -188,6 +189,7 @@ export type UpdateFormField = z.infer<typeof updateFormFieldSchema>;
 // 6. Form Submission Schema
 // ==========================================
 
+
 export const formSubmissionSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
@@ -195,32 +197,86 @@ export const formSubmissionSchema = BaseEntity({
   roleId: UUIDField({ required: true }),
   startedBy: UUIDField({ required: true }),
   submittedBy: UUIDField({ required: false, nullable: true }),
-  revision: NumberField({ default: () => 1 }),
+  revision: NumberField({ default: () => 1 }).refine(
+    (rev) => rev > 0,
+    'Revision must be positive',
+  ),
   supersedesSubmissionId: UUIDField({ required: false, nullable: true }),
-  status: EnumField(FormSubmissionStatusValues, { default: () => 'DRAFT' }),
-  startedAt: DateField({ default: () => new Date() }),
   submittedAt: DateField({ required: false, nullable: true }),
-});
+})
+  .refine(
+    (data) => (data.submittedAt == null) === (data.submittedBy == null),
+    {
+      message: 'submittedAt and submittedBy must either both be set or both be null',
+      path: ['submittedAt'],
+    },
+  )
+  .refine(
+    (data) =>
+      data.submittedAt == null ||
+      data.createdAt == null ||
+      data.submittedAt >= data.createdAt,
+    {
+      message: 'submittedAt must be on or after createdAt',
+      path: ['submittedAt'],
+    },
+  )
+  .refine(
+    (data) =>
+      data.supersedesSubmissionId == null ||
+      data.id == null ||
+      data.supersedesSubmissionId !== data.id,
+    {
+      message: 'supersedesSubmissionId cannot reference itself',
+      path: ['supersedesSubmissionId'],
+    },
+  );
 
-export const createFormSubmissionSchema = formSubmissionSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createFormSubmissionSchema = BaseEntity({
+  companyId: UUIDField({ required: true }),
+  formTemplateId: UUIDField({ required: true }),
+  formVersionId: UUIDField({ required: true }),
+  roleId: UUIDField({ required: true }),
+  startedBy: UUIDField({ required: true }),
+  submittedBy: UUIDField({ required: false, nullable: true }),
+  revision: NumberField({ default: () => 1 }).refine(
+    (rev) => rev > 0,
+    'Revision must be positive',
+  ),
+  supersedesSubmissionId: UUIDField({ required: false, nullable: true }),
+  submittedAt: DateField({ required: false, nullable: true }),
+})
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .refine(
+    (data) => (data.submittedAt == null) === (data.submittedBy == null),
+    {
+      message: 'submittedAt and submittedBy must either both be set or both be null',
+      path: ['submittedAt'],
+    },
+  );
 
-export const updateFormSubmissionSchema = formSubmissionSchema
+export const updateFormSubmissionSchema = z
+  .object({
+    submittedBy: UUIDField({ required: false, nullable: true }),
+    submittedAt: DateField({ required: false, nullable: true }),
+    revision: NumberField({ required: false }),
+  })
   .partial()
-  .omit({ id: true, createdAt: true, updatedAt: true });
+  .strict();
 
 export type FormSubmissionEntity = z.infer<typeof formSubmissionSchema>;
 export type CreateFormSubmission = z.infer<typeof createFormSubmissionSchema>;
 export type UpdateFormSubmission = z.infer<typeof updateFormSubmissionSchema>;
 
 // ==========================================
-// 7. Form Submission Contributor Schema
+// 7. Form Submission Contributor Schema (Append-only)
 // ==========================================
 
-export const formSubmissionContributorSchema = BaseEntity({
+export const formSubmissionContributorSchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   submissionId: UUIDField({ required: true }),
   memberId: UUIDField({ required: true }),
@@ -230,7 +286,6 @@ export const createFormSubmissionContributorSchema =
   formSubmissionContributorSchema.omit({
     id: true,
     createdAt: true,
-    updatedAt: true,
   });
 
 export type FormSubmissionContributorEntity = z.infer<
@@ -277,8 +332,14 @@ export const formAnswerAttachmentSchema = BaseEntity({
   storageKey: StringField({ required: true, max: 1000 }),
   originalName: StringField({ required: true, max: 255 }),
   mimeType: StringField({ required: true, max: 100 }),
-  sizeBytes: NumberField({ required: true }),
-  sortOrder: NumberField({ default: () => 0 }),
+  sizeBytes: NumberField({ required: true }).refine(
+    (size) => size > 0,
+    'sizeBytes must be greater than 0',
+  ),
+  sortOrder: NumberField({ default: () => 0 }).refine(
+    (order) => order >= 0,
+    'sortOrder must be non-negative',
+  ),
   uploadedBy: UUIDField({ required: true }),
 });
 
@@ -298,10 +359,10 @@ export type CreateFormAnswerAttachment = z.infer<
 >;
 
 // ==========================================
-// 10. Submission Review Schema
+// 10. Submission Review Schema (Append-only)
 // ==========================================
 
-export const submissionReviewSchema = BaseEntity({
+const submissionReviewBaseSchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   submissionId: UUIDField({ required: true }),
   reviewedBy: UUIDField({ required: true }),
@@ -309,11 +370,24 @@ export const submissionReviewSchema = BaseEntity({
   note: StringField({ required: false, nullable: true, max: 1000 }),
 });
 
-export const createSubmissionReviewSchema = submissionReviewSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+const hasRequiredRejectionNote = (
+  data: Pick<z.infer<typeof submissionReviewBaseSchema>, 'action' | 'note'>,
+) =>
+  data.action !== 'REJECT' || (data.note != null && data.note.trim().length > 0);
+
+const rejectionNoteError = {
+  message: 'Rejection note is required when action is REJECT',
+  path: ['note'],
+};
+
+export const submissionReviewSchema = submissionReviewBaseSchema.refine(
+  hasRequiredRejectionNote,
+  rejectionNoteError,
+);
+
+export const createSubmissionReviewSchema = submissionReviewBaseSchema
+  .omit({ id: true, createdAt: true })
+  .refine(hasRequiredRejectionNote, rejectionNoteError);
 
 export type SubmissionReviewEntity = z.infer<typeof submissionReviewSchema>;
 export type CreateSubmissionReview = z.infer<

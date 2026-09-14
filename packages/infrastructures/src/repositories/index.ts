@@ -3,6 +3,7 @@ export * from './auth.repo';
 export * from './company.repo';
 export * from './permission.repo';
 export * from './feature.repo';
+export * from './location.repo';
 export * from './attendance.repo';
 export * from './leave.repo';
 export * from './form.repo';

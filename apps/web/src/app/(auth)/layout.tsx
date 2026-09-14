@@ -9,7 +9,7 @@ export default async function Layout({
 }) {
   const session = await getCachedSession();
 
-  if (session?.user.isAdmin) {
+  if ((session?.user as { isAdmin?: boolean })?.isAdmin) {
     redirect('/admin');
   }
 

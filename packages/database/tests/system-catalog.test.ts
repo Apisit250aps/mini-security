@@ -4,13 +4,18 @@ import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { SYSTEM_FEATURES, SYSTEM_PERMISSIONS } from '@repo/domains/constants';
 
-const migration = readFileSync(
-  new URL(
-    '../migrations/20260912075209_seed_system_catalog/migration.sql',
-    import.meta.url,
-  ),
-  'utf8',
-);
+const migrations = readdirSync(new URL('../migrations', import.meta.url), {
+  withFileTypes: true,
+})
+  .filter((entry) => entry.isDirectory())
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map((entry) =>
+    readFileSync(
+      new URL(`../migrations/${entry.name}/migration.sql`, import.meta.url),
+      'utf8',
+    ),
+  )
+  .join('\n');
 
 test('system catalog has unique keys and valid feature references', () => {
   const codes = new Set<string>(SYSTEM_FEATURES.map((feature) => feature.code));
@@ -34,7 +39,7 @@ test('SQL seed matches the domain catalog', () => {
   const quote = (value: string) => `'${value.replaceAll("'", "''")}'`;
   for (const feature of SYSTEM_FEATURES) {
     assert.ok(
-      migration.includes(
+      migrations.includes(
         [feature.code, feature.name, feature.description, feature.category]
           .map(quote)
           .join(', '),
@@ -43,7 +48,7 @@ test('SQL seed matches the domain catalog', () => {
   }
   for (const permission of SYSTEM_PERMISSIONS) {
     assert.ok(
-      migration.includes(
+      migrations.includes(
         [
           permission.action,
           permission.module,

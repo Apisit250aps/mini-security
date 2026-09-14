@@ -119,6 +119,7 @@ export const cloneFormSubmissionUseCase = new CloneFormSubmissionUseCase(
   formAnswerRepository,
   formAnswerAttachmentRepository,
   formSubmissionContributorRepository,
+  submissionReviewRepository,
 );
 
 export const getFormSubmissionUseCase = new GetFormSubmissionUseCase(

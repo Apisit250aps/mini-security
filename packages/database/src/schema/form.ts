@@ -1,6 +1,9 @@
+import { sql } from 'drizzle-orm';
 import {
   bigint,
   boolean,
+  check,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -9,6 +12,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import {
@@ -39,13 +43,6 @@ export const formFieldTypeEnum = pgEnum('form_field_type', [
   'FILE',
 ]);
 
-export const formSubmissionStatusEnum = pgEnum('form_submission_status', [
-  'DRAFT',
-  'SUBMITTED',
-  'APPROVED',
-  'REJECTED',
-]);
-
 export const submissionReviewActionEnum = pgEnum('submission_review_action', [
   'APPROVE',
   'REJECT',
@@ -65,9 +62,7 @@ export const formTemplate = pgTable(
     name: text('name').notNull(),
     description: text('description'),
     isActive: boolean('is_active').default(true).notNull(),
-    createdBy: uuid('created_by')
-      .notNull()
-      .references(() => companyMember.id, { onDelete: 'restrict' }),
+    createdBy: uuid('created_by').notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
@@ -77,6 +72,11 @@ export const formTemplate = pgTable(
       table.companyId,
       table.isActive,
     ),
+    foreignKey({
+      columns: [table.createdBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_template_created_by_company_member_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -91,9 +91,7 @@ export const formTemplateRole = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    formTemplateId: uuid('form_template_id')
-      .notNull()
-      .references(() => formTemplate.id, { onDelete: 'restrict' }),
+    formTemplateId: uuid('form_template_id').notNull(),
     roleId: uuid('role_id')
       .notNull()
       .references(() => role.id, { onDelete: 'restrict' }),
@@ -115,6 +113,11 @@ export const formTemplateRole = pgTable(
       table.companyId,
       table.roleId,
     ),
+    foreignKey({
+      columns: [table.formTemplateId, table.companyId],
+      foreignColumns: [formTemplate.id, formTemplate.companyId],
+      name: 'form_template_role_form_template_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -129,19 +132,13 @@ export const formVersion = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    formTemplateId: uuid('form_template_id')
-      .notNull()
-      .references(() => formTemplate.id, { onDelete: 'restrict' }),
+    formTemplateId: uuid('form_template_id').notNull(),
     version: integer('version').notNull(),
     status: formVersionStatusEnum('status').default('DRAFT').notNull(),
     title: text('title').notNull(),
     description: text('description'),
-    createdBy: uuid('created_by')
-      .notNull()
-      .references(() => companyMember.id, { onDelete: 'restrict' }),
-    publishedBy: uuid('published_by').references(() => companyMember.id, {
-      onDelete: 'restrict',
-    }),
+    createdBy: uuid('created_by').notNull(),
+    publishedBy: uuid('published_by'),
     publishedAt: timestamp('published_at'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
@@ -157,7 +154,32 @@ export const formVersion = pgTable(
       table.formTemplateId,
       table.version,
     ),
+    uniqueIndex('form_version_one_draft_per_template')
+      .on(table.formTemplateId)
+      .where(sql`status = 'DRAFT'`),
+    uniqueIndex('form_version_one_published_per_template')
+      .on(table.formTemplateId)
+      .where(sql`status = 'PUBLISHED'`),
     index('form_version_company_status_idx').on(table.companyId, table.status),
+    check(
+      'form_version_publish_metadata_check',
+      sql`(status = 'DRAFT' AND published_at IS NULL AND published_by IS NULL) OR (status IN ('PUBLISHED', 'ARCHIVED') AND published_at IS NOT NULL AND published_by IS NOT NULL)`,
+    ),
+    foreignKey({
+      columns: [table.formTemplateId, table.companyId],
+      foreignColumns: [formTemplate.id, formTemplate.companyId],
+      name: 'form_version_form_template_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.createdBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_version_created_by_company_member_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.publishedBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_version_published_by_company_member_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -172,9 +194,7 @@ export const formSection = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    formVersionId: uuid('form_version_id')
-      .notNull()
-      .references(() => formVersion.id, { onDelete: 'restrict' }),
+    formVersionId: uuid('form_version_id').notNull(),
     title: text('title').notNull(),
     description: text('description'),
     sortOrder: integer('sort_order').default(0).notNull(),
@@ -191,6 +211,12 @@ export const formSection = pgTable(
       table.formVersionId,
       table.sortOrder,
     ),
+    check('form_section_sort_order_check', sql`sort_order >= 0`),
+    foreignKey({
+      columns: [table.formVersionId, table.companyId],
+      foreignColumns: [formVersion.id, formVersion.companyId],
+      name: 'form_section_form_version_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -205,12 +231,8 @@ export const formField = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    formVersionId: uuid('form_version_id')
-      .notNull()
-      .references(() => formVersion.id, { onDelete: 'restrict' }),
-    formSectionId: uuid('form_section_id')
-      .notNull()
-      .references(() => formSection.id, { onDelete: 'restrict' }),
+    formVersionId: uuid('form_version_id').notNull(),
+    formSectionId: uuid('form_section_id').notNull(),
     type: formFieldTypeEnum('type').notNull(),
     label: text('label').notNull(),
     description: text('description'),
@@ -233,6 +255,16 @@ export const formField = pgTable(
       table.formSectionId,
       table.sortOrder,
     ),
+    check('form_field_sort_order_check', sql`sort_order >= 0`),
+    foreignKey({
+      columns: [table.formSectionId, table.companyId, table.formVersionId],
+      foreignColumns: [
+        formSection.id,
+        formSection.companyId,
+        formSection.formVersionId,
+      ],
+      name: 'form_field_form_section_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -247,25 +279,15 @@ export const formSubmission = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    formTemplateId: uuid('form_template_id')
-      .notNull()
-      .references(() => formTemplate.id, { onDelete: 'restrict' }),
-    formVersionId: uuid('form_version_id')
-      .notNull()
-      .references(() => formVersion.id, { onDelete: 'restrict' }),
+    formTemplateId: uuid('form_template_id').notNull(),
+    formVersionId: uuid('form_version_id').notNull(),
     roleId: uuid('role_id')
       .notNull()
       .references(() => role.id, { onDelete: 'restrict' }),
-    startedBy: uuid('started_by')
-      .notNull()
-      .references(() => companyMember.id, { onDelete: 'restrict' }),
-    submittedBy: uuid('submitted_by').references(() => companyMember.id, {
-      onDelete: 'restrict',
-    }),
+    startedBy: uuid('started_by').notNull(),
+    submittedBy: uuid('submitted_by'),
     revision: integer('revision').default(1).notNull(),
     supersedesSubmissionId: uuid('supersedes_submission_id'),
-    status: formSubmissionStatusEnum('status').default('DRAFT').notNull(),
-    startedAt: timestamp('started_at').defaultNow().notNull(),
     submittedAt: timestamp('submitted_at'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
@@ -286,16 +308,14 @@ export const formSubmission = pgTable(
     unique('form_submission_supersedes_submission_id_unique').on(
       table.supersedesSubmissionId,
     ),
-    index('form_submission_company_status_submitted_idx').on(
+    index('form_submission_company_submitted_idx').on(
       table.companyId,
-      table.status,
       table.submittedAt,
     ),
-    index('form_submission_company_role_template_status_idx').on(
+    index('form_submission_company_role_template_idx').on(
       table.companyId,
       table.roleId,
       table.formTemplateId,
-      table.status,
     ),
     index('form_submission_company_started_by_created_idx').on(
       table.companyId,
@@ -308,6 +328,62 @@ export const formSubmission = pgTable(
       table.createdAt,
     ),
     index('form_submission_form_version_id_idx').on(table.formVersionId),
+    check('form_submission_revision_check', sql`revision > 0`),
+    check(
+      'form_submission_status_time_check',
+      sql`(submitted_at IS NULL) = (submitted_by IS NULL)`,
+    ),
+    check(
+      'form_submission_time_order_check',
+      sql`submitted_at IS NULL OR submitted_at >= created_at`,
+    ),
+    check(
+      'form_submission_no_self_revision_check',
+      sql`supersedes_submission_id IS NULL OR supersedes_submission_id <> id`,
+    ),
+    foreignKey({
+      columns: [table.formVersionId, table.companyId, table.formTemplateId],
+      foreignColumns: [
+        formVersion.id,
+        formVersion.companyId,
+        formVersion.formTemplateId,
+      ],
+      name: 'form_submission_form_version_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.formTemplateId, table.companyId, table.roleId],
+      foreignColumns: [
+        formTemplateRole.formTemplateId,
+        formTemplateRole.companyId,
+        formTemplateRole.roleId,
+      ],
+      name: 'form_submission_form_template_role_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.startedBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_submission_started_by_member_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.submittedBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_submission_submitted_by_member_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [
+        table.supersedesSubmissionId,
+        table.companyId,
+        table.formVersionId,
+        table.roleId,
+      ],
+      foreignColumns: [
+        table.id,
+        table.companyId,
+        table.formVersionId,
+        table.roleId,
+      ],
+      name: 'form_submission_supersedes_submission_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -322,14 +398,9 @@ export const formSubmissionContributor = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    submissionId: uuid('submission_id')
-      .notNull()
-      .references(() => formSubmission.id, { onDelete: 'restrict' }),
-    memberId: uuid('member_id')
-      .notNull()
-      .references(() => companyMember.id, { onDelete: 'restrict' }),
+    submissionId: uuid('submission_id').notNull(),
+    memberId: uuid('member_id').notNull(),
     createdAt: createdAtTimestamp('created_at'),
-    updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
     unique('form_submission_contributor_submission_member_unique').on(
@@ -340,6 +411,16 @@ export const formSubmissionContributor = pgTable(
       table.companyId,
       table.memberId,
     ),
+    foreignKey({
+      columns: [table.submissionId, table.companyId],
+      foreignColumns: [formSubmission.id, formSubmission.companyId],
+      name: 'form_submission_contributor_submission_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.memberId, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_submission_contributor_member_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -354,19 +435,11 @@ export const formAnswer = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    formVersionId: uuid('form_version_id')
-      .notNull()
-      .references(() => formVersion.id, { onDelete: 'restrict' }),
-    submissionId: uuid('submission_id')
-      .notNull()
-      .references(() => formSubmission.id, { onDelete: 'restrict' }),
-    fieldId: uuid('field_id')
-      .notNull()
-      .references(() => formField.id, { onDelete: 'restrict' }),
+    formVersionId: uuid('form_version_id').notNull(),
+    submissionId: uuid('submission_id').notNull(),
+    fieldId: uuid('field_id').notNull(),
     value: jsonb('value').$type<unknown>(),
-    updatedBy: uuid('updated_by')
-      .notNull()
-      .references(() => companyMember.id, { onDelete: 'restrict' }),
+    updatedBy: uuid('updated_by').notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
@@ -377,6 +450,29 @@ export const formAnswer = pgTable(
       table.fieldId,
     ),
     index('form_answer_company_field_idx').on(table.companyId, table.fieldId),
+    foreignKey({
+      columns: [table.submissionId, table.companyId, table.formVersionId],
+      foreignColumns: [
+        formSubmission.id,
+        formSubmission.companyId,
+        formSubmission.formVersionId,
+      ],
+      name: 'form_answer_submission_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.fieldId, table.companyId, table.formVersionId],
+      foreignColumns: [
+        formField.id,
+        formField.companyId,
+        formField.formVersionId,
+      ],
+      name: 'form_answer_field_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.updatedBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_answer_updated_by_member_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -391,17 +487,13 @@ export const formAnswerAttachment = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    answerId: uuid('answer_id')
-      .notNull()
-      .references(() => formAnswer.id, { onDelete: 'restrict' }),
+    answerId: uuid('answer_id').notNull(),
     storageKey: text('storage_key').notNull(),
     originalName: text('original_name').notNull(),
     mimeType: text('mime_type').notNull(),
     sizeBytes: bigint('size_bytes', { mode: 'number' }).notNull(),
     sortOrder: integer('sort_order').default(0).notNull(),
-    uploadedBy: uuid('uploaded_by')
-      .notNull()
-      .references(() => companyMember.id, { onDelete: 'restrict' }),
+    uploadedBy: uuid('uploaded_by').notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
@@ -418,6 +510,18 @@ export const formAnswerAttachment = pgTable(
       table.companyId,
       table.storageKey,
     ),
+    check('form_answer_attachment_size_check', sql`size_bytes > 0`),
+    check('form_answer_attachment_sort_order_check', sql`sort_order >= 0`),
+    foreignKey({
+      columns: [table.answerId, table.companyId],
+      foreignColumns: [formAnswer.id, formAnswer.companyId],
+      name: 'form_answer_attachment_answer_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.uploadedBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'form_answer_attachment_uploaded_by_member_fk',
+    }).onDelete('restrict'),
   ],
 );
 
@@ -432,16 +536,11 @@ export const submissionReview = pgTable(
     companyId: uuid('company_id')
       .notNull()
       .references(() => company.id, { onDelete: 'restrict' }),
-    submissionId: uuid('submission_id')
-      .notNull()
-      .references(() => formSubmission.id, { onDelete: 'restrict' }),
-    reviewedBy: uuid('reviewed_by')
-      .notNull()
-      .references(() => companyMember.id, { onDelete: 'restrict' }),
+    submissionId: uuid('submission_id').notNull(),
+    reviewedBy: uuid('reviewed_by').notNull(),
     action: submissionReviewActionEnum('action').notNull(),
     note: text('note'),
     createdAt: createdAtTimestamp('created_at'),
-    updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
     unique('submission_review_submission_id_unique').on(table.submissionId),
@@ -450,5 +549,19 @@ export const submissionReview = pgTable(
       table.reviewedBy,
       table.createdAt,
     ),
+    check(
+      'submission_review_reject_note_check',
+      sql`action <> 'REJECT' OR (note IS NOT NULL AND length(trim(note)) > 0)`,
+    ),
+    foreignKey({
+      columns: [table.submissionId, table.companyId],
+      foreignColumns: [formSubmission.id, formSubmission.companyId],
+      name: 'submission_review_submission_fk',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.reviewedBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+      name: 'submission_review_reviewed_by_member_fk',
+    }).onDelete('restrict'),
   ],
 );

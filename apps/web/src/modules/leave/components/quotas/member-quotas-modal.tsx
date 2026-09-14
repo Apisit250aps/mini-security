@@ -67,7 +67,6 @@ export default function MemberQuotasModal({
             leaveTypeId: '',
             year: selectedYear,
             totalDays: 10,
-            usedDays: 0,
           }}
           isLoading={createMutation.isPending}
           onSubmit={(data: QuotaFormValues) => {
@@ -77,7 +76,6 @@ export default function MemberQuotasModal({
                 leaveTypeId: data.leaveTypeId,
                 year: data.year,
                 totalDays: data.totalDays,
-                usedDays: data.usedDays,
               },
               {
                 onSuccess: () => {
@@ -102,7 +100,7 @@ export default function MemberQuotasModal({
     (quota: LeaveQuota) => {
       ui.dialog.open({
         title: `แก้ไขโควต้า: ${typeMap.get(quota.leaveTypeId) || 'ประเภทการลา'}`,
-        description: 'ปรับปรุงจำนวนวันลาทั้งหมดและจำนวนวันที่ใช้ไป',
+        description: 'ปรับปรุงจำนวนวันลาทั้งหมด',
         children: (
           <QuotaForm
             companyId={companyId}
@@ -111,7 +109,6 @@ export default function MemberQuotasModal({
               leaveTypeId: quota.leaveTypeId,
               year: quota.year,
               totalDays: quota.totalDays,
-              usedDays: quota.usedDays,
             }}
             isLoading={updateMutation.isPending}
             onSubmit={(data: QuotaFormValues) => {
@@ -120,7 +117,6 @@ export default function MemberQuotasModal({
                   id: quota.id,
                   data: {
                     totalDays: data.totalDays,
-                    usedDays: data.usedDays,
                   },
                 },
                 {
@@ -161,27 +157,6 @@ export default function MemberQuotasModal({
         cell: ({ getValue }) => (
           <span className="font-mono text-sm">{getValue<number>()} วัน</span>
         ),
-      },
-      {
-        accessorKey: 'usedDays',
-        header: 'ใช้ไปแล้ว',
-        cell: ({ getValue }) => (
-          <span className="font-mono text-sm text-amber-600 dark:text-amber-400">
-            {getValue<number>()} วัน
-          </span>
-        ),
-      },
-      {
-        id: 'remaining',
-        header: 'คงเหลือ',
-        cell: ({ row }) => {
-          const remaining = row.original.totalDays - row.original.usedDays;
-          return (
-            <Badge variant={remaining > 0 ? 'default' : 'destructive'}>
-              {remaining} วัน
-            </Badge>
-          );
-        },
       },
       {
         id: 'actions',

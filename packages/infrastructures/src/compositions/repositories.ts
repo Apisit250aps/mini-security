@@ -20,10 +20,12 @@ import {
   LeaveQuotaRepository,
   LeaveRequestRepository,
   LeaveTypeRepository,
+  LocationRepository,
   PermissionRepository,
   RoleFeatureRepository,
   RolePermissionRepository,
   RoleRepository,
+  ScheduleSlotLocationRepository,
   ScheduleSlotRepository,
   SessionRepository,
   SubmissionReviewRepository,
@@ -67,3 +69,7 @@ export const formAnswerRepository = new FormAnswerRepository(db);
 export const formAnswerAttachmentRepository =
   new FormAnswerAttachmentRepository(db);
 export const submissionReviewRepository = new SubmissionReviewRepository(db);
+
+export const locationRepository = new LocationRepository(db);
+export const scheduleSlotLocationRepository =
+  new ScheduleSlotLocationRepository(db);

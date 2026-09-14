@@ -5,6 +5,7 @@
   "scripts": {
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
+    "test": "tsx --test tests/*.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

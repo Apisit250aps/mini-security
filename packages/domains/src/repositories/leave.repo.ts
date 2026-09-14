@@ -27,7 +27,11 @@ export interface ILeaveQuotaRepository
     leaveTypeId: string,
     year: number,
   ): Promise<LeaveQuota | null>;
-  updateUsedDays(id: string, usedDays: number): Promise<LeaveQuota>;
+  lockByMemberTypeAndYear(
+    memberId: string,
+    leaveTypeId: string,
+    year: number,
+  ): Promise<LeaveQuota | null>;
 }
 
 export interface ILeaveRequestRepository
@@ -39,4 +43,10 @@ export interface ILeaveRequestRepository
     startDate: string,
     endDate: string,
   ): Promise<LeaveRequest[]>;
+  findApprovedByMemberTypeAndYear(
+    memberId: string,
+    leaveTypeId: string,
+    year: number,
+  ): Promise<LeaveRequest[]>;
 }
+

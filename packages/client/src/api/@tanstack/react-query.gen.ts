@@ -4,2841 +4,1742 @@ import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import {
-  attendanceServicesCheckIn,
-  attendanceServicesCreateSchedule,
-  attendanceServicesCreateSlot,
-  attendanceServicesDeleteSlot,
-  attendanceServicesGetCompanyLogs,
-  attendanceServicesGetMemberLogs,
-  attendanceServicesGetSchedulesByCompany,
-  attendanceServicesGetSchedulesByRole,
-  attendanceServicesGetSlotsBySchedule,
-  attendanceServicesManualCheckIn,
-  attendanceServicesUpdateSchedule,
-  attendanceServicesUpdateSlot,
-  companyServicesAddCompanyMember,
-  companyServicesCreateCompany,
-  companyServicesCreateCompanyBranch,
-  companyServicesDeleteCompany,
-  companyServicesDeleteCompanyBranch,
-  companyServicesGetCompanies,
-  companyServicesGetCompany,
-  companyServicesGetCompanyBranch,
-  companyServicesGetCompanyBranches,
-  companyServicesGetCompanyBySlug,
-  companyServicesGetCompanyMembers,
-  companyServicesRemoveCompanyMember,
-  companyServicesSwitchActiveCompany,
-  companyServicesUpdateCompany,
-  companyServicesUpdateCompanyBranch,
-  companyServicesUpdateCompanyMember,
-  featureServicesAssignCompanyFeature,
-  featureServicesAssignRoleFeature,
-  featureServicesCheckRoleFeatureAccess,
-  featureServicesCreateFeature,
-  featureServicesGetCompanyAvailableFeatures,
-  featureServicesGetCompanyFeatures,
-  featureServicesGetCompanyRoleFeatures,
-  featureServicesGetFeature,
-  featureServicesGetFeatures,
-  featureServicesGetRoleFeatures,
-  featureServicesRemoveCompanyFeature,
-  featureServicesRevokeRoleFeature,
-  featureServicesToggleCompanyFeature,
-  featureServicesToggleFeature,
-  featureServicesToggleRoleFeature,
-  featureServicesUpdateFeature,
-  formServicesAssignRoles,
-  formServicesClone,
-  formServicesCreateField,
-  formServicesCreateSection,
-  formServicesCreateTemplate,
-  formServicesGetSubmission,
-  formServicesGetTemplate,
-  formServicesListSubmissions,
-  formServicesListTemplatesByCompany,
-  formServicesPublishVersion,
-  formServicesReview,
-  formServicesSaveDraft,
-  formServicesStartSubmission,
-  formServicesSubmit,
-  formServicesUpdateTemplate,
-  leaveServicesCancelRequest,
-  leaveServicesCreateQuota,
-  leaveServicesCreateType,
-  leaveServicesGetCompanyRequests,
-  leaveServicesGetMemberRequests,
-  leaveServicesGetQuotasByMember,
-  leaveServicesGetTypesByCompany,
-  leaveServicesReviewRequest,
-  leaveServicesSubmitRequest,
-  leaveServicesUpdateQuota,
-  leaveServicesUpdateType,
-  type Options,
-  permissionServicesCreatePermission,
-  permissionServicesDeletePermission,
-  permissionServicesGetMyPermissions,
-  permissionServicesGetPermissions,
-  permissionServicesUpdatePermission,
-  roleServicesAssignPermissionToRole,
-  roleServicesCreateRole,
-  roleServicesDeleteRole,
-  roleServicesGetCompanyRoles,
-  roleServicesGetRole,
-  roleServicesGetRolePermissions,
-  roleServicesGetSystemDefaultRoles,
-  roleServicesRevokePermissionFromRole,
-  roleServicesUpdateRole,
-  userServicesCreateUser,
-  userServicesDeleteUser,
-  userServicesGetUser,
-  userServicesGetUsers,
-  userServicesUpdateUser,
-} from '../sdk.gen';
-import type {
-  AttendanceServicesCheckInData,
-  AttendanceServicesCheckInError,
-  AttendanceServicesCheckInResponse,
-  AttendanceServicesCreateScheduleData,
-  AttendanceServicesCreateScheduleError,
-  AttendanceServicesCreateScheduleResponse,
-  AttendanceServicesCreateSlotData,
-  AttendanceServicesCreateSlotError,
-  AttendanceServicesCreateSlotResponse,
-  AttendanceServicesDeleteSlotData,
-  AttendanceServicesDeleteSlotError,
-  AttendanceServicesDeleteSlotResponse,
-  AttendanceServicesGetCompanyLogsData,
-  AttendanceServicesGetCompanyLogsError,
-  AttendanceServicesGetCompanyLogsResponse,
-  AttendanceServicesGetMemberLogsData,
-  AttendanceServicesGetMemberLogsError,
-  AttendanceServicesGetMemberLogsResponse,
-  AttendanceServicesGetSchedulesByCompanyData,
-  AttendanceServicesGetSchedulesByCompanyError,
-  AttendanceServicesGetSchedulesByCompanyResponse,
-  AttendanceServicesGetSchedulesByRoleData,
-  AttendanceServicesGetSchedulesByRoleError,
-  AttendanceServicesGetSchedulesByRoleResponse,
-  AttendanceServicesGetSlotsByScheduleData,
-  AttendanceServicesGetSlotsByScheduleError,
-  AttendanceServicesGetSlotsByScheduleResponse,
-  AttendanceServicesManualCheckInData,
-  AttendanceServicesManualCheckInError,
-  AttendanceServicesManualCheckInResponse,
-  AttendanceServicesUpdateScheduleData,
-  AttendanceServicesUpdateScheduleError,
-  AttendanceServicesUpdateScheduleResponse,
-  AttendanceServicesUpdateSlotData,
-  AttendanceServicesUpdateSlotError,
-  AttendanceServicesUpdateSlotResponse,
-  CompanyServicesAddCompanyMemberData,
-  CompanyServicesAddCompanyMemberError,
-  CompanyServicesAddCompanyMemberResponse,
-  CompanyServicesCreateCompanyBranchData,
-  CompanyServicesCreateCompanyBranchError,
-  CompanyServicesCreateCompanyBranchResponse,
-  CompanyServicesCreateCompanyData,
-  CompanyServicesCreateCompanyError,
-  CompanyServicesCreateCompanyResponse,
-  CompanyServicesDeleteCompanyBranchData,
-  CompanyServicesDeleteCompanyBranchError,
-  CompanyServicesDeleteCompanyBranchResponse,
-  CompanyServicesDeleteCompanyData,
-  CompanyServicesDeleteCompanyError,
-  CompanyServicesDeleteCompanyResponse,
-  CompanyServicesGetCompaniesData,
-  CompanyServicesGetCompaniesError,
-  CompanyServicesGetCompaniesResponse,
-  CompanyServicesGetCompanyBranchData,
-  CompanyServicesGetCompanyBranchError,
-  CompanyServicesGetCompanyBranchesData,
-  CompanyServicesGetCompanyBranchesError,
-  CompanyServicesGetCompanyBranchesResponse,
-  CompanyServicesGetCompanyBranchResponse,
-  CompanyServicesGetCompanyBySlugData,
-  CompanyServicesGetCompanyBySlugError,
-  CompanyServicesGetCompanyBySlugResponse,
-  CompanyServicesGetCompanyData,
-  CompanyServicesGetCompanyError,
-  CompanyServicesGetCompanyMembersData,
-  CompanyServicesGetCompanyMembersError,
-  CompanyServicesGetCompanyMembersResponse,
-  CompanyServicesGetCompanyResponse,
-  CompanyServicesRemoveCompanyMemberData,
-  CompanyServicesRemoveCompanyMemberError,
-  CompanyServicesRemoveCompanyMemberResponse,
-  CompanyServicesSwitchActiveCompanyData,
-  CompanyServicesSwitchActiveCompanyError,
-  CompanyServicesSwitchActiveCompanyResponse,
-  CompanyServicesUpdateCompanyBranchData,
-  CompanyServicesUpdateCompanyBranchError,
-  CompanyServicesUpdateCompanyBranchResponse,
-  CompanyServicesUpdateCompanyData,
-  CompanyServicesUpdateCompanyError,
-  CompanyServicesUpdateCompanyMemberData,
-  CompanyServicesUpdateCompanyMemberError,
-  CompanyServicesUpdateCompanyMemberResponse,
-  CompanyServicesUpdateCompanyResponse,
-  FeatureServicesAssignCompanyFeatureData,
-  FeatureServicesAssignCompanyFeatureError,
-  FeatureServicesAssignCompanyFeatureResponse,
-  FeatureServicesAssignRoleFeatureData,
-  FeatureServicesAssignRoleFeatureError,
-  FeatureServicesAssignRoleFeatureResponse,
-  FeatureServicesCheckRoleFeatureAccessData,
-  FeatureServicesCheckRoleFeatureAccessError,
-  FeatureServicesCheckRoleFeatureAccessResponse,
-  FeatureServicesCreateFeatureData,
-  FeatureServicesCreateFeatureError,
-  FeatureServicesCreateFeatureResponse,
-  FeatureServicesGetCompanyAvailableFeaturesData,
-  FeatureServicesGetCompanyAvailableFeaturesError,
-  FeatureServicesGetCompanyAvailableFeaturesResponse,
-  FeatureServicesGetCompanyFeaturesData,
-  FeatureServicesGetCompanyFeaturesError,
-  FeatureServicesGetCompanyFeaturesResponse,
-  FeatureServicesGetCompanyRoleFeaturesData,
-  FeatureServicesGetCompanyRoleFeaturesError,
-  FeatureServicesGetCompanyRoleFeaturesResponse,
-  FeatureServicesGetFeatureData,
-  FeatureServicesGetFeatureError,
-  FeatureServicesGetFeatureResponse,
-  FeatureServicesGetFeaturesData,
-  FeatureServicesGetFeaturesError,
-  FeatureServicesGetFeaturesResponse,
-  FeatureServicesGetRoleFeaturesData,
-  FeatureServicesGetRoleFeaturesError,
-  FeatureServicesGetRoleFeaturesResponse,
-  FeatureServicesRemoveCompanyFeatureData,
-  FeatureServicesRemoveCompanyFeatureError,
-  FeatureServicesRemoveCompanyFeatureResponse,
-  FeatureServicesRevokeRoleFeatureData,
-  FeatureServicesRevokeRoleFeatureError,
-  FeatureServicesRevokeRoleFeatureResponse,
-  FeatureServicesToggleCompanyFeatureData,
-  FeatureServicesToggleCompanyFeatureError,
-  FeatureServicesToggleCompanyFeatureResponse,
-  FeatureServicesToggleFeatureData,
-  FeatureServicesToggleFeatureError,
-  FeatureServicesToggleFeatureResponse,
-  FeatureServicesToggleRoleFeatureData,
-  FeatureServicesToggleRoleFeatureError,
-  FeatureServicesToggleRoleFeatureResponse,
-  FeatureServicesUpdateFeatureData,
-  FeatureServicesUpdateFeatureError,
-  FeatureServicesUpdateFeatureResponse,
-  FormServicesAssignRolesData,
-  FormServicesAssignRolesError,
-  FormServicesAssignRolesResponse,
-  FormServicesCloneData,
-  FormServicesCloneError,
-  FormServicesCloneResponse,
-  FormServicesCreateFieldData,
-  FormServicesCreateFieldError,
-  FormServicesCreateFieldResponse,
-  FormServicesCreateSectionData,
-  FormServicesCreateSectionError,
-  FormServicesCreateSectionResponse,
-  FormServicesCreateTemplateData,
-  FormServicesCreateTemplateError,
-  FormServicesCreateTemplateResponse,
-  FormServicesGetSubmissionData,
-  FormServicesGetSubmissionError,
-  FormServicesGetSubmissionResponse,
-  FormServicesGetTemplateData,
-  FormServicesGetTemplateError,
-  FormServicesGetTemplateResponse,
-  FormServicesListSubmissionsData,
-  FormServicesListSubmissionsError,
-  FormServicesListSubmissionsResponse,
-  FormServicesListTemplatesByCompanyData,
-  FormServicesListTemplatesByCompanyError,
-  FormServicesListTemplatesByCompanyResponse,
-  FormServicesPublishVersionData,
-  FormServicesPublishVersionError,
-  FormServicesPublishVersionResponse,
-  FormServicesReviewData,
-  FormServicesReviewError,
-  FormServicesReviewResponse,
-  FormServicesSaveDraftData,
-  FormServicesSaveDraftError,
-  FormServicesSaveDraftResponse,
-  FormServicesStartSubmissionData,
-  FormServicesStartSubmissionError,
-  FormServicesStartSubmissionResponse,
-  FormServicesSubmitData,
-  FormServicesSubmitError,
-  FormServicesSubmitResponse,
-  FormServicesUpdateTemplateData,
-  FormServicesUpdateTemplateError,
-  FormServicesUpdateTemplateResponse,
-  LeaveServicesCancelRequestData,
-  LeaveServicesCancelRequestError,
-  LeaveServicesCancelRequestResponse,
-  LeaveServicesCreateQuotaData,
-  LeaveServicesCreateQuotaError,
-  LeaveServicesCreateQuotaResponse,
-  LeaveServicesCreateTypeData,
-  LeaveServicesCreateTypeError,
-  LeaveServicesCreateTypeResponse,
-  LeaveServicesGetCompanyRequestsData,
-  LeaveServicesGetCompanyRequestsError,
-  LeaveServicesGetCompanyRequestsResponse,
-  LeaveServicesGetMemberRequestsData,
-  LeaveServicesGetMemberRequestsError,
-  LeaveServicesGetMemberRequestsResponse,
-  LeaveServicesGetQuotasByMemberData,
-  LeaveServicesGetQuotasByMemberError,
-  LeaveServicesGetQuotasByMemberResponse,
-  LeaveServicesGetTypesByCompanyData,
-  LeaveServicesGetTypesByCompanyError,
-  LeaveServicesGetTypesByCompanyResponse,
-  LeaveServicesReviewRequestData,
-  LeaveServicesReviewRequestError,
-  LeaveServicesReviewRequestResponse,
-  LeaveServicesSubmitRequestData,
-  LeaveServicesSubmitRequestError,
-  LeaveServicesSubmitRequestResponse,
-  LeaveServicesUpdateQuotaData,
-  LeaveServicesUpdateQuotaError,
-  LeaveServicesUpdateQuotaResponse,
-  LeaveServicesUpdateTypeData,
-  LeaveServicesUpdateTypeError,
-  LeaveServicesUpdateTypeResponse,
-  PermissionServicesCreatePermissionData,
-  PermissionServicesCreatePermissionError,
-  PermissionServicesCreatePermissionResponse,
-  PermissionServicesDeletePermissionData,
-  PermissionServicesDeletePermissionError,
-  PermissionServicesDeletePermissionResponse,
-  PermissionServicesGetMyPermissionsData,
-  PermissionServicesGetMyPermissionsError,
-  PermissionServicesGetMyPermissionsResponse,
-  PermissionServicesGetPermissionsData,
-  PermissionServicesGetPermissionsError,
-  PermissionServicesGetPermissionsResponse,
-  PermissionServicesUpdatePermissionData,
-  PermissionServicesUpdatePermissionError,
-  PermissionServicesUpdatePermissionResponse,
-  RoleServicesAssignPermissionToRoleData,
-  RoleServicesAssignPermissionToRoleError,
-  RoleServicesAssignPermissionToRoleResponse,
-  RoleServicesCreateRoleData,
-  RoleServicesCreateRoleError,
-  RoleServicesCreateRoleResponse,
-  RoleServicesDeleteRoleData,
-  RoleServicesDeleteRoleError,
-  RoleServicesDeleteRoleResponse,
-  RoleServicesGetCompanyRolesData,
-  RoleServicesGetCompanyRolesError,
-  RoleServicesGetCompanyRolesResponse,
-  RoleServicesGetRoleData,
-  RoleServicesGetRoleError,
-  RoleServicesGetRolePermissionsData,
-  RoleServicesGetRolePermissionsError,
-  RoleServicesGetRolePermissionsResponse,
-  RoleServicesGetRoleResponse,
-  RoleServicesGetSystemDefaultRolesData,
-  RoleServicesGetSystemDefaultRolesError,
-  RoleServicesGetSystemDefaultRolesResponse,
-  RoleServicesRevokePermissionFromRoleData,
-  RoleServicesRevokePermissionFromRoleError,
-  RoleServicesRevokePermissionFromRoleResponse,
-  RoleServicesUpdateRoleData,
-  RoleServicesUpdateRoleError,
-  RoleServicesUpdateRoleResponse,
-  UserServicesCreateUserData,
-  UserServicesCreateUserError,
-  UserServicesCreateUserResponse,
-  UserServicesDeleteUserData,
-  UserServicesDeleteUserError,
-  UserServicesDeleteUserResponse,
-  UserServicesGetUserData,
-  UserServicesGetUserError,
-  UserServicesGetUserResponse,
-  UserServicesGetUsersData,
-  UserServicesGetUsersError,
-  UserServicesGetUsersResponse,
-  UserServicesUpdateUserData,
-  UserServicesUpdateUserError,
-  UserServicesUpdateUserResponse,
-} from '../types.gen';
+import { attendanceServicesCheckIn, attendanceServicesCreateSchedule, attendanceServicesCreateSlot, attendanceServicesDeleteSlot, attendanceServicesGetCompanyLogs, attendanceServicesGetMemberLogs, attendanceServicesGetSchedulesByCompany, attendanceServicesGetSchedulesByRole, attendanceServicesGetSlotsBySchedule, attendanceServicesManualCheckIn, attendanceServicesUpdateSchedule, attendanceServicesUpdateSlot, companyServicesAddCompanyMember, companyServicesCreateCompany, companyServicesCreateCompanyBranch, companyServicesDeleteCompany, companyServicesDeleteCompanyBranch, companyServicesGetCompanies, companyServicesGetCompany, companyServicesGetCompanyBranch, companyServicesGetCompanyBranches, companyServicesGetCompanyBySlug, companyServicesGetCompanyMembers, companyServicesRemoveCompanyMember, companyServicesSwitchActiveCompany, companyServicesUpdateCompany, companyServicesUpdateCompanyBranch, companyServicesUpdateCompanyMember, featureServicesAssignCompanyFeature, featureServicesAssignRoleFeature, featureServicesCheckRoleFeatureAccess, featureServicesCreateFeature, featureServicesGetCompanyAvailableFeatures, featureServicesGetCompanyFeatures, featureServicesGetCompanyRoleFeatures, featureServicesGetFeature, featureServicesGetFeatures, featureServicesGetRoleFeatures, featureServicesRemoveCompanyFeature, featureServicesRevokeRoleFeature, featureServicesToggleCompanyFeature, featureServicesToggleFeature, featureServicesToggleRoleFeature, featureServicesUpdateFeature, formServicesAssignRoles, formServicesClone, formServicesCreateField, formServicesCreateSection, formServicesCreateTemplate, formServicesGetSubmission, formServicesGetTemplate, formServicesListSubmissions, formServicesListTemplatesByCompany, formServicesPublishVersion, formServicesReview, formServicesSaveDraft, formServicesStartSubmission, formServicesSubmit, formServicesUpdateTemplate, leaveServicesCancelRequest, leaveServicesCreateQuota, leaveServicesCreateType, leaveServicesGetCompanyRequests, leaveServicesGetMemberRequests, leaveServicesGetQuotasByMember, leaveServicesGetTypesByCompany, leaveServicesReviewRequest, leaveServicesSubmitRequest, leaveServicesUpdateQuota, leaveServicesUpdateType, locationServiceAssignSlotLocation, locationServiceCreateLocation, locationServiceDeleteLocation, locationServiceGetLocation, locationServiceGetSlotLocations, locationServiceListLocationsByBranch, locationServiceListLocationsByCompany, locationServiceSetPrimaryLocation, locationServiceUpdateLocation, type Options, permissionServicesCreatePermission, permissionServicesDeletePermission, permissionServicesGetMyPermissions, permissionServicesGetPermissions, permissionServicesUpdatePermission, roleServicesAssignPermissionToRole, roleServicesCreateRole, roleServicesDeleteRole, roleServicesGetCompanyRoles, roleServicesGetRole, roleServicesGetRolePermissions, roleServicesGetSystemDefaultRoles, roleServicesRevokePermissionFromRole, roleServicesUpdateRole, userServicesCreateUser, userServicesDeleteUser, userServicesGetUser, userServicesGetUsers, userServicesUpdateUser } from '../sdk.gen';
+import type { AttendanceServicesCheckInData, AttendanceServicesCheckInError, AttendanceServicesCheckInResponse, AttendanceServicesCreateScheduleData, AttendanceServicesCreateScheduleError, AttendanceServicesCreateScheduleResponse, AttendanceServicesCreateSlotData, AttendanceServicesCreateSlotError, AttendanceServicesCreateSlotResponse, AttendanceServicesDeleteSlotData, AttendanceServicesDeleteSlotError, AttendanceServicesDeleteSlotResponse, AttendanceServicesGetCompanyLogsData, AttendanceServicesGetCompanyLogsError, AttendanceServicesGetCompanyLogsResponse, AttendanceServicesGetMemberLogsData, AttendanceServicesGetMemberLogsError, AttendanceServicesGetMemberLogsResponse, AttendanceServicesGetSchedulesByCompanyData, AttendanceServicesGetSchedulesByCompanyError, AttendanceServicesGetSchedulesByCompanyResponse, AttendanceServicesGetSchedulesByRoleData, AttendanceServicesGetSchedulesByRoleError, AttendanceServicesGetSchedulesByRoleResponse, AttendanceServicesGetSlotsByScheduleData, AttendanceServicesGetSlotsByScheduleError, AttendanceServicesGetSlotsByScheduleResponse, AttendanceServicesManualCheckInData, AttendanceServicesManualCheckInError, AttendanceServicesManualCheckInResponse, AttendanceServicesUpdateScheduleData, AttendanceServicesUpdateScheduleError, AttendanceServicesUpdateScheduleResponse, AttendanceServicesUpdateSlotData, AttendanceServicesUpdateSlotError, AttendanceServicesUpdateSlotResponse, CompanyServicesAddCompanyMemberData, CompanyServicesAddCompanyMemberError, CompanyServicesAddCompanyMemberResponse, CompanyServicesCreateCompanyBranchData, CompanyServicesCreateCompanyBranchError, CompanyServicesCreateCompanyBranchResponse, CompanyServicesCreateCompanyData, CompanyServicesCreateCompanyError, CompanyServicesCreateCompanyResponse, CompanyServicesDeleteCompanyBranchData, CompanyServicesDeleteCompanyBranchError, CompanyServicesDeleteCompanyBranchResponse, CompanyServicesDeleteCompanyData, CompanyServicesDeleteCompanyError, CompanyServicesDeleteCompanyResponse, CompanyServicesGetCompaniesData, CompanyServicesGetCompaniesError, CompanyServicesGetCompaniesResponse, CompanyServicesGetCompanyBranchData, CompanyServicesGetCompanyBranchError, CompanyServicesGetCompanyBranchesData, CompanyServicesGetCompanyBranchesError, CompanyServicesGetCompanyBranchesResponse, CompanyServicesGetCompanyBranchResponse, CompanyServicesGetCompanyBySlugData, CompanyServicesGetCompanyBySlugError, CompanyServicesGetCompanyBySlugResponse, CompanyServicesGetCompanyData, CompanyServicesGetCompanyError, CompanyServicesGetCompanyMembersData, CompanyServicesGetCompanyMembersError, CompanyServicesGetCompanyMembersResponse, CompanyServicesGetCompanyResponse, CompanyServicesRemoveCompanyMemberData, CompanyServicesRemoveCompanyMemberError, CompanyServicesRemoveCompanyMemberResponse, CompanyServicesSwitchActiveCompanyData, CompanyServicesSwitchActiveCompanyError, CompanyServicesSwitchActiveCompanyResponse, CompanyServicesUpdateCompanyBranchData, CompanyServicesUpdateCompanyBranchError, CompanyServicesUpdateCompanyBranchResponse, CompanyServicesUpdateCompanyData, CompanyServicesUpdateCompanyError, CompanyServicesUpdateCompanyMemberData, CompanyServicesUpdateCompanyMemberError, CompanyServicesUpdateCompanyMemberResponse, CompanyServicesUpdateCompanyResponse, FeatureServicesAssignCompanyFeatureData, FeatureServicesAssignCompanyFeatureError, FeatureServicesAssignCompanyFeatureResponse, FeatureServicesAssignRoleFeatureData, FeatureServicesAssignRoleFeatureError, FeatureServicesAssignRoleFeatureResponse, FeatureServicesCheckRoleFeatureAccessData, FeatureServicesCheckRoleFeatureAccessError, FeatureServicesCheckRoleFeatureAccessResponse, FeatureServicesCreateFeatureData, FeatureServicesCreateFeatureError, FeatureServicesCreateFeatureResponse, FeatureServicesGetCompanyAvailableFeaturesData, FeatureServicesGetCompanyAvailableFeaturesError, FeatureServicesGetCompanyAvailableFeaturesResponse, FeatureServicesGetCompanyFeaturesData, FeatureServicesGetCompanyFeaturesError, FeatureServicesGetCompanyFeaturesResponse, FeatureServicesGetCompanyRoleFeaturesData, FeatureServicesGetCompanyRoleFeaturesError, FeatureServicesGetCompanyRoleFeaturesResponse, FeatureServicesGetFeatureData, FeatureServicesGetFeatureError, FeatureServicesGetFeatureResponse, FeatureServicesGetFeaturesData, FeatureServicesGetFeaturesError, FeatureServicesGetFeaturesResponse, FeatureServicesGetRoleFeaturesData, FeatureServicesGetRoleFeaturesError, FeatureServicesGetRoleFeaturesResponse, FeatureServicesRemoveCompanyFeatureData, FeatureServicesRemoveCompanyFeatureError, FeatureServicesRemoveCompanyFeatureResponse, FeatureServicesRevokeRoleFeatureData, FeatureServicesRevokeRoleFeatureError, FeatureServicesRevokeRoleFeatureResponse, FeatureServicesToggleCompanyFeatureData, FeatureServicesToggleCompanyFeatureError, FeatureServicesToggleCompanyFeatureResponse, FeatureServicesToggleFeatureData, FeatureServicesToggleFeatureError, FeatureServicesToggleFeatureResponse, FeatureServicesToggleRoleFeatureData, FeatureServicesToggleRoleFeatureError, FeatureServicesToggleRoleFeatureResponse, FeatureServicesUpdateFeatureData, FeatureServicesUpdateFeatureError, FeatureServicesUpdateFeatureResponse, FormServicesAssignRolesData, FormServicesAssignRolesError, FormServicesAssignRolesResponse, FormServicesCloneData, FormServicesCloneError, FormServicesCloneResponse, FormServicesCreateFieldData, FormServicesCreateFieldError, FormServicesCreateFieldResponse, FormServicesCreateSectionData, FormServicesCreateSectionError, FormServicesCreateSectionResponse, FormServicesCreateTemplateData, FormServicesCreateTemplateError, FormServicesCreateTemplateResponse, FormServicesGetSubmissionData, FormServicesGetSubmissionError, FormServicesGetSubmissionResponse, FormServicesGetTemplateData, FormServicesGetTemplateError, FormServicesGetTemplateResponse, FormServicesListSubmissionsData, FormServicesListSubmissionsError, FormServicesListSubmissionsResponse, FormServicesListTemplatesByCompanyData, FormServicesListTemplatesByCompanyError, FormServicesListTemplatesByCompanyResponse, FormServicesPublishVersionData, FormServicesPublishVersionError, FormServicesPublishVersionResponse, FormServicesReviewData, FormServicesReviewError, FormServicesReviewResponse, FormServicesSaveDraftData, FormServicesSaveDraftError, FormServicesSaveDraftResponse, FormServicesStartSubmissionData, FormServicesStartSubmissionError, FormServicesStartSubmissionResponse, FormServicesSubmitData, FormServicesSubmitError, FormServicesSubmitResponse, FormServicesUpdateTemplateData, FormServicesUpdateTemplateError, FormServicesUpdateTemplateResponse, LeaveServicesCancelRequestData, LeaveServicesCancelRequestError, LeaveServicesCancelRequestResponse, LeaveServicesCreateQuotaData, LeaveServicesCreateQuotaError, LeaveServicesCreateQuotaResponse, LeaveServicesCreateTypeData, LeaveServicesCreateTypeError, LeaveServicesCreateTypeResponse, LeaveServicesGetCompanyRequestsData, LeaveServicesGetCompanyRequestsError, LeaveServicesGetCompanyRequestsResponse, LeaveServicesGetMemberRequestsData, LeaveServicesGetMemberRequestsError, LeaveServicesGetMemberRequestsResponse, LeaveServicesGetQuotasByMemberData, LeaveServicesGetQuotasByMemberError, LeaveServicesGetQuotasByMemberResponse, LeaveServicesGetTypesByCompanyData, LeaveServicesGetTypesByCompanyError, LeaveServicesGetTypesByCompanyResponse, LeaveServicesReviewRequestData, LeaveServicesReviewRequestError, LeaveServicesReviewRequestResponse, LeaveServicesSubmitRequestData, LeaveServicesSubmitRequestError, LeaveServicesSubmitRequestResponse, LeaveServicesUpdateQuotaData, LeaveServicesUpdateQuotaError, LeaveServicesUpdateQuotaResponse, LeaveServicesUpdateTypeData, LeaveServicesUpdateTypeError, LeaveServicesUpdateTypeResponse, LocationServiceAssignSlotLocationData, LocationServiceAssignSlotLocationError, LocationServiceAssignSlotLocationResponse, LocationServiceCreateLocationData, LocationServiceCreateLocationError, LocationServiceCreateLocationResponse, LocationServiceDeleteLocationData, LocationServiceDeleteLocationError, LocationServiceDeleteLocationResponse, LocationServiceGetLocationData, LocationServiceGetLocationError, LocationServiceGetLocationResponse, LocationServiceGetSlotLocationsData, LocationServiceGetSlotLocationsError, LocationServiceGetSlotLocationsResponse, LocationServiceListLocationsByBranchData, LocationServiceListLocationsByBranchError, LocationServiceListLocationsByBranchResponse, LocationServiceListLocationsByCompanyData, LocationServiceListLocationsByCompanyError, LocationServiceListLocationsByCompanyResponse, LocationServiceSetPrimaryLocationData, LocationServiceSetPrimaryLocationError, LocationServiceSetPrimaryLocationResponse, LocationServiceUpdateLocationData, LocationServiceUpdateLocationError, LocationServiceUpdateLocationResponse, PermissionServicesCreatePermissionData, PermissionServicesCreatePermissionError, PermissionServicesCreatePermissionResponse, PermissionServicesDeletePermissionData, PermissionServicesDeletePermissionError, PermissionServicesDeletePermissionResponse, PermissionServicesGetMyPermissionsData, PermissionServicesGetMyPermissionsError, PermissionServicesGetMyPermissionsResponse, PermissionServicesGetPermissionsData, PermissionServicesGetPermissionsError, PermissionServicesGetPermissionsResponse, PermissionServicesUpdatePermissionData, PermissionServicesUpdatePermissionError, PermissionServicesUpdatePermissionResponse, RoleServicesAssignPermissionToRoleData, RoleServicesAssignPermissionToRoleError, RoleServicesAssignPermissionToRoleResponse, RoleServicesCreateRoleData, RoleServicesCreateRoleError, RoleServicesCreateRoleResponse, RoleServicesDeleteRoleData, RoleServicesDeleteRoleError, RoleServicesDeleteRoleResponse, RoleServicesGetCompanyRolesData, RoleServicesGetCompanyRolesError, RoleServicesGetCompanyRolesResponse, RoleServicesGetRoleData, RoleServicesGetRoleError, RoleServicesGetRolePermissionsData, RoleServicesGetRolePermissionsError, RoleServicesGetRolePermissionsResponse, RoleServicesGetRoleResponse, RoleServicesGetSystemDefaultRolesData, RoleServicesGetSystemDefaultRolesError, RoleServicesGetSystemDefaultRolesResponse, RoleServicesRevokePermissionFromRoleData, RoleServicesRevokePermissionFromRoleError, RoleServicesRevokePermissionFromRoleResponse, RoleServicesUpdateRoleData, RoleServicesUpdateRoleError, RoleServicesUpdateRoleResponse, UserServicesCreateUserData, UserServicesCreateUserError, UserServicesCreateUserResponse, UserServicesDeleteUserData, UserServicesDeleteUserError, UserServicesDeleteUserResponse, UserServicesGetUserData, UserServicesGetUserError, UserServicesGetUserResponse, UserServicesGetUsersData, UserServicesGetUsersError, UserServicesGetUsersResponse, UserServicesUpdateUserData, UserServicesUpdateUserError, UserServicesUpdateUserResponse } from '../types.gen';
 
 /**
  * Check in attendance
  */
-export const attendanceServicesCheckInMutation = (
-  options?: Partial<Options<AttendanceServicesCheckInData>>,
-): UseMutationOptions<
-  AttendanceServicesCheckInResponse,
-  AxiosError<AttendanceServicesCheckInError>,
-  Options<AttendanceServicesCheckInData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesCheckInResponse,
-    AxiosError<AttendanceServicesCheckInError>,
-    Options<AttendanceServicesCheckInData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesCheckIn({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const attendanceServicesCheckInMutation = (options?: Partial<Options<AttendanceServicesCheckInData>>): UseMutationOptions<AttendanceServicesCheckInResponse, AxiosError<AttendanceServicesCheckInError>, Options<AttendanceServicesCheckInData>> => {
+    const mutationOptions: UseMutationOptions<AttendanceServicesCheckInResponse, AxiosError<AttendanceServicesCheckInError>, Options<AttendanceServicesCheckInData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await attendanceServicesCheckIn({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 export type QueryKey<TOptions extends Options> = [
-  Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
-    _id: string;
-    _infinite?: boolean;
-    tags?: ReadonlyArray<string>;
-  },
+    Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
+        _id: string;
+        _infinite?: boolean;
+        tags?: ReadonlyArray<string>;
+    }
 ];
 
-const createQueryKey = <TOptions extends Options>(
-  id: string,
-  options?: TOptions,
-  infinite?: boolean,
-  tags?: ReadonlyArray<string>,
-): [QueryKey<TOptions>[0]] => {
-  const params: QueryKey<TOptions>[0] = {
-    _id: id,
-    baseURL:
-      options?.baseURL || (options?.client ?? client).getConfig().baseURL,
-  } as QueryKey<TOptions>[0];
-  if (infinite) {
-    params._infinite = infinite;
-  }
-  if (tags) {
-    params.tags = tags;
-  }
-  if (options?.body) {
-    params.body = options.body;
-  }
-  if (options?.headers) {
-    params.headers = options.headers;
-  }
-  if (options?.path) {
-    params.path = options.path;
-  }
-  if (options?.query) {
-    params.query = options.query;
-  }
-  return [params];
+const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions, infinite?: boolean, tags?: ReadonlyArray<string>): [
+    QueryKey<TOptions>[0]
+] => {
+    const params: QueryKey<TOptions>[0] = { _id: id, baseURL: options?.baseURL || (options?.client ?? client).getConfig().baseURL } as QueryKey<TOptions>[0];
+    if (infinite) {
+        params._infinite = infinite;
+    }
+    if (tags) {
+        params.tags = tags;
+    }
+    if (options?.body) {
+        params.body = options.body;
+    }
+    if (options?.headers) {
+        params.headers = options.headers;
+    }
+    if (options?.path) {
+        params.path = options.path;
+    }
+    if (options?.query) {
+        params.query = options.query;
+    }
+    return [params];
 };
 
-export const attendanceServicesGetCompanyLogsQueryKey = (
-  options: Options<AttendanceServicesGetCompanyLogsData>,
-) => createQueryKey('attendanceServicesGetCompanyLogs', options);
+export const attendanceServicesGetCompanyLogsQueryKey = (options: Options<AttendanceServicesGetCompanyLogsData>) => createQueryKey('attendanceServicesGetCompanyLogs', options);
 
 /**
  * Get company attendance logs by date range
  */
-export const attendanceServicesGetCompanyLogsOptions = (
-  options: Options<AttendanceServicesGetCompanyLogsData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetCompanyLogsResponse,
-    AxiosError<AttendanceServicesGetCompanyLogsError>,
-    AttendanceServicesGetCompanyLogsResponse,
-    ReturnType<typeof attendanceServicesGetCompanyLogsQueryKey>
-  >({
+export const attendanceServicesGetCompanyLogsOptions = (options: Options<AttendanceServicesGetCompanyLogsData>) => queryOptions<AttendanceServicesGetCompanyLogsResponse, AxiosError<AttendanceServicesGetCompanyLogsError>, AttendanceServicesGetCompanyLogsResponse, ReturnType<typeof attendanceServicesGetCompanyLogsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetCompanyLogs({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await attendanceServicesGetCompanyLogs({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: attendanceServicesGetCompanyLogsQueryKey(options),
-  });
+    queryKey: attendanceServicesGetCompanyLogsQueryKey(options)
+});
 
-export const attendanceServicesGetSchedulesByRoleQueryKey = (
-  options: Options<AttendanceServicesGetSchedulesByRoleData>,
-) => createQueryKey('attendanceServicesGetSchedulesByRole', options);
+export const attendanceServicesGetSchedulesByRoleQueryKey = (options: Options<AttendanceServicesGetSchedulesByRoleData>) => createQueryKey('attendanceServicesGetSchedulesByRole', options);
 
 /**
  * Get active check-in schedules assigned to a role in a company
  */
-export const attendanceServicesGetSchedulesByRoleOptions = (
-  options: Options<AttendanceServicesGetSchedulesByRoleData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetSchedulesByRoleResponse,
-    AxiosError<AttendanceServicesGetSchedulesByRoleError>,
-    AttendanceServicesGetSchedulesByRoleResponse,
-    ReturnType<typeof attendanceServicesGetSchedulesByRoleQueryKey>
-  >({
+export const attendanceServicesGetSchedulesByRoleOptions = (options: Options<AttendanceServicesGetSchedulesByRoleData>) => queryOptions<AttendanceServicesGetSchedulesByRoleResponse, AxiosError<AttendanceServicesGetSchedulesByRoleError>, AttendanceServicesGetSchedulesByRoleResponse, ReturnType<typeof attendanceServicesGetSchedulesByRoleQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetSchedulesByRole({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await attendanceServicesGetSchedulesByRole({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: attendanceServicesGetSchedulesByRoleQueryKey(options),
-  });
+    queryKey: attendanceServicesGetSchedulesByRoleQueryKey(options)
+});
 
-export const attendanceServicesGetSchedulesByCompanyQueryKey = (
-  options: Options<AttendanceServicesGetSchedulesByCompanyData>,
-) => createQueryKey('attendanceServicesGetSchedulesByCompany', options);
+export const attendanceServicesGetSchedulesByCompanyQueryKey = (options: Options<AttendanceServicesGetSchedulesByCompanyData>) => createQueryKey('attendanceServicesGetSchedulesByCompany', options);
 
 /**
  * Get check-in schedules by company
  */
-export const attendanceServicesGetSchedulesByCompanyOptions = (
-  options: Options<AttendanceServicesGetSchedulesByCompanyData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetSchedulesByCompanyResponse,
-    AxiosError<AttendanceServicesGetSchedulesByCompanyError>,
-    AttendanceServicesGetSchedulesByCompanyResponse,
-    ReturnType<typeof attendanceServicesGetSchedulesByCompanyQueryKey>
-  >({
+export const attendanceServicesGetSchedulesByCompanyOptions = (options: Options<AttendanceServicesGetSchedulesByCompanyData>) => queryOptions<AttendanceServicesGetSchedulesByCompanyResponse, AxiosError<AttendanceServicesGetSchedulesByCompanyError>, AttendanceServicesGetSchedulesByCompanyResponse, ReturnType<typeof attendanceServicesGetSchedulesByCompanyQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetSchedulesByCompany({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await attendanceServicesGetSchedulesByCompany({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: attendanceServicesGetSchedulesByCompanyQueryKey(options),
-  });
+    queryKey: attendanceServicesGetSchedulesByCompanyQueryKey(options)
+});
 
 /**
  * Manual check in attendance by supervisor/admin
  */
-export const attendanceServicesManualCheckInMutation = (
-  options?: Partial<Options<AttendanceServicesManualCheckInData>>,
-): UseMutationOptions<
-  AttendanceServicesManualCheckInResponse,
-  AxiosError<AttendanceServicesManualCheckInError>,
-  Options<AttendanceServicesManualCheckInData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesManualCheckInResponse,
-    AxiosError<AttendanceServicesManualCheckInError>,
-    Options<AttendanceServicesManualCheckInData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesManualCheckIn({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const attendanceServicesManualCheckInMutation = (options?: Partial<Options<AttendanceServicesManualCheckInData>>): UseMutationOptions<AttendanceServicesManualCheckInResponse, AxiosError<AttendanceServicesManualCheckInError>, Options<AttendanceServicesManualCheckInData>> => {
+    const mutationOptions: UseMutationOptions<AttendanceServicesManualCheckInResponse, AxiosError<AttendanceServicesManualCheckInError>, Options<AttendanceServicesManualCheckInData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await attendanceServicesManualCheckIn({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const attendanceServicesGetMemberLogsQueryKey = (
-  options: Options<AttendanceServicesGetMemberLogsData>,
-) => createQueryKey('attendanceServicesGetMemberLogs', options);
+export const attendanceServicesGetMemberLogsQueryKey = (options: Options<AttendanceServicesGetMemberLogsData>) => createQueryKey('attendanceServicesGetMemberLogs', options);
 
 /**
  * Get attendance logs by member
  */
-export const attendanceServicesGetMemberLogsOptions = (
-  options: Options<AttendanceServicesGetMemberLogsData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetMemberLogsResponse,
-    AxiosError<AttendanceServicesGetMemberLogsError>,
-    AttendanceServicesGetMemberLogsResponse,
-    ReturnType<typeof attendanceServicesGetMemberLogsQueryKey>
-  >({
+export const attendanceServicesGetMemberLogsOptions = (options: Options<AttendanceServicesGetMemberLogsData>) => queryOptions<AttendanceServicesGetMemberLogsResponse, AxiosError<AttendanceServicesGetMemberLogsError>, AttendanceServicesGetMemberLogsResponse, ReturnType<typeof attendanceServicesGetMemberLogsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetMemberLogs({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await attendanceServicesGetMemberLogs({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: attendanceServicesGetMemberLogsQueryKey(options),
-  });
+    queryKey: attendanceServicesGetMemberLogsQueryKey(options)
+});
 
 /**
  * Create check-in schedule
  */
-export const attendanceServicesCreateScheduleMutation = (
-  options?: Partial<Options<AttendanceServicesCreateScheduleData>>,
-): UseMutationOptions<
-  AttendanceServicesCreateScheduleResponse,
-  AxiosError<AttendanceServicesCreateScheduleError>,
-  Options<AttendanceServicesCreateScheduleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesCreateScheduleResponse,
-    AxiosError<AttendanceServicesCreateScheduleError>,
-    Options<AttendanceServicesCreateScheduleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesCreateSchedule({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const attendanceServicesCreateScheduleMutation = (options?: Partial<Options<AttendanceServicesCreateScheduleData>>): UseMutationOptions<AttendanceServicesCreateScheduleResponse, AxiosError<AttendanceServicesCreateScheduleError>, Options<AttendanceServicesCreateScheduleData>> => {
+    const mutationOptions: UseMutationOptions<AttendanceServicesCreateScheduleResponse, AxiosError<AttendanceServicesCreateScheduleError>, Options<AttendanceServicesCreateScheduleData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await attendanceServicesCreateSchedule({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Update check-in schedule
  */
-export const attendanceServicesUpdateScheduleMutation = (
-  options?: Partial<Options<AttendanceServicesUpdateScheduleData>>,
-): UseMutationOptions<
-  AttendanceServicesUpdateScheduleResponse,
-  AxiosError<AttendanceServicesUpdateScheduleError>,
-  Options<AttendanceServicesUpdateScheduleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesUpdateScheduleResponse,
-    AxiosError<AttendanceServicesUpdateScheduleError>,
-    Options<AttendanceServicesUpdateScheduleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesUpdateSchedule({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const attendanceServicesUpdateScheduleMutation = (options?: Partial<Options<AttendanceServicesUpdateScheduleData>>): UseMutationOptions<AttendanceServicesUpdateScheduleResponse, AxiosError<AttendanceServicesUpdateScheduleError>, Options<AttendanceServicesUpdateScheduleData>> => {
+    const mutationOptions: UseMutationOptions<AttendanceServicesUpdateScheduleResponse, AxiosError<AttendanceServicesUpdateScheduleError>, Options<AttendanceServicesUpdateScheduleData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await attendanceServicesUpdateSchedule({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const attendanceServicesGetSlotsByScheduleQueryKey = (
-  options: Options<AttendanceServicesGetSlotsByScheduleData>,
-) => createQueryKey('attendanceServicesGetSlotsBySchedule', options);
+export const attendanceServicesGetSlotsByScheduleQueryKey = (options: Options<AttendanceServicesGetSlotsByScheduleData>) => createQueryKey('attendanceServicesGetSlotsBySchedule', options);
 
 /**
  * Get schedule slots by schedule
  */
-export const attendanceServicesGetSlotsByScheduleOptions = (
-  options: Options<AttendanceServicesGetSlotsByScheduleData>,
-) =>
-  queryOptions<
-    AttendanceServicesGetSlotsByScheduleResponse,
-    AxiosError<AttendanceServicesGetSlotsByScheduleError>,
-    AttendanceServicesGetSlotsByScheduleResponse,
-    ReturnType<typeof attendanceServicesGetSlotsByScheduleQueryKey>
-  >({
+export const attendanceServicesGetSlotsByScheduleOptions = (options: Options<AttendanceServicesGetSlotsByScheduleData>) => queryOptions<AttendanceServicesGetSlotsByScheduleResponse, AxiosError<AttendanceServicesGetSlotsByScheduleError>, AttendanceServicesGetSlotsByScheduleResponse, ReturnType<typeof attendanceServicesGetSlotsByScheduleQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await attendanceServicesGetSlotsBySchedule({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await attendanceServicesGetSlotsBySchedule({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: attendanceServicesGetSlotsByScheduleQueryKey(options),
-  });
+    queryKey: attendanceServicesGetSlotsByScheduleQueryKey(options)
+});
 
 /**
  * Create schedule slot
  */
-export const attendanceServicesCreateSlotMutation = (
-  options?: Partial<Options<AttendanceServicesCreateSlotData>>,
-): UseMutationOptions<
-  AttendanceServicesCreateSlotResponse,
-  AxiosError<AttendanceServicesCreateSlotError>,
-  Options<AttendanceServicesCreateSlotData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesCreateSlotResponse,
-    AxiosError<AttendanceServicesCreateSlotError>,
-    Options<AttendanceServicesCreateSlotData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesCreateSlot({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const attendanceServicesCreateSlotMutation = (options?: Partial<Options<AttendanceServicesCreateSlotData>>): UseMutationOptions<AttendanceServicesCreateSlotResponse, AxiosError<AttendanceServicesCreateSlotError>, Options<AttendanceServicesCreateSlotData>> => {
+    const mutationOptions: UseMutationOptions<AttendanceServicesCreateSlotResponse, AxiosError<AttendanceServicesCreateSlotError>, Options<AttendanceServicesCreateSlotData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await attendanceServicesCreateSlot({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Delete schedule slot
  */
-export const attendanceServicesDeleteSlotMutation = (
-  options?: Partial<Options<AttendanceServicesDeleteSlotData>>,
-): UseMutationOptions<
-  AttendanceServicesDeleteSlotResponse,
-  AxiosError<AttendanceServicesDeleteSlotError>,
-  Options<AttendanceServicesDeleteSlotData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesDeleteSlotResponse,
-    AxiosError<AttendanceServicesDeleteSlotError>,
-    Options<AttendanceServicesDeleteSlotData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesDeleteSlot({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const attendanceServicesDeleteSlotMutation = (options?: Partial<Options<AttendanceServicesDeleteSlotData>>): UseMutationOptions<AttendanceServicesDeleteSlotResponse, AxiosError<AttendanceServicesDeleteSlotError>, Options<AttendanceServicesDeleteSlotData>> => {
+    const mutationOptions: UseMutationOptions<AttendanceServicesDeleteSlotResponse, AxiosError<AttendanceServicesDeleteSlotError>, Options<AttendanceServicesDeleteSlotData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await attendanceServicesDeleteSlot({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Update schedule slot
  */
-export const attendanceServicesUpdateSlotMutation = (
-  options?: Partial<Options<AttendanceServicesUpdateSlotData>>,
-): UseMutationOptions<
-  AttendanceServicesUpdateSlotResponse,
-  AxiosError<AttendanceServicesUpdateSlotError>,
-  Options<AttendanceServicesUpdateSlotData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AttendanceServicesUpdateSlotResponse,
-    AxiosError<AttendanceServicesUpdateSlotError>,
-    Options<AttendanceServicesUpdateSlotData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await attendanceServicesUpdateSlot({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const attendanceServicesUpdateSlotMutation = (options?: Partial<Options<AttendanceServicesUpdateSlotData>>): UseMutationOptions<AttendanceServicesUpdateSlotResponse, AxiosError<AttendanceServicesUpdateSlotError>, Options<AttendanceServicesUpdateSlotData>> => {
+    const mutationOptions: UseMutationOptions<AttendanceServicesUpdateSlotResponse, AxiosError<AttendanceServicesUpdateSlotError>, Options<AttendanceServicesUpdateSlotData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await attendanceServicesUpdateSlot({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const companyServicesGetCompaniesQueryKey = (
-  options?: Options<CompanyServicesGetCompaniesData>,
-) => createQueryKey('companyServicesGetCompanies', options);
+export const companyServicesGetCompaniesQueryKey = (options?: Options<CompanyServicesGetCompaniesData>) => createQueryKey('companyServicesGetCompanies', options);
 
 /**
  * Get all companies
  */
-export const companyServicesGetCompaniesOptions = (
-  options?: Options<CompanyServicesGetCompaniesData>,
-) =>
-  queryOptions<
-    CompanyServicesGetCompaniesResponse,
-    AxiosError<CompanyServicesGetCompaniesError>,
-    CompanyServicesGetCompaniesResponse,
-    ReturnType<typeof companyServicesGetCompaniesQueryKey>
-  >({
+export const companyServicesGetCompaniesOptions = (options?: Options<CompanyServicesGetCompaniesData>) => queryOptions<CompanyServicesGetCompaniesResponse, AxiosError<CompanyServicesGetCompaniesError>, CompanyServicesGetCompaniesResponse, ReturnType<typeof companyServicesGetCompaniesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await companyServicesGetCompanies({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await companyServicesGetCompanies({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: companyServicesGetCompaniesQueryKey(options),
-  });
+    queryKey: companyServicesGetCompaniesQueryKey(options)
+});
 
 /**
  * Create new company
  */
-export const companyServicesCreateCompanyMutation = (
-  options?: Partial<Options<CompanyServicesCreateCompanyData>>,
-): UseMutationOptions<
-  CompanyServicesCreateCompanyResponse,
-  AxiosError<CompanyServicesCreateCompanyError>,
-  Options<CompanyServicesCreateCompanyData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesCreateCompanyResponse,
-    AxiosError<CompanyServicesCreateCompanyError>,
-    Options<CompanyServicesCreateCompanyData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesCreateCompany({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesCreateCompanyMutation = (options?: Partial<Options<CompanyServicesCreateCompanyData>>): UseMutationOptions<CompanyServicesCreateCompanyResponse, AxiosError<CompanyServicesCreateCompanyError>, Options<CompanyServicesCreateCompanyData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesCreateCompanyResponse, AxiosError<CompanyServicesCreateCompanyError>, Options<CompanyServicesCreateCompanyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesCreateCompany({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Create company branch
  */
-export const companyServicesCreateCompanyBranchMutation = (
-  options?: Partial<Options<CompanyServicesCreateCompanyBranchData>>,
-): UseMutationOptions<
-  CompanyServicesCreateCompanyBranchResponse,
-  AxiosError<CompanyServicesCreateCompanyBranchError>,
-  Options<CompanyServicesCreateCompanyBranchData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesCreateCompanyBranchResponse,
-    AxiosError<CompanyServicesCreateCompanyBranchError>,
-    Options<CompanyServicesCreateCompanyBranchData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesCreateCompanyBranch({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesCreateCompanyBranchMutation = (options?: Partial<Options<CompanyServicesCreateCompanyBranchData>>): UseMutationOptions<CompanyServicesCreateCompanyBranchResponse, AxiosError<CompanyServicesCreateCompanyBranchError>, Options<CompanyServicesCreateCompanyBranchData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesCreateCompanyBranchResponse, AxiosError<CompanyServicesCreateCompanyBranchError>, Options<CompanyServicesCreateCompanyBranchData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesCreateCompanyBranch({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Delete company branch
  */
-export const companyServicesDeleteCompanyBranchMutation = (
-  options?: Partial<Options<CompanyServicesDeleteCompanyBranchData>>,
-): UseMutationOptions<
-  CompanyServicesDeleteCompanyBranchResponse,
-  AxiosError<CompanyServicesDeleteCompanyBranchError>,
-  Options<CompanyServicesDeleteCompanyBranchData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesDeleteCompanyBranchResponse,
-    AxiosError<CompanyServicesDeleteCompanyBranchError>,
-    Options<CompanyServicesDeleteCompanyBranchData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesDeleteCompanyBranch({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesDeleteCompanyBranchMutation = (options?: Partial<Options<CompanyServicesDeleteCompanyBranchData>>): UseMutationOptions<CompanyServicesDeleteCompanyBranchResponse, AxiosError<CompanyServicesDeleteCompanyBranchError>, Options<CompanyServicesDeleteCompanyBranchData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesDeleteCompanyBranchResponse, AxiosError<CompanyServicesDeleteCompanyBranchError>, Options<CompanyServicesDeleteCompanyBranchData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesDeleteCompanyBranch({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const companyServicesGetCompanyBranchQueryKey = (
-  options: Options<CompanyServicesGetCompanyBranchData>,
-) => createQueryKey('companyServicesGetCompanyBranch', options);
+export const companyServicesGetCompanyBranchQueryKey = (options: Options<CompanyServicesGetCompanyBranchData>) => createQueryKey('companyServicesGetCompanyBranch', options);
 
 /**
  * Get company branch by ID
  */
-export const companyServicesGetCompanyBranchOptions = (
-  options: Options<CompanyServicesGetCompanyBranchData>,
-) =>
-  queryOptions<
-    CompanyServicesGetCompanyBranchResponse,
-    AxiosError<CompanyServicesGetCompanyBranchError>,
-    CompanyServicesGetCompanyBranchResponse,
-    ReturnType<typeof companyServicesGetCompanyBranchQueryKey>
-  >({
+export const companyServicesGetCompanyBranchOptions = (options: Options<CompanyServicesGetCompanyBranchData>) => queryOptions<CompanyServicesGetCompanyBranchResponse, AxiosError<CompanyServicesGetCompanyBranchError>, CompanyServicesGetCompanyBranchResponse, ReturnType<typeof companyServicesGetCompanyBranchQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await companyServicesGetCompanyBranch({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await companyServicesGetCompanyBranch({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: companyServicesGetCompanyBranchQueryKey(options),
-  });
+    queryKey: companyServicesGetCompanyBranchQueryKey(options)
+});
 
 /**
  * Update company branch
  */
-export const companyServicesUpdateCompanyBranchMutation = (
-  options?: Partial<Options<CompanyServicesUpdateCompanyBranchData>>,
-): UseMutationOptions<
-  CompanyServicesUpdateCompanyBranchResponse,
-  AxiosError<CompanyServicesUpdateCompanyBranchError>,
-  Options<CompanyServicesUpdateCompanyBranchData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesUpdateCompanyBranchResponse,
-    AxiosError<CompanyServicesUpdateCompanyBranchError>,
-    Options<CompanyServicesUpdateCompanyBranchData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesUpdateCompanyBranch({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesUpdateCompanyBranchMutation = (options?: Partial<Options<CompanyServicesUpdateCompanyBranchData>>): UseMutationOptions<CompanyServicesUpdateCompanyBranchResponse, AxiosError<CompanyServicesUpdateCompanyBranchError>, Options<CompanyServicesUpdateCompanyBranchData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesUpdateCompanyBranchResponse, AxiosError<CompanyServicesUpdateCompanyBranchError>, Options<CompanyServicesUpdateCompanyBranchData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesUpdateCompanyBranch({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Add company member
  */
-export const companyServicesAddCompanyMemberMutation = (
-  options?: Partial<Options<CompanyServicesAddCompanyMemberData>>,
-): UseMutationOptions<
-  CompanyServicesAddCompanyMemberResponse,
-  AxiosError<CompanyServicesAddCompanyMemberError>,
-  Options<CompanyServicesAddCompanyMemberData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesAddCompanyMemberResponse,
-    AxiosError<CompanyServicesAddCompanyMemberError>,
-    Options<CompanyServicesAddCompanyMemberData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesAddCompanyMember({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesAddCompanyMemberMutation = (options?: Partial<Options<CompanyServicesAddCompanyMemberData>>): UseMutationOptions<CompanyServicesAddCompanyMemberResponse, AxiosError<CompanyServicesAddCompanyMemberError>, Options<CompanyServicesAddCompanyMemberData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesAddCompanyMemberResponse, AxiosError<CompanyServicesAddCompanyMemberError>, Options<CompanyServicesAddCompanyMemberData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesAddCompanyMember({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Remove company member
  */
-export const companyServicesRemoveCompanyMemberMutation = (
-  options?: Partial<Options<CompanyServicesRemoveCompanyMemberData>>,
-): UseMutationOptions<
-  CompanyServicesRemoveCompanyMemberResponse,
-  AxiosError<CompanyServicesRemoveCompanyMemberError>,
-  Options<CompanyServicesRemoveCompanyMemberData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesRemoveCompanyMemberResponse,
-    AxiosError<CompanyServicesRemoveCompanyMemberError>,
-    Options<CompanyServicesRemoveCompanyMemberData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesRemoveCompanyMember({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesRemoveCompanyMemberMutation = (options?: Partial<Options<CompanyServicesRemoveCompanyMemberData>>): UseMutationOptions<CompanyServicesRemoveCompanyMemberResponse, AxiosError<CompanyServicesRemoveCompanyMemberError>, Options<CompanyServicesRemoveCompanyMemberData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesRemoveCompanyMemberResponse, AxiosError<CompanyServicesRemoveCompanyMemberError>, Options<CompanyServicesRemoveCompanyMemberData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesRemoveCompanyMember({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Update company member
  */
-export const companyServicesUpdateCompanyMemberMutation = (
-  options?: Partial<Options<CompanyServicesUpdateCompanyMemberData>>,
-): UseMutationOptions<
-  CompanyServicesUpdateCompanyMemberResponse,
-  AxiosError<CompanyServicesUpdateCompanyMemberError>,
-  Options<CompanyServicesUpdateCompanyMemberData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesUpdateCompanyMemberResponse,
-    AxiosError<CompanyServicesUpdateCompanyMemberError>,
-    Options<CompanyServicesUpdateCompanyMemberData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesUpdateCompanyMember({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesUpdateCompanyMemberMutation = (options?: Partial<Options<CompanyServicesUpdateCompanyMemberData>>): UseMutationOptions<CompanyServicesUpdateCompanyMemberResponse, AxiosError<CompanyServicesUpdateCompanyMemberError>, Options<CompanyServicesUpdateCompanyMemberData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesUpdateCompanyMemberResponse, AxiosError<CompanyServicesUpdateCompanyMemberError>, Options<CompanyServicesUpdateCompanyMemberData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesUpdateCompanyMember({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const companyServicesGetCompanyBySlugQueryKey = (
-  options: Options<CompanyServicesGetCompanyBySlugData>,
-) => createQueryKey('companyServicesGetCompanyBySlug', options);
+export const companyServicesGetCompanyBySlugQueryKey = (options: Options<CompanyServicesGetCompanyBySlugData>) => createQueryKey('companyServicesGetCompanyBySlug', options);
 
 /**
  * Get company by slug
  */
-export const companyServicesGetCompanyBySlugOptions = (
-  options: Options<CompanyServicesGetCompanyBySlugData>,
-) =>
-  queryOptions<
-    CompanyServicesGetCompanyBySlugResponse,
-    AxiosError<CompanyServicesGetCompanyBySlugError>,
-    CompanyServicesGetCompanyBySlugResponse,
-    ReturnType<typeof companyServicesGetCompanyBySlugQueryKey>
-  >({
+export const companyServicesGetCompanyBySlugOptions = (options: Options<CompanyServicesGetCompanyBySlugData>) => queryOptions<CompanyServicesGetCompanyBySlugResponse, AxiosError<CompanyServicesGetCompanyBySlugError>, CompanyServicesGetCompanyBySlugResponse, ReturnType<typeof companyServicesGetCompanyBySlugQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await companyServicesGetCompanyBySlug({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await companyServicesGetCompanyBySlug({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: companyServicesGetCompanyBySlugQueryKey(options),
-  });
+    queryKey: companyServicesGetCompanyBySlugQueryKey(options)
+});
 
-export const companyServicesGetCompanyBranchesQueryKey = (
-  options: Options<CompanyServicesGetCompanyBranchesData>,
-) => createQueryKey('companyServicesGetCompanyBranches', options);
+export const companyServicesGetCompanyBranchesQueryKey = (options: Options<CompanyServicesGetCompanyBranchesData>) => createQueryKey('companyServicesGetCompanyBranches', options);
 
 /**
  * Get company branches
  */
-export const companyServicesGetCompanyBranchesOptions = (
-  options: Options<CompanyServicesGetCompanyBranchesData>,
-) =>
-  queryOptions<
-    CompanyServicesGetCompanyBranchesResponse,
-    AxiosError<CompanyServicesGetCompanyBranchesError>,
-    CompanyServicesGetCompanyBranchesResponse,
-    ReturnType<typeof companyServicesGetCompanyBranchesQueryKey>
-  >({
+export const companyServicesGetCompanyBranchesOptions = (options: Options<CompanyServicesGetCompanyBranchesData>) => queryOptions<CompanyServicesGetCompanyBranchesResponse, AxiosError<CompanyServicesGetCompanyBranchesError>, CompanyServicesGetCompanyBranchesResponse, ReturnType<typeof companyServicesGetCompanyBranchesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await companyServicesGetCompanyBranches({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await companyServicesGetCompanyBranches({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: companyServicesGetCompanyBranchesQueryKey(options),
-  });
+    queryKey: companyServicesGetCompanyBranchesQueryKey(options)
+});
 
-export const companyServicesGetCompanyMembersQueryKey = (
-  options: Options<CompanyServicesGetCompanyMembersData>,
-) => createQueryKey('companyServicesGetCompanyMembers', options);
+export const companyServicesGetCompanyMembersQueryKey = (options: Options<CompanyServicesGetCompanyMembersData>) => createQueryKey('companyServicesGetCompanyMembers', options);
 
 /**
  * Get company members
  */
-export const companyServicesGetCompanyMembersOptions = (
-  options: Options<CompanyServicesGetCompanyMembersData>,
-) =>
-  queryOptions<
-    CompanyServicesGetCompanyMembersResponse,
-    AxiosError<CompanyServicesGetCompanyMembersError>,
-    CompanyServicesGetCompanyMembersResponse,
-    ReturnType<typeof companyServicesGetCompanyMembersQueryKey>
-  >({
+export const companyServicesGetCompanyMembersOptions = (options: Options<CompanyServicesGetCompanyMembersData>) => queryOptions<CompanyServicesGetCompanyMembersResponse, AxiosError<CompanyServicesGetCompanyMembersError>, CompanyServicesGetCompanyMembersResponse, ReturnType<typeof companyServicesGetCompanyMembersQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await companyServicesGetCompanyMembers({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await companyServicesGetCompanyMembers({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: companyServicesGetCompanyMembersQueryKey(options),
-  });
+    queryKey: companyServicesGetCompanyMembersQueryKey(options)
+});
 
 /**
  * Delete company
  */
-export const companyServicesDeleteCompanyMutation = (
-  options?: Partial<Options<CompanyServicesDeleteCompanyData>>,
-): UseMutationOptions<
-  CompanyServicesDeleteCompanyResponse,
-  AxiosError<CompanyServicesDeleteCompanyError>,
-  Options<CompanyServicesDeleteCompanyData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesDeleteCompanyResponse,
-    AxiosError<CompanyServicesDeleteCompanyError>,
-    Options<CompanyServicesDeleteCompanyData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesDeleteCompany({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesDeleteCompanyMutation = (options?: Partial<Options<CompanyServicesDeleteCompanyData>>): UseMutationOptions<CompanyServicesDeleteCompanyResponse, AxiosError<CompanyServicesDeleteCompanyError>, Options<CompanyServicesDeleteCompanyData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesDeleteCompanyResponse, AxiosError<CompanyServicesDeleteCompanyError>, Options<CompanyServicesDeleteCompanyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesDeleteCompany({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const companyServicesGetCompanyQueryKey = (
-  options: Options<CompanyServicesGetCompanyData>,
-) => createQueryKey('companyServicesGetCompany', options);
+export const companyServicesGetCompanyQueryKey = (options: Options<CompanyServicesGetCompanyData>) => createQueryKey('companyServicesGetCompany', options);
 
 /**
  * Get company by ID
  */
-export const companyServicesGetCompanyOptions = (
-  options: Options<CompanyServicesGetCompanyData>,
-) =>
-  queryOptions<
-    CompanyServicesGetCompanyResponse,
-    AxiosError<CompanyServicesGetCompanyError>,
-    CompanyServicesGetCompanyResponse,
-    ReturnType<typeof companyServicesGetCompanyQueryKey>
-  >({
+export const companyServicesGetCompanyOptions = (options: Options<CompanyServicesGetCompanyData>) => queryOptions<CompanyServicesGetCompanyResponse, AxiosError<CompanyServicesGetCompanyError>, CompanyServicesGetCompanyResponse, ReturnType<typeof companyServicesGetCompanyQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await companyServicesGetCompany({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await companyServicesGetCompany({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: companyServicesGetCompanyQueryKey(options),
-  });
+    queryKey: companyServicesGetCompanyQueryKey(options)
+});
 
 /**
  * Update company
  */
-export const companyServicesUpdateCompanyMutation = (
-  options?: Partial<Options<CompanyServicesUpdateCompanyData>>,
-): UseMutationOptions<
-  CompanyServicesUpdateCompanyResponse,
-  AxiosError<CompanyServicesUpdateCompanyError>,
-  Options<CompanyServicesUpdateCompanyData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesUpdateCompanyResponse,
-    AxiosError<CompanyServicesUpdateCompanyError>,
-    Options<CompanyServicesUpdateCompanyData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesUpdateCompany({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesUpdateCompanyMutation = (options?: Partial<Options<CompanyServicesUpdateCompanyData>>): UseMutationOptions<CompanyServicesUpdateCompanyResponse, AxiosError<CompanyServicesUpdateCompanyError>, Options<CompanyServicesUpdateCompanyData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesUpdateCompanyResponse, AxiosError<CompanyServicesUpdateCompanyError>, Options<CompanyServicesUpdateCompanyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesUpdateCompany({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Switch active company for the current session
  */
-export const companyServicesSwitchActiveCompanyMutation = (
-  options?: Partial<Options<CompanyServicesSwitchActiveCompanyData>>,
-): UseMutationOptions<
-  CompanyServicesSwitchActiveCompanyResponse,
-  AxiosError<CompanyServicesSwitchActiveCompanyError>,
-  Options<CompanyServicesSwitchActiveCompanyData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CompanyServicesSwitchActiveCompanyResponse,
-    AxiosError<CompanyServicesSwitchActiveCompanyError>,
-    Options<CompanyServicesSwitchActiveCompanyData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await companyServicesSwitchActiveCompany({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const companyServicesSwitchActiveCompanyMutation = (options?: Partial<Options<CompanyServicesSwitchActiveCompanyData>>): UseMutationOptions<CompanyServicesSwitchActiveCompanyResponse, AxiosError<CompanyServicesSwitchActiveCompanyError>, Options<CompanyServicesSwitchActiveCompanyData>> => {
+    const mutationOptions: UseMutationOptions<CompanyServicesSwitchActiveCompanyResponse, AxiosError<CompanyServicesSwitchActiveCompanyError>, Options<CompanyServicesSwitchActiveCompanyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await companyServicesSwitchActiveCompany({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const featureServicesGetFeaturesQueryKey = (
-  options?: Options<FeatureServicesGetFeaturesData>,
-) => createQueryKey('featureServicesGetFeatures', options);
+export const featureServicesGetFeaturesQueryKey = (options?: Options<FeatureServicesGetFeaturesData>) => createQueryKey('featureServicesGetFeatures', options);
 
 /**
  * Get all features
  */
-export const featureServicesGetFeaturesOptions = (
-  options?: Options<FeatureServicesGetFeaturesData>,
-) =>
-  queryOptions<
-    FeatureServicesGetFeaturesResponse,
-    AxiosError<FeatureServicesGetFeaturesError>,
-    FeatureServicesGetFeaturesResponse,
-    ReturnType<typeof featureServicesGetFeaturesQueryKey>
-  >({
+export const featureServicesGetFeaturesOptions = (options?: Options<FeatureServicesGetFeaturesData>) => queryOptions<FeatureServicesGetFeaturesResponse, AxiosError<FeatureServicesGetFeaturesError>, FeatureServicesGetFeaturesResponse, ReturnType<typeof featureServicesGetFeaturesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await featureServicesGetFeatures({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await featureServicesGetFeatures({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: featureServicesGetFeaturesQueryKey(options),
-  });
+    queryKey: featureServicesGetFeaturesQueryKey(options)
+});
 
 /**
  * Create feature
  */
-export const featureServicesCreateFeatureMutation = (
-  options?: Partial<Options<FeatureServicesCreateFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesCreateFeatureResponse,
-  AxiosError<FeatureServicesCreateFeatureError>,
-  Options<FeatureServicesCreateFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesCreateFeatureResponse,
-    AxiosError<FeatureServicesCreateFeatureError>,
-    Options<FeatureServicesCreateFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesCreateFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesCreateFeatureMutation = (options?: Partial<Options<FeatureServicesCreateFeatureData>>): UseMutationOptions<FeatureServicesCreateFeatureResponse, AxiosError<FeatureServicesCreateFeatureError>, Options<FeatureServicesCreateFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesCreateFeatureResponse, AxiosError<FeatureServicesCreateFeatureError>, Options<FeatureServicesCreateFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesCreateFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const featureServicesGetCompanyFeaturesQueryKey = (
-  options: Options<FeatureServicesGetCompanyFeaturesData>,
-) => createQueryKey('featureServicesGetCompanyFeatures', options);
+export const featureServicesGetCompanyFeaturesQueryKey = (options: Options<FeatureServicesGetCompanyFeaturesData>) => createQueryKey('featureServicesGetCompanyFeatures', options);
 
 /**
  * Get company features
  */
-export const featureServicesGetCompanyFeaturesOptions = (
-  options: Options<FeatureServicesGetCompanyFeaturesData>,
-) =>
-  queryOptions<
-    FeatureServicesGetCompanyFeaturesResponse,
-    AxiosError<FeatureServicesGetCompanyFeaturesError>,
-    FeatureServicesGetCompanyFeaturesResponse,
-    ReturnType<typeof featureServicesGetCompanyFeaturesQueryKey>
-  >({
+export const featureServicesGetCompanyFeaturesOptions = (options: Options<FeatureServicesGetCompanyFeaturesData>) => queryOptions<FeatureServicesGetCompanyFeaturesResponse, AxiosError<FeatureServicesGetCompanyFeaturesError>, FeatureServicesGetCompanyFeaturesResponse, ReturnType<typeof featureServicesGetCompanyFeaturesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await featureServicesGetCompanyFeatures({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await featureServicesGetCompanyFeatures({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: featureServicesGetCompanyFeaturesQueryKey(options),
-  });
+    queryKey: featureServicesGetCompanyFeaturesQueryKey(options)
+});
 
 /**
  * Assign feature to company
  */
-export const featureServicesAssignCompanyFeatureMutation = (
-  options?: Partial<Options<FeatureServicesAssignCompanyFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesAssignCompanyFeatureResponse,
-  AxiosError<FeatureServicesAssignCompanyFeatureError>,
-  Options<FeatureServicesAssignCompanyFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesAssignCompanyFeatureResponse,
-    AxiosError<FeatureServicesAssignCompanyFeatureError>,
-    Options<FeatureServicesAssignCompanyFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesAssignCompanyFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesAssignCompanyFeatureMutation = (options?: Partial<Options<FeatureServicesAssignCompanyFeatureData>>): UseMutationOptions<FeatureServicesAssignCompanyFeatureResponse, AxiosError<FeatureServicesAssignCompanyFeatureError>, Options<FeatureServicesAssignCompanyFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesAssignCompanyFeatureResponse, AxiosError<FeatureServicesAssignCompanyFeatureError>, Options<FeatureServicesAssignCompanyFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesAssignCompanyFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const featureServicesGetCompanyAvailableFeaturesQueryKey = (
-  options: Options<FeatureServicesGetCompanyAvailableFeaturesData>,
-) => createQueryKey('featureServicesGetCompanyAvailableFeatures', options);
+export const featureServicesGetCompanyAvailableFeaturesQueryKey = (options: Options<FeatureServicesGetCompanyAvailableFeaturesData>) => createQueryKey('featureServicesGetCompanyAvailableFeatures', options);
 
 /**
  * Get available features for company
  */
-export const featureServicesGetCompanyAvailableFeaturesOptions = (
-  options: Options<FeatureServicesGetCompanyAvailableFeaturesData>,
-) =>
-  queryOptions<
-    FeatureServicesGetCompanyAvailableFeaturesResponse,
-    AxiosError<FeatureServicesGetCompanyAvailableFeaturesError>,
-    FeatureServicesGetCompanyAvailableFeaturesResponse,
-    ReturnType<typeof featureServicesGetCompanyAvailableFeaturesQueryKey>
-  >({
+export const featureServicesGetCompanyAvailableFeaturesOptions = (options: Options<FeatureServicesGetCompanyAvailableFeaturesData>) => queryOptions<FeatureServicesGetCompanyAvailableFeaturesResponse, AxiosError<FeatureServicesGetCompanyAvailableFeaturesError>, FeatureServicesGetCompanyAvailableFeaturesResponse, ReturnType<typeof featureServicesGetCompanyAvailableFeaturesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await featureServicesGetCompanyAvailableFeatures({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await featureServicesGetCompanyAvailableFeatures({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: featureServicesGetCompanyAvailableFeaturesQueryKey(options),
-  });
+    queryKey: featureServicesGetCompanyAvailableFeaturesQueryKey(options)
+});
 
 /**
  * Remove feature from company
  */
-export const featureServicesRemoveCompanyFeatureMutation = (
-  options?: Partial<Options<FeatureServicesRemoveCompanyFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesRemoveCompanyFeatureResponse,
-  AxiosError<FeatureServicesRemoveCompanyFeatureError>,
-  Options<FeatureServicesRemoveCompanyFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesRemoveCompanyFeatureResponse,
-    AxiosError<FeatureServicesRemoveCompanyFeatureError>,
-    Options<FeatureServicesRemoveCompanyFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesRemoveCompanyFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesRemoveCompanyFeatureMutation = (options?: Partial<Options<FeatureServicesRemoveCompanyFeatureData>>): UseMutationOptions<FeatureServicesRemoveCompanyFeatureResponse, AxiosError<FeatureServicesRemoveCompanyFeatureError>, Options<FeatureServicesRemoveCompanyFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesRemoveCompanyFeatureResponse, AxiosError<FeatureServicesRemoveCompanyFeatureError>, Options<FeatureServicesRemoveCompanyFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesRemoveCompanyFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const featureServicesGetCompanyRoleFeaturesQueryKey = (
-  options: Options<FeatureServicesGetCompanyRoleFeaturesData>,
-) => createQueryKey('featureServicesGetCompanyRoleFeatures', options);
+export const featureServicesGetCompanyRoleFeaturesQueryKey = (options: Options<FeatureServicesGetCompanyRoleFeaturesData>) => createQueryKey('featureServicesGetCompanyRoleFeatures', options);
 
 /**
  * Get role features for company
  */
-export const featureServicesGetCompanyRoleFeaturesOptions = (
-  options: Options<FeatureServicesGetCompanyRoleFeaturesData>,
-) =>
-  queryOptions<
-    FeatureServicesGetCompanyRoleFeaturesResponse,
-    AxiosError<FeatureServicesGetCompanyRoleFeaturesError>,
-    FeatureServicesGetCompanyRoleFeaturesResponse,
-    ReturnType<typeof featureServicesGetCompanyRoleFeaturesQueryKey>
-  >({
+export const featureServicesGetCompanyRoleFeaturesOptions = (options: Options<FeatureServicesGetCompanyRoleFeaturesData>) => queryOptions<FeatureServicesGetCompanyRoleFeaturesResponse, AxiosError<FeatureServicesGetCompanyRoleFeaturesError>, FeatureServicesGetCompanyRoleFeaturesResponse, ReturnType<typeof featureServicesGetCompanyRoleFeaturesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await featureServicesGetCompanyRoleFeatures({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await featureServicesGetCompanyRoleFeatures({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: featureServicesGetCompanyRoleFeaturesQueryKey(options),
-  });
+    queryKey: featureServicesGetCompanyRoleFeaturesQueryKey(options)
+});
 
-export const featureServicesCheckRoleFeatureAccessQueryKey = (
-  options: Options<FeatureServicesCheckRoleFeatureAccessData>,
-) => createQueryKey('featureServicesCheckRoleFeatureAccess', options);
+export const featureServicesCheckRoleFeatureAccessQueryKey = (options: Options<FeatureServicesCheckRoleFeatureAccessData>) => createQueryKey('featureServicesCheckRoleFeatureAccess', options);
 
 /**
  * Check role feature access
  */
-export const featureServicesCheckRoleFeatureAccessOptions = (
-  options: Options<FeatureServicesCheckRoleFeatureAccessData>,
-) =>
-  queryOptions<
-    FeatureServicesCheckRoleFeatureAccessResponse,
-    AxiosError<FeatureServicesCheckRoleFeatureAccessError>,
-    FeatureServicesCheckRoleFeatureAccessResponse,
-    ReturnType<typeof featureServicesCheckRoleFeatureAccessQueryKey>
-  >({
+export const featureServicesCheckRoleFeatureAccessOptions = (options: Options<FeatureServicesCheckRoleFeatureAccessData>) => queryOptions<FeatureServicesCheckRoleFeatureAccessResponse, AxiosError<FeatureServicesCheckRoleFeatureAccessError>, FeatureServicesCheckRoleFeatureAccessResponse, ReturnType<typeof featureServicesCheckRoleFeatureAccessQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await featureServicesCheckRoleFeatureAccess({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await featureServicesCheckRoleFeatureAccess({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: featureServicesCheckRoleFeatureAccessQueryKey(options),
-  });
+    queryKey: featureServicesCheckRoleFeatureAccessQueryKey(options)
+});
 
 /**
  * Toggle company feature
  */
-export const featureServicesToggleCompanyFeatureMutation = (
-  options?: Partial<Options<FeatureServicesToggleCompanyFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesToggleCompanyFeatureResponse,
-  AxiosError<FeatureServicesToggleCompanyFeatureError>,
-  Options<FeatureServicesToggleCompanyFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesToggleCompanyFeatureResponse,
-    AxiosError<FeatureServicesToggleCompanyFeatureError>,
-    Options<FeatureServicesToggleCompanyFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesToggleCompanyFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesToggleCompanyFeatureMutation = (options?: Partial<Options<FeatureServicesToggleCompanyFeatureData>>): UseMutationOptions<FeatureServicesToggleCompanyFeatureResponse, AxiosError<FeatureServicesToggleCompanyFeatureError>, Options<FeatureServicesToggleCompanyFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesToggleCompanyFeatureResponse, AxiosError<FeatureServicesToggleCompanyFeatureError>, Options<FeatureServicesToggleCompanyFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesToggleCompanyFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const featureServicesGetRoleFeaturesQueryKey = (
-  options: Options<FeatureServicesGetRoleFeaturesData>,
-) => createQueryKey('featureServicesGetRoleFeatures', options);
+export const featureServicesGetRoleFeaturesQueryKey = (options: Options<FeatureServicesGetRoleFeaturesData>) => createQueryKey('featureServicesGetRoleFeatures', options);
 
 /**
  * Get features for a role
  */
-export const featureServicesGetRoleFeaturesOptions = (
-  options: Options<FeatureServicesGetRoleFeaturesData>,
-) =>
-  queryOptions<
-    FeatureServicesGetRoleFeaturesResponse,
-    AxiosError<FeatureServicesGetRoleFeaturesError>,
-    FeatureServicesGetRoleFeaturesResponse,
-    ReturnType<typeof featureServicesGetRoleFeaturesQueryKey>
-  >({
+export const featureServicesGetRoleFeaturesOptions = (options: Options<FeatureServicesGetRoleFeaturesData>) => queryOptions<FeatureServicesGetRoleFeaturesResponse, AxiosError<FeatureServicesGetRoleFeaturesError>, FeatureServicesGetRoleFeaturesResponse, ReturnType<typeof featureServicesGetRoleFeaturesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await featureServicesGetRoleFeatures({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await featureServicesGetRoleFeatures({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: featureServicesGetRoleFeaturesQueryKey(options),
-  });
+    queryKey: featureServicesGetRoleFeaturesQueryKey(options)
+});
 
 /**
  * Assign feature to role
  */
-export const featureServicesAssignRoleFeatureMutation = (
-  options?: Partial<Options<FeatureServicesAssignRoleFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesAssignRoleFeatureResponse,
-  AxiosError<FeatureServicesAssignRoleFeatureError>,
-  Options<FeatureServicesAssignRoleFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesAssignRoleFeatureResponse,
-    AxiosError<FeatureServicesAssignRoleFeatureError>,
-    Options<FeatureServicesAssignRoleFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesAssignRoleFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesAssignRoleFeatureMutation = (options?: Partial<Options<FeatureServicesAssignRoleFeatureData>>): UseMutationOptions<FeatureServicesAssignRoleFeatureResponse, AxiosError<FeatureServicesAssignRoleFeatureError>, Options<FeatureServicesAssignRoleFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesAssignRoleFeatureResponse, AxiosError<FeatureServicesAssignRoleFeatureError>, Options<FeatureServicesAssignRoleFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesAssignRoleFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Revoke feature from role
  */
-export const featureServicesRevokeRoleFeatureMutation = (
-  options?: Partial<Options<FeatureServicesRevokeRoleFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesRevokeRoleFeatureResponse,
-  AxiosError<FeatureServicesRevokeRoleFeatureError>,
-  Options<FeatureServicesRevokeRoleFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesRevokeRoleFeatureResponse,
-    AxiosError<FeatureServicesRevokeRoleFeatureError>,
-    Options<FeatureServicesRevokeRoleFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesRevokeRoleFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesRevokeRoleFeatureMutation = (options?: Partial<Options<FeatureServicesRevokeRoleFeatureData>>): UseMutationOptions<FeatureServicesRevokeRoleFeatureResponse, AxiosError<FeatureServicesRevokeRoleFeatureError>, Options<FeatureServicesRevokeRoleFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesRevokeRoleFeatureResponse, AxiosError<FeatureServicesRevokeRoleFeatureError>, Options<FeatureServicesRevokeRoleFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesRevokeRoleFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Toggle role feature
  */
-export const featureServicesToggleRoleFeatureMutation = (
-  options?: Partial<Options<FeatureServicesToggleRoleFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesToggleRoleFeatureResponse,
-  AxiosError<FeatureServicesToggleRoleFeatureError>,
-  Options<FeatureServicesToggleRoleFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesToggleRoleFeatureResponse,
-    AxiosError<FeatureServicesToggleRoleFeatureError>,
-    Options<FeatureServicesToggleRoleFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesToggleRoleFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesToggleRoleFeatureMutation = (options?: Partial<Options<FeatureServicesToggleRoleFeatureData>>): UseMutationOptions<FeatureServicesToggleRoleFeatureResponse, AxiosError<FeatureServicesToggleRoleFeatureError>, Options<FeatureServicesToggleRoleFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesToggleRoleFeatureResponse, AxiosError<FeatureServicesToggleRoleFeatureError>, Options<FeatureServicesToggleRoleFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesToggleRoleFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const featureServicesGetFeatureQueryKey = (
-  options: Options<FeatureServicesGetFeatureData>,
-) => createQueryKey('featureServicesGetFeature', options);
+export const featureServicesGetFeatureQueryKey = (options: Options<FeatureServicesGetFeatureData>) => createQueryKey('featureServicesGetFeature', options);
 
 /**
  * Get feature by id
  */
-export const featureServicesGetFeatureOptions = (
-  options: Options<FeatureServicesGetFeatureData>,
-) =>
-  queryOptions<
-    FeatureServicesGetFeatureResponse,
-    AxiosError<FeatureServicesGetFeatureError>,
-    FeatureServicesGetFeatureResponse,
-    ReturnType<typeof featureServicesGetFeatureQueryKey>
-  >({
+export const featureServicesGetFeatureOptions = (options: Options<FeatureServicesGetFeatureData>) => queryOptions<FeatureServicesGetFeatureResponse, AxiosError<FeatureServicesGetFeatureError>, FeatureServicesGetFeatureResponse, ReturnType<typeof featureServicesGetFeatureQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await featureServicesGetFeature({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await featureServicesGetFeature({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: featureServicesGetFeatureQueryKey(options),
-  });
+    queryKey: featureServicesGetFeatureQueryKey(options)
+});
 
 /**
  * Update feature
  */
-export const featureServicesUpdateFeatureMutation = (
-  options?: Partial<Options<FeatureServicesUpdateFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesUpdateFeatureResponse,
-  AxiosError<FeatureServicesUpdateFeatureError>,
-  Options<FeatureServicesUpdateFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesUpdateFeatureResponse,
-    AxiosError<FeatureServicesUpdateFeatureError>,
-    Options<FeatureServicesUpdateFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesUpdateFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesUpdateFeatureMutation = (options?: Partial<Options<FeatureServicesUpdateFeatureData>>): UseMutationOptions<FeatureServicesUpdateFeatureResponse, AxiosError<FeatureServicesUpdateFeatureError>, Options<FeatureServicesUpdateFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesUpdateFeatureResponse, AxiosError<FeatureServicesUpdateFeatureError>, Options<FeatureServicesUpdateFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesUpdateFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Toggle feature active state
  */
-export const featureServicesToggleFeatureMutation = (
-  options?: Partial<Options<FeatureServicesToggleFeatureData>>,
-): UseMutationOptions<
-  FeatureServicesToggleFeatureResponse,
-  AxiosError<FeatureServicesToggleFeatureError>,
-  Options<FeatureServicesToggleFeatureData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FeatureServicesToggleFeatureResponse,
-    AxiosError<FeatureServicesToggleFeatureError>,
-    Options<FeatureServicesToggleFeatureData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await featureServicesToggleFeature({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const featureServicesToggleFeatureMutation = (options?: Partial<Options<FeatureServicesToggleFeatureData>>): UseMutationOptions<FeatureServicesToggleFeatureResponse, AxiosError<FeatureServicesToggleFeatureError>, Options<FeatureServicesToggleFeatureData>> => {
+    const mutationOptions: UseMutationOptions<FeatureServicesToggleFeatureResponse, AxiosError<FeatureServicesToggleFeatureError>, Options<FeatureServicesToggleFeatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await featureServicesToggleFeature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const formServicesListTemplatesByCompanyQueryKey = (
-  options: Options<FormServicesListTemplatesByCompanyData>,
-) => createQueryKey('formServicesListTemplatesByCompany', options);
+export const formServicesListTemplatesByCompanyQueryKey = (options: Options<FormServicesListTemplatesByCompanyData>) => createQueryKey('formServicesListTemplatesByCompany', options);
 
 /**
  * List company form templates
  */
-export const formServicesListTemplatesByCompanyOptions = (
-  options: Options<FormServicesListTemplatesByCompanyData>,
-) =>
-  queryOptions<
-    FormServicesListTemplatesByCompanyResponse,
-    AxiosError<FormServicesListTemplatesByCompanyError>,
-    FormServicesListTemplatesByCompanyResponse,
-    ReturnType<typeof formServicesListTemplatesByCompanyQueryKey>
-  >({
+export const formServicesListTemplatesByCompanyOptions = (options: Options<FormServicesListTemplatesByCompanyData>) => queryOptions<FormServicesListTemplatesByCompanyResponse, AxiosError<FormServicesListTemplatesByCompanyError>, FormServicesListTemplatesByCompanyResponse, ReturnType<typeof formServicesListTemplatesByCompanyQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await formServicesListTemplatesByCompany({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await formServicesListTemplatesByCompany({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: formServicesListTemplatesByCompanyQueryKey(options),
-  });
+    queryKey: formServicesListTemplatesByCompanyQueryKey(options)
+});
 
-export const formServicesListSubmissionsQueryKey = (
-  options?: Options<FormServicesListSubmissionsData>,
-) => createQueryKey('formServicesListSubmissions', options);
+export const formServicesListSubmissionsQueryKey = (options?: Options<FormServicesListSubmissionsData>) => createQueryKey('formServicesListSubmissions', options);
 
 /**
  * List form submissions
  */
-export const formServicesListSubmissionsOptions = (
-  options?: Options<FormServicesListSubmissionsData>,
-) =>
-  queryOptions<
-    FormServicesListSubmissionsResponse,
-    AxiosError<FormServicesListSubmissionsError>,
-    FormServicesListSubmissionsResponse,
-    ReturnType<typeof formServicesListSubmissionsQueryKey>
-  >({
+export const formServicesListSubmissionsOptions = (options?: Options<FormServicesListSubmissionsData>) => queryOptions<FormServicesListSubmissionsResponse, AxiosError<FormServicesListSubmissionsError>, FormServicesListSubmissionsResponse, ReturnType<typeof formServicesListSubmissionsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await formServicesListSubmissions({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await formServicesListSubmissions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: formServicesListSubmissionsQueryKey(options),
-  });
+    queryKey: formServicesListSubmissionsQueryKey(options)
+});
 
 /**
  * Start new form submission (shared draft)
  */
-export const formServicesStartSubmissionMutation = (
-  options?: Partial<Options<FormServicesStartSubmissionData>>,
-): UseMutationOptions<
-  FormServicesStartSubmissionResponse,
-  AxiosError<FormServicesStartSubmissionError>,
-  Options<FormServicesStartSubmissionData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesStartSubmissionResponse,
-    AxiosError<FormServicesStartSubmissionError>,
-    Options<FormServicesStartSubmissionData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesStartSubmission({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesStartSubmissionMutation = (options?: Partial<Options<FormServicesStartSubmissionData>>): UseMutationOptions<FormServicesStartSubmissionResponse, AxiosError<FormServicesStartSubmissionError>, Options<FormServicesStartSubmissionData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesStartSubmissionResponse, AxiosError<FormServicesStartSubmissionError>, Options<FormServicesStartSubmissionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesStartSubmission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const formServicesGetSubmissionQueryKey = (
-  options: Options<FormServicesGetSubmissionData>,
-) => createQueryKey('formServicesGetSubmission', options);
+export const formServicesGetSubmissionQueryKey = (options: Options<FormServicesGetSubmissionData>) => createQueryKey('formServicesGetSubmission', options);
 
 /**
  * Get form submission detail
  */
-export const formServicesGetSubmissionOptions = (
-  options: Options<FormServicesGetSubmissionData>,
-) =>
-  queryOptions<
-    FormServicesGetSubmissionResponse,
-    AxiosError<FormServicesGetSubmissionError>,
-    FormServicesGetSubmissionResponse,
-    ReturnType<typeof formServicesGetSubmissionQueryKey>
-  >({
+export const formServicesGetSubmissionOptions = (options: Options<FormServicesGetSubmissionData>) => queryOptions<FormServicesGetSubmissionResponse, AxiosError<FormServicesGetSubmissionError>, FormServicesGetSubmissionResponse, ReturnType<typeof formServicesGetSubmissionQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await formServicesGetSubmission({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await formServicesGetSubmission({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: formServicesGetSubmissionQueryKey(options),
-  });
+    queryKey: formServicesGetSubmissionQueryKey(options)
+});
 
 /**
  * Clone rejected submission into new rework draft
  */
-export const formServicesCloneMutation = (
-  options?: Partial<Options<FormServicesCloneData>>,
-): UseMutationOptions<
-  FormServicesCloneResponse,
-  AxiosError<FormServicesCloneError>,
-  Options<FormServicesCloneData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesCloneResponse,
-    AxiosError<FormServicesCloneError>,
-    Options<FormServicesCloneData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesClone({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesCloneMutation = (options?: Partial<Options<FormServicesCloneData>>): UseMutationOptions<FormServicesCloneResponse, AxiosError<FormServicesCloneError>, Options<FormServicesCloneData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCloneResponse, AxiosError<FormServicesCloneError>, Options<FormServicesCloneData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesClone({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Save form submission draft answers (optimistic lock)
  */
-export const formServicesSaveDraftMutation = (
-  options?: Partial<Options<FormServicesSaveDraftData>>,
-): UseMutationOptions<
-  FormServicesSaveDraftResponse,
-  AxiosError<FormServicesSaveDraftError>,
-  Options<FormServicesSaveDraftData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesSaveDraftResponse,
-    AxiosError<FormServicesSaveDraftError>,
-    Options<FormServicesSaveDraftData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesSaveDraft({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesSaveDraftMutation = (options?: Partial<Options<FormServicesSaveDraftData>>): UseMutationOptions<FormServicesSaveDraftResponse, AxiosError<FormServicesSaveDraftError>, Options<FormServicesSaveDraftData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesSaveDraftResponse, AxiosError<FormServicesSaveDraftError>, Options<FormServicesSaveDraftData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesSaveDraft({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Review form submission (approve or reject as owner)
  */
-export const formServicesReviewMutation = (
-  options?: Partial<Options<FormServicesReviewData>>,
-): UseMutationOptions<
-  FormServicesReviewResponse,
-  AxiosError<FormServicesReviewError>,
-  Options<FormServicesReviewData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesReviewResponse,
-    AxiosError<FormServicesReviewError>,
-    Options<FormServicesReviewData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesReview({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesReviewMutation = (options?: Partial<Options<FormServicesReviewData>>): UseMutationOptions<FormServicesReviewResponse, AxiosError<FormServicesReviewError>, Options<FormServicesReviewData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesReviewResponse, AxiosError<FormServicesReviewError>, Options<FormServicesReviewData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesReview({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Submit completed form submission
  */
-export const formServicesSubmitMutation = (
-  options?: Partial<Options<FormServicesSubmitData>>,
-): UseMutationOptions<
-  FormServicesSubmitResponse,
-  AxiosError<FormServicesSubmitError>,
-  Options<FormServicesSubmitData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesSubmitResponse,
-    AxiosError<FormServicesSubmitError>,
-    Options<FormServicesSubmitData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesSubmit({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesSubmitMutation = (options?: Partial<Options<FormServicesSubmitData>>): UseMutationOptions<FormServicesSubmitResponse, AxiosError<FormServicesSubmitError>, Options<FormServicesSubmitData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesSubmitResponse, AxiosError<FormServicesSubmitError>, Options<FormServicesSubmitData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesSubmit({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Create form template
  */
-export const formServicesCreateTemplateMutation = (
-  options?: Partial<Options<FormServicesCreateTemplateData>>,
-): UseMutationOptions<
-  FormServicesCreateTemplateResponse,
-  AxiosError<FormServicesCreateTemplateError>,
-  Options<FormServicesCreateTemplateData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesCreateTemplateResponse,
-    AxiosError<FormServicesCreateTemplateError>,
-    Options<FormServicesCreateTemplateData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesCreateTemplate({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesCreateTemplateMutation = (options?: Partial<Options<FormServicesCreateTemplateData>>): UseMutationOptions<FormServicesCreateTemplateResponse, AxiosError<FormServicesCreateTemplateError>, Options<FormServicesCreateTemplateData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCreateTemplateResponse, AxiosError<FormServicesCreateTemplateError>, Options<FormServicesCreateTemplateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesCreateTemplate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const formServicesGetTemplateQueryKey = (
-  options: Options<FormServicesGetTemplateData>,
-) => createQueryKey('formServicesGetTemplate', options);
+export const formServicesGetTemplateQueryKey = (options: Options<FormServicesGetTemplateData>) => createQueryKey('formServicesGetTemplate', options);
 
 /**
  * Get form template detail
  */
-export const formServicesGetTemplateOptions = (
-  options: Options<FormServicesGetTemplateData>,
-) =>
-  queryOptions<
-    FormServicesGetTemplateResponse,
-    AxiosError<FormServicesGetTemplateError>,
-    FormServicesGetTemplateResponse,
-    ReturnType<typeof formServicesGetTemplateQueryKey>
-  >({
+export const formServicesGetTemplateOptions = (options: Options<FormServicesGetTemplateData>) => queryOptions<FormServicesGetTemplateResponse, AxiosError<FormServicesGetTemplateError>, FormServicesGetTemplateResponse, ReturnType<typeof formServicesGetTemplateQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await formServicesGetTemplate({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await formServicesGetTemplate({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: formServicesGetTemplateQueryKey(options),
-  });
+    queryKey: formServicesGetTemplateQueryKey(options)
+});
 
 /**
  * Update form template
  */
-export const formServicesUpdateTemplateMutation = (
-  options?: Partial<Options<FormServicesUpdateTemplateData>>,
-): UseMutationOptions<
-  FormServicesUpdateTemplateResponse,
-  AxiosError<FormServicesUpdateTemplateError>,
-  Options<FormServicesUpdateTemplateData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesUpdateTemplateResponse,
-    AxiosError<FormServicesUpdateTemplateError>,
-    Options<FormServicesUpdateTemplateData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesUpdateTemplate({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesUpdateTemplateMutation = (options?: Partial<Options<FormServicesUpdateTemplateData>>): UseMutationOptions<FormServicesUpdateTemplateResponse, AxiosError<FormServicesUpdateTemplateError>, Options<FormServicesUpdateTemplateData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesUpdateTemplateResponse, AxiosError<FormServicesUpdateTemplateError>, Options<FormServicesUpdateTemplateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesUpdateTemplate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Create form field
  */
-export const formServicesCreateFieldMutation = (
-  options?: Partial<Options<FormServicesCreateFieldData>>,
-): UseMutationOptions<
-  FormServicesCreateFieldResponse,
-  AxiosError<FormServicesCreateFieldError>,
-  Options<FormServicesCreateFieldData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesCreateFieldResponse,
-    AxiosError<FormServicesCreateFieldError>,
-    Options<FormServicesCreateFieldData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesCreateField({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesCreateFieldMutation = (options?: Partial<Options<FormServicesCreateFieldData>>): UseMutationOptions<FormServicesCreateFieldResponse, AxiosError<FormServicesCreateFieldError>, Options<FormServicesCreateFieldData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCreateFieldResponse, AxiosError<FormServicesCreateFieldError>, Options<FormServicesCreateFieldData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesCreateField({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Publish form version
  */
-export const formServicesPublishVersionMutation = (
-  options?: Partial<Options<FormServicesPublishVersionData>>,
-): UseMutationOptions<
-  FormServicesPublishVersionResponse,
-  AxiosError<FormServicesPublishVersionError>,
-  Options<FormServicesPublishVersionData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesPublishVersionResponse,
-    AxiosError<FormServicesPublishVersionError>,
-    Options<FormServicesPublishVersionData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesPublishVersion({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesPublishVersionMutation = (options?: Partial<Options<FormServicesPublishVersionData>>): UseMutationOptions<FormServicesPublishVersionResponse, AxiosError<FormServicesPublishVersionError>, Options<FormServicesPublishVersionData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesPublishVersionResponse, AxiosError<FormServicesPublishVersionError>, Options<FormServicesPublishVersionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesPublishVersion({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Assign roles to form template
  */
-export const formServicesAssignRolesMutation = (
-  options?: Partial<Options<FormServicesAssignRolesData>>,
-): UseMutationOptions<
-  FormServicesAssignRolesResponse,
-  AxiosError<FormServicesAssignRolesError>,
-  Options<FormServicesAssignRolesData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesAssignRolesResponse,
-    AxiosError<FormServicesAssignRolesError>,
-    Options<FormServicesAssignRolesData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesAssignRoles({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesAssignRolesMutation = (options?: Partial<Options<FormServicesAssignRolesData>>): UseMutationOptions<FormServicesAssignRolesResponse, AxiosError<FormServicesAssignRolesError>, Options<FormServicesAssignRolesData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesAssignRolesResponse, AxiosError<FormServicesAssignRolesError>, Options<FormServicesAssignRolesData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesAssignRoles({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Create form section
  */
-export const formServicesCreateSectionMutation = (
-  options?: Partial<Options<FormServicesCreateSectionData>>,
-): UseMutationOptions<
-  FormServicesCreateSectionResponse,
-  AxiosError<FormServicesCreateSectionError>,
-  Options<FormServicesCreateSectionData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    FormServicesCreateSectionResponse,
-    AxiosError<FormServicesCreateSectionError>,
-    Options<FormServicesCreateSectionData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await formServicesCreateSection({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const formServicesCreateSectionMutation = (options?: Partial<Options<FormServicesCreateSectionData>>): UseMutationOptions<FormServicesCreateSectionResponse, AxiosError<FormServicesCreateSectionError>, Options<FormServicesCreateSectionData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCreateSectionResponse, AxiosError<FormServicesCreateSectionError>, Options<FormServicesCreateSectionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesCreateSection({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const leaveServicesGetCompanyRequestsQueryKey = (
-  options: Options<LeaveServicesGetCompanyRequestsData>,
-) => createQueryKey('leaveServicesGetCompanyRequests', options);
+export const leaveServicesGetCompanyRequestsQueryKey = (options: Options<LeaveServicesGetCompanyRequestsData>) => createQueryKey('leaveServicesGetCompanyRequests', options);
 
 /**
  * Get company leave requests
  */
-export const leaveServicesGetCompanyRequestsOptions = (
-  options: Options<LeaveServicesGetCompanyRequestsData>,
-) =>
-  queryOptions<
-    LeaveServicesGetCompanyRequestsResponse,
-    AxiosError<LeaveServicesGetCompanyRequestsError>,
-    LeaveServicesGetCompanyRequestsResponse,
-    ReturnType<typeof leaveServicesGetCompanyRequestsQueryKey>
-  >({
+export const leaveServicesGetCompanyRequestsOptions = (options: Options<LeaveServicesGetCompanyRequestsData>) => queryOptions<LeaveServicesGetCompanyRequestsResponse, AxiosError<LeaveServicesGetCompanyRequestsError>, LeaveServicesGetCompanyRequestsResponse, ReturnType<typeof leaveServicesGetCompanyRequestsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await leaveServicesGetCompanyRequests({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await leaveServicesGetCompanyRequests({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: leaveServicesGetCompanyRequestsQueryKey(options),
-  });
+    queryKey: leaveServicesGetCompanyRequestsQueryKey(options)
+});
 
-export const leaveServicesGetTypesByCompanyQueryKey = (
-  options: Options<LeaveServicesGetTypesByCompanyData>,
-) => createQueryKey('leaveServicesGetTypesByCompany', options);
+export const leaveServicesGetTypesByCompanyQueryKey = (options: Options<LeaveServicesGetTypesByCompanyData>) => createQueryKey('leaveServicesGetTypesByCompany', options);
 
 /**
  * Get company leave types
  */
-export const leaveServicesGetTypesByCompanyOptions = (
-  options: Options<LeaveServicesGetTypesByCompanyData>,
-) =>
-  queryOptions<
-    LeaveServicesGetTypesByCompanyResponse,
-    AxiosError<LeaveServicesGetTypesByCompanyError>,
-    LeaveServicesGetTypesByCompanyResponse,
-    ReturnType<typeof leaveServicesGetTypesByCompanyQueryKey>
-  >({
+export const leaveServicesGetTypesByCompanyOptions = (options: Options<LeaveServicesGetTypesByCompanyData>) => queryOptions<LeaveServicesGetTypesByCompanyResponse, AxiosError<LeaveServicesGetTypesByCompanyError>, LeaveServicesGetTypesByCompanyResponse, ReturnType<typeof leaveServicesGetTypesByCompanyQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await leaveServicesGetTypesByCompany({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await leaveServicesGetTypesByCompany({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: leaveServicesGetTypesByCompanyQueryKey(options),
-  });
+    queryKey: leaveServicesGetTypesByCompanyQueryKey(options)
+});
 
-export const leaveServicesGetQuotasByMemberQueryKey = (
-  options: Options<LeaveServicesGetQuotasByMemberData>,
-) => createQueryKey('leaveServicesGetQuotasByMember', options);
+export const leaveServicesGetQuotasByMemberQueryKey = (options: Options<LeaveServicesGetQuotasByMemberData>) => createQueryKey('leaveServicesGetQuotasByMember', options);
 
 /**
  * Get member leave quotas for year
  */
-export const leaveServicesGetQuotasByMemberOptions = (
-  options: Options<LeaveServicesGetQuotasByMemberData>,
-) =>
-  queryOptions<
-    LeaveServicesGetQuotasByMemberResponse,
-    AxiosError<LeaveServicesGetQuotasByMemberError>,
-    LeaveServicesGetQuotasByMemberResponse,
-    ReturnType<typeof leaveServicesGetQuotasByMemberQueryKey>
-  >({
+export const leaveServicesGetQuotasByMemberOptions = (options: Options<LeaveServicesGetQuotasByMemberData>) => queryOptions<LeaveServicesGetQuotasByMemberResponse, AxiosError<LeaveServicesGetQuotasByMemberError>, LeaveServicesGetQuotasByMemberResponse, ReturnType<typeof leaveServicesGetQuotasByMemberQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await leaveServicesGetQuotasByMember({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await leaveServicesGetQuotasByMember({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: leaveServicesGetQuotasByMemberQueryKey(options),
-  });
+    queryKey: leaveServicesGetQuotasByMemberQueryKey(options)
+});
 
-export const leaveServicesGetMemberRequestsQueryKey = (
-  options: Options<LeaveServicesGetMemberRequestsData>,
-) => createQueryKey('leaveServicesGetMemberRequests', options);
+export const leaveServicesGetMemberRequestsQueryKey = (options: Options<LeaveServicesGetMemberRequestsData>) => createQueryKey('leaveServicesGetMemberRequests', options);
 
 /**
  * Get member leave requests
  */
-export const leaveServicesGetMemberRequestsOptions = (
-  options: Options<LeaveServicesGetMemberRequestsData>,
-) =>
-  queryOptions<
-    LeaveServicesGetMemberRequestsResponse,
-    AxiosError<LeaveServicesGetMemberRequestsError>,
-    LeaveServicesGetMemberRequestsResponse,
-    ReturnType<typeof leaveServicesGetMemberRequestsQueryKey>
-  >({
+export const leaveServicesGetMemberRequestsOptions = (options: Options<LeaveServicesGetMemberRequestsData>) => queryOptions<LeaveServicesGetMemberRequestsResponse, AxiosError<LeaveServicesGetMemberRequestsError>, LeaveServicesGetMemberRequestsResponse, ReturnType<typeof leaveServicesGetMemberRequestsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await leaveServicesGetMemberRequests({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await leaveServicesGetMemberRequests({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: leaveServicesGetMemberRequestsQueryKey(options),
-  });
+    queryKey: leaveServicesGetMemberRequestsQueryKey(options)
+});
 
 /**
  * Create leave quota
  */
-export const leaveServicesCreateQuotaMutation = (
-  options?: Partial<Options<LeaveServicesCreateQuotaData>>,
-): UseMutationOptions<
-  LeaveServicesCreateQuotaResponse,
-  AxiosError<LeaveServicesCreateQuotaError>,
-  Options<LeaveServicesCreateQuotaData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    LeaveServicesCreateQuotaResponse,
-    AxiosError<LeaveServicesCreateQuotaError>,
-    Options<LeaveServicesCreateQuotaData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await leaveServicesCreateQuota({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const leaveServicesCreateQuotaMutation = (options?: Partial<Options<LeaveServicesCreateQuotaData>>): UseMutationOptions<LeaveServicesCreateQuotaResponse, AxiosError<LeaveServicesCreateQuotaError>, Options<LeaveServicesCreateQuotaData>> => {
+    const mutationOptions: UseMutationOptions<LeaveServicesCreateQuotaResponse, AxiosError<LeaveServicesCreateQuotaError>, Options<LeaveServicesCreateQuotaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await leaveServicesCreateQuota({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Update leave quota
  */
-export const leaveServicesUpdateQuotaMutation = (
-  options?: Partial<Options<LeaveServicesUpdateQuotaData>>,
-): UseMutationOptions<
-  LeaveServicesUpdateQuotaResponse,
-  AxiosError<LeaveServicesUpdateQuotaError>,
-  Options<LeaveServicesUpdateQuotaData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    LeaveServicesUpdateQuotaResponse,
-    AxiosError<LeaveServicesUpdateQuotaError>,
-    Options<LeaveServicesUpdateQuotaData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await leaveServicesUpdateQuota({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const leaveServicesUpdateQuotaMutation = (options?: Partial<Options<LeaveServicesUpdateQuotaData>>): UseMutationOptions<LeaveServicesUpdateQuotaResponse, AxiosError<LeaveServicesUpdateQuotaError>, Options<LeaveServicesUpdateQuotaData>> => {
+    const mutationOptions: UseMutationOptions<LeaveServicesUpdateQuotaResponse, AxiosError<LeaveServicesUpdateQuotaError>, Options<LeaveServicesUpdateQuotaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await leaveServicesUpdateQuota({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Submit leave request
  */
-export const leaveServicesSubmitRequestMutation = (
-  options?: Partial<Options<LeaveServicesSubmitRequestData>>,
-): UseMutationOptions<
-  LeaveServicesSubmitRequestResponse,
-  AxiosError<LeaveServicesSubmitRequestError>,
-  Options<LeaveServicesSubmitRequestData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    LeaveServicesSubmitRequestResponse,
-    AxiosError<LeaveServicesSubmitRequestError>,
-    Options<LeaveServicesSubmitRequestData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await leaveServicesSubmitRequest({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const leaveServicesSubmitRequestMutation = (options?: Partial<Options<LeaveServicesSubmitRequestData>>): UseMutationOptions<LeaveServicesSubmitRequestResponse, AxiosError<LeaveServicesSubmitRequestError>, Options<LeaveServicesSubmitRequestData>> => {
+    const mutationOptions: UseMutationOptions<LeaveServicesSubmitRequestResponse, AxiosError<LeaveServicesSubmitRequestError>, Options<LeaveServicesSubmitRequestData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await leaveServicesSubmitRequest({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Cancel leave request
  */
-export const leaveServicesCancelRequestMutation = (
-  options?: Partial<Options<LeaveServicesCancelRequestData>>,
-): UseMutationOptions<
-  LeaveServicesCancelRequestResponse,
-  AxiosError<LeaveServicesCancelRequestError>,
-  Options<LeaveServicesCancelRequestData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    LeaveServicesCancelRequestResponse,
-    AxiosError<LeaveServicesCancelRequestError>,
-    Options<LeaveServicesCancelRequestData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await leaveServicesCancelRequest({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const leaveServicesCancelRequestMutation = (options?: Partial<Options<LeaveServicesCancelRequestData>>): UseMutationOptions<LeaveServicesCancelRequestResponse, AxiosError<LeaveServicesCancelRequestError>, Options<LeaveServicesCancelRequestData>> => {
+    const mutationOptions: UseMutationOptions<LeaveServicesCancelRequestResponse, AxiosError<LeaveServicesCancelRequestError>, Options<LeaveServicesCancelRequestData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await leaveServicesCancelRequest({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Review leave request (approve / reject)
  */
-export const leaveServicesReviewRequestMutation = (
-  options?: Partial<Options<LeaveServicesReviewRequestData>>,
-): UseMutationOptions<
-  LeaveServicesReviewRequestResponse,
-  AxiosError<LeaveServicesReviewRequestError>,
-  Options<LeaveServicesReviewRequestData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    LeaveServicesReviewRequestResponse,
-    AxiosError<LeaveServicesReviewRequestError>,
-    Options<LeaveServicesReviewRequestData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await leaveServicesReviewRequest({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const leaveServicesReviewRequestMutation = (options?: Partial<Options<LeaveServicesReviewRequestData>>): UseMutationOptions<LeaveServicesReviewRequestResponse, AxiosError<LeaveServicesReviewRequestError>, Options<LeaveServicesReviewRequestData>> => {
+    const mutationOptions: UseMutationOptions<LeaveServicesReviewRequestResponse, AxiosError<LeaveServicesReviewRequestError>, Options<LeaveServicesReviewRequestData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await leaveServicesReviewRequest({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Create leave type
  */
-export const leaveServicesCreateTypeMutation = (
-  options?: Partial<Options<LeaveServicesCreateTypeData>>,
-): UseMutationOptions<
-  LeaveServicesCreateTypeResponse,
-  AxiosError<LeaveServicesCreateTypeError>,
-  Options<LeaveServicesCreateTypeData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    LeaveServicesCreateTypeResponse,
-    AxiosError<LeaveServicesCreateTypeError>,
-    Options<LeaveServicesCreateTypeData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await leaveServicesCreateType({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const leaveServicesCreateTypeMutation = (options?: Partial<Options<LeaveServicesCreateTypeData>>): UseMutationOptions<LeaveServicesCreateTypeResponse, AxiosError<LeaveServicesCreateTypeError>, Options<LeaveServicesCreateTypeData>> => {
+    const mutationOptions: UseMutationOptions<LeaveServicesCreateTypeResponse, AxiosError<LeaveServicesCreateTypeError>, Options<LeaveServicesCreateTypeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await leaveServicesCreateType({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Update leave type
  */
-export const leaveServicesUpdateTypeMutation = (
-  options?: Partial<Options<LeaveServicesUpdateTypeData>>,
-): UseMutationOptions<
-  LeaveServicesUpdateTypeResponse,
-  AxiosError<LeaveServicesUpdateTypeError>,
-  Options<LeaveServicesUpdateTypeData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    LeaveServicesUpdateTypeResponse,
-    AxiosError<LeaveServicesUpdateTypeError>,
-    Options<LeaveServicesUpdateTypeData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await leaveServicesUpdateType({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const leaveServicesUpdateTypeMutation = (options?: Partial<Options<LeaveServicesUpdateTypeData>>): UseMutationOptions<LeaveServicesUpdateTypeResponse, AxiosError<LeaveServicesUpdateTypeError>, Options<LeaveServicesUpdateTypeData>> => {
+    const mutationOptions: UseMutationOptions<LeaveServicesUpdateTypeResponse, AxiosError<LeaveServicesUpdateTypeError>, Options<LeaveServicesUpdateTypeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await leaveServicesUpdateType({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const permissionServicesGetPermissionsQueryKey = (
-  options?: Options<PermissionServicesGetPermissionsData>,
-) => createQueryKey('permissionServicesGetPermissions', options);
+export const locationServiceListLocationsByCompanyQueryKey = (options: Options<LocationServiceListLocationsByCompanyData>) => createQueryKey('locationServiceListLocationsByCompany', options);
+
+/**
+ * Get locations by company
+ */
+export const locationServiceListLocationsByCompanyOptions = (options: Options<LocationServiceListLocationsByCompanyData>) => queryOptions<LocationServiceListLocationsByCompanyResponse, AxiosError<LocationServiceListLocationsByCompanyError>, LocationServiceListLocationsByCompanyResponse, ReturnType<typeof locationServiceListLocationsByCompanyQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await locationServiceListLocationsByCompany({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: locationServiceListLocationsByCompanyQueryKey(options)
+});
+
+/**
+ * Create a new location
+ */
+export const locationServiceCreateLocationMutation = (options?: Partial<Options<LocationServiceCreateLocationData>>): UseMutationOptions<LocationServiceCreateLocationResponse, AxiosError<LocationServiceCreateLocationError>, Options<LocationServiceCreateLocationData>> => {
+    const mutationOptions: UseMutationOptions<LocationServiceCreateLocationResponse, AxiosError<LocationServiceCreateLocationError>, Options<LocationServiceCreateLocationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await locationServiceCreateLocation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const locationServiceListLocationsByBranchQueryKey = (options: Options<LocationServiceListLocationsByBranchData>) => createQueryKey('locationServiceListLocationsByBranch', options);
+
+/**
+ * Get active locations by branch
+ */
+export const locationServiceListLocationsByBranchOptions = (options: Options<LocationServiceListLocationsByBranchData>) => queryOptions<LocationServiceListLocationsByBranchResponse, AxiosError<LocationServiceListLocationsByBranchError>, LocationServiceListLocationsByBranchResponse, ReturnType<typeof locationServiceListLocationsByBranchQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await locationServiceListLocationsByBranch({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: locationServiceListLocationsByBranchQueryKey(options)
+});
+
+/**
+ * Set branch primary location
+ */
+export const locationServiceSetPrimaryLocationMutation = (options?: Partial<Options<LocationServiceSetPrimaryLocationData>>): UseMutationOptions<LocationServiceSetPrimaryLocationResponse, AxiosError<LocationServiceSetPrimaryLocationError>, Options<LocationServiceSetPrimaryLocationData>> => {
+    const mutationOptions: UseMutationOptions<LocationServiceSetPrimaryLocationResponse, AxiosError<LocationServiceSetPrimaryLocationError>, Options<LocationServiceSetPrimaryLocationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await locationServiceSetPrimaryLocation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Assign location to schedule slot
+ */
+export const locationServiceAssignSlotLocationMutation = (options?: Partial<Options<LocationServiceAssignSlotLocationData>>): UseMutationOptions<LocationServiceAssignSlotLocationResponse, AxiosError<LocationServiceAssignSlotLocationError>, Options<LocationServiceAssignSlotLocationData>> => {
+    const mutationOptions: UseMutationOptions<LocationServiceAssignSlotLocationResponse, AxiosError<LocationServiceAssignSlotLocationError>, Options<LocationServiceAssignSlotLocationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await locationServiceAssignSlotLocation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const locationServiceGetSlotLocationsQueryKey = (options: Options<LocationServiceGetSlotLocationsData>) => createQueryKey('locationServiceGetSlotLocations', options);
+
+/**
+ * Get active locations for schedule slot
+ */
+export const locationServiceGetSlotLocationsOptions = (options: Options<LocationServiceGetSlotLocationsData>) => queryOptions<LocationServiceGetSlotLocationsResponse, AxiosError<LocationServiceGetSlotLocationsError>, LocationServiceGetSlotLocationsResponse, ReturnType<typeof locationServiceGetSlotLocationsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await locationServiceGetSlotLocations({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: locationServiceGetSlotLocationsQueryKey(options)
+});
+
+/**
+ * Delete a location
+ */
+export const locationServiceDeleteLocationMutation = (options?: Partial<Options<LocationServiceDeleteLocationData>>): UseMutationOptions<LocationServiceDeleteLocationResponse, AxiosError<LocationServiceDeleteLocationError>, Options<LocationServiceDeleteLocationData>> => {
+    const mutationOptions: UseMutationOptions<LocationServiceDeleteLocationResponse, AxiosError<LocationServiceDeleteLocationError>, Options<LocationServiceDeleteLocationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await locationServiceDeleteLocation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const locationServiceGetLocationQueryKey = (options: Options<LocationServiceGetLocationData>) => createQueryKey('locationServiceGetLocation', options);
+
+/**
+ * Get location by ID
+ */
+export const locationServiceGetLocationOptions = (options: Options<LocationServiceGetLocationData>) => queryOptions<LocationServiceGetLocationResponse, AxiosError<LocationServiceGetLocationError>, LocationServiceGetLocationResponse, ReturnType<typeof locationServiceGetLocationQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await locationServiceGetLocation({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: locationServiceGetLocationQueryKey(options)
+});
+
+/**
+ * Update a location
+ */
+export const locationServiceUpdateLocationMutation = (options?: Partial<Options<LocationServiceUpdateLocationData>>): UseMutationOptions<LocationServiceUpdateLocationResponse, AxiosError<LocationServiceUpdateLocationError>, Options<LocationServiceUpdateLocationData>> => {
+    const mutationOptions: UseMutationOptions<LocationServiceUpdateLocationResponse, AxiosError<LocationServiceUpdateLocationError>, Options<LocationServiceUpdateLocationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await locationServiceUpdateLocation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const permissionServicesGetPermissionsQueryKey = (options?: Options<PermissionServicesGetPermissionsData>) => createQueryKey('permissionServicesGetPermissions', options);
 
 /**
  * Get all permissions
  */
-export const permissionServicesGetPermissionsOptions = (
-  options?: Options<PermissionServicesGetPermissionsData>,
-) =>
-  queryOptions<
-    PermissionServicesGetPermissionsResponse,
-    AxiosError<PermissionServicesGetPermissionsError>,
-    PermissionServicesGetPermissionsResponse,
-    ReturnType<typeof permissionServicesGetPermissionsQueryKey>
-  >({
+export const permissionServicesGetPermissionsOptions = (options?: Options<PermissionServicesGetPermissionsData>) => queryOptions<PermissionServicesGetPermissionsResponse, AxiosError<PermissionServicesGetPermissionsError>, PermissionServicesGetPermissionsResponse, ReturnType<typeof permissionServicesGetPermissionsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await permissionServicesGetPermissions({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await permissionServicesGetPermissions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: permissionServicesGetPermissionsQueryKey(options),
-  });
+    queryKey: permissionServicesGetPermissionsQueryKey(options)
+});
 
 /**
  * Create permission
  */
-export const permissionServicesCreatePermissionMutation = (
-  options?: Partial<Options<PermissionServicesCreatePermissionData>>,
-): UseMutationOptions<
-  PermissionServicesCreatePermissionResponse,
-  AxiosError<PermissionServicesCreatePermissionError>,
-  Options<PermissionServicesCreatePermissionData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    PermissionServicesCreatePermissionResponse,
-    AxiosError<PermissionServicesCreatePermissionError>,
-    Options<PermissionServicesCreatePermissionData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await permissionServicesCreatePermission({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const permissionServicesCreatePermissionMutation = (options?: Partial<Options<PermissionServicesCreatePermissionData>>): UseMutationOptions<PermissionServicesCreatePermissionResponse, AxiosError<PermissionServicesCreatePermissionError>, Options<PermissionServicesCreatePermissionData>> => {
+    const mutationOptions: UseMutationOptions<PermissionServicesCreatePermissionResponse, AxiosError<PermissionServicesCreatePermissionError>, Options<PermissionServicesCreatePermissionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await permissionServicesCreatePermission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const permissionServicesGetMyPermissionsQueryKey = (
-  options?: Options<PermissionServicesGetMyPermissionsData>,
-) => createQueryKey('permissionServicesGetMyPermissions', options);
+export const permissionServicesGetMyPermissionsQueryKey = (options?: Options<PermissionServicesGetMyPermissionsData>) => createQueryKey('permissionServicesGetMyPermissions', options);
 
 /**
  * Get current user permissions
  */
-export const permissionServicesGetMyPermissionsOptions = (
-  options?: Options<PermissionServicesGetMyPermissionsData>,
-) =>
-  queryOptions<
-    PermissionServicesGetMyPermissionsResponse,
-    AxiosError<PermissionServicesGetMyPermissionsError>,
-    PermissionServicesGetMyPermissionsResponse,
-    ReturnType<typeof permissionServicesGetMyPermissionsQueryKey>
-  >({
+export const permissionServicesGetMyPermissionsOptions = (options?: Options<PermissionServicesGetMyPermissionsData>) => queryOptions<PermissionServicesGetMyPermissionsResponse, AxiosError<PermissionServicesGetMyPermissionsError>, PermissionServicesGetMyPermissionsResponse, ReturnType<typeof permissionServicesGetMyPermissionsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await permissionServicesGetMyPermissions({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await permissionServicesGetMyPermissions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: permissionServicesGetMyPermissionsQueryKey(options),
-  });
+    queryKey: permissionServicesGetMyPermissionsQueryKey(options)
+});
 
 /**
  * Create role
  */
-export const roleServicesCreateRoleMutation = (
-  options?: Partial<Options<RoleServicesCreateRoleData>>,
-): UseMutationOptions<
-  RoleServicesCreateRoleResponse,
-  AxiosError<RoleServicesCreateRoleError>,
-  Options<RoleServicesCreateRoleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    RoleServicesCreateRoleResponse,
-    AxiosError<RoleServicesCreateRoleError>,
-    Options<RoleServicesCreateRoleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await roleServicesCreateRole({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const roleServicesCreateRoleMutation = (options?: Partial<Options<RoleServicesCreateRoleData>>): UseMutationOptions<RoleServicesCreateRoleResponse, AxiosError<RoleServicesCreateRoleError>, Options<RoleServicesCreateRoleData>> => {
+    const mutationOptions: UseMutationOptions<RoleServicesCreateRoleResponse, AxiosError<RoleServicesCreateRoleError>, Options<RoleServicesCreateRoleData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await roleServicesCreateRole({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const roleServicesGetCompanyRolesQueryKey = (
-  options: Options<RoleServicesGetCompanyRolesData>,
-) => createQueryKey('roleServicesGetCompanyRoles', options);
+export const roleServicesGetCompanyRolesQueryKey = (options: Options<RoleServicesGetCompanyRolesData>) => createQueryKey('roleServicesGetCompanyRoles', options);
 
 /**
  * Get roles by company
  */
-export const roleServicesGetCompanyRolesOptions = (
-  options: Options<RoleServicesGetCompanyRolesData>,
-) =>
-  queryOptions<
-    RoleServicesGetCompanyRolesResponse,
-    AxiosError<RoleServicesGetCompanyRolesError>,
-    RoleServicesGetCompanyRolesResponse,
-    ReturnType<typeof roleServicesGetCompanyRolesQueryKey>
-  >({
+export const roleServicesGetCompanyRolesOptions = (options: Options<RoleServicesGetCompanyRolesData>) => queryOptions<RoleServicesGetCompanyRolesResponse, AxiosError<RoleServicesGetCompanyRolesError>, RoleServicesGetCompanyRolesResponse, ReturnType<typeof roleServicesGetCompanyRolesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await roleServicesGetCompanyRoles({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await roleServicesGetCompanyRoles({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: roleServicesGetCompanyRolesQueryKey(options),
-  });
+    queryKey: roleServicesGetCompanyRolesQueryKey(options)
+});
 
 /**
  * Assign permission to role
  */
-export const roleServicesAssignPermissionToRoleMutation = (
-  options?: Partial<Options<RoleServicesAssignPermissionToRoleData>>,
-): UseMutationOptions<
-  RoleServicesAssignPermissionToRoleResponse,
-  AxiosError<RoleServicesAssignPermissionToRoleError>,
-  Options<RoleServicesAssignPermissionToRoleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    RoleServicesAssignPermissionToRoleResponse,
-    AxiosError<RoleServicesAssignPermissionToRoleError>,
-    Options<RoleServicesAssignPermissionToRoleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await roleServicesAssignPermissionToRole({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const roleServicesAssignPermissionToRoleMutation = (options?: Partial<Options<RoleServicesAssignPermissionToRoleData>>): UseMutationOptions<RoleServicesAssignPermissionToRoleResponse, AxiosError<RoleServicesAssignPermissionToRoleError>, Options<RoleServicesAssignPermissionToRoleData>> => {
+    const mutationOptions: UseMutationOptions<RoleServicesAssignPermissionToRoleResponse, AxiosError<RoleServicesAssignPermissionToRoleError>, Options<RoleServicesAssignPermissionToRoleData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await roleServicesAssignPermissionToRole({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const roleServicesGetSystemDefaultRolesQueryKey = (
-  options?: Options<RoleServicesGetSystemDefaultRolesData>,
-) => createQueryKey('roleServicesGetSystemDefaultRoles', options);
+export const roleServicesGetSystemDefaultRolesQueryKey = (options?: Options<RoleServicesGetSystemDefaultRolesData>) => createQueryKey('roleServicesGetSystemDefaultRoles', options);
 
 /**
  * Get system default roles
  */
-export const roleServicesGetSystemDefaultRolesOptions = (
-  options?: Options<RoleServicesGetSystemDefaultRolesData>,
-) =>
-  queryOptions<
-    RoleServicesGetSystemDefaultRolesResponse,
-    AxiosError<RoleServicesGetSystemDefaultRolesError>,
-    RoleServicesGetSystemDefaultRolesResponse,
-    ReturnType<typeof roleServicesGetSystemDefaultRolesQueryKey>
-  >({
+export const roleServicesGetSystemDefaultRolesOptions = (options?: Options<RoleServicesGetSystemDefaultRolesData>) => queryOptions<RoleServicesGetSystemDefaultRolesResponse, AxiosError<RoleServicesGetSystemDefaultRolesError>, RoleServicesGetSystemDefaultRolesResponse, ReturnType<typeof roleServicesGetSystemDefaultRolesQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await roleServicesGetSystemDefaultRoles({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await roleServicesGetSystemDefaultRoles({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: roleServicesGetSystemDefaultRolesQueryKey(options),
-  });
+    queryKey: roleServicesGetSystemDefaultRolesQueryKey(options)
+});
 
 /**
  * Delete role
  */
-export const roleServicesDeleteRoleMutation = (
-  options?: Partial<Options<RoleServicesDeleteRoleData>>,
-): UseMutationOptions<
-  RoleServicesDeleteRoleResponse,
-  AxiosError<RoleServicesDeleteRoleError>,
-  Options<RoleServicesDeleteRoleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    RoleServicesDeleteRoleResponse,
-    AxiosError<RoleServicesDeleteRoleError>,
-    Options<RoleServicesDeleteRoleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await roleServicesDeleteRole({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const roleServicesDeleteRoleMutation = (options?: Partial<Options<RoleServicesDeleteRoleData>>): UseMutationOptions<RoleServicesDeleteRoleResponse, AxiosError<RoleServicesDeleteRoleError>, Options<RoleServicesDeleteRoleData>> => {
+    const mutationOptions: UseMutationOptions<RoleServicesDeleteRoleResponse, AxiosError<RoleServicesDeleteRoleError>, Options<RoleServicesDeleteRoleData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await roleServicesDeleteRole({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const roleServicesGetRoleQueryKey = (
-  options: Options<RoleServicesGetRoleData>,
-) => createQueryKey('roleServicesGetRole', options);
+export const roleServicesGetRoleQueryKey = (options: Options<RoleServicesGetRoleData>) => createQueryKey('roleServicesGetRole', options);
 
 /**
  * Get role by ID
  */
-export const roleServicesGetRoleOptions = (
-  options: Options<RoleServicesGetRoleData>,
-) =>
-  queryOptions<
-    RoleServicesGetRoleResponse,
-    AxiosError<RoleServicesGetRoleError>,
-    RoleServicesGetRoleResponse,
-    ReturnType<typeof roleServicesGetRoleQueryKey>
-  >({
+export const roleServicesGetRoleOptions = (options: Options<RoleServicesGetRoleData>) => queryOptions<RoleServicesGetRoleResponse, AxiosError<RoleServicesGetRoleError>, RoleServicesGetRoleResponse, ReturnType<typeof roleServicesGetRoleQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await roleServicesGetRole({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await roleServicesGetRole({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: roleServicesGetRoleQueryKey(options),
-  });
+    queryKey: roleServicesGetRoleQueryKey(options)
+});
 
 /**
  * Update role
  */
-export const roleServicesUpdateRoleMutation = (
-  options?: Partial<Options<RoleServicesUpdateRoleData>>,
-): UseMutationOptions<
-  RoleServicesUpdateRoleResponse,
-  AxiosError<RoleServicesUpdateRoleError>,
-  Options<RoleServicesUpdateRoleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    RoleServicesUpdateRoleResponse,
-    AxiosError<RoleServicesUpdateRoleError>,
-    Options<RoleServicesUpdateRoleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await roleServicesUpdateRole({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const roleServicesUpdateRoleMutation = (options?: Partial<Options<RoleServicesUpdateRoleData>>): UseMutationOptions<RoleServicesUpdateRoleResponse, AxiosError<RoleServicesUpdateRoleError>, Options<RoleServicesUpdateRoleData>> => {
+    const mutationOptions: UseMutationOptions<RoleServicesUpdateRoleResponse, AxiosError<RoleServicesUpdateRoleError>, Options<RoleServicesUpdateRoleData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await roleServicesUpdateRole({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const roleServicesGetRolePermissionsQueryKey = (
-  options: Options<RoleServicesGetRolePermissionsData>,
-) => createQueryKey('roleServicesGetRolePermissions', options);
+export const roleServicesGetRolePermissionsQueryKey = (options: Options<RoleServicesGetRolePermissionsData>) => createQueryKey('roleServicesGetRolePermissions', options);
 
 /**
  * Get role permissions
  */
-export const roleServicesGetRolePermissionsOptions = (
-  options: Options<RoleServicesGetRolePermissionsData>,
-) =>
-  queryOptions<
-    RoleServicesGetRolePermissionsResponse,
-    AxiosError<RoleServicesGetRolePermissionsError>,
-    RoleServicesGetRolePermissionsResponse,
-    ReturnType<typeof roleServicesGetRolePermissionsQueryKey>
-  >({
+export const roleServicesGetRolePermissionsOptions = (options: Options<RoleServicesGetRolePermissionsData>) => queryOptions<RoleServicesGetRolePermissionsResponse, AxiosError<RoleServicesGetRolePermissionsError>, RoleServicesGetRolePermissionsResponse, ReturnType<typeof roleServicesGetRolePermissionsQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await roleServicesGetRolePermissions({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await roleServicesGetRolePermissions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: roleServicesGetRolePermissionsQueryKey(options),
-  });
+    queryKey: roleServicesGetRolePermissionsQueryKey(options)
+});
 
 /**
  * Revoke permission from role
  */
-export const roleServicesRevokePermissionFromRoleMutation = (
-  options?: Partial<Options<RoleServicesRevokePermissionFromRoleData>>,
-): UseMutationOptions<
-  RoleServicesRevokePermissionFromRoleResponse,
-  AxiosError<RoleServicesRevokePermissionFromRoleError>,
-  Options<RoleServicesRevokePermissionFromRoleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    RoleServicesRevokePermissionFromRoleResponse,
-    AxiosError<RoleServicesRevokePermissionFromRoleError>,
-    Options<RoleServicesRevokePermissionFromRoleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await roleServicesRevokePermissionFromRole({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const roleServicesRevokePermissionFromRoleMutation = (options?: Partial<Options<RoleServicesRevokePermissionFromRoleData>>): UseMutationOptions<RoleServicesRevokePermissionFromRoleResponse, AxiosError<RoleServicesRevokePermissionFromRoleError>, Options<RoleServicesRevokePermissionFromRoleData>> => {
+    const mutationOptions: UseMutationOptions<RoleServicesRevokePermissionFromRoleResponse, AxiosError<RoleServicesRevokePermissionFromRoleError>, Options<RoleServicesRevokePermissionFromRoleData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await roleServicesRevokePermissionFromRole({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Delete permission
  */
-export const permissionServicesDeletePermissionMutation = (
-  options?: Partial<Options<PermissionServicesDeletePermissionData>>,
-): UseMutationOptions<
-  PermissionServicesDeletePermissionResponse,
-  AxiosError<PermissionServicesDeletePermissionError>,
-  Options<PermissionServicesDeletePermissionData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    PermissionServicesDeletePermissionResponse,
-    AxiosError<PermissionServicesDeletePermissionError>,
-    Options<PermissionServicesDeletePermissionData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await permissionServicesDeletePermission({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const permissionServicesDeletePermissionMutation = (options?: Partial<Options<PermissionServicesDeletePermissionData>>): UseMutationOptions<PermissionServicesDeletePermissionResponse, AxiosError<PermissionServicesDeletePermissionError>, Options<PermissionServicesDeletePermissionData>> => {
+    const mutationOptions: UseMutationOptions<PermissionServicesDeletePermissionResponse, AxiosError<PermissionServicesDeletePermissionError>, Options<PermissionServicesDeletePermissionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await permissionServicesDeletePermission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Update permission
  */
-export const permissionServicesUpdatePermissionMutation = (
-  options?: Partial<Options<PermissionServicesUpdatePermissionData>>,
-): UseMutationOptions<
-  PermissionServicesUpdatePermissionResponse,
-  AxiosError<PermissionServicesUpdatePermissionError>,
-  Options<PermissionServicesUpdatePermissionData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    PermissionServicesUpdatePermissionResponse,
-    AxiosError<PermissionServicesUpdatePermissionError>,
-    Options<PermissionServicesUpdatePermissionData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await permissionServicesUpdatePermission({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const permissionServicesUpdatePermissionMutation = (options?: Partial<Options<PermissionServicesUpdatePermissionData>>): UseMutationOptions<PermissionServicesUpdatePermissionResponse, AxiosError<PermissionServicesUpdatePermissionError>, Options<PermissionServicesUpdatePermissionData>> => {
+    const mutationOptions: UseMutationOptions<PermissionServicesUpdatePermissionResponse, AxiosError<PermissionServicesUpdatePermissionError>, Options<PermissionServicesUpdatePermissionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await permissionServicesUpdatePermission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const userServicesGetUsersQueryKey = (
-  options?: Options<UserServicesGetUsersData>,
-) => createQueryKey('userServicesGetUsers', options);
+export const userServicesGetUsersQueryKey = (options?: Options<UserServicesGetUsersData>) => createQueryKey('userServicesGetUsers', options);
 
 /**
  * Get all users
  */
-export const userServicesGetUsersOptions = (
-  options?: Options<UserServicesGetUsersData>,
-) =>
-  queryOptions<
-    UserServicesGetUsersResponse,
-    AxiosError<UserServicesGetUsersError>,
-    UserServicesGetUsersResponse,
-    ReturnType<typeof userServicesGetUsersQueryKey>
-  >({
+export const userServicesGetUsersOptions = (options?: Options<UserServicesGetUsersData>) => queryOptions<UserServicesGetUsersResponse, AxiosError<UserServicesGetUsersError>, UserServicesGetUsersResponse, ReturnType<typeof userServicesGetUsersQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await userServicesGetUsers({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await userServicesGetUsers({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: userServicesGetUsersQueryKey(options),
-  });
+    queryKey: userServicesGetUsersQueryKey(options)
+});
 
 /**
  * Create new user
  */
-export const userServicesCreateUserMutation = (
-  options?: Partial<Options<UserServicesCreateUserData>>,
-): UseMutationOptions<
-  UserServicesCreateUserResponse,
-  AxiosError<UserServicesCreateUserError>,
-  Options<UserServicesCreateUserData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UserServicesCreateUserResponse,
-    AxiosError<UserServicesCreateUserError>,
-    Options<UserServicesCreateUserData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await userServicesCreateUser({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const userServicesCreateUserMutation = (options?: Partial<Options<UserServicesCreateUserData>>): UseMutationOptions<UserServicesCreateUserResponse, AxiosError<UserServicesCreateUserError>, Options<UserServicesCreateUserData>> => {
+    const mutationOptions: UseMutationOptions<UserServicesCreateUserResponse, AxiosError<UserServicesCreateUserError>, Options<UserServicesCreateUserData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await userServicesCreateUser({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 /**
  * Delete user
  */
-export const userServicesDeleteUserMutation = (
-  options?: Partial<Options<UserServicesDeleteUserData>>,
-): UseMutationOptions<
-  UserServicesDeleteUserResponse,
-  AxiosError<UserServicesDeleteUserError>,
-  Options<UserServicesDeleteUserData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UserServicesDeleteUserResponse,
-    AxiosError<UserServicesDeleteUserError>,
-    Options<UserServicesDeleteUserData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await userServicesDeleteUser({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const userServicesDeleteUserMutation = (options?: Partial<Options<UserServicesDeleteUserData>>): UseMutationOptions<UserServicesDeleteUserResponse, AxiosError<UserServicesDeleteUserError>, Options<UserServicesDeleteUserData>> => {
+    const mutationOptions: UseMutationOptions<UserServicesDeleteUserResponse, AxiosError<UserServicesDeleteUserError>, Options<UserServicesDeleteUserData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await userServicesDeleteUser({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
-export const userServicesGetUserQueryKey = (
-  options: Options<UserServicesGetUserData>,
-) => createQueryKey('userServicesGetUser', options);
+export const userServicesGetUserQueryKey = (options: Options<UserServicesGetUserData>) => createQueryKey('userServicesGetUser', options);
 
 /**
  * Get user by ID
  */
-export const userServicesGetUserOptions = (
-  options: Options<UserServicesGetUserData>,
-) =>
-  queryOptions<
-    UserServicesGetUserResponse,
-    AxiosError<UserServicesGetUserError>,
-    UserServicesGetUserResponse,
-    ReturnType<typeof userServicesGetUserQueryKey>
-  >({
+export const userServicesGetUserOptions = (options: Options<UserServicesGetUserData>) => queryOptions<UserServicesGetUserResponse, AxiosError<UserServicesGetUserError>, UserServicesGetUserResponse, ReturnType<typeof userServicesGetUserQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await userServicesGetUser({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
+        const { data } = await userServicesGetUser({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
     },
-    queryKey: userServicesGetUserQueryKey(options),
-  });
+    queryKey: userServicesGetUserQueryKey(options)
+});
 
 /**
  * Update user
  */
-export const userServicesUpdateUserMutation = (
-  options?: Partial<Options<UserServicesUpdateUserData>>,
-): UseMutationOptions<
-  UserServicesUpdateUserResponse,
-  AxiosError<UserServicesUpdateUserError>,
-  Options<UserServicesUpdateUserData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UserServicesUpdateUserResponse,
-    AxiosError<UserServicesUpdateUserError>,
-    Options<UserServicesUpdateUserData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await userServicesUpdateUser({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
+export const userServicesUpdateUserMutation = (options?: Partial<Options<UserServicesUpdateUserData>>): UseMutationOptions<UserServicesUpdateUserResponse, AxiosError<UserServicesUpdateUserError>, Options<UserServicesUpdateUserData>> => {
+    const mutationOptions: UseMutationOptions<UserServicesUpdateUserResponse, AxiosError<UserServicesUpdateUserError>, Options<UserServicesUpdateUserData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await userServicesUpdateUser({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };

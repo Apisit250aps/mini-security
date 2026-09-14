@@ -96,9 +96,9 @@ Contributor เพิ่มครั้งแรกด้วย upsert ใน tr
 
 หาก A กับ B อ่าน revision 5 แล้ว A บันทึกสำเร็จเป็น 6 การบันทึกของ B ด้วย 5 ต้องคืน conflict โดยไม่เขียนทับ B โหลดข้อมูลล่าสุด ตรวจและส่งใหม่ ห้าม retry อัตโนมัติด้วย revision ใหม่จากเนื้อหาเก่า ข้อแลกเปลี่ยนคือแม้แก้คนละ field ก็อาจ conflict ซึ่งยอมรับเพื่อให้ MVP เรียบง่าย ไม่เพิ่ม per-field merge
 
-Submit ต้องส่ง expected_revision เช่นกัน ตรวจชุดล่าสุดครบแล้วจึงตั้ง submitted_by/status และเพิ่ม revision ใน transaction เดียว ผู้ส่งต้องเห็นคำตอบล่าสุดก่อนส่ง ถ้าคนอื่นแก้ก่อนจะเกิด conflict; ถ้า submit สำเร็จก่อน การบันทึกที่ตามมาต้องถูกปฏิเสธเพราะไม่ใช่ DRAFT การแนบ/ลบไฟล์ต้องผ่านกฎเดียวกัน แม้ upload ไป Object Storage เริ่มก่อนส่ง ก็ห้ามผูก metadata ที่มาช้าหลัง submit และจัดการไฟล์ชั่วคราวที่ไม่ถูกอ้างแยกจากหลักฐาน
+Submit ต้องส่ง expected_revision เช่นกัน ตรวจชุดล่าสุดครบแล้วจึงตั้ง submitted_by/submitted_at และเพิ่ม revision ใน transaction เดียว ผู้ส่งต้องเห็นคำตอบล่าสุดก่อนส่ง ถ้าคนอื่นแก้ก่อนจะเกิด conflict; ถ้า submit สำเร็จก่อน การบันทึกที่ตามมาต้องถูกปฏิเสธเพราะไม่ใช่ DRAFT การแนบ/ลบไฟล์ต้องผ่านกฎเดียวกัน แม้ upload ไป Object Storage เริ่มก่อนส่ง ก็ห้ามผูก metadata ที่มาช้าหลัง submit และจัดการไฟล์ชั่วคราวที่ไม่ถูกอ้างแยกจากหลักฐาน
 
-Review ใช้ expected_revision และ lock submission เช่นกันเพื่อตรวจ SUBMITTED, contributor และสิทธิ์ Owner ก่อนเขียน review/status พร้อมเพิ่ม revision ไม่มี autosave แบบ realtime, presence, การล็อกผู้แก้ราย section หรือ edit history เต็มรูปแบบ
+Review ใช้ expected_revision และ lock submission เช่นกันเพื่อตรวจ SUBMITTED, contributor และสิทธิ์ Owner ก่อนเขียน review พร้อมเพิ่ม revision ไม่มี autosave แบบ realtime, presence, การล็อกผู้แก้ราย section หรือ edit history เต็มรูปแบบ
 
 ## ชนิดคำถามที่พอสำหรับ MVP
 
@@ -138,7 +138,7 @@ Review ใช้ expected_revision และ lock submission เช่นกั�
 - ทุกตารางใหม่มี `company_id`; composite FK กันการเชื่อมคนละบริษัทและ answer คนละ version กับ submission; submission ระบุ template/version/role โดย FK บังคับ version และ role access ให้ตรง template เดียวกัน และ successor คง version/role เดิม ส่วน tenant ของ role และ role ปัจจุบันของ actor ตรวจใน use case
 - คงเฉพาะ proposed unique `(id, company_id)` บน `company_member` เพื่อรองรับ actor FK; ถอด proposed unique บน branch/role ที่ใช้เฉพาะ Inspection ออก ไม่เปลี่ยนตารางระบบเดิมอื่น
 - Unique ป้องกัน form-role mapping, `(form_template_id, version)`, `(submission_id, field_id)`, `(submission_id, member_id)` ของ contributor, successor และ review ซ้ำ; `sort_order` เรียงด้วย `sort_order, id` ไม่ต้อง unique
-- UUIDv7 และ `created_at`/`updated_at` ตาม BaseEntity; instant ใหม่ใช้ timestamptz โดยไม่เปลี่ยน timestamp ของตารางเดิม
+- UUIDv7 และ `created_at`/`updated_at` สำหรับตารางที่แก้ไขได้; แบบเสนอใหม่ยกเว้น contributor/review ที่ append-only; instant ใหม่ใช้ timestamptz โดยไม่เปลี่ยน timestamp ของตารางเดิม
 - เพิ่ม partial unique เมื่อเขียน migration จริง เพราะ note ใน DBML ไม่สร้าง constraint นี้ให้:
 
 ```sql
@@ -161,3 +161,7 @@ FK ใหม่ใช้ RESTRICT เพื่อรักษาประวั�
 ยังไม่ทำ Asset/Location, Issue/Defect, Work Order/Maintenance, multi-step หรือ section-level approval และรายงานข้ามเวอร์ชันแบบเทียบ field_key จึงถอด field_key ออกจาก field ก่อน รายการคำตอบและประวัติอนุมัติอ่านจาก 10 ตารางนี้ได้
 
 เริ่มพัฒนา flow ทั้งเส้นด้วย 10 ตารางนี้: builder/publish/Role access → shared draft/submit → Owner review/resubmit ตามรูปแบบ schema-first Zod และ entity data container ใน Domain; business logic อยู่ Application Layer และ persistence อยู่ Infrastructure ตามแนวทางเดิม ใช้ DBML เป็นแบบออกแบบ ไม่ใช้ SQL export ของทั้งไฟล์เป็น migration ทับฐานข้อมูลเดิม
+
+## Source-only storage revision (proposed)
+
+ตาม [erd-storage-audit.md](erd-storage-audit.md) `form_submission.status` เป็นค่าที่ query คำนวณ: ไม่มี submitted_at = DRAFT; ส่งแล้วไม่มี review = SUBMITTED; มี review ใช้ action เป็น APPROVED/REJECTED ไม่มีการเขียน status ซ้ำใน submission ใช้ created_at เป็นเวลาเริ่มแทน started_at การตรวจ state ทั้งหมดในเอกสารนี้หมายถึง derived state โดย lock submission และตรวจ review ใน transaction เดียวกัน; revision ยังต้องเพิ่มทุก mutation/submit/review เพื่อป้องกัน race ระหว่าง review/clone/submit ต้องห้ามสร้าง review ก่อนส่ง และห้ามลบ/แก้ review หลังสร้าง

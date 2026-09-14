@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { resolveDatabase } from '@repo/database/transaction';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
@@ -380,7 +380,7 @@ export class FormSubmissionRepository
           eq(formSubmission.roleId, roleId),
           eq(formSubmission.formTemplateId, templateId),
           eq(formSubmission.companyId, companyId),
-          eq(formSubmission.status, 'DRAFT'),
+          isNull(formSubmission.submittedAt),
         ),
       )
       .orderBy(desc(formSubmission.createdAt))

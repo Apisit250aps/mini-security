@@ -48,10 +48,11 @@ export const formSubmissionDataColumns = ({
     },
   },
   {
-    accessorKey: 'status',
+    id: 'status',
     header: 'สถานะ',
-    cell: ({ getValue }) => {
-      const status = getValue<string>();
+    cell: ({ row }) => {
+      const isDraft = !row.original.submittedAt;
+      const status = isDraft ? 'DRAFT' : 'SUBMITTED';
       const info = STATUS_MAP[status] || {
         label: status,
         variant: 'outline',
@@ -68,7 +69,7 @@ export const formSubmissionDataColumns = ({
     },
   },
   {
-    accessorKey: 'startedAt',
+    accessorKey: 'createdAt',
     header: 'เริ่มบันทึกเมื่อ',
     cell: ({ getValue }) => {
       const date = getValue<string | Date>();

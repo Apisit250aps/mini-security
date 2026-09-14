@@ -65,7 +65,6 @@ export const reviewLeaveRequestUseCase = new ReviewLeaveRequestUseCase(
 export const cancelLeaveRequestUseCase = new CancelLeaveRequestUseCase(
   unitOfWork,
   leaveRequestRepository,
-  leaveQuotaRepository,
 );
 
 export const getLeaveRequestsByMemberUseCase =

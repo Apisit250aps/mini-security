@@ -44,6 +44,8 @@ export const PERMISSION_ACTIONS = {
   LEAVE_REQUEST_READ: 'leave_request:read',
   LEAVE_TYPE_MANAGE: 'leave_type:manage',
   LEAVE_TYPE_READ: 'leave_type:read',
+  LOCATION_MANAGE: 'location:manage',
+  LOCATION_READ: 'location:read',
   PERMISSION_ASSIGN: 'permission:assign',
   PERMISSION_CREATE: 'permission:create',
   PERMISSION_DELETE: 'permission:delete',
@@ -320,6 +322,18 @@ export const SYSTEM_PERMISSIONS = [
     module: 'leave',
     description: 'leave type read',
     featureCode: FEATURE_CODES.LEAVE_MANAGEMENT,
+  },
+  {
+    action: PERMISSION_ACTIONS.LOCATION_MANAGE,
+    module: 'location',
+    description: 'location manage',
+    featureCode: FEATURE_CODES.ATTENDANCE_MANAGEMENT,
+  },
+  {
+    action: PERMISSION_ACTIONS.LOCATION_READ,
+    module: 'location',
+    description: 'location read',
+    featureCode: FEATURE_CODES.ATTENDANCE_MANAGEMENT,
   },
   {
     action: PERMISSION_ACTIONS.PERMISSION_ASSIGN,

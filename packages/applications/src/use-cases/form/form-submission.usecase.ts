@@ -111,8 +111,6 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
         submittedBy: null,
         revision: 1,
         supersedesSubmissionId: null,
-        status: 'DRAFT',
-        startedAt: new Date(),
         submittedAt: null,
       });
 
@@ -153,7 +151,7 @@ export class SaveFormSubmissionDraftUseCase
       if (!submission) {
         throw new NotFoundError('Form submission not found');
       }
-      if (submission.status !== 'DRAFT') {
+      if (submission.submittedAt != null) {
         throw new BadRequestError(
           'Cannot edit answers for a submitted or reviewed form',
         );
@@ -226,7 +224,7 @@ export class SubmitFormSubmissionUseCase
       if (!submission) {
         throw new NotFoundError('Form submission not found');
       }
-      if (submission.status !== 'DRAFT') {
+      if (submission.submittedAt != null) {
         throw new BadRequestError(
           'Cannot submit an already submitted or closed response',
         );
@@ -294,7 +292,6 @@ export class SubmitFormSubmissionUseCase
 
       // Finalize submission
       return this.submissionRepo.update(submission.id, {
-        status: 'SUBMITTED',
         submittedBy: context.memberId,
         submittedAt: new Date(),
         revision: submission.revision + 1,
@@ -314,6 +311,7 @@ export class CloneFormSubmissionUseCase implements ICloneFormSubmissionUseCase {
     private readonly answerRepo: IFormAnswerRepository,
     private readonly attachmentRepo: IFormAnswerAttachmentRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
+    private readonly reviewRepo?: ISubmissionReviewRepository,
   ) {}
 
   @RequirePermission('form_submission:create')
@@ -323,8 +321,11 @@ export class CloneFormSubmissionUseCase implements ICloneFormSubmissionUseCase {
       if (!original) {
         throw new NotFoundError('Original submission not found');
       }
-      if (original.status !== 'REJECTED') {
-        throw new BadRequestError('Only REJECTED submissions can be cloned');
+      if (this.reviewRepo) {
+        const review = await this.reviewRepo.findBySubmissionId(original.id);
+        if (!review || review.action !== 'REJECT') {
+          throw new BadRequestError('Only REJECTED submissions can be cloned');
+        }
       }
 
       // Prevent duplicate clones for the same rejected submission
@@ -347,8 +348,6 @@ export class CloneFormSubmissionUseCase implements ICloneFormSubmissionUseCase {
         submittedBy: null,
         revision: 1,
         supersedesSubmissionId: original.id,
-        status: 'DRAFT',
-        startedAt: new Date(),
         submittedAt: null,
       });
 

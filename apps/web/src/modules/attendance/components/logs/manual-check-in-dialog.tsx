@@ -17,6 +17,7 @@ export default function ManualCheckInDialog({
       onSubmit={(data) =>
         mutation.mutate(
           {
+            companyId,
             companyMemberId: data.companyMemberId,
             scheduleSlotId: data.scheduleSlotId,
             workDate: data.workDate,

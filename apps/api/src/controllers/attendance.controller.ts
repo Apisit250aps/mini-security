@@ -35,6 +35,9 @@ const checkInBodySchema = z.object({
   companyMemberId: z.string().uuid(),
   scheduleSlotId: z.string().uuid(),
   note: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  locationId: z.string().uuid().optional(),
 });
 
 const memberLogsQuerySchema = z.object({
@@ -184,6 +187,9 @@ export class AttendanceController extends Controller {
       companyMemberId: body.companyMemberId,
       scheduleSlotId: body.scheduleSlotId,
       note: body.note,
+      latitude: body.latitude,
+      longitude: body.longitude,
+      locationId: body.locationId,
     });
     return this.success(c, 'Check-in recorded successfully', log);
   });

@@ -79,7 +79,7 @@ export default function ActiveFormTable({
                   กำลังทำฟอร์ม (Rev. #{draft.revision})
                 </Badge>
                 <span className="text-[11px] text-muted-foreground">
-                  เริ่มเมื่อ {formatDate(draft.startedAt)}
+                  เริ่มเมื่อ {formatDate(draft.createdAt)}
                 </span>
               </div>
             );

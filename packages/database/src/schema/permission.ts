@@ -1,9 +1,12 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   index,
   pgEnum,
   pgTable,
   text,
+  unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import {
@@ -40,6 +43,9 @@ export const role = pgTable(
     index('role_company_id_idx').on(table.companyId),
     index('role_is_system_default_idx').on(table.isSystemDefault),
     index('role_role_type_idx').on(table.roleType),
+    uniqueIndex('role_system_default_unique')
+      .on(table.roleType)
+      .where(sql`company_id IS NULL AND is_system_default = true`),
   ],
 );
 
@@ -79,6 +85,7 @@ export const rolePermission = pgTable(
   (table) => [
     index('role_permission_role_id_idx').on(table.roleId),
     index('role_permission_permission_id_idx').on(table.permissionId),
-    index('role_permission_unique_idx').on(table.roleId, table.permissionId),
+    unique('role_permission_unique_idx').on(table.roleId, table.permissionId),
   ],
 );
+

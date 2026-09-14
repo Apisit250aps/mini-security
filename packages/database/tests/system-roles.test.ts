@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 import {
   SYSTEM_DEFAULT_ROLES,
@@ -7,13 +7,18 @@ import {
   SYSTEM_PERMISSIONS,
 } from '@repo/domains/constants';
 
-const migration = readFileSync(
-  new URL(
-    '../migrations/20260912081723_seed_system_roles/migration.sql',
-    import.meta.url,
-  ),
-  'utf8',
-);
+const migrations = readdirSync(new URL('../migrations', import.meta.url), {
+  withFileTypes: true,
+})
+  .filter((entry) => entry.isDirectory())
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map((entry) =>
+    readFileSync(
+      new URL(`../migrations/${entry.name}/migration.sql`, import.meta.url),
+      'utf8',
+    ),
+  )
+  .join('\n');
 
 test('SQL role grants match domain defaults exactly, without duplicate pairs', () => {
   const expected = SYSTEM_DEFAULT_ROLES.flatMap(({ roleType }) =>
@@ -22,7 +27,7 @@ test('SQL role grants match domain defaults exactly, without duplicate pairs', (
     ),
   );
   const actual = Array.from(
-    migration.matchAll(/\('([A-Z_]+)', '([a-z_]+:[a-z_]+)'\)/g),
+    migrations.matchAll(/\('([A-Z_]+)',\s*'([a-z_]+:[a-z_]+)'\)/g),
     ([, role, action]) => `${role}:${action}`,
   );
   assert.equal(new Set(actual).size, actual.length);

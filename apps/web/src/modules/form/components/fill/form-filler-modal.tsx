@@ -13,6 +13,7 @@ import {
 } from '../../hooks/form-mutations';
 import type { FormField } from '@repo/domains/entities';
 import DynamicFieldRenderer from './dynamic-field-renderer';
+import { getFormSubmissionStatus } from '../../lib/submission-status';
 
 interface FormFillerModalProps {
   submissionId: string;
@@ -62,7 +63,11 @@ export default function FormFillerModal({
     setEdits((prev) => ({ ...prev, [fieldId]: val }));
   }, []);
 
-  const isReadOnly = detail?.submission.status !== 'DRAFT';
+  const status = getFormSubmissionStatus(
+    detail?.submission,
+    detail?.review,
+  );
+  const isReadOnly = status !== 'DRAFT';
 
   // Group fields by section
   const fieldsBySection = useMemo(() => {
@@ -156,8 +161,9 @@ export default function FormFillerModal({
   }
 
   const { submission, template, version, sections, review } = detail;
-  const statusInfo = STATUS_MAP[submission.status] || {
-    label: submission.status,
+  const currentStatus = getFormSubmissionStatus(submission, review);
+  const statusInfo = STATUS_MAP[currentStatus] || {
+    label: currentStatus,
     variant: 'outline',
   };
 
@@ -183,7 +189,7 @@ export default function FormFillerModal({
         )}
 
         {/* Draft Notice Banner */}
-        {submission.status === 'DRAFT' && (
+        {currentStatus === 'DRAFT' && (
           <div className="flex items-center gap-2.5 p-3 bg-amber-500/10 text-amber-900 dark:text-amber-200 border border-amber-500/20 rounded-md text-xs">
             <FileText className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
@@ -194,7 +200,7 @@ export default function FormFillerModal({
         )}
 
         {/* Rejection Alert if rejected */}
-        {submission.status === 'REJECTED' && review && (
+        {currentStatus === 'REJECTED' && review && (
           <div className="flex items-start gap-3 p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-sm">
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
             <div className="flex flex-col gap-0.5">
@@ -207,7 +213,7 @@ export default function FormFillerModal({
         )}
 
         {/* Approval banner if approved */}
-        {submission.status === 'APPROVED' && (
+        {currentStatus === 'APPROVED' && (
           <div className="flex items-center gap-2 p-3 bg-primary/10 text-primary border border-primary/20 rounded-md text-sm">
             <CheckCircle2 className="w-5 h-5 shrink-0" />
             <span>แบบฟอร์มนี้ได้รับการอนุมัติเรียบร้อยแล้ว</span>

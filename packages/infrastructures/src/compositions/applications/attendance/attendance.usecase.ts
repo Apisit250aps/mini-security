@@ -17,6 +17,7 @@ import {
   checkInScheduleRepository,
   companyMemberRepository,
   roleRepository,
+  scheduleSlotLocationRepository,
   scheduleSlotRepository,
 } from '../../repositories';
 
@@ -62,6 +63,7 @@ export const checkInAttendanceUseCase = new CheckInAttendanceUseCase(
   scheduleSlotRepository,
   checkInScheduleRepository,
   companyMemberRepository,
+  scheduleSlotLocationRepository,
 );
 
 export const manualCheckInAttendanceUseCase =

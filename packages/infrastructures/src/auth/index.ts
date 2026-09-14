@@ -7,6 +7,7 @@ import { uuid } from '@repo/domains';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { bearer } from 'better-auth/plugins/bearer';
+import { customSession } from 'better-auth/plugins/custom-session';
 import { jwt } from 'better-auth/plugins/jwt';
 import { getUserPermissionActions } from './helpers';
 
@@ -21,7 +22,26 @@ const auth = betterAuth({
       jwks: schema.jwks,
     },
   }),
-  plugins: [jwt(), bearer()],
+  plugins: [
+    jwt(),
+    bearer(),
+    customSession(async ({ user, session }) => {
+      const activeCompanyId = (session as { activeCompanyId?: string | null })
+        .activeCompanyId;
+      const { actions, companyId } = await getUserPermissionActions(
+        user.id,
+        activeCompanyId,
+      );
+      return {
+        user,
+        session: {
+          ...session,
+          permissions: actions.join(','),
+          activeCompanyId: companyId ?? activeCompanyId,
+        },
+      };
+    }),
+  ],
   advanced: {
     database: {
       generateId: () => uuid(),
@@ -40,7 +60,7 @@ const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
-          const { actions, companyId } = await getUserPermissionActions(
+          const { companyId } = await getUserPermissionActions(
             session.userId,
           );
 
@@ -48,7 +68,6 @@ const auth = betterAuth({
             data: {
               ...session,
               activeCompanyId: companyId,
-              permissions: actions.join(','),
             },
           };
         },
@@ -87,11 +106,6 @@ const auth = betterAuth({
   session: {
     additionalFields: {
       activeCompanyId: {
-        type: 'string',
-        required: false,
-        input: false,
-      },
-      permissions: {
         type: 'string',
         required: false,
         input: false,

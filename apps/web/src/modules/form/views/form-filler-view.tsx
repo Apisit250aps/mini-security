@@ -38,6 +38,7 @@ import {
   useFormSubmissionSubmit,
   useFormSubmissionClone,
 } from '../hooks/form-mutations';
+import { getFormSubmissionStatus } from '../lib/submission-status';
 import { getErrorMessage } from '@/shared/utils';
 import { formatDate, formatDateTime } from '@/shared/utils/date';
 import type { FormField } from '@repo/domains/entities';
@@ -128,7 +129,11 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     setEdits((prev) => ({ ...prev, [fieldId]: val }));
   }, []);
 
-  const isReadOnly = detail?.submission.status !== 'DRAFT';
+  const detailStatus = getFormSubmissionStatus(
+    detail?.submission,
+    detail?.review,
+  );
+  const isReadOnly = detailStatus !== 'DRAFT';
 
   // Group fields by section
   const fieldsBySection = useMemo(() => {
@@ -308,9 +313,9 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
   const { submission, template, version, sections, review, contributors } =
     detail || {};
-  const statusInfo = (submission?.status &&
-    STATUS_CONFIG[submission.status]) || {
-    label: submission?.status || 'UNKNOWN',
+  const currentStatus = getFormSubmissionStatus(submission, review);
+  const statusInfo = (currentStatus && STATUS_CONFIG[currentStatus]) || {
+    label: currentStatus || 'UNKNOWN',
     variant: 'outline' as const,
   };
 
@@ -338,7 +343,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
             </Button>
           </Link>
 
-          {submission?.status === 'DRAFT' && (
+          {currentStatus === 'DRAFT' && (
             <>
               <ButtonLoading
                 variant="outline"
@@ -365,7 +370,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
             </>
           )}
 
-          {submission?.status === 'REJECTED' && (
+          {currentStatus === 'REJECTED' && (
             <ButtonLoading
               size="sm"
               className="gap-1.5"
@@ -377,7 +382,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
             </ButtonLoading>
           )}
 
-          {submission?.status === 'SUBMITTED' && (
+          {currentStatus === 'SUBMITTED' && (
             <Button
               size="sm"
               variant="default"
@@ -443,8 +448,8 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 <span>
                   เริ่มบันทึก:{' '}
                   <strong className="text-foreground">
-                    {submission?.startedAt
-                      ? formatDate(submission.startedAt)
+                    {submission?.createdAt
+                      ? formatDate(submission.createdAt)
                       : '-'}
                   </strong>
                 </span>
@@ -466,7 +471,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
         {/* Dynamic Context Banners */}
         {/* 1. DRAFT Notice Banner */}
-        {submission?.status === 'DRAFT' && (
+        {currentStatus === 'DRAFT' && (
           <div className="flex items-start gap-3 p-4 bg-amber-500/10 text-amber-950 dark:text-amber-200 border border-amber-500/25 rounded-xl text-xs sm:text-sm">
             <FileText className="size-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="flex flex-col gap-1">
@@ -482,7 +487,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         )}
 
         {/* 2. REJECTED Alert */}
-        {submission?.status === 'REJECTED' && review && (
+        {currentStatus === 'REJECTED' && review && (
           <div className="flex items-start justify-between gap-3 p-4 bg-destructive/10 text-destructive border border-destructive/25 rounded-xl text-xs sm:text-sm">
             <div className="flex items-start gap-3">
               <AlertCircle className="size-5 text-destructive shrink-0 mt-0.5" />
@@ -516,7 +521,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         )}
 
         {/* 3. SUBMITTED Banner */}
-        {submission?.status === 'SUBMITTED' && (
+        {currentStatus === 'SUBMITTED' && (
           <div className="flex items-center justify-between gap-3 p-4 bg-blue-500/10 text-blue-900 dark:text-blue-200 border border-blue-500/25 rounded-xl text-xs sm:text-sm">
             <div className="flex items-center gap-3">
               <Clock className="size-5 text-blue-600 shrink-0" />
@@ -526,7 +531,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 </span>
                 <span className="text-xs text-muted-foreground">
                   ส่งเมื่อ{' '}
-                  {submission.submittedAt
+                  {submission?.submittedAt
                     ? formatDateTime(submission.submittedAt)
                     : '-'}
                 </span>
@@ -545,7 +550,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         )}
 
         {/* 4. APPROVED Banner */}
-        {submission?.status === 'APPROVED' && (
+        {currentStatus === 'APPROVED' && (
           <div className="flex items-center gap-3 p-4 bg-emerald-500/10 text-emerald-900 dark:text-emerald-200 border border-emerald-500/25 rounded-xl text-xs sm:text-sm">
             <CheckCircle2 className="size-5 text-emerald-600 shrink-0" />
             <div className="flex flex-col gap-0.5">
@@ -651,7 +656,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              {submission?.status === 'REJECTED' && (
+              {currentStatus === 'REJECTED' && (
                 <ButtonLoading
                   size="sm"
                   onPress={handleClone}
@@ -662,7 +667,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                   คัดลอกสร้างฉบับแก้ไข (Clone)
                 </ButtonLoading>
               )}
-              {submission?.status === 'SUBMITTED' && (
+              {currentStatus === 'SUBMITTED' && (
                 <Button
                   size="sm"
                   variant="default"

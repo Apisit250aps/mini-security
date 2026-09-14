@@ -17,6 +17,7 @@ import type {
   ICheckInScheduleRepository,
   IScheduleSlotRepository,
 } from '@repo/domains/repositories/attendance';
+import type { IScheduleSlotLocationRepository } from '@repo/domains/repositories/location';
 import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
 import { createAttendanceLogSchema } from '@repo/domains/schema/attendance';
 import {
@@ -26,12 +27,33 @@ import {
   ValidationError,
 } from '../../lib/error';
 
+function calculateHaversineDistanceMeters(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const R = 6371000;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
   constructor(
     private readonly attendanceLogRepository: IAttendanceLogRepository,
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly checkInScheduleRepository: ICheckInScheduleRepository,
     private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly slotLocationRepository?: IScheduleSlotLocationRepository,
   ) {}
 
   @RequirePermission('attendance:check_in')
@@ -93,7 +115,79 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
       );
     }
 
+    // Geofencing verification if slot has assigned locations
+    let locationSnapshot = {
+      locationId: null as string | null,
+      checkedInLatitude: null as number | null,
+      checkedInLongitude: null as number | null,
+      locationNameSnapshot: null as string | null,
+      locationLatitudeSnapshot: null as number | null,
+      locationLongitudeSnapshot: null as number | null,
+      radiusMetersSnapshot: null as number | null,
+    };
+
+    if (this.slotLocationRepository) {
+      const allowedLocations =
+        await this.slotLocationRepository.findActiveLocationsBySlotId(
+          targetSlot.id,
+        );
+
+      if (allowedLocations.length > 0) {
+        if (context.latitude == null || context.longitude == null) {
+          throw new ValidationError(
+            'GPS coordinates are required to check in for this slot',
+          );
+        }
+
+        const userLat = context.latitude;
+        const userLng = context.longitude;
+
+        let matched = allowedLocations.find((loc) => {
+          if (context.locationId && loc.id !== context.locationId) {
+            return false;
+          }
+          const dist = calculateHaversineDistanceMeters(
+            userLat,
+            userLng,
+            loc.latitude,
+            loc.longitude,
+          );
+          return dist <= loc.radiusMeters;
+        });
+
+        if (!matched && !context.locationId) {
+          // Check if within radius of any allowed location
+          matched = allowedLocations.find((loc) => {
+            const dist = calculateHaversineDistanceMeters(
+              userLat,
+              userLng,
+              loc.latitude,
+              loc.longitude,
+            );
+            return dist <= loc.radiusMeters;
+          });
+        }
+
+        if (!matched) {
+          throw new ValidationError(
+            'You are outside the permitted geofence radius for this check-in slot',
+          );
+        }
+
+        locationSnapshot = {
+          locationId: matched.id,
+          checkedInLatitude: userLat,
+          checkedInLongitude: userLng,
+          locationNameSnapshot: matched.name,
+          locationLatitudeSnapshot: matched.latitude,
+          locationLongitudeSnapshot: matched.longitude,
+          radiusMetersSnapshot: matched.radiusMeters,
+        };
+      }
+    }
+
     const logData = {
+      companyId: member.companyId,
       companyMemberId: member.id,
       scheduleSlotId: targetSlot.id,
       workDate: today,
@@ -101,6 +195,7 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
       status,
       note: context.note ?? null,
       recordedBy: null,
+      ...locationSnapshot,
     };
 
     return this.attendanceLogRepository.upsertLog(logData);

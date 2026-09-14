@@ -3182,6 +3182,362 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UpdateLeaveType'
+  /locations:
+    get:
+      operationId: LocationService_listLocationsByCompany
+      summary: Get locations by company
+      parameters:
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      operationId: LocationService_createLocation
+      summary: Create a new location
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLocation'
+  /locations/branch/{branchId}:
+    get:
+      operationId: LocationService_listLocationsByBranch
+      summary: Get active locations by branch
+      parameters:
+        - name: branchId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /locations/set-primary:
+    post:
+      operationId: LocationService_setPrimaryLocation
+      summary: Set branch primary location
+      parameters: []
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPrimaryLocationRequest'
+  /locations/slots:
+    post:
+      operationId: LocationService_assignSlotLocation
+      summary: Assign location to schedule slot
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/ScheduleSlotLocation'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScheduleSlotLocation'
+  /locations/slots/{slotId}:
+    get:
+      operationId: LocationService_getSlotLocations
+      summary: Get active locations for schedule slot
+      parameters:
+        - name: slotId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /locations/{id}:
+    get:
+      operationId: LocationService_getLocation
+      summary: Get location by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    put:
+      operationId: LocationService_updateLocation
+      summary: Update a location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLocation'
+    delete:
+      operationId: LocationService_deleteLocation
+      summary: Delete a location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /permissions/:
     get:
       operationId: PermissionServices_getPermissions
@@ -3996,6 +4352,7 @@ components:
         - id
         - createdAt
         - updatedAt
+        - companyId
         - companyMemberId
         - scheduleSlotId
         - workDate
@@ -4009,6 +4366,8 @@ components:
         updatedAt:
           type: string
           format: date-time
+        companyId:
+          type: string
         companyMemberId:
           type: string
         scheduleSlotId:
@@ -4029,6 +4388,39 @@ components:
         recordedBy:
           anyOf:
             - type: string
+            - type: 'null'
+        locationId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        checkedInLatitude:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        checkedInLongitude:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        locationNameSnapshot:
+          anyOf:
+            - type: string
+            - type: 'null'
+        locationLatitudeSnapshot:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        locationLongitudeSnapshot:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        radiusMetersSnapshot:
+          anyOf:
+            - type: number
+              format: double
             - type: 'null'
     BasicResponse:
       type: object
@@ -4052,6 +4444,14 @@ components:
         scheduleSlotId:
           type: string
         note:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        locationId:
           type: string
     CheckInSchedule:
       type: object
@@ -4222,11 +4622,14 @@ components:
     CreateAttendanceLog:
       type: object
       required:
+        - companyId
         - companyMemberId
         - scheduleSlotId
         - workDate
         - status
       properties:
+        companyId:
+          type: string
         companyMemberId:
           type: string
         scheduleSlotId:
@@ -4247,6 +4650,39 @@ components:
         recordedBy:
           anyOf:
             - type: string
+            - type: 'null'
+        locationId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        checkedInLatitude:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        checkedInLongitude:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        locationNameSnapshot:
+          anyOf:
+            - type: string
+            - type: 'null'
+        locationLatitudeSnapshot:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        locationLongitudeSnapshot:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        radiusMetersSnapshot:
+          anyOf:
+            - type: number
+              format: double
             - type: 'null'
       description: The template for omitting properties.
     CreateCheckInSchedule:
@@ -4454,7 +4890,6 @@ components:
         - leaveTypeId
         - year
         - totalDays
-        - usedDays
       properties:
         companyMemberId:
           type: string
@@ -4464,11 +4899,8 @@ components:
           type: integer
           format: int32
         totalDays:
-          type: integer
-          format: int32
-        usedDays:
-          type: integer
-          format: int32
+          type: number
+          format: double
       description: The template for omitting properties.
     CreateLeaveRequest:
       type: object
@@ -4477,7 +4909,6 @@ components:
         - leaveTypeId
         - startDate
         - endDate
-        - totalDays
         - unit
         - reason
       properties:
@@ -4489,9 +4920,19 @@ components:
           type: string
         endDate:
           type: string
-        totalDays:
-          type: integer
-          format: int32
+        startTime:
+          anyOf:
+            - type: string
+            - type: 'null'
+        endTime:
+          anyOf:
+            - type: string
+            - type: 'null'
+        minutesPerDaySnapshot:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
         unit:
           $ref: '#/components/schemas/Domain.Entity.LeaveUnit'
         reason:
@@ -4529,6 +4970,42 @@ components:
               format: int32
             - type: 'null'
         isPaid:
+          type: boolean
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreateLocation:
+      type: object
+      required:
+        - companyId
+        - companyBranchId
+        - name
+        - latitude
+        - longitude
+        - radiusMeters
+        - isPrimary
+        - isActive
+      properties:
+        companyId:
+          type: string
+        companyBranchId:
+          type: string
+        name:
+          type: string
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        radiusMeters:
+          type: number
+          format: double
+        isPrimary:
           type: boolean
         isActive:
           type: boolean
@@ -4605,12 +5082,15 @@ components:
     CreateScheduleSlot:
       type: object
       required:
+        - companyId
         - slotOrder
         - label
         - windowStart
         - windowEnd
         - isRequired
       properties:
+        companyId:
+          type: string
         slotOrder:
           type: integer
           format: int32
@@ -4621,6 +5101,23 @@ components:
         windowEnd:
           type: string
         isRequired:
+          type: boolean
+      description: The template for omitting properties.
+    CreateScheduleSlotLocation:
+      type: object
+      required:
+        - companyId
+        - scheduleSlotId
+        - locationId
+        - isActive
+      properties:
+        companyId:
+          type: string
+        scheduleSlotId:
+          type: string
+        locationId:
+          type: string
+        isActive:
           type: boolean
       description: The template for omitting properties.
     CreateUser:
@@ -4667,13 +5164,6 @@ components:
         - DATE
         - IMAGE
         - FILE
-    Domain.Entity.FormSubmissionStatus:
-      type: string
-      enum:
-        - DRAFT
-        - SUBMITTED
-        - APPROVED
-        - REJECTED
     Domain.Entity.FormVersionStatus:
       type: string
       enum:
@@ -4905,8 +5395,6 @@ components:
         - roleId
         - startedBy
         - revision
-        - status
-        - startedAt
       properties:
         id:
           type: string
@@ -4937,11 +5425,6 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-        status:
-          $ref: '#/components/schemas/Domain.Entity.FormSubmissionStatus'
-        startedAt:
-          type: string
-          format: date-time
         submittedAt:
           anyOf:
             - type: string
@@ -4952,7 +5435,6 @@ components:
       required:
         - id
         - createdAt
-        - updatedAt
         - companyId
         - submissionId
         - memberId
@@ -4960,9 +5442,6 @@ components:
         id:
           type: string
         createdAt:
-          type: string
-          format: date-time
-        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -5160,7 +5639,6 @@ components:
         - leaveTypeId
         - year
         - totalDays
-        - usedDays
       properties:
         id:
           type: string
@@ -5178,11 +5656,8 @@ components:
           type: integer
           format: int32
         totalDays:
-          type: integer
-          format: int32
-        usedDays:
-          type: integer
-          format: int32
+          type: number
+          format: double
     LeaveRequest:
       type: object
       required:
@@ -5193,7 +5668,6 @@ components:
         - leaveTypeId
         - startDate
         - endDate
-        - totalDays
         - unit
         - reason
         - status
@@ -5214,9 +5688,19 @@ components:
           type: string
         endDate:
           type: string
-        totalDays:
-          type: integer
-          format: int32
+        startTime:
+          anyOf:
+            - type: string
+            - type: 'null'
+        endTime:
+          anyOf:
+            - type: string
+            - type: 'null'
+        minutesPerDaySnapshot:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
         unit:
           $ref: '#/components/schemas/Domain.Entity.LeaveUnit'
         reason:
@@ -5279,6 +5763,52 @@ components:
               format: int32
             - type: 'null'
         isPaid:
+          type: boolean
+        isActive:
+          type: boolean
+    Location:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - companyBranchId
+        - name
+        - latitude
+        - longitude
+        - radiusMeters
+        - isPrimary
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        companyBranchId:
+          type: string
+        name:
+          type: string
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        radiusMeters:
+          type: number
+          format: double
+        isPrimary:
           type: boolean
         isActive:
           type: boolean
@@ -5458,6 +5988,7 @@ components:
         - id
         - createdAt
         - updatedAt
+        - companyId
         - checkInScheduleId
         - slotOrder
         - label
@@ -5473,6 +6004,8 @@ components:
         updatedAt:
           type: string
           format: date-time
+        companyId:
+          type: string
         checkInScheduleId:
           type: string
         slotOrder:
@@ -5486,6 +6019,43 @@ components:
           type: string
         isRequired:
           type: boolean
+    ScheduleSlotLocation:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - scheduleSlotId
+        - locationId
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        scheduleSlotId:
+          type: string
+        locationId:
+          type: string
+        isActive:
+          type: boolean
+    SetPrimaryLocationRequest:
+      type: object
+      required:
+        - locationId
+        - companyBranchId
+      properties:
+        locationId:
+          type: string
+        companyBranchId:
+          type: string
     StartFormSubmissionRequest:
       type: object
       required:
@@ -5504,7 +6074,6 @@ components:
       required:
         - id
         - createdAt
-        - updatedAt
         - companyId
         - submissionId
         - reviewedBy
@@ -5513,9 +6082,6 @@ components:
         id:
           type: string
         createdAt:
-          type: string
-          format: date-time
-        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -5562,6 +6128,8 @@ components:
     UpdateAttendanceLog:
       type: object
       properties:
+        companyId:
+          type: string
         companyMemberId:
           type: string
         scheduleSlotId:
@@ -5582,6 +6150,39 @@ components:
         recordedBy:
           anyOf:
             - type: string
+            - type: 'null'
+        locationId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        checkedInLatitude:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        checkedInLongitude:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        locationNameSnapshot:
+          anyOf:
+            - type: string
+            - type: 'null'
+        locationLatitudeSnapshot:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        locationLongitudeSnapshot:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        radiusMetersSnapshot:
+          anyOf:
+            - type: number
+              format: double
             - type: 'null'
       description: The template for adding optional properties.
     UpdateCheckInSchedule:
@@ -5681,11 +6282,8 @@ components:
           type: integer
           format: int32
         totalDays:
-          type: integer
-          format: int32
-        usedDays:
-          type: integer
-          format: int32
+          type: number
+          format: double
       description: The template for adding optional properties.
     UpdateLeaveType:
       type: object
@@ -5708,6 +6306,29 @@ components:
               format: int32
             - type: 'null'
         isPaid:
+          type: boolean
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateLocation:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        radiusMeters:
+          type: number
+          format: double
+        isPrimary:
           type: boolean
         isActive:
           type: boolean
@@ -5749,6 +6370,8 @@ components:
     UpdateScheduleSlot:
       type: object
       properties:
+        companyId:
+          type: string
         slotOrder:
           type: integer
           format: int32
@@ -5759,6 +6382,12 @@ components:
         windowEnd:
           type: string
         isRequired:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateScheduleSlotLocation:
+      type: object
+      properties:
+        isActive:
           type: boolean
       description: The template for adding optional properties.
     UpdateUser:

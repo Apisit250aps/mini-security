@@ -9,6 +9,7 @@ import type {
   LeaveType,
   User,
 } from '@repo/domains/entities';
+import { calculateLeaveDays } from '@repo/domains';
 import { Badge } from '@repo/ui/components/badge';
 import LeaveRequestColumnActions from './leave-request-column-actions';
 
@@ -82,11 +83,11 @@ export const leaveRequestDataColumns = ({
       ),
     },
     {
-      accessorKey: 'totalDays',
+      id: 'totalDays',
       header: 'จำนวนวัน',
       cell: ({ row }) => (
         <span className="font-medium">
-          {row.original.totalDays} {row.original.unit}
+          {calculateLeaveDays(row.original)} วัน
         </span>
       ),
     },

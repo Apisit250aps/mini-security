@@ -6,6 +6,11 @@ namespace Domain.Entity;
     updatedAt: utcDateTime;
   }
 
+  model AppendOnlyBaseEntity {
+    id: string;
+    createdAt: utcDateTime;
+  }
+
   enum RoleType {
     SUPER_ADMIN: "SUPER_ADMIN",
     OWNER: "OWNER",
@@ -74,6 +79,7 @@ namespace Domain.Entity;
   model ScheduleSlot {
     ...BaseEntity;
 
+    companyId: string;
     checkInScheduleId: string;
     slotOrder: int32;
     label: string;
@@ -82,9 +88,33 @@ namespace Domain.Entity;
     isRequired: boolean;
   }
 
+  model Location {
+    ...BaseEntity;
+
+    companyId: string;
+    companyBranchId: string;
+    name: string;
+    address?: string | null;
+    latitude: float64;
+    longitude: float64;
+    radiusMeters: float64;
+    isPrimary: boolean;
+    isActive: boolean;
+  }
+
+  model ScheduleSlotLocation {
+    ...BaseEntity;
+
+    companyId: string;
+    scheduleSlotId: string;
+    locationId: string;
+    isActive: boolean;
+  }
+
   model AttendanceLog {
     ...BaseEntity;
 
+    companyId: string;
     companyMemberId: string;
     scheduleSlotId: string;
     workDate: string;
@@ -92,6 +122,13 @@ namespace Domain.Entity;
     status: AttendanceStatus;
     note?: string | null;
     recordedBy?: string | null;
+    locationId?: string | null;
+    checkedInLatitude?: float64 | null;
+    checkedInLongitude?: float64 | null;
+    locationNameSnapshot?: string | null;
+    locationLatitudeSnapshot?: float64 | null;
+    locationLongitudeSnapshot?: float64 | null;
+    radiusMetersSnapshot?: float64 | null;
   }
 
   model CheckInScheduleRole {
@@ -112,7 +149,6 @@ namespace Domain.Entity;
     ipAddress?: string | null;
     userAgent?: string | null;
     activeCompanyId?: string | null;
-    permissions?: string | null;
   }
 
   model Account {
@@ -274,13 +310,11 @@ namespace Domain.Entity;
     submittedBy?: string | null;
     revision: int32;
     supersedesSubmissionId?: string | null;
-    status: FormSubmissionStatus;
-    startedAt: utcDateTime;
     submittedAt?: utcDateTime | null;
   }
 
   model FormSubmissionContributor {
-    ...BaseEntity;
+    ...AppendOnlyBaseEntity;
 
     companyId: string;
     submissionId: string;
@@ -312,7 +346,7 @@ namespace Domain.Entity;
   }
 
   model SubmissionReview {
-    ...BaseEntity;
+    ...AppendOnlyBaseEntity;
 
     companyId: string;
     submissionId: string;
@@ -340,8 +374,7 @@ namespace Domain.Entity;
     companyMemberId: string;
     leaveTypeId: string;
     year: int32;
-    totalDays: int32;
-    usedDays: int32;
+    totalDays: float64;
   }
 
   model LeaveRequest {
@@ -351,7 +384,9 @@ namespace Domain.Entity;
     leaveTypeId: string;
     startDate: string;
     endDate: string;
-    totalDays: int32;
+    startTime?: string | null;
+    endTime?: string | null;
+    minutesPerDaySnapshot?: int32 | null;
     unit: LeaveUnit;
     reason: string;
     proofUrl?: string | null;

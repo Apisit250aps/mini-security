@@ -1,4 +1,4 @@
-import { boolean, index, pgTable, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, unique, uuid } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
   primaryKeyUuid7,
@@ -33,7 +33,10 @@ export const companyBranch = pgTable(
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('company_branch_company_id_idx').on(table.companyId)],
+  (table) => [
+    index('company_branch_company_id_idx').on(table.companyId),
+    unique('company_branch_id_company_id_unique').on(table.id, table.companyId),
+  ],
 );
 
 export const companyMember = pgTable(
@@ -60,5 +63,7 @@ export const companyMember = pgTable(
     index('company_member_user_id_idx').on(table.userId),
     index('company_member_role_id_idx').on(table.roleId),
     index('company_member_company_user_idx').on(table.companyId, table.userId),
+    unique('company_member_id_company_unique').on(table.id, table.companyId),
   ],
 );
+

@@ -25,7 +25,6 @@ export default function LeaveRequestSubmitAction({
           leaveTypeId: data.leaveTypeId,
           startDate: data.startDate,
           endDate: data.endDate,
-          totalDays: data.totalDays,
           unit: data.unit,
           reason: data.reason,
           proofUrl: data.proofUrl || null,

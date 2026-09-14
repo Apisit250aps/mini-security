@@ -31,4 +31,7 @@ model CheckInRequest {
   companyMemberId: string;
   scheduleSlotId: string;
   note?: string;
+  latitude?: float64;
+  longitude?: float64;
+  locationId?: string;
 }

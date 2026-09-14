@@ -321,7 +321,6 @@ export class CompanyController extends Controller {
         .update(schema.session)
         .set({
           activeCompanyId: id,
-          permissions: actions.join(','),
           updatedAt: new Date(),
         })
         .where(eq(schema.session.id, currentSession.id));

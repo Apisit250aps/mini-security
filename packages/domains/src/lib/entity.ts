@@ -163,8 +163,17 @@ const BaseEntity = <T extends z.ZodRawShape>(schema: T) => {
   });
 };
 
+const AppendOnlyBaseEntity = <T extends z.ZodRawShape>(schema: T) => {
+  return z.object({
+    id: UUIDField({ default: () => uuidv7() }),
+    ...schema,
+    createdAt: TimestampField(),
+  });
+};
+
 export {
   BaseEntity,
+  AppendOnlyBaseEntity,
   StringField,
   EmailField,
   UUIDField,
@@ -175,3 +184,4 @@ export {
   TimestampField,
   uuidv7 as uuid,
 };
+

@@ -104,6 +104,9 @@ export type ICheckInAttendanceContext = ISecurityContext & {
   companyMemberId: string;
   scheduleSlotId: string;
   note?: string;
+  latitude?: number;
+  longitude?: number;
+  locationId?: string;
 };
 
 export type IManualCheckInAttendanceContext = ISecurityContext & {

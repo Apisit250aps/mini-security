@@ -14,7 +14,6 @@ export const quotaFormSchema = z.object({
   leaveTypeId: z.string().uuid('กรุณาเลือกประเภทการลา'),
   year: z.coerce.number().min(2000, 'ปีต้องมากกว่า 2000'),
   totalDays: z.coerce.number().min(0, 'จำนวนวันต้องไม่ติดลบ'),
-  usedDays: z.coerce.number().min(0, 'จำนวนวันใช้ไปต้องไม่ติดลบ').default(0),
 });
 
 export type QuotaFormValues = z.infer<typeof quotaFormSchema>;
@@ -46,7 +45,6 @@ export default function QuotaForm({
       leaveTypeId: '',
       year: new Date().getFullYear(),
       totalDays: 10,
-      usedDays: 0,
     },
   });
 
@@ -66,7 +64,7 @@ export default function QuotaForm({
           required
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <InputField
             name="year"
             label="ปี (Year)"
@@ -79,14 +77,6 @@ export default function QuotaForm({
           <InputField
             name="totalDays"
             label="โควต้าทั้งหมด (วัน)"
-            type="number"
-            control={methods.control}
-            required
-          />
-
-          <InputField
-            name="usedDays"
-            label="ใช้ไปแล้ว (วัน)"
             type="number"
             control={methods.control}
             required

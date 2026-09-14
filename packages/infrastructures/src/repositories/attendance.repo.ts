@@ -289,6 +289,7 @@ export class AttendanceLogRepository
     const results = await this.db
       .select({
         id: attendanceLogs.id,
+        companyId: attendanceLogs.companyId,
         companyMemberId: attendanceLogs.companyMemberId,
         scheduleSlotId: attendanceLogs.scheduleSlotId,
         workDate: attendanceLogs.workDate,
@@ -296,6 +297,13 @@ export class AttendanceLogRepository
         status: attendanceLogs.status,
         note: attendanceLogs.note,
         recordedBy: attendanceLogs.recordedBy,
+        locationId: attendanceLogs.locationId,
+        checkedInLatitude: attendanceLogs.checkedInLatitude,
+        checkedInLongitude: attendanceLogs.checkedInLongitude,
+        locationNameSnapshot: attendanceLogs.locationNameSnapshot,
+        locationLatitudeSnapshot: attendanceLogs.locationLatitudeSnapshot,
+        locationLongitudeSnapshot: attendanceLogs.locationLongitudeSnapshot,
+        radiusMetersSnapshot: attendanceLogs.radiusMetersSnapshot,
         createdAt: attendanceLogs.createdAt,
         updatedAt: attendanceLogs.updatedAt,
       })
@@ -346,6 +354,13 @@ export class AttendanceLogRepository
           status: data.status,
           note: data.note,
           recordedBy: data.recordedBy,
+          locationId: data.locationId,
+          checkedInLatitude: data.checkedInLatitude,
+          checkedInLongitude: data.checkedInLongitude,
+          locationNameSnapshot: data.locationNameSnapshot,
+          locationLatitudeSnapshot: data.locationLatitudeSnapshot,
+          locationLongitudeSnapshot: data.locationLongitudeSnapshot,
+          radiusMetersSnapshot: data.radiusMetersSnapshot,
           updatedAt: new Date(),
         },
       })

@@ -28,6 +28,7 @@ export class CheckInSchedule implements CheckInScheduleEntity {
 
 export class ScheduleSlot implements ScheduleSlotEntity {
   id: string;
+  companyId: string;
   checkInScheduleId: string;
   slotOrder: number;
   label: string;
@@ -39,6 +40,7 @@ export class ScheduleSlot implements ScheduleSlotEntity {
 
   constructor(data: ScheduleSlotEntity) {
     this.id = data.id;
+    this.companyId = data.companyId;
     this.checkInScheduleId = data.checkInScheduleId;
     this.slotOrder = data.slotOrder;
     this.label = data.label;
@@ -52,6 +54,7 @@ export class ScheduleSlot implements ScheduleSlotEntity {
 
 export class AttendanceLog implements AttendanceLogEntity {
   id: string;
+  companyId: string;
   companyMemberId: string;
   scheduleSlotId: string;
   workDate: string;
@@ -59,11 +62,19 @@ export class AttendanceLog implements AttendanceLogEntity {
   status: AttendanceStatus;
   note?: string | null;
   recordedBy?: string | null;
+  locationId?: string | null;
+  checkedInLatitude?: number | null;
+  checkedInLongitude?: number | null;
+  locationNameSnapshot?: string | null;
+  locationLatitudeSnapshot?: number | null;
+  locationLongitudeSnapshot?: number | null;
+  radiusMetersSnapshot?: number | null;
   createdAt: Date;
   updatedAt: Date;
 
   constructor(data: AttendanceLogEntity) {
     this.id = data.id;
+    this.companyId = data.companyId;
     this.companyMemberId = data.companyMemberId;
     this.scheduleSlotId = data.scheduleSlotId;
     this.workDate = data.workDate;
@@ -71,10 +82,18 @@ export class AttendanceLog implements AttendanceLogEntity {
     this.status = data.status;
     this.note = data.note;
     this.recordedBy = data.recordedBy;
+    this.locationId = data.locationId;
+    this.checkedInLatitude = data.checkedInLatitude;
+    this.checkedInLongitude = data.checkedInLongitude;
+    this.locationNameSnapshot = data.locationNameSnapshot;
+    this.locationLatitudeSnapshot = data.locationLatitudeSnapshot;
+    this.locationLongitudeSnapshot = data.locationLongitudeSnapshot;
+    this.radiusMetersSnapshot = data.radiusMetersSnapshot;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }
 }
+
 
 export class CheckInScheduleRole implements CheckInScheduleRoleEntity {
   id: string;

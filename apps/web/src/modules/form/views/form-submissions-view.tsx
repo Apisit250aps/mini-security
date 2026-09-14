@@ -55,7 +55,7 @@ export default function FormSubmissionsView() {
     if (!submissionsQuery.data || !currentRoleId) return map;
 
     for (const sub of submissionsQuery.data) {
-      if (sub.roleId === currentRoleId && sub.status === 'DRAFT') {
+      if (sub.roleId === currentRoleId && !sub.submittedAt) {
         map.set(sub.formTemplateId, sub);
       }
     }

@@ -149,8 +149,6 @@ export class FormSubmission implements FormSubmissionEntity {
   submittedBy?: string | null;
   revision: number;
   supersedesSubmissionId?: string | null;
-  status: FormSubmissionStatus;
-  startedAt: Date;
   submittedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -165,8 +163,6 @@ export class FormSubmission implements FormSubmissionEntity {
     this.submittedBy = data.submittedBy;
     this.revision = data.revision;
     this.supersedesSubmissionId = data.supersedesSubmissionId;
-    this.status = data.status;
-    this.startedAt = data.startedAt;
     this.submittedAt = data.submittedAt;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
@@ -181,7 +177,6 @@ export class FormSubmissionContributor
   submissionId: string;
   memberId: string;
   createdAt: Date;
-  updatedAt: Date;
 
   constructor(data: FormSubmissionContributorEntity) {
     this.id = data.id;
@@ -189,7 +184,6 @@ export class FormSubmissionContributor
     this.submissionId = data.submissionId;
     this.memberId = data.memberId;
     this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
   }
 }
 
@@ -253,7 +247,6 @@ export class SubmissionReview implements SubmissionReviewEntity {
   action: SubmissionReviewAction;
   note?: string | null;
   createdAt: Date;
-  updatedAt: Date;
 
   constructor(data: SubmissionReviewEntity) {
     this.id = data.id;
@@ -263,6 +256,6 @@ export class SubmissionReview implements SubmissionReviewEntity {
     this.action = data.action;
     this.note = data.note;
     this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
   }
 }
+

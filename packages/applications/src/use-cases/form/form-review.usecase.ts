@@ -43,9 +43,16 @@ export class ReviewFormSubmissionUseCase
         throw new NotFoundError('Form submission not found');
       }
 
-      if (submission.status !== 'SUBMITTED') {
+      if (!submission.submittedAt) {
+        throw new BadRequestError('Only SUBMITTED forms can be reviewed');
+      }
+
+      const existingReview = await this.reviewRepo.findBySubmissionId(
+        submission.id,
+      );
+      if (existingReview) {
         throw new BadRequestError(
-          `Only SUBMITTED forms can be reviewed (current status: ${submission.status})`,
+          'This form submission has already been reviewed',
         );
       }
 
@@ -115,10 +122,8 @@ export class ReviewFormSubmissionUseCase
         note: context.note?.trim() ?? null,
       });
 
-      // 6. Update submission status to APPROVED or REJECTED
-      const newStatus = context.action === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+      // 6. Increment submission revision
       await this.submissionRepo.update(submission.id, {
-        status: newStatus,
         revision: submission.revision + 1,
       });
 

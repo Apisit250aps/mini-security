@@ -40,7 +40,6 @@ export class LeaveQuota implements LeaveQuotaEntity {
   leaveTypeId: string;
   year: number;
   totalDays: number;
-  usedDays: number;
   createdAt: Date;
   updatedAt: Date;
 
@@ -50,7 +49,6 @@ export class LeaveQuota implements LeaveQuotaEntity {
     this.leaveTypeId = data.leaveTypeId;
     this.year = data.year;
     this.totalDays = data.totalDays;
-    this.usedDays = data.usedDays;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }
@@ -62,8 +60,10 @@ export class LeaveRequest implements LeaveRequestEntity {
   leaveTypeId: string;
   startDate: string;
   endDate: string;
-  totalDays: number;
   unit: LeaveUnit;
+  startTime?: string | null;
+  endTime?: string | null;
+  minutesPerDaySnapshot?: number | null;
   reason: string;
   proofUrl?: string | null;
   status: LeaveRequestStatus;
@@ -79,8 +79,10 @@ export class LeaveRequest implements LeaveRequestEntity {
     this.leaveTypeId = data.leaveTypeId;
     this.startDate = data.startDate;
     this.endDate = data.endDate;
-    this.totalDays = data.totalDays;
     this.unit = data.unit;
+    this.startTime = data.startTime;
+    this.endTime = data.endTime;
+    this.minutesPerDaySnapshot = data.minutesPerDaySnapshot;
     this.reason = data.reason;
     this.proofUrl = data.proofUrl;
     this.status = data.status;
@@ -91,3 +93,4 @@ export class LeaveRequest implements LeaveRequestEntity {
     this.updatedAt = data.updatedAt;
   }
 }
+

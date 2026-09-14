@@ -79,7 +79,7 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
     });
   }, [ui.alert, cloneMutation, submission.id, memberId, router]);
 
-  if (submission.status === 'DRAFT') {
+  if (!submission.submittedAt) {
     return (
       <ColumnActions
         actions={{
@@ -91,42 +91,17 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
     );
   }
 
-  if (submission.status === 'SUBMITTED') {
-    return (
-      <ColumnActions
-        actions={{
-          ดูรายละเอียดและคำตอบ: {
-            onAction: actionFill,
-          },
-          'พิจารณาผล (อนุมัติ/ปฏิเสธ)': {
-            onAction: actionReview,
-          },
-        }}
-      />
-    );
-  }
-
-  if (submission.status === 'REJECTED') {
-    return (
-      <ColumnActions
-        actions={{
-          ดูรายละเอียดและคำตอบ: {
-            onAction: actionFill,
-          },
-          'คัดลอกสร้างฉบับแก้ไข (Clone)': {
-            onAction: actionClone,
-          },
-        }}
-      />
-    );
-  }
-
-  // APPROVED
   return (
     <ColumnActions
       actions={{
         ดูรายละเอียดและคำตอบ: {
           onAction: actionFill,
+        },
+        'พิจารณาผล (อนุมัติ/ปฏิเสธ)': {
+          onAction: actionReview,
+        },
+        'คัดลอกสร้างฉบับแก้ไข (Clone)': {
+          onAction: actionClone,
         },
       }}
     />

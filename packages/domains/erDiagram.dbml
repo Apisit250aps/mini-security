@@ -3,6 +3,8 @@
 // Existing modules + proposed Form Builder / Responses / Owner Approval MVP
 // and implemented many-to-many Check-in Schedule / Role assignments.
 // PROPOSED sections are not implemented in Drizzle or migrations yet.
+// Location additions and tenant-safe attendance keys are PROPOSED; see docs/check-in-location-design.md.
+// Source-only storage redesign is PROPOSED: docs/erd-storage-audit.md; runtime schema may differ.
 // Design decisions: docs/inspection-form-design.md
 // Attendance design: docs/check-in-schedule-design.md
 // ==========================================
@@ -71,7 +73,6 @@ Table session {
   ip_address text
   user_agent text
   active_company_id uuid
-  permissions text [note: 'Current Drizzle: permission snapshot scoped to active company; authorization still checks the resource']
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null]
 
@@ -139,6 +140,7 @@ Table company_branch {
 
   Indexes {
     company_id [name: 'company_branch_company_id_idx']
+    (id, company_id) [unique, note: 'PROPOSED: tenant-safe location references']
   }
 
   Note: 'Branches of a company'
@@ -318,10 +320,13 @@ TableGroup auth_management {
   jwks
 }
 
-TableGroup organization_and_rbac {
+TableGroup organization_management {
   company
   company_branch
   company_member
+}
+
+TableGroup access_control {
   role
   permission
   role_permission
@@ -334,27 +339,86 @@ TableGroup feature_management {
 }
 
 // ==========================================
+// Location Management (proposed check-in locations)
+// ==========================================
+
+Table locations {
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null]
+  company_branch_id uuid [not null]
+  is_primary boolean [not null, default: false, note: 'ไม่เกินหนึ่งสถานที่หลักต่อสาขา; partial unique ใน migration']
+  is_active boolean [not null, default: true]
+  name text [not null]
+  address text [not null]
+  latitude "double precision" [not null, check: `latitude BETWEEN -90 AND 90`]
+  longitude "double precision" [not null, check: `longitude BETWEEN -180 AND 180`]
+  radius_meters "double precision" [not null, check: `radius_meters > 0 AND radius_meters < 'Infinity'::float8`]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null]
+
+  Indexes {
+    (id, company_id) [unique]
+    (company_branch_id, company_id)
+    (company_id, is_active)
+  }
+
+  checks {
+    `NOT is_primary OR is_active` [name: 'location_primary_active_check']
+  }
+
+  Note: 'PROPOSED: สถานที่หลักต่อสาขาเป็นค่าเริ่มต้นใน UI เท่านั้น; สิทธิ์เช็คอินต้องมาจาก slot assignment; ปิดใช้งานแทนลบเมื่อมีประวัติ'
+}
+
+Table schedule_slot_location {
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null]
+  schedule_slot_id uuid [not null]
+  location_id uuid [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null]
+
+  Indexes {
+    (schedule_slot_id, location_id) [unique]
+    (schedule_slot_id, location_id, company_id) [unique, note: 'รองรับ FK จากหลักฐานเช็คอิน']
+    (location_id, company_id)
+    (company_id, schedule_slot_id, is_active)
+  }
+
+  Note: 'PROPOSED: M:N พื้นที่ที่อนุญาตต่อ slot; เปิดคู่เดิมกลับมาใช้; ปิด assignment ไม่กระทบประวัติ'
+}
+
+Ref: schedule_slot_location.(schedule_slot_id, company_id) > schedule_slots.(id, company_id) [delete: restrict]
+Ref: schedule_slot_location.(location_id, company_id) > locations.(id, company_id) [delete: restrict]
+Ref: locations.company_id > company.id [delete: restrict]
+Ref: locations.(company_branch_id, company_id) > company_branch.(id, company_id) [delete: restrict]
+
+TableGroup location_management {
+  locations
+}
+
+// ==========================================
 // Attendance Module (ระบบเช็คชื่อเข้างาน)
 // ==========================================
 // หมายเหตุ:
-//   "ตำแหน่งงาน" (position) → ใช้ตาราง `role` ที่มีอยู่แล้ว
-//   "พนักงาน"    (employee)  → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
+// "ตำแหน่งงาน" (position) → ใช้ตาราง `role` ที่มีอยู่แล้ว
+// "พนักงาน" (employee) → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
 // Schedule / Role เป็น M:N ผ่าน check_in_schedule_roles
 // Drizzle / API / UI implemented; migration: 20260912040000_check_in_schedule_roles
 
 Enum attendance_status {
-  present   [note: 'มาทำงาน']
-  absent    [note: 'ขาดงาน']
-  late      [note: 'มาสาย']
-  excused   [note: 'ลา (มีเหตุผล)']
+  present [note: 'มาทำงาน']
+  absent [note: 'ขาดงาน']
+  late [note: 'มาสาย']
+  excused [note: 'ลา (มีเหตุผล)']
 }
 
 // Schedule เป็นของบริษัท และมอบหมายให้หลาย Role ผ่านตารางกลาง
 Table check_in_schedules {
-  id         uuid [pk, note: 'UUIDv7 Primary Key']
+  id uuid [pk, note: 'UUIDv7 Primary Key']
   company_id uuid [not null, note: 'FK -> company.id — บริษัทเจ้าของ Schedule']
-  name       text [not null, note: 'ชื่อ schedule เช่น รอบประจำวัน, รอบตรวจช่วงเย็น']
-  is_active  boolean [not null, default: true]
+  name text [not null, note: 'ชื่อ schedule เช่น รอบประจำวัน, รอบตรวจช่วงเย็น']
+  is_active boolean [not null, default: true]
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null]
 
@@ -368,13 +432,13 @@ Table check_in_schedules {
 
 // 1 role มีหลาย schedule และ 1 schedule มอบหมายให้หลาย role
 Table check_in_schedule_roles {
-  id                   uuid [pk, note: 'UUIDv7 Primary Key']
-  company_id           uuid [not null, note: 'Composite FK บังคับบริษัทของ Schedule; use case ตรวจบริษัทของ Role หรือ system default']
+  id uuid [pk, note: 'UUIDv7 Primary Key']
+  company_id uuid [not null, note: 'Composite FK บังคับบริษัทของ Schedule; use case ตรวจบริษัทของ Role หรือ system default']
   check_in_schedule_id uuid [not null]
-  role_id              uuid [not null, note: 'Role ของบริษัทเดียวกัน หรือ global role ที่ is_system_default = true']
-  is_active            boolean [not null, default: true, note: 'เปิด/ปิดการมอบหมายเฉพาะ Role โดยไม่กระทบ Role อื่น']
-  created_at           timestamp [not null, default: `now()`]
-  updated_at           timestamp [not null]
+  role_id uuid [not null, note: 'Role ของบริษัทเดียวกัน หรือ global role ที่ is_system_default = true']
+  is_active boolean [not null, default: true, note: 'เปิด/ปิดการมอบหมายเฉพาะ Role โดยไม่กระทบ Role อื่น']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null]
 
   Indexes {
     (check_in_schedule_id, role_id) [unique, name: 'check_in_schedule_role_pair_unique']
@@ -386,18 +450,20 @@ Table check_in_schedule_roles {
 
 // แต่ละรอบการเช็คชื่อในวัน (1 schedule มีได้หลาย slot — dynamic)
 Table schedule_slots {
-  id                   uuid    [pk, note: 'UUIDv7 Primary Key']
-  check_in_schedule_id uuid    [not null, note: 'FK -> check_in_schedules.id']
-  slot_order           integer [not null, note: 'ลำดับรอบในวัน เช่น 1=เช้า 2=กลางวัน 3=เย็น']
-  label                text    [not null, note: 'ชื่อรอบ เช่น เช้า, กลางวัน, เย็น']
-  window_start         time    [not null, note: 'เปิดรับการเช็คตั้งแต่เวลานี้']
-  window_end           time    [not null, note: 'ปิดรับการเช็ค']
-  is_required          boolean [not null, default: true, note: 'บังคับเช็คในรอบนี้หรือไม่']
-  created_at           timestamp [not null, default: `now()`]
-  updated_at           timestamp [not null]
+  company_id uuid [not null, note: 'PROPOSED: backfill จาก Schedule ก่อน NOT NULL']
+  id uuid [pk, note: 'UUIDv7 Primary Key']
+  check_in_schedule_id uuid [not null, note: 'FK -> check_in_schedules.id']
+  slot_order integer [not null, note: 'ลำดับรอบในวัน เช่น 1=เช้า 2=กลางวัน 3=เย็น']
+  label text [not null, note: 'ชื่อรอบ เช่น เช้า, กลางวัน, เย็น']
+  window_start time [not null, note: 'เปิดรับการเช็คตั้งแต่เวลานี้']
+  window_end time [not null, note: 'ปิดรับการเช็ค']
+  is_required boolean [not null, default: true, note: 'บังคับเช็คในรอบนี้หรือไม่']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null]
 
   Indexes {
     check_in_schedule_id [name: 'schedule_slot_schedule_id_idx']
+    (id, company_id) [unique, note: 'PROPOSED: tenant-safe location/log references']
     (check_in_schedule_id, slot_order) [unique, name: 'schedule_slot_order_unique']
   }
 
@@ -406,22 +472,37 @@ Table schedule_slots {
 
 // บันทึกการเช็คชื่อ — 1 record = 1 company_member × 1 slot × 1 วัน
 Table attendance_logs {
-  id                 uuid [pk, note: 'UUIDv7 Primary Key']
-  company_member_id  uuid [not null, note: 'FK -> company_member.id  (company_member แทน "พนักงาน")']
-  schedule_slot_id   uuid [not null, note: 'FK -> schedule_slots.id — ระบุรอบที่เช็ค']
-  work_date          date [not null, note: 'วันที่ทำงาน']
-  checked_in_at      timestamp [note: 'เวลาเช็คจริง (null = ขาด / ยังไม่เช็ค)']
-  status             attendance_status [not null, default: 'absent']
-  note               text [note: 'หมายเหตุ เช่น ลาป่วย ลากิจ']
-  recorded_by        uuid [note: 'FK -> user.id  ของ Admin/หัวหน้าที่บันทึกแทน (Nullable)']
-  created_at         timestamp [not null, default: `now()`]
-  updated_at         timestamp [not null]
+  company_id uuid [not null, note: 'PROPOSED: backfill และตรวจบริษัทของสมาชิกกับ Slot ให้ตรงกัน']
+  id uuid [pk, note: 'UUIDv7 Primary Key']
+  company_member_id uuid [not null, note: 'FK -> company_member.id (company_member แทน "พนักงาน")']
+  schedule_slot_id uuid [not null, note: 'FK -> schedule_slots.id — ระบุรอบที่เช็ค']
+  work_date date [not null, note: 'วันที่ทำงาน']
+  checked_in_at timestamp [note: 'เวลาเช็คจริง (null = ขาด / ยังไม่เช็ค)']
+  status attendance_status [not null, default: 'absent']
+  note text [note: 'หมายเหตุ เช่น ลาป่วย ลากิจ']
+  recorded_by uuid [note: 'FK -> user.id ของ Admin/หัวหน้าที่บันทึกแทน (Nullable)']
+  // PROPOSED: all-or-none snapshot; NULL for legacy, manual, absent/excused records.
+  location_id uuid
+  checked_in_latitude "double precision" [check: `checked_in_latitude BETWEEN -90 AND 90`]
+  checked_in_longitude "double precision" [check: `checked_in_longitude BETWEEN -180 AND 180`]
+  location_name_snapshot text
+  location_latitude_snapshot "double precision" [check: `location_latitude_snapshot BETWEEN -90 AND 90`]
+  location_longitude_snapshot "double precision" [check: `location_longitude_snapshot BETWEEN -180 AND 180`]
+  radius_meters_snapshot "double precision" [check: `radius_meters_snapshot > 0 AND radius_meters_snapshot < 'Infinity'::float8`]
+
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null]
 
   Indexes {
     company_member_id [name: 'attendance_log_member_id_idx']
-    schedule_slot_id  [name: 'attendance_log_slot_id_idx']
-    work_date         [name: 'attendance_log_work_date_idx']
+    schedule_slot_id [name: 'attendance_log_slot_id_idx']
+    work_date [name: 'attendance_log_work_date_idx']
     (company_member_id, schedule_slot_id, work_date) [unique, name: 'attendance_log_unique_per_slot_per_day']
+  }
+
+  checks {
+    `num_nonnulls(location_id, checked_in_latitude, checked_in_longitude, location_name_snapshot, location_latitude_snapshot, location_longitude_snapshot, radius_meters_snapshot) IN (0, 7)` [name: 'attendance_location_snapshot_complete_check']
+    `location_id IS NULL OR (checked_in_at IS NOT NULL AND status IN ('present', 'late'))` [name: 'attendance_location_event_check']
   }
 
   Note: '1 record = 1 company_member × 1 รอบ × 1 วัน — Unique constraint กันเช็คซ้ำ'
@@ -435,12 +516,13 @@ Ref: check_in_schedule_roles.(check_in_schedule_id, company_id) > check_in_sched
 Ref: check_in_schedule_roles.role_id > role.id [delete: cascade]
 
 // schedule_slots → check_in_schedules
-Ref: schedule_slots.check_in_schedule_id > check_in_schedules.id [delete: cascade]
+Ref: schedule_slots.(check_in_schedule_id, company_id) > check_in_schedules.(id, company_id) [delete: cascade] // PROPOSED
 
 // attendance_logs → company_member (พนักงาน), schedule_slots, user (ผู้บันทึกแทน)
-Ref: attendance_logs.company_member_id > company_member.id [delete: cascade]
-Ref: attendance_logs.schedule_slot_id  > schedule_slots.id [delete: restrict]
-Ref: attendance_logs.recorded_by       > user.id           [delete: set null]
+Ref: attendance_logs.(company_member_id, company_id) > company_member.(id, company_id) [delete: restrict] // PROPOSED: preserve history
+Ref: attendance_logs.(schedule_slot_id, company_id) > schedule_slots.(id, company_id) [delete: restrict] // PROPOSED
+Ref: attendance_logs.(schedule_slot_id, location_id, company_id) > schedule_slot_location.(schedule_slot_id, location_id, company_id) [delete: restrict] // PROPOSED
+Ref: attendance_logs.recorded_by > user.id [delete: set null]
 
 // --- Attendance Table Group ---
 
@@ -448,6 +530,7 @@ TableGroup attendance_module {
   check_in_schedules
   check_in_schedule_roles
   schedule_slots
+  schedule_slot_location
   attendance_logs
 }
 
@@ -455,35 +538,35 @@ TableGroup attendance_module {
 // Leave Management Module (ระบบขอลา)
 // ==========================================
 // หมายเหตุ:
-//   "พนักงาน" → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
-//   ตารางใหม่: leave_types, leave_quotas, leave_requests
+// "พนักงาน" → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
+// ตารางใหม่: leave_types, leave_quotas, leave_requests
 
 Enum leave_request_status {
-  pending    [note: 'รอการอนุมัติ']
-  approved   [note: 'อนุมัติแล้ว']
-  rejected   [note: 'ปฏิเสธ']
-  cancelled  [note: 'ยกเลิกโดยผู้ขอ']
+  pending [note: 'รอการอนุมัติ']
+  approved [note: 'อนุมัติแล้ว']
+  rejected [note: 'ปฏิเสธ']
+  cancelled [note: 'ยกเลิกโดยผู้ขอ']
 }
 
 Enum leave_unit {
-  day       [note: 'นับเป็นวัน']
-  half_day  [note: 'ลาครึ่งวัน']
-  hour      [note: 'นับเป็นชั่วโมง']
+  day [note: 'นับเป็นวัน']
+  half_day [note: 'ลาครึ่งวัน']
+  hour [note: 'นับเป็นชั่วโมง']
 }
 
 // ประเภทการลา — กำหนดต่อบริษัท (ลาป่วย, ลากิจ, ลาพักร้อน ฯลฯ)
 Table leave_types {
-  id                 uuid    [pk, note: 'UUIDv7 Primary Key']
-  company_id         uuid    [not null, note: 'FK -> company.id  (scoped ต่อบริษัท)']
-  name               text    [not null, note: 'ชื่อประเภทการลา เช่น ลาป่วย, ลากิจ, ลาพักร้อน']
-  description        text    [note: 'รายละเอียดเงื่อนไขการลา']
-  unit               leave_unit [not null, default: 'day', note: 'หน่วยการนับ: วัน / ครึ่งวัน / ชั่วโมง']
-  requires_proof     boolean [not null, default: false, note: 'ต้องแนบเอกสาร/ใบรับรองแพทย์หรือไม่']
-  max_days_per_year  integer [note: 'วันลาสูงสุดต่อปี (null = ไม่จำกัด)']
-  is_paid            boolean [not null, default: true, note: 'ลาโดยได้รับค่าจ้างหรือไม่']
-  is_active          boolean [not null, default: true]
-  created_at         timestamp [not null, default: `now()`]
-  updated_at         timestamp [not null]
+  id uuid [pk, note: 'UUIDv7 Primary Key']
+  company_id uuid [not null, note: 'FK -> company.id (scoped ต่อบริษัท)']
+  name text [not null, note: 'ชื่อประเภทการลา เช่น ลาป่วย, ลากิจ, ลาพักร้อน']
+  description text [note: 'รายละเอียดเงื่อนไขการลา']
+  unit leave_unit [not null, default: 'day', note: 'หน่วยการนับ: วัน / ครึ่งวัน / ชั่วโมง']
+  requires_proof boolean [not null, default: false, note: 'ต้องแนบเอกสาร/ใบรับรองแพทย์หรือไม่']
+  max_days_per_year integer [note: 'วันลาสูงสุดต่อปี (null = ไม่จำกัด)']
+  is_paid boolean [not null, default: true, note: 'ลาโดยได้รับค่าจ้างหรือไม่']
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null]
 
   Indexes {
     company_id [name: 'leave_type_company_id_idx']
@@ -495,18 +578,17 @@ Table leave_types {
 
 // โควต้าวันลาต่อปีของสมาชิกแต่ละคน ต่อประเภทการลา
 Table leave_quotas {
-  id                uuid    [pk, note: 'UUIDv7 Primary Key']
-  company_member_id uuid    [not null, note: 'FK -> company_member.id']
-  leave_type_id     uuid    [not null, note: 'FK -> leave_types.id']
-  year              integer [not null, note: 'ปี ค.ศ. ที่ใช้ quota นี้']
-  total_days        decimal [not null, note: 'โควต้ารวมทั้งปี (รองรับทศนิยมสำหรับครึ่งวัน)']
-  used_days         decimal [not null, default: 0, note: 'จำนวนวันที่ใช้ไปแล้ว (อัปเดตเมื่อ approved)']
-  created_at        timestamp [not null, default: `now()`]
-  updated_at        timestamp [not null]
+  id uuid [pk, note: 'UUIDv7 Primary Key']
+  company_member_id uuid [not null, note: 'FK -> company_member.id']
+  leave_type_id uuid [not null, note: 'FK -> leave_types.id']
+  year integer [not null, note: 'ปี ค.ศ. ที่ใช้ quota นี้']
+  total_days decimal [not null, check: `total_days >= 0`, note: 'จำนวนสิทธิ์ที่ Admin กำหนดให้ปีนี้ ไม่ใช่ยอดรวมจากคำขอ']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null]
 
   Indexes {
     company_member_id [name: 'leave_quota_member_id_idx']
-    leave_type_id     [name: 'leave_quota_type_id_idx']
+    leave_type_id [name: 'leave_quota_type_id_idx']
     (company_member_id, leave_type_id, year) [unique, name: 'leave_quota_member_type_year_unique']
   }
 
@@ -515,27 +597,34 @@ Table leave_quotas {
 
 // คำขอลา — 1 request = 1 ช่วงลา (อาจครอบคลุมหลายวัน)
 Table leave_requests {
-  id                uuid    [pk, note: 'UUIDv7 Primary Key']
-  company_member_id uuid    [not null, note: 'FK -> company_member.id  (ผู้ขอลา)']
-  leave_type_id     uuid    [not null, note: 'FK -> leave_types.id']
-  start_date        date    [not null, note: 'วันเริ่มลา']
-  end_date          date    [not null, note: 'วันสุดท้ายที่ลา']
-  total_days        decimal [not null, note: 'จำนวนวันลา (คำนวณจาก start_date - end_date)']
-  unit              leave_unit [not null, default: 'day']
-  reason            text    [not null, note: 'เหตุผลการลา']
-  proof_url         text    [note: 'URL เอกสาร/ใบรับรองแพทย์ (ถ้ามี)']
-  status            leave_request_status [not null, default: 'pending']
-  reviewed_by       uuid    [note: 'FK -> user.id  ผู้อนุมัติ/ปฏิเสธ (Nullable ก่อนตรวจ)']
-  reviewed_at       timestamp [note: 'เวลาที่ตรวจสอบ']
-  review_note       text    [note: 'หมายเหตุจากผู้อนุมัติ เช่น เหตุผลปฏิเสธ']
-  created_at        timestamp [not null, default: `now()`]
-  updated_at        timestamp [not null]
+  id uuid [pk, note: 'UUIDv7 Primary Key']
+  company_member_id uuid [not null, note: 'FK -> company_member.id (ผู้ขอลา)']
+  leave_type_id uuid [not null, note: 'FK -> leave_types.id']
+  start_date date [not null, note: 'วันเริ่มลา']
+  end_date date [not null, note: 'วันสุดท้ายที่ลา']
+  unit leave_unit [not null, default: 'day', note: 'หน่วยที่ใช้ขอลาครั้งนี้ ไม่เปลี่ยนตามประเภทลาภายหลัง']
+  start_time time [note: 'PROPOSED: เวลาเริ่มสำหรับ half_day/hour ใน Asia/Bangkok']
+  end_time time [note: 'PROPOSED: เวลาสิ้นสุดสำหรับ half_day/hour วันเดียวกัน']
+  minutes_per_day_snapshot integer [check: `minutes_per_day_snapshot > 0 AND minutes_per_day_snapshot <= 1440`, note: 'PROPOSED: นโยบายหน่วยนาทีต่อวัน ณ เวลาขอลารายชั่วโมง ไม่ใช่ยอดคำนวณ']
+  reason text [not null, note: 'เหตุผลการลา']
+  proof_url text [note: 'URL เอกสาร/ใบรับรองแพทย์ (ถ้ามี)']
+  status leave_request_status [not null, default: 'pending']
+  reviewed_by uuid [note: 'FK -> user.id ผู้อนุมัติ/ปฏิเสธ (Nullable ก่อนตรวจ)']
+  reviewed_at timestamp [note: 'เวลาที่ตรวจสอบ']
+  review_note text [note: 'หมายเหตุจากผู้อนุมัติ เช่น เหตุผลปฏิเสธ']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null]
 
   Indexes {
     company_member_id [name: 'leave_request_member_id_idx']
-    leave_type_id     [name: 'leave_request_type_id_idx']
-    status            [name: 'leave_request_status_idx']
+    leave_type_id [name: 'leave_request_type_id_idx']
+    status [name: 'leave_request_status_idx']
     (company_member_id, start_date, end_date) [name: 'leave_request_member_date_idx']
+  }
+
+  checks {
+    `end_date >= start_date` [name: 'leave_request_date_order_check']
+    `(unit = 'day' AND start_time IS NULL AND end_time IS NULL AND minutes_per_day_snapshot IS NULL) OR (unit = 'half_day' AND start_date = end_date AND start_time IS NOT NULL AND end_time IS NOT NULL AND end_time > start_time AND minutes_per_day_snapshot IS NULL) OR (unit = 'hour' AND start_date = end_date AND start_time IS NOT NULL AND end_time IS NOT NULL AND end_time > start_time AND minutes_per_day_snapshot IS NOT NULL)` [name: 'leave_request_source_interval_check']
   }
 
   Note: 'คำขอลา — มี approval flow (pending → approved/rejected) เชื่อมกับ attendance_logs ผ่าน work_date + excused status'
@@ -548,12 +637,12 @@ Ref: leave_types.company_id > company.id [delete: cascade]
 
 // leave_quotas → company_member, leave_type
 Ref: leave_quotas.company_member_id > company_member.id [delete: cascade]
-Ref: leave_quotas.leave_type_id     > leave_types.id   [delete: cascade]
+Ref: leave_quotas.leave_type_id > leave_types.id [delete: cascade]
 
 // leave_requests → company_member, leave_type, reviewer (user)
 Ref: leave_requests.company_member_id > company_member.id [delete: cascade]
-Ref: leave_requests.leave_type_id     > leave_types.id   [delete: restrict]
-Ref: leave_requests.reviewed_by       > user.id          [delete: set null]
+Ref: leave_requests.leave_type_id > leave_types.id [delete: restrict]
+Ref: leave_requests.reviewed_by > user.id [delete: set null]
 
 // --- Leave Management Table Group ---
 
@@ -566,7 +655,7 @@ TableGroup leave_management {
 // ==========================================
 // PROPOSED — Role-based Forms / Collaborative Responses / Owner Approval MVP (10 tables)
 // UUIDv7 generated by application; timestamptz stores instants.
-// All new tables follow BaseEntity: id, created_at, updated_at.
+// Mutable tables have id/created_at/updated_at; append-only contributor/review omit redundant updated_at (PROPOSED).
 // Composite FKs enforce tenant/version consistency, not authorization.
 // ==========================================
 
@@ -586,12 +675,7 @@ Enum form_field_type {
   FILE
 }
 
-Enum form_submission_status {
-  DRAFT
-  SUBMITTED
-  APPROVED
-  REJECTED
-}
+// Submission status is derived in queries: submitted_at + submission_review.action.
 
 Enum submission_review_action {
   APPROVE
@@ -712,8 +796,6 @@ Table form_submission {
   submitted_by uuid [note: 'สมาชิกผู้กดส่งจริง; NULL ระหว่าง DRAFT; สมาชิก role เดียวกันที่มีสิทธิ์คนใดก็ส่งได้']
   revision integer [not null, default: 1, check: `revision > 0`, note: 'Optimistic concurrency ทั้งชุด; ทุก mutation ต้องเทียบ expected_revision และเพิ่มค่าใน transaction']
   supersedes_submission_id uuid [unique, note: 'รอบแก้ไขชี้ไป REJECTED เดิม; หนึ่งรอบเดิมมีรอบถัดไปได้หนึ่งเดียว']
-  status form_submission_status [not null, default: 'DRAFT']
-  started_at timestamptz [not null, default: `now()`]
   submitted_at timestamptz
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
@@ -722,16 +804,16 @@ Table form_submission {
     (id, company_id, form_version_id) [unique]
     (id, company_id, form_version_id, role_id) [unique, note: 'รอบแก้ไขต้องคง role เดิม']
     (id, company_id) [unique]
-    (company_id, status, submitted_at)
-    (company_id, role_id, form_template_id, status)
+    (company_id, submitted_at)
+    (company_id, role_id, form_template_id)
     (company_id, started_by, created_at)
     (company_id, submitted_by, created_at)
     form_version_id
   }
 
   checks {
-    `(status = 'DRAFT' AND submitted_at IS NULL AND submitted_by IS NULL) OR (status <> 'DRAFT' AND submitted_at IS NOT NULL AND submitted_by IS NOT NULL)` [name: 'form_submission_status_time_check']
-    `submitted_at IS NULL OR submitted_at >= started_at` [name: 'form_submission_time_order_check']
+    `(submitted_at IS NULL) = (submitted_by IS NULL)` [name: 'form_submission_status_time_check']
+    `submitted_at IS NULL OR submitted_at >= created_at` [name: 'form_submission_time_order_check']
     `supersedes_submission_id IS NULL OR supersedes_submission_id <> id` [name: 'form_submission_no_self_revision_check']
   }
 
@@ -744,7 +826,6 @@ Table form_submission_contributor {
   submission_id uuid [not null]
   member_id uuid [not null, note: 'สมาชิกผู้เคยเริ่ม/แก้คำตอบ/จัดการไฟล์/ส่งชุดคำตอบ; ไม่ใช่รายการสิทธิ์เข้าถึง']
   created_at timestamptz [not null, default: `now()`]
-  updated_at timestamptz [not null, note: 'Append-only; clone รักษาการมีส่วนร่วมของคนเดิมในรอบใหม่']
 
   Indexes {
     (submission_id, member_id) [unique]
@@ -805,7 +886,6 @@ Table submission_review {
   action submission_review_action [not null]
   note text
   created_at timestamptz [not null, default: `now()`, note: 'เวลาตัดสินผล']
-  updated_at timestamptz [not null, note: 'เท่ากับ created_at; append-only']
 
   Indexes {
     (company_id, reviewed_by, created_at)

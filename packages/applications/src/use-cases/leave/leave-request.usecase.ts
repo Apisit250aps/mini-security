@@ -27,6 +27,10 @@ import type {
 import { createLeaveRequestSchema } from '@repo/domains/schema/leave';
 import { NotFoundError, ValidationError } from '../../lib/error';
 
+import { calculateLeaveDays } from '@repo/domains';
+export { calculateLeaveDays };
+
+
 export class SubmitLeaveRequestUseCase implements ISubmitLeaveRequestUseCase {
   constructor(
     private readonly leaveRequestRepository: ILeaveRequestRepository,
@@ -51,18 +55,26 @@ export class SubmitLeaveRequestUseCase implements ISubmitLeaveRequestUseCase {
     );
 
     if (quota) {
-      const remainingDays = Number(quota.totalDays) - Number(quota.usedDays);
-      if (remainingDays < Number(parsed.data.totalDays)) {
+      const requestedDays = calculateLeaveDays(parsed.data);
+      const approvedRequests =
+        await this.leaveRequestRepository.findApprovedByMemberTypeAndYear(
+          parsed.data.companyMemberId,
+          parsed.data.leaveTypeId,
+          year,
+        );
+      const usedDays = approvedRequests.reduce(
+        (sum, req) => sum + calculateLeaveDays(req),
+        0,
+      );
+      const remainingDays = Number(quota.totalDays) - usedDays;
+      if (remainingDays < requestedDays) {
         throw new ValidationError(
-          `Insufficient leave quota: requested ${parsed.data.totalDays} days, available ${remainingDays} days`,
+          `Insufficient leave quota: requested ${requestedDays} days, available ${remainingDays} days`,
         );
       }
     }
 
-    return this.leaveRequestRepository.create({
-      ...parsed.data,
-      status: 'pending',
-    });
+    return this.leaveRequestRepository.create(parsed.data);
   }
 }
 
@@ -109,7 +121,35 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
       }
 
       // --- Action: Approved ---
-      // 1. Update Leave Request Status
+      // 1. Concurrency control: Lock quota if exists and verify availability
+      const year = new Date(leaveRequest.startDate).getFullYear();
+      const quota = await this.leaveQuotaRepository.lockByMemberTypeAndYear(
+        leaveRequest.companyMemberId,
+        leaveRequest.leaveTypeId,
+        year,
+      );
+
+      if (quota) {
+        const requestedDays = calculateLeaveDays(leaveRequest);
+        const approvedRequests =
+          await this.leaveRequestRepository.findApprovedByMemberTypeAndYear(
+            leaveRequest.companyMemberId,
+            leaveRequest.leaveTypeId,
+            year,
+          );
+        const usedDays = approvedRequests.reduce(
+          (sum, req) => sum + calculateLeaveDays(req),
+          0,
+        );
+        const remainingDays = Number(quota.totalDays) - usedDays;
+        if (remainingDays < requestedDays) {
+          throw new ValidationError(
+            `Insufficient leave quota: requested ${requestedDays} days, available ${remainingDays} days`,
+          );
+        }
+      }
+
+      // 2. Update Leave Request Status
       const updatedRequest = await this.leaveRequestRepository.update(
         context.id,
         {
@@ -119,23 +159,6 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
           reviewNote: context.reviewNote ?? null,
         },
       );
-
-      // 2. Deduct Leave Quota
-      const year = new Date(leaveRequest.startDate).getFullYear();
-      const quota = await this.leaveQuotaRepository.findByMemberTypeAndYear(
-        leaveRequest.companyMemberId,
-        leaveRequest.leaveTypeId,
-        year,
-      );
-
-      if (quota) {
-        const updatedUsedDays =
-          Number(quota.usedDays) + Number(leaveRequest.totalDays);
-        await this.leaveQuotaRepository.updateUsedDays(
-          quota.id,
-          updatedUsedDays,
-        );
-      }
 
       // 3. Auto-Sync to Attendance Logs (Excused Status)
       const leaveType = await this.leaveTypeRepository.findById(
@@ -167,6 +190,7 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
           for (const dateStr of dates) {
             for (const slot of slots) {
               await this.attendanceLogRepository.upsertLog({
+                companyId: member.companyId,
                 companyMemberId: member.id,
                 scheduleSlotId: slot.id,
                 workDate: dateStr,
@@ -202,7 +226,6 @@ export class CancelLeaveRequestUseCase implements ICancelLeaveRequestUseCase {
   constructor(
     private readonly unitOfWork: IUnitOfWork,
     private readonly leaveRequestRepository: ILeaveRequestRepository,
-    private readonly leaveQuotaRepository: ILeaveQuotaRepository,
   ) {}
 
   @RequirePermission('leave_request:cancel')
@@ -224,27 +247,6 @@ export class CancelLeaveRequestUseCase implements ICancelLeaveRequestUseCase {
         throw new ValidationError(
           `Cannot cancel leave request with status "${leaveRequest.status}"`,
         );
-      }
-
-      // If already approved, revert quota used_days
-      if (leaveRequest.status === 'approved') {
-        const year = new Date(leaveRequest.startDate).getFullYear();
-        const quota = await this.leaveQuotaRepository.findByMemberTypeAndYear(
-          leaveRequest.companyMemberId,
-          leaveRequest.leaveTypeId,
-          year,
-        );
-
-        if (quota) {
-          const revertedUsedDays = Math.max(
-            0,
-            Number(quota.usedDays) - Number(leaveRequest.totalDays),
-          );
-          await this.leaveQuotaRepository.updateUsedDays(
-            quota.id,
-            revertedUsedDays,
-          );
-        }
       }
 
       return this.leaveRequestRepository.update(context.id, {
