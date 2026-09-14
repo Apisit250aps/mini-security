@@ -63,10 +63,7 @@ export type IUpdateLocationUseCase = BaseUseCase<
   IUpdateLocationContext,
   Location
 >;
-export type IDeleteLocationUseCase = BaseUseCase<
-  IDeleteLocationContext,
-  void
->;
+export type IDeleteLocationUseCase = BaseUseCase<IDeleteLocationContext, void>;
 export type IGetLocationUseCase = BaseUseCase<
   IGetLocationContext,
   Location | null
@@ -94,4 +91,9 @@ export type IUpdateSlotLocationUseCase = BaseUseCase<
 export type IGetSlotLocationsUseCase = BaseUseCase<
   IGetSlotLocationsContext,
   Location[]
+>;
+
+export type IGetSlotLocationAssignmentsUseCase = BaseUseCase<
+  IGetSlotLocationsContext,
+  ScheduleSlotLocation[]
 >;

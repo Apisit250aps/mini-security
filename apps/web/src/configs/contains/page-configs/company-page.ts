@@ -86,6 +86,13 @@ export const companyPageConfigs: PageConfigs = {
     url: '/company/forms/submissions',
   },
 
+  companyLocations: {
+    name: 'Locations',
+    title: 'สถานที่ของบริษัท',
+    description:
+      'สถานที่ทั้งหมดของบริษัท พร้อมสาขา พิกัด รัศมี และสถานะการใช้งาน',
+    url: '/company/locations',
+  },
   companySettings: {
     name: 'ข้อมูลบริษัท',
     title: 'ตั้งค่าบริษัท',

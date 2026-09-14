@@ -94,7 +94,7 @@ namespace Domain.Entity;
     companyId: string;
     companyBranchId: string;
     name: string;
-    address?: string | null;
+    address: string;
     latitude: float64;
     longitude: float64;
     radiusMeters: float64;

@@ -305,7 +305,7 @@ export type CreateLocation = {
     companyId: string;
     companyBranchId: string;
     name: string;
-    address?: string | null;
+    address: string;
     latitude: number;
     longitude: number;
     radiusMeters: number;
@@ -599,7 +599,7 @@ export type Location = {
     companyId: string;
     companyBranchId: string;
     name: string;
-    address?: string | null;
+    address: string;
     latitude: number;
     longitude: number;
     radiusMeters: number;
@@ -849,7 +849,7 @@ export type UpdateLeaveType = {
  */
 export type UpdateLocation = {
     name?: string;
-    address?: string | null;
+    address?: string;
     latitude?: number;
     longitude?: number;
     radiusMeters?: number;
@@ -3514,6 +3514,45 @@ export type LocationServiceAssignSlotLocationResponses = {
 
 export type LocationServiceAssignSlotLocationResponse = LocationServiceAssignSlotLocationResponses[keyof LocationServiceAssignSlotLocationResponses];
 
+export type LocationServiceUpdateSlotLocationData = {
+    body: UpdateScheduleSlotLocation;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/locations/slots/{id}';
+};
+
+export type LocationServiceUpdateSlotLocationErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type LocationServiceUpdateSlotLocationError = LocationServiceUpdateSlotLocationErrors[keyof LocationServiceUpdateSlotLocationErrors];
+
+export type LocationServiceUpdateSlotLocationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: ScheduleSlotLocation;
+    };
+};
+
+export type LocationServiceUpdateSlotLocationResponse = LocationServiceUpdateSlotLocationResponses[keyof LocationServiceUpdateSlotLocationResponses];
+
 export type LocationServiceGetSlotLocationsData = {
     body?: never;
     path: {
@@ -3544,6 +3583,41 @@ export type LocationServiceGetSlotLocationsResponses = {
 };
 
 export type LocationServiceGetSlotLocationsResponse = LocationServiceGetSlotLocationsResponses[keyof LocationServiceGetSlotLocationsResponses];
+
+export type LocationServiceGetSlotLocationAssignmentsData = {
+    body?: never;
+    path: {
+        slotId: string;
+    };
+    query?: never;
+    url: '/locations/slots/{slotId}/assignments';
+};
+
+export type LocationServiceGetSlotLocationAssignmentsErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type LocationServiceGetSlotLocationAssignmentsError = LocationServiceGetSlotLocationAssignmentsErrors[keyof LocationServiceGetSlotLocationAssignmentsErrors];
+
+export type LocationServiceGetSlotLocationAssignmentsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<ScheduleSlotLocation>;
+    };
+};
+
+export type LocationServiceGetSlotLocationAssignmentsResponse = LocationServiceGetSlotLocationAssignmentsResponses[keyof LocationServiceGetSlotLocationAssignmentsResponses];
 
 export type LocationServiceDeleteLocationData = {
     body?: never;

@@ -14,6 +14,7 @@ import type {
   IGetLocationsByCompanyUseCase,
   IGetLocationUseCase,
   IGetSlotLocationsContext,
+  IGetSlotLocationAssignmentsUseCase,
   IGetSlotLocationsUseCase,
   ISetPrimaryLocationContext,
   ISetPrimaryLocationUseCase,
@@ -36,6 +37,7 @@ import {
   updateLocationSchema,
   updateScheduleSlotLocationSchema,
 } from '@repo/domains/schema/location';
+import type { IScheduleSlotRepository } from '@repo/domains/repositories/attendance';
 import { NotFoundError, ValidationError } from '../../lib/error';
 
 export class CreateLocationUseCase implements ICreateLocationUseCase {
@@ -170,6 +172,8 @@ export class SetPrimaryLocationUseCase implements ISetPrimaryLocationUseCase {
 export class AssignSlotLocationUseCase implements IAssignSlotLocationUseCase {
   constructor(
     private readonly slotLocationRepo: IScheduleSlotLocationRepository,
+    private readonly slotRepo: IScheduleSlotRepository,
+    private readonly locationRepo: ILocationRepository,
   ) {}
 
   @RequirePermission('attendance_schedule:manage')
@@ -183,6 +187,23 @@ export class AssignSlotLocationUseCase implements IAssignSlotLocationUseCase {
     );
     if (!parsed.success) {
       throw new ValidationError(parsed.error.message);
+    }
+
+    const [slot, location] = await Promise.all([
+      this.slotRepo.findById(parsed.data.scheduleSlotId),
+      this.locationRepo.findById(parsed.data.locationId),
+    ]);
+    if (!slot || !location)
+      throw new NotFoundError('Slot or location not found');
+    PermissionGuard.requireCompanyScope(context, slot.companyId);
+    PermissionGuard.requireCompanyScope(context, location.companyId);
+    if (
+      slot.companyId !== parsed.data.companyId ||
+      location.companyId !== parsed.data.companyId
+    ) {
+      throw new ValidationError(
+        'Slot and location must belong to the specified company',
+      );
     }
 
     const existing = await this.slotLocationRepo.findBySlotAndLocation(
@@ -226,12 +247,35 @@ export class UpdateSlotLocationUseCase implements IUpdateSlotLocationUseCase {
 export class GetSlotLocationsUseCase implements IGetSlotLocationsUseCase {
   constructor(
     private readonly slotLocationRepo: IScheduleSlotLocationRepository,
+    private readonly slotRepo: IScheduleSlotRepository,
   ) {}
 
   @RequirePermission('attendance:read')
   async execute(context: IGetSlotLocationsContext): Promise<Location[]> {
+    const slot = await this.slotRepo.findById(context.scheduleSlotId);
+    if (!slot) throw new NotFoundError('Schedule slot not found');
+    PermissionGuard.requireCompanyScope(context, slot.companyId);
     return await this.slotLocationRepo.findActiveLocationsBySlotId(
       context.scheduleSlotId,
     );
+  }
+}
+
+export class GetSlotLocationAssignmentsUseCase
+  implements IGetSlotLocationAssignmentsUseCase
+{
+  constructor(
+    private readonly slotLocationRepo: IScheduleSlotLocationRepository,
+    private readonly slotRepo: IScheduleSlotRepository,
+  ) {}
+
+  @RequirePermission('attendance_schedule:read')
+  async execute(
+    context: IGetSlotLocationsContext,
+  ): Promise<ScheduleSlotLocation[]> {
+    const slot = await this.slotRepo.findById(context.scheduleSlotId);
+    if (!slot) throw new NotFoundError('Schedule slot not found');
+    PermissionGuard.requireCompanyScope(context, slot.companyId);
+    return this.slotLocationRepo.findBySlotId(slot.id);
   }
 }

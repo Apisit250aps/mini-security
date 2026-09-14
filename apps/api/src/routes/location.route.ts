@@ -7,6 +7,7 @@ import {
   getLocationsByBranchUseCase,
   getLocationsByCompanyUseCase,
   getSlotLocationsUseCase,
+  getSlotLocationAssignmentsUseCase,
   setPrimaryLocationUseCase,
   updateLocationUseCase,
   updateSlotLocationUseCase,
@@ -25,6 +26,7 @@ const locationController = new LocationController(
   assignSlotLocationUseCase,
   updateSlotLocationUseCase,
   getSlotLocationsUseCase,
+  getSlotLocationAssignmentsUseCase,
 );
 
 const locationRoutes = new Hono();
@@ -32,7 +34,10 @@ const locationRoutes = new Hono();
 locationRoutes.use('*', authMiddleware);
 
 locationRoutes.get('/', locationController.listLocationsByCompany);
-locationRoutes.get('/branch/:branchId', locationController.listLocationsByBranch);
+locationRoutes.get(
+  '/branch/:branchId',
+  locationController.listLocationsByBranch,
+);
 locationRoutes.get('/:id', locationController.getLocation);
 locationRoutes.post('/', locationController.createLocation);
 locationRoutes.put('/:id', locationController.updateLocation);
@@ -40,6 +45,10 @@ locationRoutes.delete('/:id', locationController.deleteLocation);
 locationRoutes.post('/set-primary', locationController.setPrimaryLocation);
 locationRoutes.post('/slots', locationController.assignSlotLocation);
 locationRoutes.put('/slots/:id', locationController.updateSlotLocation);
+locationRoutes.get(
+  '/slots/:slotId/assignments',
+  locationController.getSlotLocationAssignments,
+);
 locationRoutes.get('/slots/:slotId', locationController.getSlotLocations);
 
 export default locationRoutes;

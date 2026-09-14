@@ -6,12 +6,14 @@ import {
   GetLocationsByCompanyUseCase,
   GetLocationUseCase,
   GetSlotLocationsUseCase,
+  GetSlotLocationAssignmentsUseCase,
   SetPrimaryLocationUseCase,
   UpdateLocationUseCase,
   UpdateSlotLocationUseCase,
 } from '@repo/applications';
 import {
   locationRepository,
+  scheduleSlotRepository,
   scheduleSlotLocationRepository,
 } from '../../repositories';
 
@@ -43,6 +45,8 @@ export const setPrimaryLocationUseCase = new SetPrimaryLocationUseCase(
 
 export const assignSlotLocationUseCase = new AssignSlotLocationUseCase(
   scheduleSlotLocationRepository,
+  scheduleSlotRepository,
+  locationRepository,
 );
 
 export const updateSlotLocationUseCase = new UpdateSlotLocationUseCase(
@@ -51,4 +55,11 @@ export const updateSlotLocationUseCase = new UpdateSlotLocationUseCase(
 
 export const getSlotLocationsUseCase = new GetSlotLocationsUseCase(
   scheduleSlotLocationRepository,
+  scheduleSlotRepository,
 );
+
+export const getSlotLocationAssignmentsUseCase =
+  new GetSlotLocationAssignmentsUseCase(
+    scheduleSlotLocationRepository,
+    scheduleSlotRepository,
+  );

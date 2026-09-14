@@ -15,6 +15,8 @@ import {
   useSlotUpdate,
   useSlotDelete,
 } from '../../hooks/attendance-mutations';
+import { useHasPermission } from '@/modules/auth/hooks/permission-provider';
+import SlotLocationsPanel from './slot-locations-panel';
 import SlotForm, { SlotFormValues } from './slot-form';
 
 interface ScheduleSlotsModalProps {
@@ -25,6 +27,10 @@ export default function ScheduleSlotsModal({
   schedule,
 }: ScheduleSlotsModalProps) {
   const ui = useOverlay();
+  const canReadLocations = useHasPermission('location:read');
+  const [locationSlot, setLocationSlot] = React.useState<ScheduleSlot | null>(
+    null,
+  );
   const slotsQuery = useScheduleSlotsQueries(schedule.id);
   const createMutation = useSlotCreate(schedule.id);
   const updateMutation = useSlotUpdate(schedule.id);
@@ -161,6 +167,13 @@ export default function ScheduleSlotsModal({
         cell: ({ row }) => (
           <ColumnActions
             actions={{
+              ...(canReadLocations
+                ? {
+                    ตำแหน่งการเข้างาน: {
+                      onAction: () => setLocationSlot(row.original),
+                    },
+                  }
+                : {}),
               แก้ไข: {
                 onAction: () => openEditSlot(row.original),
               },
@@ -173,7 +186,17 @@ export default function ScheduleSlotsModal({
         ),
       },
     ];
-  }, [openEditSlot, confirmDeleteSlot]);
+  }, [openEditSlot, confirmDeleteSlot, canReadLocations]);
+
+  if (locationSlot)
+    return (
+      <SlotLocationsPanel
+        key={locationSlot.id}
+        companyId={schedule.companyId}
+        slot={locationSlot}
+        onBack={() => setLocationSlot(null)}
+      />
+    );
 
   return (
     <div className="flex flex-col gap-4">

@@ -72,4 +72,12 @@ interface LocationService {
   getSlotLocations(
     @path slotId: string,
   ): ApiOkResponse<Location[]> | ApiUnauthorizedResponse;
+
+  @put
+  @route("/slots/{id}")
+  updateSlotLocation(@path id: string, @body body: UpdateScheduleSlotLocation): ApiOkResponse<ScheduleSlotLocation> | ApiBadRequestResponse | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
+  @get
+  @route("/slots/{slotId}/assignments")
+  getSlotLocationAssignments(@path slotId: string): ApiOkResponse<ScheduleSlotLocation[]> | ApiNotFoundResponse | ApiUnauthorizedResponse;
 }

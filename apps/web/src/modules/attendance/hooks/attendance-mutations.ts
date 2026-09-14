@@ -1,5 +1,6 @@
 import {
   attendanceServicesCheckIn,
+  locationServiceGetSlotLocations,
   attendanceServicesCreateSchedule,
   attendanceServicesCreateSlot,
   attendanceServicesDeleteSlot,
@@ -17,6 +18,7 @@ import type {
 } from '@repo/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@repo/ui/components/sonner';
+import { getCheckInPosition } from '../utils/check-in-position';
 import { attendanceKeys, getErrorMessage } from '@/shared/utils';
 
 export function useScheduleCreate(companyId: string) {
@@ -154,7 +156,19 @@ export function useAttendanceCheckIn(_companyId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CheckInRequest) => {
-      const res = await attendanceServicesCheckIn({ body: data });
+      const locations = await locationServiceGetSlotLocations({
+        path: { slotId: data.scheduleSlotId },
+        throwOnError: true,
+      });
+      if (!locations.data.data)
+        throw new Error('โหลดตำแหน่งการเข้างานไม่สำเร็จ');
+      const position = locations.data.data.length
+        ? await getCheckInPosition()
+        : {};
+      const res = await attendanceServicesCheckIn({
+        body: { ...data, ...position },
+        throwOnError: true,
+      });
       return res.data;
     },
     onSuccess: async (result) => {

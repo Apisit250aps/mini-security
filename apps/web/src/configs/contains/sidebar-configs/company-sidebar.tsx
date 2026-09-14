@@ -1,5 +1,6 @@
 import {
   Building2Icon,
+  MapPinIcon,
   CalendarCheckIcon,
   CalendarDaysIcon,
   ClipboardListIcon,
@@ -73,7 +74,13 @@ export const companySidebarConfig: NavItem[] = [
       requiredPermissions: 'form_submission:read',
     },
   ]),
-  sidebarGroupBuilder('settings', 'ตั้งค่าองค์กร', [
+  sidebarGroupBuilder('settings', 'ข้อมูลบริษัท', [
+    {
+      id: 'companyLocations',
+      icon: <MapPinIcon />,
+      featureCode: 'ATTENDANCE_MANAGEMENT',
+      requiredPermissions: 'location:read',
+    },
     {
       id: 'companySettings',
       icon: <Building2Icon />,

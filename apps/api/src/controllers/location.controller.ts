@@ -7,6 +7,7 @@ import {
   GetLocationsByCompanyUseCase,
   GetLocationUseCase,
   GetSlotLocationsUseCase,
+  GetSlotLocationAssignmentsUseCase,
   SetPrimaryLocationUseCase,
   UpdateLocationUseCase,
   UpdateSlotLocationUseCase,
@@ -42,6 +43,7 @@ export class LocationController extends Controller {
     private readonly assignSlotLocationUseCase: AssignSlotLocationUseCase,
     private readonly updateSlotLocationUseCase: UpdateSlotLocationUseCase,
     private readonly getSlotLocationsUseCase: GetSlotLocationsUseCase,
+    private readonly getSlotLocationAssignmentsUseCase: GetSlotLocationAssignmentsUseCase,
   ) {
     super();
   }
@@ -74,17 +76,14 @@ export class LocationController extends Controller {
     },
   );
 
-  public getLocation = this.validator(
-    { params: idParamSchema },
-    async (c) => {
-      const { id } = c.get('params');
-      const location = await this.getLocationUseCase.execute({
-        ...this.securityContext(c),
-        id,
-      });
-      return this.success(c, 'Location retrieved successfully', location);
-    },
-  );
+  public getLocation = this.validator({ params: idParamSchema }, async (c) => {
+    const { id } = c.get('params');
+    const location = await this.getLocationUseCase.execute({
+      ...this.securityContext(c),
+      id,
+    });
+    return this.success(c, 'Location retrieved successfully', location);
+  });
 
   public createLocation = this.validator(
     { body: createLocationSchema },
@@ -187,6 +186,21 @@ export class LocationController extends Controller {
         c,
         'Slot locations retrieved successfully',
         locations,
+      );
+    },
+  );
+  public getSlotLocationAssignments = this.validator(
+    { params: slotIdParamSchema },
+    async (c) => {
+      const { slotId } = c.get('params');
+      const assignments = await this.getSlotLocationAssignmentsUseCase.execute({
+        ...this.securityContext(c),
+        scheduleSlotId: slotId,
+      });
+      return this.success(
+        c,
+        'Slot location assignments retrieved successfully',
+        assignments,
       );
     },
   );

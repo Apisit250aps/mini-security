@@ -1,8 +1,15 @@
 import { and, eq } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
-import { locations, scheduleSlotLocation } from '@repo/database/schema';
-import { Location, ScheduleSlotLocation } from '@repo/domains/entities/location';
+import {
+  locations,
+  scheduleSlotLocation,
+  companyBranch,
+} from '@repo/database/schema';
+import {
+  Location,
+  ScheduleSlotLocation,
+} from '@repo/domains/entities/location';
 import type {
   ILocationRepository,
   IScheduleSlotLocationRepository,
@@ -178,9 +185,18 @@ export class ScheduleSlotLocationRepository
           eq(scheduleSlotLocation.companyId, locations.companyId),
         ),
       )
+      .innerJoin(
+        companyBranch,
+        and(
+          eq(locations.companyBranchId, companyBranch.id),
+          eq(locations.companyId, companyBranch.companyId),
+        ),
+      )
       .where(
         and(
           eq(scheduleSlotLocation.scheduleSlotId, slotId),
+          eq(scheduleSlotLocation.isActive, true),
+          eq(companyBranch.isActive, true),
           eq(locations.isActive, true),
         ),
       );

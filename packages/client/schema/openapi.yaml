@@ -3377,6 +3377,57 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateScheduleSlotLocation'
+  /locations/slots/{id}:
+    put:
+      operationId: LocationService_updateSlotLocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/ScheduleSlotLocation'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScheduleSlotLocation'
   /locations/slots/{slotId}:
     get:
       operationId: LocationService_getSlotLocations
@@ -3409,6 +3460,47 @@ paths:
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /locations/slots/{slotId}/assignments:
+    get:
+      operationId: LocationService_getSlotLocationAssignments
+      parameters:
+        - name: slotId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ScheduleSlotLocation'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
           content:
             application/json:
               schema:
@@ -4980,6 +5072,7 @@ components:
         - companyId
         - companyBranchId
         - name
+        - address
         - latitude
         - longitude
         - radiusMeters
@@ -4993,9 +5086,7 @@ components:
         name:
           type: string
         address:
-          anyOf:
-            - type: string
-            - type: 'null'
+          type: string
         latitude:
           type: number
           format: double
@@ -5775,6 +5866,7 @@ components:
         - companyId
         - companyBranchId
         - name
+        - address
         - latitude
         - longitude
         - radiusMeters
@@ -5796,9 +5888,7 @@ components:
         name:
           type: string
         address:
-          anyOf:
-            - type: string
-            - type: 'null'
+          type: string
         latitude:
           type: number
           format: double
@@ -6316,9 +6406,7 @@ components:
         name:
           type: string
         address:
-          anyOf:
-            - type: string
-            - type: 'null'
+          type: string
         latitude:
           type: number
           format: double

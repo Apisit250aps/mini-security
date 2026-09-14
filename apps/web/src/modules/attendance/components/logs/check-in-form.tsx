@@ -270,6 +270,10 @@ export default function CheckInForm({
         {!canCheckIn && (
           <p role="alert">คุณไม่มีสิทธิ์ลงเวลาเข้างาน กรุณาติดต่อผู้ดูแลระบบ</p>
         )}
+        <p className="text-sm text-muted-foreground">
+          รอบที่กำหนดพื้นที่เช็คอินจะขอใช้ตำแหน่งปัจจุบันเมื่อกดลงเวลา
+          กรุณาอนุญาตการเข้าถึงตำแหน่ง
+        </p>
         <ButtonLoading
           type="submit"
           isLoading={mutation.isPending}

@@ -132,6 +132,14 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
           targetSlot.id,
         );
 
+      const assignments = await this.slotLocationRepository.findBySlotId(
+        targetSlot.id,
+      );
+      if (assignments.length > 0 && allowedLocations.length === 0) {
+        throw new ValidationError(
+          'No active permitted location is available for this slot',
+        );
+      }
       if (allowedLocations.length > 0) {
         if (context.latitude == null || context.longitude == null) {
           throw new ValidationError(

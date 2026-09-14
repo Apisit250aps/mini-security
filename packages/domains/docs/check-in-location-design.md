@@ -1,6 +1,6 @@
 # Check-in locations — proposed MVP
 
-สถานะ: **แบบเสนอใน ER diagram เท่านั้น** ยังไม่แก้ Drizzle, migration, API หรือ UI การรองรับ Schedule × Role ที่ implement แล้วอธิบายใน [check-in-schedule-design.md](check-in-schedule-design.md)
+สถานะ: เอกสารนี้เป็นข้อกำหนดออกแบบเดิม โดย runtime มี schema/API Locations แล้ว และเพิ่มหน้ารวม Locations กับการจัดการใน Slots เมื่อ 2026-09-14 ดูขอบเขตที่ตรวจแล้วใน [location-settings-ui.md](location-settings-ui.md) การเปลี่ยนหน้าจอครั้งนี้ไม่มี migration ใหม่ และไม่ได้ยืนยันว่าทุกข้อเสนอในเอกสารนี้ผ่านการตรวจครบแล้ว การรองรับ Schedule × Role อธิบายใน [check-in-schedule-design.md](check-in-schedule-design.md)
 
 ## ขอบเขตและการจัดกลุ่ม
 
