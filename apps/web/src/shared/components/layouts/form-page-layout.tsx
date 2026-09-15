@@ -1,11 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@repo/ui/components/button';
 import { Card, CardContent } from '@repo/ui/components/card';
 import { Spinner } from '@repo/ui/components/spinner';
-import { ArrowLeft } from 'lucide-react';
 
 export interface FormPageLayoutProps {
   title: string;
@@ -33,7 +30,6 @@ const MAX_WIDTH_MAP = {
 export default function FormPageLayout({
   title,
   description,
-  backHref,
   badge,
   actions,
   isLoading = false,
@@ -42,33 +38,10 @@ export default function FormPageLayout({
   sidebar,
   maxWidth = '2xl',
 }: FormPageLayoutProps) {
-  const router = useRouter();
-
-  const handleBack = () => {
-    if (backHref) {
-      router.push(backHref);
-    } else {
-      router.back();
-    }
-  };
-
   return (
     <div className={`mx-auto flex flex-col gap-6 ${MAX_WIDTH_MAP[maxWidth]}`}>
-      {/* Top Navigation & Header */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onPress={handleBack}
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" />
-            <span className="text-sm">ย้อนกลับ</span>
-          </Button>
-        </div>
-
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/50 pb-4">
+      {/* Top Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/50 pb-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2.5">
               <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
@@ -86,7 +59,6 @@ export default function FormPageLayout({
             </div>
           )}
         </div>
-      </div>
 
       {/* Main Form Content */}
       {isLoading ? (

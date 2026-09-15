@@ -1,10 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@repo/ui/components/button';
 import { Spinner } from '@repo/ui/components/spinner';
-import { ArrowLeft } from 'lucide-react';
 
 export interface DetailPageLayoutProps {
   title: string;
@@ -22,8 +19,6 @@ export interface DetailPageLayoutProps {
 export default function DetailPageLayout({
   title,
   description,
-  backHref,
-  backLabel = 'ย้อนกลับ',
   badges,
   actions,
   isLoading = false,
@@ -31,32 +26,10 @@ export default function DetailPageLayout({
   children,
   headerContent,
 }: DetailPageLayoutProps) {
-  const router = useRouter();
-
-  const handleBack = () => {
-    if (backHref) {
-      router.push(backHref);
-    } else {
-      router.back();
-    }
-  };
-
   return (
     <div className="flex w-full flex-col gap-6">
-      {/* Navigation and Header */}
+      {/* Header */}
       <div className="flex flex-col gap-4 border-b border-border/50 pb-5">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onPress={handleBack}
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" />
-            <span className="text-sm">{backLabel}</span>
-          </Button>
-        </div>
-
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">
             <div className="flex flex-wrap items-center gap-2.5">
