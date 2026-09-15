@@ -1,21 +1,22 @@
 import { CellContext } from '@tanstack/react-table';
+import { useRouter } from 'next/navigation';
 import { Role } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useCallback } from 'react';
 import { useRoleDelete } from '../../hooks/role-mutations';
 import { useOverlay } from '@repo/ui/hooks';
-import { useSession } from '@/modules/auth/hooks/session-provider';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import RoleEditForm from '../form/role-edit-form';
-import RolePermissionManager from '../permission-manager/role-permission-manager';
-import RoleFeatureManager from '../feature-delegation/role-feature-manager';
 
 function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
+  const router = useRouter();
   const ui = useOverlay();
-  const session = useSession();
   const { isSuperAdmin } = usePermission();
   const deleteMutation = useRoleDelete();
-  const isSystemDefault = cell.row.original.isSystemDefault;
+  const role = cell.row.original;
+  const isSystemDefault = role.isSystemDefault;
+
+  const basePath = role.companyId ? '/company/role' : '/admin/role';
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -32,57 +33,28 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
       description: 'คุณแน่ใจหรือไม่ว่าต้องการลบบทบาทนี้?',
       confirmVariant: 'destructive',
       onConfirm: async () => {
-        await handleDelete(cell.row.original.id);
+        await handleDelete(role.id);
         ui.hideAll();
       },
     });
   };
 
-  const actionEdit = () => {
-    ui.dialog.open({
-      title: isReadOnly ? 'รายละเอียดบทบาท' : 'แก้ไขบทบาท',
+  const actionManage = (tab: 'general' | 'permissions' | 'features') => {
+    router.push(`${basePath}/${role.id}?tab=${tab}`);
+  };
+
+  const actionQuickEdit = () => {
+    ui.sheet.open({
+      title: isReadOnly ? 'รายละเอียดบทบาท' : 'แก้ไขบทบาทด่วน',
       description: isReadOnly
         ? 'ดูรายละเอียดบทบาทมาตรฐานของระบบ'
-        : 'แก้ไขรายละเอียดบทบาทและสิทธิ์การใช้งาน',
+        : 'ปรับปรุงชื่อและประเภทของบทบาท',
       size: 'lg',
-      children: <RoleEditForm role={cell.row.original} readOnly={isReadOnly} />,
-    });
-  };
-
-  const actionManagePermissions = () => {
-    ui.dialog.open({
-      title: isReadOnly
-        ? `สิทธิ์การใช้งาน: ${cell.row.original.name}`
-        : `จัดการสิทธิ์: ${cell.row.original.name}`,
-      description: isReadOnly
-        ? 'ดูรายการสิทธิ์การเข้าถึงสำหรับบทบาทมาตรฐานของระบบนี้'
-        : 'เลือกและกำหนดสิทธิ์การเข้าถึงสำหรับบทบาทนี้',
-      size: '5xl',
       children: (
-        <RolePermissionManager role={cell.row.original} readOnly={isReadOnly} />
-      ),
-    });
-  };
-
-  const actionManageFeatures = () => {
-    const companyId =
-      cell.row.original.companyId ||
-      (session.data?.session as { activeCompanyId?: string })
-        ?.activeCompanyId ||
-      '';
-    ui.dialog.open({
-      title: isReadOnly
-        ? `ฟีเจอร์ที่ดูแล: ${cell.row.original.name}`
-        : `มอบหมายฟีเจอร์: ${cell.row.original.name}`,
-      description: isReadOnly
-        ? 'ดูรายการฟีเจอร์ที่มอบหมายให้บทบาทนี้'
-        : 'เลือกฟีเจอร์ขององค์กรที่ต้องการให้บทบาทนี้ดูแลและเข้าถึง',
-      size: '4xl',
-      children: (
-        <RoleFeatureManager
-          role={cell.row.original}
-          companyId={companyId}
+        <RoleEditForm
+          role={role}
           readOnly={isReadOnly}
+          onSuccess={() => ui.sheet.close()}
         />
       ),
     });
@@ -92,14 +64,14 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
     return (
       <ColumnActions
         actions={{
-          ดูสิทธิ์การใช้งาน: {
-            onAction: actionManagePermissions,
+          'ดูสิทธิ์การใช้งาน (Permissions)': {
+            onAction: () => actionManage('permissions'),
           },
-          ดูฟีเจอร์ที่ดูแล: {
-            onAction: actionManageFeatures,
+          'ดูฟีเจอร์ที่ดูแล (Features)': {
+            onAction: () => actionManage('features'),
           },
-          ดูรายละเอียด: {
-            onAction: actionEdit,
+          'ดูรายละเอียดบทบาท': {
+            onAction: () => actionManage('general'),
           },
         }}
       />
@@ -109,14 +81,17 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
   return (
     <ColumnActions
       actions={{
-        มอบหมายฟีเจอร์: {
-          onAction: actionManageFeatures,
+        'จัดการสิทธิ์ (Permissions Matrix)': {
+          onAction: () => actionManage('permissions'),
         },
-        จัดการสิทธิ์: {
-          onAction: actionManagePermissions,
+        'มอบหมายฟีเจอร์ (Features)': {
+          onAction: () => actionManage('features'),
         },
-        แก้ไข: {
-          onAction: actionEdit,
+        'จัดการบทบาทเชิงลึก': {
+          onAction: () => actionManage('general'),
+        },
+        'แก้ไขข้อมูลด่วน (Quick Edit)': {
+          onAction: actionQuickEdit,
         },
         ลบ: {
           onAction: actionDelete,

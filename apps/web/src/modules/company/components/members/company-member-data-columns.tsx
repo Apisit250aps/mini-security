@@ -33,9 +33,14 @@ export const companyMemberListColumns = ({
             <span className="text-xs text-muted-foreground">{user.email}</span>
           </div>
         ) : (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.userId}
-          </span>
+          <div className="flex flex-col">
+            <span className="font-medium text-sm text-muted-foreground">
+              สมาชิก #{row.original.id.slice(0, 6)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              ไม่ระบุข้อมูลบัญชี
+            </span>
+          </div>
         );
       },
     },
@@ -85,7 +90,9 @@ export const companyMemberListColumns = ({
       header: 'จัดการ',
       cell: (cell) => {
         const user = usersMap.get(cell.row.original.userId);
-        const userName = user ? `${user.name} (${user.email})` : undefined;
+        const userName = user
+          ? `${user.name} (${user.email})`
+          : `สมาชิก #${cell.row.original.id.slice(0, 6)}`;
         return (
           <CompanyMemberColumnActions
             cell={cell}

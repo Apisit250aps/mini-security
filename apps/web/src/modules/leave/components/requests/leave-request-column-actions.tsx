@@ -6,8 +6,7 @@ import type { LeaveRequest } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useOverlay } from '@repo/ui/hooks';
 import { useLeaveRequestCancel } from '../../hooks/leave-mutations';
-import LeaveRequestReviewModal from './leave-request-review-modal';
-import { formatDate } from '@/shared/utils';
+import LeaveRequestDetailSheet from './leave-request-detail-sheet';
 
 interface LeaveRequestColumnActionsProps<T extends LeaveRequest> {
   cell: CellContext<T, unknown>;
@@ -26,22 +25,22 @@ export default function LeaveRequestColumnActions<T extends LeaveRequest>({
   const cancelMutation = useLeaveRequestCancel(companyId);
   const request = cell.row.original;
 
-  const actionReview = useCallback(() => {
-    ui.dialog.open({
-      title: 'พิจารณาคำขอลาหยุดงาน',
-      description: 'ตรวจสอบความถูกต้องและอนุมัติหรือปฏิเสธคำขอนี้',
+  const actionOpenSheet = useCallback(() => {
+    ui.sheet.open({
+      title: 'รายละเอียดคำขอลาหยุดงาน',
+      description: 'ตรวจสอบข้อมูลการขอลา เอกสารแนบ และผลการพิจารณา',
       size: 'lg',
       children: (
-        <LeaveRequestReviewModal
+        <LeaveRequestDetailSheet
           request={request}
           companyId={companyId}
           leaveTypeName={leaveTypeName}
           memberName={memberName}
-          onSuccess={() => ui.dialog.close()}
+          onClose={() => ui.sheet.close()}
         />
       ),
     });
-  }, [ui.dialog, request, companyId, leaveTypeName, memberName]);
+  }, [ui.sheet, request, companyId, leaveTypeName, memberName]);
 
   const actionCancel = useCallback(() => {
     ui.alert.open({
@@ -58,48 +57,12 @@ export default function LeaveRequestColumnActions<T extends LeaveRequest>({
     });
   }, [ui.alert, cancelMutation, request.id]);
 
-  const actionViewDetails = useCallback(() => {
-    ui.dialog.open({
-      title: 'รายละเอียดคำขอลา',
-      description: `สถานะ: ${request.status}`,
-      children: (
-        <div className="space-y-3 text-sm">
-          {memberName && (
-            <div>
-              <span className="text-muted-foreground text-xs">พนักงาน:</span>
-              <p className="mt-0.5 font-medium">{memberName}</p>
-            </div>
-          )}
-          <div>
-            <span className="text-muted-foreground text-xs">เหตุผลการลา:</span>
-            <p className="mt-1 p-2 bg-muted rounded border">{request.reason}</p>
-          </div>
-          {request.reviewNote && (
-            <div>
-              <span className="text-muted-foreground text-xs">
-                ความคิดเห็นจากผู้อนุมัติ:
-              </span>
-              <p className="mt-1 p-2 bg-muted rounded border">
-                {request.reviewNote}
-              </p>
-            </div>
-          )}
-          {request.reviewedAt && (
-            <p className="text-xs text-muted-foreground">
-              พิจารณาเมื่อ: {formatDate(request.reviewedAt)}
-            </p>
-          )}
-        </div>
-      ),
-    });
-  }, [ui.dialog, request, memberName]);
-
   if (request.status === 'pending') {
     return (
       <ColumnActions
         actions={{
-          'พิจารณาอนุมัติ/ปฏิเสธ': {
-            onAction: actionReview,
+          'พิจารณาอนุมัติ/ปฏิเสธ (Review)': {
+            onAction: actionOpenSheet,
           },
           ยกเลิกคำขอ: {
             onAction: actionCancel,
@@ -113,8 +76,8 @@ export default function LeaveRequestColumnActions<T extends LeaveRequest>({
   return (
     <ColumnActions
       actions={{
-        ดูรายละเอียด: {
-          onAction: actionViewDetails,
+        'ดูรายละเอียดคำขอ (View Details)': {
+          onAction: actionOpenSheet,
         },
       }}
     />

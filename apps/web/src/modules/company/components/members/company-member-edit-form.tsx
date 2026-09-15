@@ -25,9 +25,11 @@ export type CompanyMemberEditFormValues = z.infer<
 export default function CompanyMemberEditForm({
   companyId,
   member,
+  onSuccess,
 }: {
   companyId: string;
   member: CompanyMember;
+  onSuccess?: () => void;
 }) {
   const ui = useOverlay();
   const updateMutation = useCompanyMemberUpdate(companyId);
@@ -46,9 +48,9 @@ export default function CompanyMemberEditForm({
   const methods = useForm<CompanyMemberEditFormValues>({
     resolver: zodResolver(updateCompanyMemberSchema as never),
     defaultValues: {
-      roleId: member.roleId,
-      companyBranchId: member.companyBranchId,
-      isActive: member.isActive,
+      roleId: member.roleId || '',
+      companyBranchId: member.companyBranchId || '',
+      isActive: member.isActive ?? true,
     },
   });
 
@@ -63,6 +65,7 @@ export default function CompanyMemberEditForm({
         },
       });
       ui.hideAll();
+      onSuccess?.();
     } catch {
       // Handled by mutation onError toast
     }

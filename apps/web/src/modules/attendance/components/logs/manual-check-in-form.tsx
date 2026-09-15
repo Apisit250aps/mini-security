@@ -85,12 +85,15 @@ export default function ManualCheckInForm({
   );
   const memberOptions = (members.data ?? [])
     .filter((member) => member.isActive)
-    .map((member) => ({
-      value: member.id,
-      label:
-        users.data?.find((user) => user.id === member.userId)?.name ??
-        member.id,
-    }));
+    .map((member) => {
+      const u = users.data?.find((user) => user.id === member.userId);
+      return {
+        value: member.id,
+        label: u
+          ? `${u.name} (${u.email})`
+          : `พนักงาน #${member.id.slice(0, 6)}`,
+      };
+    });
   const failed =
     members.isError ||
     users.isError ||

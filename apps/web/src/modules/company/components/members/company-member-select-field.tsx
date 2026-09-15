@@ -26,7 +26,7 @@ export function CompanyMemberSelectField<T extends FieldValues>({
         value: member.id,
         label: user
           ? `${user.name} (${user.email})`
-          : `พนักงาน ID: ${member.id}`,
+          : `พนักงาน #${member.id.slice(0, 6)}`,
       };
     });
   }, [members.data, users.data]);

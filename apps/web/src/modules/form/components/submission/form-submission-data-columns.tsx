@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { FormSubmission, FormTemplate } from '@repo/domains/entities';
+import type { FormSubmission, FormTemplate, User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils/date';
 import FormSubmissionColumnActions from './form-submission-column-actions';
@@ -10,6 +10,7 @@ import FormSubmissionColumnActions from './form-submission-column-actions';
 interface FormSubmissionColumnsOptions {
   companyId: string;
   templatesMap: Map<string, FormTemplate>;
+  usersMap?: Map<string, User>;
 }
 
 const STATUS_MAP: Record<
@@ -28,6 +29,7 @@ const STATUS_MAP: Record<
 export const formSubmissionDataColumns = ({
   companyId,
   templatesMap,
+  usersMap,
 }: FormSubmissionColumnsOptions): ColumnDef<FormSubmission>[] => [
   {
     accessorKey: 'formTemplateId',
@@ -37,12 +39,36 @@ export const formSubmissionDataColumns = ({
       return (
         <div className="flex flex-col">
           <span className="font-semibold text-sm">
-            {template?.name ||
-              `Template #${row.original.formTemplateId.slice(0, 8)}`}
+            {template?.name || 'แบบฟอร์มตรวจสอบทั่วไป'}
           </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            ID: #{row.original.id.slice(0, 8)}
+          {template?.description ? (
+            <span className="text-xs text-muted-foreground line-clamp-1">
+              {template.description}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              ฉบับแก้ไขที่ {row.original.revision}
+            </span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: 'submitter',
+    header: 'ผู้บันทึกข้อมูล',
+    cell: ({ row }) => {
+      const userId = row.original.submittedBy || row.original.startedBy;
+      const user = userId ? usersMap?.get(userId) : undefined;
+      return (
+        <div className="flex flex-col">
+          <span className="font-medium text-sm">
+            {user?.name ||
+              (userId ? `ผู้ใช้ #${userId.slice(0, 6)}` : 'ไม่ระบุผู้ส่ง')}
           </span>
+          {user?.email && (
+            <span className="text-xs text-muted-foreground">{user.email}</span>
+          )}
         </div>
       );
     },

@@ -5,7 +5,13 @@ import RoleForm, { RoleFormValues } from './role-form';
 import { useRoleCreate } from '../../hooks/role-mutations';
 import { useOverlay } from '@repo/ui/hooks';
 
-export default function RoleCreateForm({ companyId }: { companyId?: string }) {
+export default function RoleCreateForm({
+  companyId,
+  onSuccess,
+}: {
+  companyId?: string;
+  onSuccess?: () => void;
+}) {
   const ui = useOverlay();
   const createMutation = useRoleCreate();
 
@@ -19,6 +25,7 @@ export default function RoleCreateForm({ companyId }: { companyId?: string }) {
         isSystemDefault: companyId ? false : (data.isSystemDefault ?? false),
       });
       ui.hideAll();
+      onSuccess?.();
     } catch {
       // Handled by mutation onError toast
     }

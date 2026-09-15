@@ -6,6 +6,7 @@ import {
   useCompanyFormTemplatesQueries,
   useFormSubmissionsQueries,
 } from '../../hooks/form-queries';
+import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import formSubmissionDataColumns from './form-submission-data-columns';
 
 interface FormSubmissionDataTableProps {
@@ -27,14 +28,19 @@ export default function FormSubmissionDataTable({
 
   const submissionsQuery = useFormSubmissionsQueries({ companyId });
   const templatesQuery = useCompanyFormTemplatesQueries(companyId);
+  const usersQuery = useUserListQueries();
 
   const templatesMap = useMemo(() => {
     return new Map((templatesQuery.data || []).map((t) => [t.id, t]));
   }, [templatesQuery.data]);
 
+  const usersMap = useMemo(() => {
+    return new Map((usersQuery.data || []).map((u) => [u.id, u]));
+  }, [usersQuery.data]);
+
   const columns = useMemo(
-    () => formSubmissionDataColumns({ companyId, templatesMap }),
-    [companyId, templatesMap],
+    () => formSubmissionDataColumns({ companyId, templatesMap, usersMap }),
+    [companyId, templatesMap, usersMap],
   );
 
   const filteredData = useMemo(() => {
@@ -44,7 +50,10 @@ export default function FormSubmissionDataTable({
     return list.filter((s) => Boolean(s.submittedAt));
   }, [submissionsQuery.data, selectedStatus]);
 
-  const isLoading = submissionsQuery.isLoading || templatesQuery.isLoading;
+  const isLoading =
+    submissionsQuery.isLoading ||
+    templatesQuery.isLoading ||
+    usersQuery.isLoading;
 
   return (
     <div className="flex flex-col gap-4">

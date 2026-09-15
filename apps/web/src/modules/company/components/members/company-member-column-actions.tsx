@@ -48,16 +48,22 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
   }, [ui, handleRemove, member.id]);
 
   const actionEdit = useCallback(() => {
-    ui.dialog.open({
+    ui.sheet.open({
       title: 'แก้ไขสมาชิกและบทบาท',
       description: 'ปรับเปลี่ยนบทบาทและสถานะการทำงานของสมาชิกในบริษัท',
       size: 'lg',
-      children: <CompanyMemberEditForm companyId={companyId} member={member} />,
+      children: (
+        <CompanyMemberEditForm
+          companyId={companyId}
+          member={member}
+          onSuccess={() => ui.sheet.close()}
+        />
+      ),
     });
-  }, [ui.dialog, companyId, member]);
+  }, [ui.sheet, companyId, member]);
 
   const actionManageQuotas = useCallback(() => {
-    ui.dialog.open({
+    ui.sheet.open({
       title: 'จัดการโควต้าวันลาพนักงาน',
       description: `โควต้าและสถิติการใช้วันลาของ ${userName || 'สมาชิก'}`,
       size: 'xl',
@@ -69,7 +75,7 @@ export default function CompanyMemberColumnActions<T extends CompanyMember>({
         />
       ),
     });
-  }, [ui.dialog, userName, member, companyId]);
+  }, [ui.sheet, userName, member, companyId]);
 
   // If member is the Owner and the current user is not a Super Admin, they cannot be modified or deleted
   if (isOwner && !isSuperAdmin) {

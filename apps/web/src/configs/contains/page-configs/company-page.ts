@@ -25,12 +25,30 @@ export const companyPageConfigs: PageConfigs = {
     description: 'จัดการบทบาทและสิทธิ์ของพนักงานภายในบริษัท',
     url: '/company/role',
   },
+  companyRoleNew: {
+    name: 'เพิ่มบทบาทใหม่',
+    title: 'สร้างบทบาทใหม่',
+    description: 'กำหนดบทบาทและตำแหน่งพนักงานสำหรับองค์กรนี้',
+    url: '/company/role/new',
+  },
+  companyRoleDetail: {
+    name: 'รายละเอียดบทบาท',
+    title: 'จัดการบทบาทและสิทธิ์',
+    description: 'กำหนดสิทธิ์การเข้าถึงและการดูแลฟีเจอร์สำหรับบทบาทนี้',
+    url: '/company/role',
+  },
 
   // Attendance Module
   companyAttendanceSchedule: {
     name: 'ตารางเวลาเช็คชื่อ',
     title: 'จัดการตารางเวลาเช็คชื่อ',
     description: 'กำหนดตารางเวลาและรอบการลงเวลาเข้างานตามตำแหน่ง (Role)',
+    url: '/company/attendance/schedules',
+  },
+  companyAttendanceScheduleDetail: {
+    name: 'จัดการรอบเวลาของตาราง',
+    title: 'จัดการรอบเวลาและเงื่อนไข',
+    description: 'กำหนดรอบเวลา (Slots) สถานที่ และเงื่อนไขการลงเวลา',
     url: '/company/attendance/schedules',
   },
   companyAttendanceLog: {
@@ -46,6 +64,12 @@ export const companyPageConfigs: PageConfigs = {
     title: 'จัดการคำขอลาหยุดงาน',
     description: 'ตรวจสอบ ยื่น และพิจารณาอนุมัติคำขอลาของพนักงาน',
     url: '/company/leave/requests',
+  },
+  companyLeaveRequestNew: {
+    name: 'ยื่นคำขอลาใหม่',
+    title: 'ยื่นคำขอลาหยุดงาน',
+    description: 'กรอกแบบฟอร์มเพื่อขอลางานและตรวจสอบโควต้าคงเหลือ',
+    url: '/company/leave/requests/new',
   },
   companyLeaveType: {
     name: 'ประเภทและโควต้าวันลา',

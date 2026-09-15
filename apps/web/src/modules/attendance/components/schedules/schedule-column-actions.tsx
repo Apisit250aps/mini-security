@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import type { CellContext } from '@tanstack/react-table';
 import type { CheckInSchedule } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useOverlay } from '@repo/ui/hooks';
-import ScheduleSlotsModal from './schedule-slots-modal';
 import ScheduleEditForm from './schedule-edit-form';
 
 interface ScheduleColumnActionsProps<T extends CheckInSchedule> {
@@ -16,31 +16,27 @@ interface ScheduleColumnActionsProps<T extends CheckInSchedule> {
 export default function ScheduleColumnActions<T extends CheckInSchedule>({
   cell,
 }: ScheduleColumnActionsProps<T>) {
+  const router = useRouter();
   const ui = useOverlay();
   const schedule = cell.row.original;
 
   const actionManageSlots = useCallback(() => {
-    ui.dialog.open({
-      title: `จัดการรอบเวลา - ${schedule.name}`,
-      description: 'การแก้รอบเวลามีผลกับทุกบทบาทที่ได้รับมอบหมายตารางนี้',
-      size: 'xl',
-      children: <ScheduleSlotsModal schedule={schedule} />,
-    });
-  }, [ui.dialog, schedule]);
+    router.push(`/company/attendance/schedules/${schedule.id}`);
+  }, [router, schedule.id]);
 
   const actionEdit = useCallback(() => {
-    ui.dialog.open({
+    ui.sheet.open({
       title: 'แก้ไขตารางเวลาเข้างาน',
       description: 'แก้ไขชื่อ เลือกหลายบทบาท และเปิดหรือปิดตารางเวลา',
       size: 'lg',
       children: (
         <ScheduleEditForm
           schedule={schedule}
-          onSuccess={() => ui.dialog.close()}
+          onSuccess={() => ui.sheet.close()}
         />
       ),
     });
-  }, [ui.dialog, schedule]);
+  }, [ui.sheet, schedule]);
 
   return (
     <ColumnActions

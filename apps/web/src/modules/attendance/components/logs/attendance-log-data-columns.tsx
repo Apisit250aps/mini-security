@@ -58,15 +58,17 @@ export const attendanceLogDataColumns = ({
         const memberId = getValue<string>();
         const member = memberObjMap.get(memberId);
         const user = member ? usersMap?.get(member.userId) : undefined;
+        const displayName =
+          user?.name ||
+          (member
+            ? `พนักงาน #${member.id.slice(0, 6)}`
+            : `พนักงาน #${memberId.slice(0, 6)}`);
+        const subText = user?.email || (!user ? 'ข้อมูลพนักงาน' : undefined);
         return (
           <div className="flex flex-col">
-            <span className="font-medium text-sm">
-              {user ? user.name : member?.userId || memberId}
-            </span>
-            {user?.email && (
-              <span className="text-xs text-muted-foreground">
-                {user.email}
-              </span>
+            <span className="font-medium text-sm">{displayName}</span>
+            {subText && (
+              <span className="text-xs text-muted-foreground">{subText}</span>
             )}
           </div>
         );

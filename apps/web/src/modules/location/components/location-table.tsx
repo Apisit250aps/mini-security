@@ -20,9 +20,15 @@ export default function LocationTable({
     {
       id: 'branch',
       header: 'สาขา',
-      cell: ({ row }) =>
-        branches.find((branch) => branch.id === row.original.companyBranchId)
-          ?.name ?? row.original.companyBranchId,
+      cell: ({ row }) => {
+        const branch = branches.find(
+          (b) => b.id === row.original.companyBranchId,
+        );
+        return (
+          branch?.name ??
+          (row.original.companyBranchId ? 'สาขาหลัก' : '-')
+        );
+      },
     },
     { accessorKey: 'address', header: 'ที่อยู่' },
     {

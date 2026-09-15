@@ -82,7 +82,7 @@ export default function LocationForm({
             สาขา:{' '}
             {branches.data?.find(
               (branch) => branch.id === location.companyBranchId,
-            )?.name ?? location.companyBranchId}
+            )?.name ?? (location.companyBranchId ? 'สาขาหลัก' : '-')}
           </p>
         ) : (
           <CompanyBranchSelectField

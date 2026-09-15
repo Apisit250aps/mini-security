@@ -9,9 +9,11 @@ import { useOverlay } from '@repo/ui/hooks';
 export default function RoleEditForm({
   role,
   readOnly = false,
+  onSuccess,
 }: {
   role: Role;
   readOnly?: boolean;
+  onSuccess?: () => void;
 }) {
   const ui = useOverlay();
   const updateMutation = useRoleUpdate();
@@ -29,6 +31,7 @@ export default function RoleEditForm({
         },
       });
       ui.hideAll();
+      onSuccess?.();
     } catch {
       // Handled by mutation onError toast
     }

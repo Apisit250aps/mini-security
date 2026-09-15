@@ -36,6 +36,17 @@ export interface AlertDialogProps {
   onCancel?: () => void;
 }
 
+export type SheetSide = 'top' | 'right' | 'bottom' | 'left';
+
+export interface SheetOverlayProps {
+  title: string;
+  description?: string;
+  children?: ReactNode;
+  side?: SheetSide;
+  size?: DialogSize;
+  closeOnClickOutside?: boolean;
+}
+
 export type OverlayContextState = {
   isOpen: boolean;
   open: (props: Omit<ModalProps, 'title' | 'description'>) => void;
@@ -43,6 +54,10 @@ export type OverlayContextState = {
   hideAll: () => void;
   dialog: {
     open: (props: ModalProps) => void;
+    close: () => void;
+  };
+  sheet: {
+    open: (props: SheetOverlayProps) => void;
     close: () => void;
   };
   alert: AlertControls & {

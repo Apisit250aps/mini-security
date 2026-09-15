@@ -4,14 +4,16 @@ import { createContext, useCallback, useContext, useMemo, useRef } from 'react';
 import NiceModal, { unregister } from '@ebay/nice-modal-react';
 import { ModalTitle } from './dialog/render-dialog';
 import { ModalContent } from './content/render-content';
+import { ModalSheet } from './sheet/render-sheet';
 import { alertVariants, type AlertVariant } from './alert/variants';
 import type {
   ModalProps,
   AlertDialogProps,
+  SheetOverlayProps,
   OverlayContextState,
 } from './types';
 
-export type { ModalProps, AlertDialogProps } from './types';
+export type { ModalProps, AlertDialogProps, SheetOverlayProps } from './types';
 
 const keyStore = () => {
   let id = 0;
@@ -19,11 +21,12 @@ const keyStore = () => {
 };
 const getKey = keyStore();
 
-/** Provides access to dialog and alert controls within the overlay provider. */
+/** Provides access to dialog, sheet and alert controls within the overlay provider. */
 const OverlayContext = createContext<OverlayContextState | null>(null);
 
 function Overlay({ children }: { children: React.ReactNode }) {
   const dialogStack = useRef<string[]>([]);
+  const sheetStack = useRef<string[]>([]);
   const alertStack = useRef<{ id: string; variant: AlertVariant }[]>([]);
 
   /** Opens a dialog with a title and optional description. */
@@ -47,6 +50,19 @@ function Overlay({ children }: { children: React.ReactNode }) {
 
   const closeDialog = useCallback(() => {
     const last = dialogStack.current.pop();
+    if (last) NiceModal.hide(last);
+  }, []);
+
+  /** Opens a sheet/offcanvas drawer from the side. */
+  const openSheet = useCallback((props: SheetOverlayProps): void => {
+    const id = `sheet-${getKey()}`;
+    NiceModal.register(id, ModalSheet);
+    NiceModal.show(id, props);
+    sheetStack.current.push(id);
+  }, []);
+
+  const closeSheet = useCallback(() => {
+    const last = sheetStack.current.pop();
     if (last) NiceModal.hide(last);
   }, []);
 
@@ -106,12 +122,14 @@ function Overlay({ children }: { children: React.ReactNode }) {
 
   const hideAll = useCallback(() => {
     dialogStack.current.forEach((id) => NiceModal.hide(id));
+    sheetStack.current.forEach((id) => NiceModal.hide(id));
     alertStack.current.forEach(({ id }) => {
       NiceModal.hide(id);
       NiceModal.remove(id);
       unregister(id);
     });
     dialogStack.current = [];
+    sheetStack.current = [];
     alertStack.current = [];
   }, []);
 
@@ -122,6 +140,7 @@ function Overlay({ children }: { children: React.ReactNode }) {
       close: closeDialog,
       hideAll,
       dialog: { open: openDialog, close: closeDialog },
+      sheet: { open: openSheet, close: closeSheet },
       alert: {
         open: openAlert,
         close: closeAlert,
@@ -133,6 +152,8 @@ function Overlay({ children }: { children: React.ReactNode }) {
       closeDialog,
       hideAll,
       openDialog,
+      openSheet,
+      closeSheet,
       openAlert,
       closeAlert,
       openInfoAlert,

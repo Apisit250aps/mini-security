@@ -36,7 +36,7 @@ export const scheduleDataColumns = ({
           <div className="flex flex-wrap gap-1">
             {row.original.roleIds.map((roleId) => (
               <Badge key={roleId} variant="secondary">
-                {roleMap.get(roleId) ?? roleId}
+                {roleMap.get(roleId) ?? `บทบาท #${roleId.slice(0, 6)}`}
               </Badge>
             ))}
           </div>

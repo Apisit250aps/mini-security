@@ -46,8 +46,8 @@ export default function MemberQuotasModal({
   const memberDisplayName = useMemo(() => {
     if (userName) return userName;
     if (user) return `${user.name} (${user.email})`;
-    return member.userId || member.id;
-  }, [userName, user, member.userId, member.id]);
+    return `พนักงาน #${member.id.slice(0, 6)}`;
+  }, [userName, user, member.id]);
 
   const createMutation = useLeaveQuotaCreate(member.id, selectedYear);
   const updateMutation = useLeaveQuotaUpdate(member.id, selectedYear);
@@ -140,7 +140,7 @@ export default function MemberQuotasModal({
         header: 'ประเภทการลา',
         cell: ({ getValue }) => {
           const typeId = getValue<string>();
-          const typeName = typeMap.get(typeId) || typeId;
+          const typeName = typeMap.get(typeId) || 'ประเภทการลาทั่วไป';
           return <span className="font-semibold">{typeName}</span>;
         },
       },
