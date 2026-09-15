@@ -2,11 +2,12 @@
 
 import { useModal } from '@ebay/nice-modal-react';
 
-export function useModalControls() {
+export function useModalControls(onAfterClose?: () => void) {
   const modal = useModal();
   const close = () => {
     modal.hide();
     modal.remove();
+    onAfterClose?.();
   };
 
   return {

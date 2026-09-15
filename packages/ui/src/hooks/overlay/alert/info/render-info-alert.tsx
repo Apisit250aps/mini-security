@@ -1,11 +1,10 @@
 'use client';
 
 import NiceModal from '@ebay/nice-modal-react';
-import { useModalControls } from '../use-modal-controls';
+import { useModalControls } from '../../use-modal-controls';
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
@@ -15,16 +14,14 @@ import type {
   AlertDialogProps,
   OverlayRenderState,
   OverlayLifecycleProps,
-} from '../types';
+} from '../../types';
 
-function AlertView({
+function InfoAlertView({
   title,
   description,
-  confirmText = 'ยืนยัน',
-  cancelText = 'ยกเลิก',
+  confirmText = 'รับทราบ',
   confirmVariant = 'default',
   onConfirm,
-  onCancel,
   isOpen,
   onOpenChange,
 }: AlertDialogProps & OverlayRenderState) {
@@ -42,7 +39,6 @@ function AlertView({
         )}
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel onPress={onCancel}>{cancelText}</AlertDialogCancel>
         <AlertDialogAction variant={confirmVariant} onPress={onConfirm}>
           {confirmText}
         </AlertDialogAction>
@@ -52,23 +48,19 @@ function AlertView({
 }
 
 /** Returns an element so React owns the private component lifecycle. */
-function renderAlert(props: AlertDialogProps & OverlayRenderState) {
-  return <AlertView {...props} />;
+function renderInfoAlert(props: AlertDialogProps & OverlayRenderState) {
+  return <InfoAlertView {...props} />;
 }
 
-export const ConfirmModal = NiceModal.create<
+export const InfoModal = NiceModal.create<
   AlertDialogProps & OverlayLifecycleProps
 >((props) => {
   const controls = useModalControls(props.onAfterClose);
-  return renderAlert({
+  return renderInfoAlert({
     ...props,
     ...controls,
     onConfirm: () => {
       props.onConfirm();
-      controls.close();
-    },
-    onCancel: () => {
-      props.onCancel?.();
       controls.close();
     },
   });

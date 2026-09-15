@@ -1,10 +1,10 @@
 'use client';
 
-import { createContext, useCallback, useContext, useRef } from 'react';
-import NiceModal from '@ebay/nice-modal-react';
+import { createContext, useCallback, useContext, useMemo, useRef } from 'react';
+import NiceModal, { unregister } from '@ebay/nice-modal-react';
 import { ModalTitle } from './dialog/render-dialog';
 import { ModalContent } from './content/render-content';
-import { ConfirmModal } from './alert/render-alert';
+import { alertVariants, type AlertVariant } from './alert/variants';
 import type {
   ModalProps,
   AlertDialogProps,
@@ -24,7 +24,7 @@ const OverlayContext = createContext<OverlayContextState | null>(null);
 
 function Overlay({ children }: { children: React.ReactNode }) {
   const dialogStack = useRef<string[]>([]);
-  const alertStack = useRef<string[]>([]);
+  const alertStack = useRef<{ id: string; variant: AlertVariant }[]>([]);
 
   /** Opens a dialog with a title and optional description. */
   const openDialog = useCallback((props: ModalProps): void => {
@@ -50,43 +50,98 @@ function Overlay({ children }: { children: React.ReactNode }) {
     if (last) NiceModal.hide(last);
   }, []);
 
-  /** Opens a confirmation alert. */
-  const openAlert = useCallback((props: AlertDialogProps): void => {
-    const id = `alert-${getKey()}`;
-    NiceModal.register(id, ConfirmModal);
-    NiceModal.show(id, props);
-    alertStack.current.push(id);
+  /** Opens an alert and removes its stack entry when dismissed. */
+  const openAlertVariant = useCallback(
+    (variant: AlertVariant, props: AlertDialogProps): void => {
+      const id = `alert-${getKey()}`;
+      NiceModal.register(id, alertVariants[variant]);
+      NiceModal.show(id, {
+        ...props,
+        onAfterClose: () => {
+          alertStack.current = alertStack.current.filter(
+            (entry) => entry.id !== id,
+          );
+          unregister(id);
+        },
+      });
+      alertStack.current.push({ id, variant });
+    },
+    [],
+  );
+
+  /** Closes the latest alert, optionally restricted to a specific variant. */
+  const closeAlertVariant = useCallback((variant?: AlertVariant) => {
+    let index = alertStack.current.length - 1;
+    while (
+      index >= 0 &&
+      variant !== undefined &&
+      alertStack.current[index]?.variant !== variant
+    ) {
+      index -= 1;
+    }
+    if (index < 0) return;
+    const [entry] = alertStack.current.splice(index, 1);
+    if (!entry) return;
+    NiceModal.hide(entry.id);
+    NiceModal.remove(entry.id);
+    unregister(entry.id);
   }, []);
 
-  const closeAlert = useCallback(() => {
-    const last = alertStack.current.pop();
-    if (last) NiceModal.hide(last);
-  }, []);
+  const openAlert = useCallback(
+    (props: AlertDialogProps) => openAlertVariant('confirm', props),
+    [openAlertVariant],
+  );
+  const closeAlert = useCallback(
+    () => closeAlertVariant(),
+    [closeAlertVariant],
+  );
+  const openInfoAlert = useCallback(
+    (props: AlertDialogProps) => openAlertVariant('info', props),
+    [openAlertVariant],
+  );
+  const closeInfoAlert = useCallback(
+    () => closeAlertVariant('info'),
+    [closeAlertVariant],
+  );
 
   const hideAll = useCallback(() => {
     dialogStack.current.forEach((id) => NiceModal.hide(id));
-    alertStack.current.forEach((id) => NiceModal.hide(id));
+    alertStack.current.forEach(({ id }) => {
+      NiceModal.hide(id);
+      NiceModal.remove(id);
+      unregister(id);
+    });
     dialogStack.current = [];
     alertStack.current = [];
   }, []);
 
+  const value = useMemo<OverlayContextState>(
+    () => ({
+      isOpen: false,
+      open: openContent,
+      close: closeDialog,
+      hideAll,
+      dialog: { open: openDialog, close: closeDialog },
+      alert: {
+        open: openAlert,
+        close: closeAlert,
+        info: { open: openInfoAlert, close: closeInfoAlert },
+      },
+    }),
+    [
+      openContent,
+      closeDialog,
+      hideAll,
+      openDialog,
+      openAlert,
+      closeAlert,
+      openInfoAlert,
+      closeInfoAlert,
+    ],
+  );
+
   return (
-    <OverlayContext.Provider
-      value={{
-        isOpen: false,
-        open: openContent,
-        close: closeDialog,
-        hideAll,
-        dialog: {
-          open: openDialog,
-          close: closeDialog,
-        },
-        alert: {
-          open: openAlert,
-          close: closeAlert,
-        },
-      }}
-    >
+    <OverlayContext.Provider value={value}>
       <NiceModal.Provider>{children}</NiceModal.Provider>
     </OverlayContext.Provider>
   );

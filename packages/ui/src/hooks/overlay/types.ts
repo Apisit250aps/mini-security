@@ -45,13 +45,23 @@ export type OverlayContextState = {
     open: (props: ModalProps) => void;
     close: () => void;
   };
-  alert: {
-    open: (props: AlertDialogProps) => void;
-    close: () => void;
+  alert: AlertControls & {
+    info: AlertControls;
   };
 };
 
 export interface OverlayRenderState {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+/** Internal notification used to remove a dismissed overlay from its stack. */
+export interface OverlayLifecycleProps {
+  onAfterClose?: () => void;
+}
+
+/** Shared controls supported by each alert variant. */
+export interface AlertControls {
+  open: (props: AlertDialogProps) => void;
+  close: () => void;
 }
