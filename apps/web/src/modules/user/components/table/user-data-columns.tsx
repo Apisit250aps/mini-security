@@ -1,14 +1,40 @@
+import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
+import { useOverlay } from '@repo/ui/hooks';
 import { formatDate, formatDateTime } from '@/shared/utils';
+import UserEditForm from '../form/user-edit-form';
 import UserColumnActions from './user-column-actions';
+
+function UserNameCell({ user }: { user: User }) {
+  const ui = useOverlay();
+
+  const handleEdit = () => {
+    ui.dialog.open({
+      title: 'แก้ไขผู้ใช้',
+      description: 'แก้ไขข้อมูลผู้ใช้และสิทธิ์การใช้งาน',
+      children: <UserEditForm user={user} />,
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleEdit}
+      className="text-left font-semibold text-primary hover:underline group cursor-pointer"
+    >
+      {user.name}
+    </button>
+  );
+}
 
 const userListColumns = (): ColumnDef<User>[] => {
   return [
     {
       accessorKey: 'name',
       header: 'ชื่อ',
+      cell: ({ row }) => <UserNameCell user={row.original} />,
     },
     {
       accessorKey: 'email',

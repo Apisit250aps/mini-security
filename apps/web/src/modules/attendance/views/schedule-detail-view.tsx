@@ -2,8 +2,10 @@
 
 import React, { useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import type { ColumnDef } from '@tanstack/react-table';
 import type { ScheduleSlot } from '@repo/domains/entities';
 import DetailPageLayout from '@/shared/components/layouts/detail-page-layout';
+import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
 import {
   useCompanySchedulesQueries,
@@ -18,7 +20,7 @@ import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import { Button } from '@repo/ui/components/button';
 import { Badge } from '@repo/ui/components/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@repo/ui/components/card';
+import { Card, CardContent } from '@repo/ui/components/card';
 import EmptyState from '@/shared/components/app/empty-state';
 import MetricStatCard from '@/shared/components/app/metric-stat-card';
 import SlotForm, { SlotFormValues } from '../components/schedules/slot-form';
@@ -207,6 +209,99 @@ export default function ScheduleDetailView({
     [deleteMutation, ui],
   );
 
+  const slotColumns = useMemo<ColumnDef<ScheduleSlot>[]>(
+    () => [
+      {
+        accessorKey: 'slotOrder',
+        header: 'ลำดับ',
+        cell: ({ getValue }) => (
+          <span className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+            #{getValue<number>()}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'label',
+        header: 'ชื่อรอบเวลา',
+        cell: ({ row }) => (
+          <button
+            type="button"
+            className="text-left font-semibold text-primary hover:underline flex flex-col group cursor-pointer"
+            onClick={() => handleOpenEditSlot(row.original)}
+          >
+            <span>{row.original.label}</span>
+            <span className="text-[11px] text-muted-foreground font-normal">
+              คลิกเพื่อแก้ไขรอบเวลา
+            </span>
+          </button>
+        ),
+      },
+      {
+        id: 'windowTime',
+        header: 'ช่วงเวลาลงชื่อ',
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1.5 text-sm font-medium">
+            <Clock className="size-3.5 text-muted-foreground" />
+            <span>
+              {row.original.windowStart} - {row.original.windowEnd}
+            </span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'isRequired',
+        header: 'ความจำเป็น',
+        cell: ({ getValue }) => (
+          <Badge variant={getValue<boolean>() ? 'default' : 'outline'}>
+            {getValue<boolean>() ? 'บังคับ' : 'ไม่บังคับ'}
+          </Badge>
+        ),
+      },
+      {
+        id: 'locations',
+        header: 'พิกัด / สถานที่',
+        cell: ({ row }) => (
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs gap-1.5"
+            onPress={() => handleOpenSlotLocations(row.original)}
+          >
+            <MapPin className="size-3.5" />
+            พิกัด / สถานที่
+          </Button>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="size-8 p-0"
+              onPress={() => handleOpenEditSlot(row.original)}
+              aria-label="แก้ไขรอบเวลา"
+            >
+              <Edit2 className="size-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="size-8 p-0 text-destructive hover:text-destructive"
+              onPress={() => handleDeleteSlot(row.original)}
+              aria-label="ลบรอบเวลา"
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [handleOpenEditSlot, handleOpenSlotLocations, handleDeleteSlot],
+  );
+
   const isLoading = isCompanyLoading || schedulesQuery.isLoading;
 
   if (!isLoading && !schedule) {
@@ -301,19 +396,13 @@ export default function ScheduleDetailView({
 
         {/* Slots Section */}
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                รอบเวลาการลงชื่อ (Check-in Slots)
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                เรียงตามลำดับเวลาการเข้างานของกะ
-              </p>
-            </div>
-            <Button size="sm" variant="outline" onPress={handleOpenAddSlot}>
-              <Plus className="size-3.5" />
-              เพิ่มรอบ
-            </Button>
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              รอบเวลาการลงชื่อ (Check-in Slots)
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              เรียงตามลำดับเวลาการเข้างานของกะ (คลิกที่ชื่อรอบเพื่อแก้ไขข้อมูล)
+            </p>
           </div>
 
           {slots.length === 0 ? (
@@ -329,69 +418,7 @@ export default function ScheduleDetailView({
               }
             />
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {slots.map((slot) => (
-                <Card
-                  key={slot.id}
-                  className="flex flex-col justify-between border-border/80 transition-all hover:border-border hover:shadow-xs"
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                          #{slot.slotOrder}
-                        </span>
-                        <CardTitle className="text-base font-semibold">
-                          {slot.label}
-                        </CardTitle>
-                      </div>
-                      <Badge
-                        variant={slot.isRequired ? 'default' : 'outline'}
-                        className="text-xs"
-                      >
-                        {slot.isRequired ? 'บังคับ' : 'ไม่บังคับ'}
-                      </Badge>
-                    </div>
-                    <CardDescription className="flex items-center gap-1.5 pt-1 text-sm font-medium text-foreground">
-                      <Clock className="size-3.5 text-muted-foreground" />
-                      {slot.windowStart} - {slot.windowEnd}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="flex flex-col gap-3 pt-0">
-                    <div className="border-t border-border/50 pt-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 text-xs"
-                          onPress={() => handleOpenSlotLocations(slot)}
-                        >
-                          <MapPin className="size-3.5" />
-                          พิกัด / สถานที่
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="size-8 p-0"
-                          onPress={() => handleOpenEditSlot(slot)}
-                        >
-                          <Edit2 className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="size-8 p-0 text-destructive hover:text-destructive"
-                          onPress={() => handleDeleteSlot(slot)}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <DataTable data={slots} columns={slotColumns} />
           )}
         </div>
       </div>

@@ -4,8 +4,6 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { Company } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate, buildPageUrl } from '@/shared/utils';
-import CompanyColumnActions from './company-column-actions';
-
 const companyListColumns = (): ColumnDef<Company>[] => {
   return [
     {
@@ -14,9 +12,12 @@ const companyListColumns = (): ColumnDef<Company>[] => {
       cell: ({ row, getValue }) => (
         <Link
           href={buildPageUrl('company', [row.original.id])}
-          className="font-medium hover:underline hover:text-primary transition-colors"
+          className="font-semibold text-primary hover:underline flex flex-col group cursor-pointer"
         >
-          {getValue<string>()}
+          <span>{getValue<string>()}</span>
+          <span className="text-[11px] text-muted-foreground font-normal group-hover:text-primary/80 transition-colors">
+            จัดการสมาชิก สาขา และฟีเจอร์ →
+          </span>
         </Link>
       ),
     },
@@ -38,11 +39,6 @@ const companyListColumns = (): ColumnDef<Company>[] => {
       accessorKey: 'createdAt',
       header: 'วันที่สร้าง',
       cell: ({ getValue }) => formatDate(getValue<Date>()),
-    },
-    {
-      id: 'actions',
-      header: 'จัดการ',
-      cell: CompanyColumnActions,
     },
   ];
 };

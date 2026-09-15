@@ -1,6 +1,5 @@
-'use client';
-
 import React from 'react';
+import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { FormSubmission, FormTemplate, User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
@@ -37,8 +36,11 @@ export const formSubmissionDataColumns = ({
     cell: ({ row }) => {
       const template = templatesMap.get(row.original.formTemplateId);
       return (
-        <div className="flex flex-col">
-          <span className="font-semibold text-sm">
+        <Link
+          href={`/company/forms/submissions/${row.original.id}`}
+          className="flex flex-col group cursor-pointer"
+        >
+          <span className="font-semibold text-sm text-primary hover:underline transition-colors">
             {template?.name || 'แบบฟอร์มตรวจสอบทั่วไป'}
           </span>
           {template?.description ? (
@@ -50,7 +52,7 @@ export const formSubmissionDataColumns = ({
               ฉบับแก้ไขที่ {row.original.revision}
             </span>
           )}
-        </div>
+        </Link>
       );
     },
   },

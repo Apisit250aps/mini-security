@@ -2,8 +2,9 @@
 
 import React, { useMemo, useState } from 'react';
 import type { Feature, Role } from '@repo/client';
+import type { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { Badge } from '@repo/ui/components/badge';
-import { Card, CardContent } from '@repo/ui/components/card';
 import {
   InputGroup,
   InputGroupAddon,
@@ -70,17 +71,108 @@ export function RoleFeatureManager({
     );
   }, [availableFeatures, searchTerm]);
 
-  const groupedFeatures = useMemo(() => {
-    const groups: Record<string, Feature[]> = {};
-    for (const feat of filteredFeatures) {
-      const cat = feat.category || 'GENERAL';
-      if (!groups[cat]) {
-        groups[cat] = [];
-      }
-      groups[cat].push(feat);
-    }
-    return groups;
-  }, [filteredFeatures]);
+  const columns = useMemo<ColumnDef<Feature>[]>(
+    () => [
+      {
+        id: 'toggle',
+        header: 'มอบหมาย',
+        cell: ({ row }) => {
+          const feat = row.original;
+          const isAssigned = assignedFeatureIds.has(feat.id);
+          const isPending =
+            (assignMutation.isPending &&
+              assignMutation.variables?.featureId === feat.id) ||
+            (revokeMutation.isPending &&
+              revokeMutation.variables === feat.id);
+
+          return (
+            <div className="flex items-center gap-2">
+              {isPending && (
+                <Spinner className="size-3.5 text-primary animate-spin" />
+              )}
+              <Switch
+                isSelected={isAssigned}
+                isDisabled={readOnly || isPending}
+                onChange={(nextVal) => {
+                  if (nextVal) {
+                    assignMutation.mutate({
+                      companyId,
+                      roleId: role.id,
+                      featureId: feat.id,
+                      isEnabled: true,
+                    });
+                  } else {
+                    revokeMutation.mutate(feat.id);
+                  }
+                }}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: 'name',
+        header: 'ชื่อฟีเจอร์',
+        cell: ({ row }) => {
+          const feat = row.original;
+          return (
+            <div className="flex flex-col py-1">
+              <span className="font-semibold text-sm text-foreground">
+                {feat.name}
+              </span>
+              {feat.description && (
+                <span className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                  {feat.description}
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: 'code',
+        header: 'รหัสฟีเจอร์',
+        cell: ({ getValue }) => (
+          <Badge variant="outline" className="font-mono text-xs">
+            {getValue<string>()}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'category',
+        header: 'หมวดหมู่',
+        cell: ({ getValue }) => (
+          <Badge variant="secondary" className="text-xs">
+            {getValue<string>() || 'GENERAL'}
+          </Badge>
+        ),
+      },
+      {
+        id: 'status',
+        header: 'สถานะ',
+        cell: ({ row }) => {
+          const isAssigned = assignedFeatureIds.has(row.original.id);
+          return isAssigned ? (
+            <Badge variant="default" className="text-xs font-normal">
+              มอบหมายแล้ว
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-xs text-muted-foreground font-normal">
+              ยังไม่มอบหมาย
+            </Badge>
+          );
+        },
+      },
+    ],
+    [
+      assignedFeatureIds,
+      assignMutation,
+      revokeMutation,
+      readOnly,
+      companyId,
+      role.id,
+    ],
+  );
 
   const isLoading =
     availableFeaturesQuery.isLoading || roleFeaturesQuery.isLoading;
@@ -140,7 +232,7 @@ export function RoleFeatureManager({
         />
       </InputGroup>
 
-      {/* Feature List */}
+      {/* Feature List Table */}
       {availableFeatures.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground rounded-lg border border-dashed">
           <Layers className="size-8 opacity-40 mb-2" />
@@ -156,98 +248,7 @@ export function RoleFeatureManager({
           <p className="text-sm">ไม่พบฟีเจอร์ที่ตรงกับคำค้นหา</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
-          {Object.entries(groupedFeatures).map(([category, features]) => (
-            <div key={category} className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                  {category}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  ({features.length})
-                </span>
-              </div>
-
-              <div className="grid gap-2.5 sm:grid-cols-1 md:grid-cols-2">
-                {features.map((feat) => {
-                  const isAssigned = assignedFeatureIds.has(feat.id);
-                  const isPending =
-                    (assignMutation.isPending &&
-                      assignMutation.variables?.featureId === feat.id) ||
-                    (revokeMutation.isPending &&
-                      revokeMutation.variables === feat.id);
-
-                  return (
-                    <Card
-                      key={feat.id}
-                      className={`transition-colors ${
-                        isAssigned
-                          ? 'border-primary/40 bg-card'
-                          : 'border-border/60 bg-muted/10 opacity-75'
-                      }`}
-                    >
-                      <CardContent className="p-3.5 flex items-start justify-between gap-3">
-                        <div className="flex flex-col gap-1 flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-medium text-sm">
-                              {feat.name}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] font-mono px-1 py-0"
-                            >
-                              {feat.code}
-                            </Badge>
-                          </div>
-
-                          {feat.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {feat.description}
-                            </p>
-                          )}
-
-                          <div className="pt-0.5">
-                            {isAssigned ? (
-                              <span className="inline-flex items-center text-[11px] font-medium text-primary">
-                                ● บทบาทนี้มีสิทธิ์ดูแลฟีเจอร์นี้
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center text-[11px] text-muted-foreground">
-                                ○ ยังไม่ได้มอบหมาย
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 pt-0.5">
-                          {isPending && (
-                            <Spinner className="size-3.5 text-primary animate-spin" />
-                          )}
-                          <Switch
-                            isSelected={isAssigned}
-                            isDisabled={readOnly || isPending}
-                            onChange={(nextVal) => {
-                              if (nextVal) {
-                                assignMutation.mutate({
-                                  companyId,
-                                  roleId: role.id,
-                                  featureId: feat.id,
-                                  isEnabled: true,
-                                });
-                              } else {
-                                revokeMutation.mutate(feat.id);
-                              }
-                            }}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+        <DataTable data={filteredFeatures} columns={columns} />
       )}
     </div>
   );

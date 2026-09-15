@@ -11,6 +11,8 @@ import type {
 } from '@repo/domains/entities';
 import { calculateLeaveDays } from '@repo/domains';
 import { Badge } from '@repo/ui/components/badge';
+import { useOverlay } from '@repo/ui/hooks';
+import LeaveRequestDetailSheet from './leave-request-detail-sheet';
 import LeaveRequestColumnActions from './leave-request-column-actions';
 
 interface LeaveRequestColumnsOptions {
@@ -33,6 +35,56 @@ const STATUS_MAP: Record<
   cancelled: { label: 'ยกเลิกแล้ว', variant: 'outline' },
 };
 
+function LeaveRequestEmployeeCell({
+  request,
+  companyId,
+  displayName,
+  subText,
+  leaveTypeName,
+  memberName,
+}: {
+  request: LeaveRequest;
+  companyId: string;
+  displayName: string;
+  subText?: string;
+  leaveTypeName?: string;
+  memberName?: string;
+}) {
+  const ui = useOverlay();
+
+  const handleOpen = () => {
+    ui.sheet.open({
+      title: 'รายละเอียดคำขอลาหยุดงาน',
+      description: 'ตรวจสอบข้อมูลการขอลา เอกสารแนบ และผลการพิจารณา',
+      size: 'lg',
+      children: (
+        <LeaveRequestDetailSheet
+          request={request}
+          companyId={companyId}
+          leaveTypeName={leaveTypeName}
+          memberName={memberName}
+          onClose={() => ui.sheet.close()}
+        />
+      ),
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleOpen}
+      className="flex flex-col text-left group cursor-pointer"
+    >
+      <span className="font-semibold text-sm text-primary hover:underline transition-colors">
+        {displayName}
+      </span>
+      {subText && (
+        <span className="text-xs text-muted-foreground">{subText}</span>
+      )}
+    </button>
+  );
+}
+
 export const leaveRequestDataColumns = ({
   companyId,
   types = [],
@@ -46,7 +98,7 @@ export const leaveRequestDataColumns = ({
     {
       accessorKey: 'companyMemberId',
       header: 'พนักงาน',
-      cell: ({ getValue }) => {
+      cell: ({ row, getValue }) => {
         const memberId = getValue<string>();
         const member = memberObjMap.get(memberId);
         const user = member ? usersMap?.get(member.userId) : undefined;
@@ -56,13 +108,22 @@ export const leaveRequestDataColumns = ({
             ? `พนักงาน #${member.id.slice(0, 6)}`
             : `พนักงาน #${memberId.slice(0, 6)}`);
         const subText = user?.email || (!user ? 'ข้อมูลพนักงาน' : undefined);
+        const typeName = typeMap.get(row.original.leaveTypeId) || 'การลา';
+        const memberName = user
+          ? `${user.name} (${user.email})`
+          : member
+            ? `พนักงาน #${member.id.slice(0, 6)}`
+            : `พนักงาน #${memberId.slice(0, 6)}`;
+
         return (
-          <div className="flex flex-col">
-            <span className="font-semibold text-sm">{displayName}</span>
-            {subText && (
-              <span className="text-xs text-muted-foreground">{subText}</span>
-            )}
-          </div>
+          <LeaveRequestEmployeeCell
+            request={row.original}
+            companyId={companyId}
+            displayName={displayName}
+            subText={subText}
+            leaveTypeName={typeName}
+            memberName={memberName}
+          />
         );
       },
     },

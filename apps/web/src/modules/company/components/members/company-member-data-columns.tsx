@@ -3,7 +3,9 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { CompanyBranch, CompanyMember, Role } from '@repo/client';
 import type { User } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
+import { useOverlay } from '@repo/ui/hooks';
 import { formatDate } from '@/shared/utils';
+import CompanyMemberEditForm from './company-member-edit-form';
 import CompanyMemberColumnActions from './company-member-column-actions';
 import CompanyMemberRoleSelect from './company-member-role-select';
 import CompanyMemberBranchSelect from './company-member-branch-select';
@@ -13,6 +15,48 @@ interface CompanyMemberColumnsOptions {
   usersMap: Map<string, User>;
   roles: Role[];
   branches: CompanyBranch[];
+}
+
+function MemberNameCell({
+  member,
+  user,
+  companyId,
+}: {
+  member: CompanyMember;
+  user?: User;
+  companyId: string;
+}) {
+  const ui = useOverlay();
+  const displayName = user?.name || `สมาชิก #${member.id.slice(0, 6)}`;
+  const subText = user?.email || 'ไม่ระบุข้อมูลบัญชี';
+
+  const handleClick = () => {
+    ui.sheet.open({
+      title: 'แก้ไขสมาชิกและบทบาท',
+      description: 'ปรับเปลี่ยนบทบาทและสถานะการทำงานของสมาชิกในบริษัท',
+      size: 'lg',
+      children: (
+        <CompanyMemberEditForm
+          companyId={companyId}
+          member={member}
+          onSuccess={() => ui.sheet.close()}
+        />
+      ),
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="flex flex-col text-left group cursor-pointer"
+    >
+      <span className="font-semibold text-sm text-primary hover:underline transition-colors">
+        {displayName}
+      </span>
+      <span className="text-xs text-muted-foreground">{subText}</span>
+    </button>
+  );
 }
 
 export const companyMemberListColumns = ({
@@ -27,20 +71,12 @@ export const companyMemberListColumns = ({
       header: 'ชื่อสมาชิก / พนักงาน',
       cell: ({ row }) => {
         const user = usersMap.get(row.original.userId);
-        return user ? (
-          <div className="flex flex-col">
-            <span className="font-medium text-sm">{user.name}</span>
-            <span className="text-xs text-muted-foreground">{user.email}</span>
-          </div>
-        ) : (
-          <div className="flex flex-col">
-            <span className="font-medium text-sm text-muted-foreground">
-              สมาชิก #{row.original.id.slice(0, 6)}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              ไม่ระบุข้อมูลบัญชี
-            </span>
-          </div>
+        return (
+          <MemberNameCell
+            member={row.original}
+            user={user}
+            companyId={companyId}
+          />
         );
       },
     },

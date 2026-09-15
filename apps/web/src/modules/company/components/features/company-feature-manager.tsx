@@ -2,8 +2,9 @@
 
 import React, { useMemo, useState } from 'react';
 import type { Feature } from '@repo/client';
+import type { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { Badge } from '@repo/ui/components/badge';
-import { Card, CardContent } from '@repo/ui/components/card';
 import {
   InputGroup,
   InputGroupAddon,
@@ -58,18 +59,6 @@ export function CompanyFeatureManager({
     );
   }, [allFeatures, searchTerm]);
 
-  const groupedFeatures = useMemo(() => {
-    const groups: Record<string, Feature[]> = {};
-    for (const feat of filteredFeatures) {
-      const cat = feat.category || 'GENERAL';
-      if (!groups[cat]) {
-        groups[cat] = [];
-      }
-      groups[cat].push(feat);
-    }
-    return groups;
-  }, [filteredFeatures]);
-
   const activeCount = useMemo(() => {
     let count = 0;
     for (const feat of allFeatures) {
@@ -79,6 +68,95 @@ export function CompanyFeatureManager({
     }
     return count;
   }, [allFeatures, companyFeatureMap]);
+
+  const columns = useMemo<ColumnDef<Feature>[]>(
+    () => [
+      {
+        id: 'toggle',
+        header: 'เปิดใช้งาน',
+        cell: ({ row }) => {
+          const feat = row.original;
+          const isEnabled = companyFeatureMap.get(feat.id) ?? false;
+          const isMutatingThis =
+            toggleMutation.isPending &&
+            toggleMutation.variables?.featureId === feat.id;
+
+          return (
+            <div className="flex items-center gap-2">
+              {isMutatingThis && (
+                <Spinner className="size-3.5 text-primary animate-spin" />
+              )}
+              <Switch
+                isSelected={isEnabled}
+                isDisabled={isMutatingThis}
+                onChange={(nextVal) => {
+                  toggleMutation.mutate({
+                    companyId,
+                    featureId: feat.id,
+                    isEnabled: nextVal,
+                  });
+                }}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: 'name',
+        header: 'ชื่อฟีเจอร์',
+        cell: ({ row }) => {
+          const feat = row.original;
+          return (
+            <div className="flex flex-col py-1">
+              <span className="font-semibold text-sm text-foreground">
+                {feat.name}
+              </span>
+              {feat.description && (
+                <span className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                  {feat.description}
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: 'code',
+        header: 'รหัสฟีเจอร์',
+        cell: ({ getValue }) => (
+          <Badge variant="outline" className="font-mono text-xs">
+            {getValue<string>()}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'category',
+        header: 'หมวดหมู่',
+        cell: ({ getValue }) => (
+          <Badge variant="secondary" className="text-xs">
+            {getValue<string>() || 'GENERAL'}
+          </Badge>
+        ),
+      },
+      {
+        id: 'status',
+        header: 'สถานะ',
+        cell: ({ row }) => {
+          const isEnabled = companyFeatureMap.get(row.original.id) ?? false;
+          return isEnabled ? (
+            <span className="inline-flex items-center text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              ● เปิดใช้งานสำหรับบริษัทนี้
+            </span>
+          ) : (
+            <span className="inline-flex items-center text-xs text-muted-foreground">
+              ○ ปิดการใช้งาน
+            </span>
+          );
+        },
+      },
+    ],
+    [companyFeatureMap, toggleMutation, companyId],
+  );
 
   const isLoading = featuresQuery.isLoading || companyFeaturesQuery.isLoading;
 
@@ -130,98 +208,14 @@ export function CompanyFeatureManager({
         />
       </InputGroup>
 
-      {/* Grouped Features List */}
+      {/* Features Table */}
       {filteredFeatures.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
           <Layers className="size-8 opacity-40 mb-2" />
           <p className="text-sm font-medium">ไม่พบฟีเจอร์ที่ตรงกับคำค้นหา</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
-          {Object.entries(groupedFeatures).map(([category, features]) => (
-            <div key={category} className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                  หมวดหมู่: {category}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  ({features.length})
-                </span>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2">
-                {features.map((feat) => {
-                  const isEnabled = companyFeatureMap.get(feat.id) ?? false;
-                  const isMutatingThis =
-                    toggleMutation.isPending &&
-                    toggleMutation.variables?.featureId === feat.id;
-
-                  return (
-                    <Card
-                      key={feat.id}
-                      className={`transition-all duration-200 ${
-                        isEnabled
-                          ? 'border-primary/30 bg-card shadow-xs'
-                          : 'border-border/60 bg-muted/20 opacity-80'
-                      }`}
-                    >
-                      <CardContent className="p-4 flex items-start justify-between gap-4">
-                        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-sm">
-                              {feat.name}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] font-mono px-1.5 py-0"
-                            >
-                              {feat.code}
-                            </Badge>
-                          </div>
-
-                          {feat.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {feat.description}
-                            </p>
-                          )}
-
-                          <div className="pt-1">
-                            {isEnabled ? (
-                              <span className="inline-flex items-center text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                                ● เปิดใช้งานสำหรับบริษัทนี้
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center text-[11px] text-muted-foreground">
-                                ○ ปิดการใช้งาน
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 pt-0.5">
-                          {isMutatingThis && (
-                            <Spinner className="size-3.5 text-primary animate-spin" />
-                          )}
-                          <Switch
-                            isSelected={isEnabled}
-                            isDisabled={isMutatingThis}
-                            onChange={(nextVal) => {
-                              toggleMutation.mutate({
-                                companyId,
-                                featureId: feat.id,
-                                isEnabled: nextVal,
-                              });
-                            }}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+        <DataTable data={filteredFeatures} columns={columns} />
       )}
     </div>
   );
