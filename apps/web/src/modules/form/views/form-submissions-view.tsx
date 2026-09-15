@@ -78,8 +78,8 @@ export default function FormSubmissionsView() {
     if (!submissionsQuery.data || !currentRoleId) return map;
 
     for (const sub of submissionsQuery.data) {
-      if (sub.roleId === currentRoleId && !sub.submittedAt) {
-        map.set(sub.formTemplateId, sub);
+      if (sub.assignmentId === currentRoleId && !sub.submittedAt) {
+        map.set(sub.assignmentId, sub);
       }
     }
     return map;
@@ -94,9 +94,7 @@ export default function FormSubmissionsView() {
 
       startMutation.mutate(
         {
-          formTemplateId: templateId,
-          roleId: currentMember.roleId,
-          memberId: currentMember.id,
+          assignmentId: templateId,
         },
         {
           onSuccess: (res) => {
@@ -230,7 +228,7 @@ export default function FormSubmissionsView() {
               onStartOrJoin={handleStartOrJoin}
               pendingTemplateId={
                 startMutation.isPending
-                  ? startMutation.variables?.formTemplateId
+                  ? startMutation.variables?.assignmentId
                   : undefined
               }
               isLoading={templatesQuery.isLoading}

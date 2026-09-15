@@ -8,7 +8,7 @@ import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useOverlay } from '@repo/ui/hooks';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
-import { useFormSubmissionClone } from '../../hooks/form-mutations';
+import { useFormSubmissionCreateCorrection } from '../../hooks/form-mutations';
 import FormSubmissionReviewDialog from './form-submission-review-dialog';
 
 interface FormSubmissionColumnActionsProps<T extends FormSubmission> {
@@ -23,7 +23,7 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
   const router = useRouter();
   const ui = useOverlay();
   const submission = cell.row.original;
-  const cloneMutation = useFormSubmissionClone(companyId);
+  const cloneMutation = useFormSubmissionCreateCorrection(submission.id, companyId);
 
   const { data: session } = useSession();
   const membersQuery = useCompanyMembersQueries(companyId);
@@ -61,12 +61,9 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
       confirmVariant: 'default',
       onConfirm: () => {
         cloneMutation.mutate(
+          undefined,
           {
-            id: submission.id,
-            data: { memberId },
-          },
-          {
-            onSuccess: (res) => {
+            onSuccess: (res: { data?: { id?: string } }) => {
               ui.alert.close();
               const newSub = res?.data;
               if (newSub?.id) {
@@ -77,7 +74,7 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
         );
       },
     });
-  }, [ui.alert, cloneMutation, submission.id, memberId, router]);
+  }, [ui.alert, cloneMutation, router]);
 
   if (!submission.submittedAt) {
     return (

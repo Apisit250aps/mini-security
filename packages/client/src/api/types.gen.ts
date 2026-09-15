@@ -4,6 +4,10 @@ export type ClientOptions = {
     baseURL: `${string}://${string}` | (string & {});
 };
 
+export type ActivatePlanRequest = {
+    expectedRevision: number;
+};
+
 export type AnswerInput = {
     fieldId: string;
     value?: unknown;
@@ -23,10 +27,6 @@ export type ApiErrorResponse = {
  */
 export type ApiInternalErrorResponse = {
     body: ApiErrorResponse;
-};
-
-export type AssignFormRolesRequest = {
-    roleIds: Array<string>;
 };
 
 export type AttendanceLog = {
@@ -58,6 +58,16 @@ export type BasicResponse = {
     message: string;
 };
 
+export type CancelAssignmentRequest = {
+    cancelReason: string;
+    expectedRevision: number;
+};
+
+export type CancelOccurrenceRequest = {
+    cancelReason: string;
+    expectedRevision: number;
+};
+
 export type CheckInRequest = {
     companyMemberId: string;
     scheduleSlotId: string;
@@ -75,10 +85,6 @@ export type CheckInSchedule = {
     companyId: string;
     name: string;
     isActive: boolean;
-};
-
-export type CloneFormSubmissionRequest = {
-    memberId: string;
 };
 
 export type Company = {
@@ -227,6 +233,39 @@ export type CreateFormField = {
     config: {
         [key: string]: unknown;
     };
+};
+
+export type CreateFormPlanPeriod = {
+    opensAt: Date;
+    dueAt: Date;
+};
+
+export type CreateFormPlanRequest = {
+    /**
+     * The template for picking properties.
+     */
+    data: {
+        companyId: string;
+        formTemplateId: string;
+        name: string;
+        scheduleKind: DomainEntityFormScheduleKind;
+        scheduleConfig: {
+            [key: string]: unknown;
+        } | null;
+        timezone: string;
+        fixedVersionId: string | null;
+        reviewMode: DomainEntityFormReviewMode;
+        latePolicy: DomainEntityFormLatePolicy;
+        missedPolicy: DomainEntityFormMissedPolicy;
+    };
+    targets: Array<CreateFormPlanTarget>;
+    periods?: Array<CreateFormPlanPeriod>;
+};
+
+export type CreateFormPlanTarget = {
+    roleId?: string;
+    companyMemberId?: string;
+    roleDistribution?: DomainEntityFormRoleDistribution;
 };
 
 /**
@@ -381,7 +420,90 @@ export type CreateUser = {
 
 export type DomainEntityAttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
 
+export type DomainEntityFormAssignment = {
+    id: string;
+    createdAt: Date;
+    companyId: string;
+    occurrenceId: string;
+    formVersionId: string;
+    roleId: string | null;
+    companyMemberId: string | null;
+    replacesAssignmentId: string | null;
+    assignedBy: string | null;
+    cancelledAt: Date | null;
+    cancelledBy: string | null;
+    cancelReason: string | null;
+    revision: number;
+};
+
 export type DomainEntityFormFieldType = 'TEXT' | 'NUMBER' | 'SELECT' | 'BOOLEAN' | 'DATE' | 'IMAGE' | 'FILE';
+
+export type DomainEntityFormLatePolicy = 'ALLOW' | 'DENY';
+
+export type DomainEntityFormMissedPolicy = 'SKIP' | 'CATCH_UP';
+
+export type DomainEntityFormOccurrence = {
+    id: string;
+    createdAt: Date;
+    companyId: string;
+    planId: string;
+    formTemplateId: string;
+    formVersionId: string;
+    periodId: string | null;
+    occurrenceKey: string;
+    opensAt: Date;
+    dueAt: Date;
+    cancelledAt: Date | null;
+    cancelledBy: string | null;
+    cancelReason: string | null;
+    revision: number;
+};
+
+export type DomainEntityFormPlan = {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    companyId: string;
+    formTemplateId: string;
+    supersedesPlanId: string | null;
+    name: string;
+    scheduleKind: DomainEntityFormScheduleKind;
+    scheduleConfig: {
+        [key: string]: unknown;
+    } | null;
+    timezone: string;
+    fixedVersionId: string | null;
+    reviewMode: DomainEntityFormReviewMode;
+    latePolicy: DomainEntityFormLatePolicy;
+    missedPolicy: DomainEntityFormMissedPolicy;
+    effectiveFrom: Date | null;
+    effectiveUntil: Date | null;
+    createdBy: string;
+    closedBy: string | null;
+    revision: number;
+};
+
+export type DomainEntityFormReviewAction = 'PASS' | 'NEEDS_CHANGES' | 'APPROVE' | 'RETURN';
+
+export type DomainEntityFormReviewEntry = {
+    id: string;
+    createdAt: Date;
+    companyId: string;
+    submissionId: string;
+    formVersionId: string;
+    answerId: string | null;
+    sectionId: string | null;
+    action: DomainEntityFormReviewAction;
+    note: string | null;
+    reviewedBy: string;
+    supersedesEntryId: string | null;
+};
+
+export type DomainEntityFormReviewMode = 'NONE' | 'OVERALL' | 'ALL_SECTIONS' | 'ALL_ANSWERS';
+
+export type DomainEntityFormRoleDistribution = 'SHARED' | 'PER_MEMBER';
+
+export type DomainEntityFormScheduleKind = 'RECURRING' | 'EXPLICIT';
 
 export type DomainEntityFormVersionStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
@@ -390,8 +512,6 @@ export type DomainEntityLeaveRequestStatus = 'pending' | 'approved' | 'rejected'
 export type DomainEntityLeaveUnit = 'day' | 'half_day' | 'hour';
 
 export type DomainEntityRoleType = 'SUPER_ADMIN' | 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
-
-export type DomainEntitySubmissionReviewAction = 'APPROVE' | 'REJECT';
 
 /**
  * The template for picking properties.
@@ -420,6 +540,11 @@ export type Feature = {
 
 export type FeatureAccessResponse = {
     hasAccess: boolean;
+};
+
+export type FinalizeReviewRequest = {
+    action: DomainEntityFormReviewAction;
+    note?: string;
 };
 
 export type FormAnswer = {
@@ -486,9 +611,8 @@ export type FormSubmission = {
     createdAt: Date;
     updatedAt: Date;
     companyId: string;
-    formTemplateId: string;
+    assignmentId: string;
     formVersionId: string;
-    roleId: string;
     startedBy: string;
     submittedBy?: string | null;
     revision: number;
@@ -512,7 +636,6 @@ export type FormSubmissionDetail = {
     fields: Array<FormField>;
     answers: Array<FormAnswer>;
     contributors: Array<FormSubmissionContributor>;
-    review: SubmissionReview | null;
 };
 
 export type FormTemplate = {
@@ -530,19 +653,8 @@ export type FormTemplateDetail = {
     template: FormTemplate;
     activeVersion: FormVersion | null;
     draftVersion: FormVersion | null;
-    roles: Array<FormTemplateRole>;
     sections: Array<FormSection>;
     fields: Array<FormField>;
-};
-
-export type FormTemplateRole = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    companyId: string;
-    formTemplateId: string;
-    roleId: string;
-    isEnabled: boolean;
 };
 
 export type FormVersion = {
@@ -619,6 +731,14 @@ export type Location = {
     isActive: boolean;
 };
 
+export type OpenOccurrencesRequest = {
+    companyId: string;
+};
+
+export type PausePlanRequest = {
+    expectedRevision: number;
+};
+
 export type Permission = {
     id: string;
     createdAt: Date;
@@ -633,15 +753,21 @@ export type PublishFormVersionRequest = {
     memberId: string;
 };
 
+export type RecordReviewRequest = {
+    action: DomainEntityFormReviewAction;
+    note?: string;
+    supersedesEntryId?: string;
+};
+
 export type ReorderFormItemsRequest = {
     formVersionId: string;
     items: Array<FormReorderItem>;
 };
 
-export type ReviewFormSubmissionRequest = {
-    memberId: string;
-    action: DomainEntitySubmissionReviewAction;
-    note?: string;
+export type ReplaceAssignmentRequest = {
+    cancelReason: string;
+    newCompanyMemberId?: string;
+    newRoleId?: string;
 };
 
 export type ReviewLeaveRequestRequest = {
@@ -688,7 +814,6 @@ export type RoleToggleFeatureRequest = {
 };
 
 export type SaveFormSubmissionDraftRequest = {
-    memberId: string;
     expectedRevision: number;
     answers: Array<AnswerInput>;
 };
@@ -722,23 +847,10 @@ export type SetPrimaryLocationRequest = {
 };
 
 export type StartFormSubmissionRequest = {
-    formTemplateId: string;
-    roleId: string;
-    memberId: string;
-};
-
-export type SubmissionReview = {
-    id: string;
-    createdAt: Date;
-    companyId: string;
-    submissionId: string;
-    reviewedBy: string;
-    action: DomainEntitySubmissionReviewAction;
-    note?: string | null;
+    assignmentId: string;
 };
 
 export type SubmitFormSubmissionRequest = {
-    memberId: string;
     expectedRevision: number;
 };
 
@@ -2435,6 +2547,151 @@ export type FeatureServicesToggleFeatureResponses = {
 
 export type FeatureServicesToggleFeatureResponse = FeatureServicesToggleFeatureResponses[keyof FeatureServicesToggleFeatureResponses];
 
+export type FormServicesListMyAssignmentsData = {
+    body?: never;
+    path?: never;
+    query: {
+        companyId: string;
+        memberId: string;
+    };
+    url: '/forms/assignments';
+};
+
+export type FormServicesListMyAssignmentsErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesListMyAssignmentsError = FormServicesListMyAssignmentsErrors[keyof FormServicesListMyAssignmentsErrors];
+
+export type FormServicesListMyAssignmentsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<DomainEntityFormAssignment>;
+    };
+};
+
+export type FormServicesListMyAssignmentsResponse = FormServicesListMyAssignmentsResponses[keyof FormServicesListMyAssignmentsResponses];
+
+export type FormServicesGetAssignmentData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/assignments/{id}';
+};
+
+export type FormServicesGetAssignmentErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesGetAssignmentError = FormServicesGetAssignmentErrors[keyof FormServicesGetAssignmentErrors];
+
+export type FormServicesGetAssignmentResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormAssignment;
+    };
+};
+
+export type FormServicesGetAssignmentResponse = FormServicesGetAssignmentResponses[keyof FormServicesGetAssignmentResponses];
+
+export type FormServicesCancelAssignmentData = {
+    body: CancelAssignmentRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/assignments/{id}/cancel';
+};
+
+export type FormServicesCancelAssignmentErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesCancelAssignmentError = FormServicesCancelAssignmentErrors[keyof FormServicesCancelAssignmentErrors];
+
+export type FormServicesCancelAssignmentResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormAssignment;
+    };
+};
+
+export type FormServicesCancelAssignmentResponse = FormServicesCancelAssignmentResponses[keyof FormServicesCancelAssignmentResponses];
+
+export type FormServicesReplaceAssignmentData = {
+    body: ReplaceAssignmentRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/assignments/{id}/replace';
+};
+
+export type FormServicesReplaceAssignmentErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesReplaceAssignmentError = FormServicesReplaceAssignmentErrors[keyof FormServicesReplaceAssignmentErrors];
+
+export type FormServicesReplaceAssignmentResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormAssignment;
+    };
+};
+
+export type FormServicesReplaceAssignmentResponse = FormServicesReplaceAssignmentResponses[keyof FormServicesReplaceAssignmentResponses];
+
 export type FormServicesListTemplatesByCompanyData = {
     body?: never;
     path: {
@@ -2466,13 +2723,327 @@ export type FormServicesListTemplatesByCompanyResponses = {
 
 export type FormServicesListTemplatesByCompanyResponse = FormServicesListTemplatesByCompanyResponses[keyof FormServicesListTemplatesByCompanyResponses];
 
+export type FormServicesOpenOccurrencesData = {
+    body: OpenOccurrencesRequest;
+    path?: never;
+    query?: never;
+    url: '/forms/occurrences/open';
+};
+
+export type FormServicesOpenOccurrencesErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesOpenOccurrencesError = FormServicesOpenOccurrencesErrors[keyof FormServicesOpenOccurrencesErrors];
+
+export type FormServicesOpenOccurrencesResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<DomainEntityFormOccurrence>;
+    };
+};
+
+export type FormServicesOpenOccurrencesResponse = FormServicesOpenOccurrencesResponses[keyof FormServicesOpenOccurrencesResponses];
+
+export type FormServicesCancelOccurrenceData = {
+    body: CancelOccurrenceRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/occurrences/{id}/cancel';
+};
+
+export type FormServicesCancelOccurrenceErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesCancelOccurrenceError = FormServicesCancelOccurrenceErrors[keyof FormServicesCancelOccurrenceErrors];
+
+export type FormServicesCancelOccurrenceResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormOccurrence;
+    };
+};
+
+export type FormServicesCancelOccurrenceResponse = FormServicesCancelOccurrenceResponses[keyof FormServicesCancelOccurrenceResponses];
+
+export type FormServicesListPlansData = {
+    body?: never;
+    path?: never;
+    query: {
+        companyId: string;
+    };
+    url: '/forms/plans';
+};
+
+export type FormServicesListPlansErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesListPlansError = FormServicesListPlansErrors[keyof FormServicesListPlansErrors];
+
+export type FormServicesListPlansResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<DomainEntityFormPlan>;
+    };
+};
+
+export type FormServicesListPlansResponse = FormServicesListPlansResponses[keyof FormServicesListPlansResponses];
+
+export type FormServicesCreatePlanData = {
+    body: CreateFormPlanRequest;
+    path?: never;
+    query?: never;
+    url: '/forms/plans';
+};
+
+export type FormServicesCreatePlanErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesCreatePlanError = FormServicesCreatePlanErrors[keyof FormServicesCreatePlanErrors];
+
+export type FormServicesCreatePlanResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    201: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormPlan;
+    };
+};
+
+export type FormServicesCreatePlanResponse = FormServicesCreatePlanResponses[keyof FormServicesCreatePlanResponses];
+
+export type FormServicesGetPlanData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/plans/{id}';
+};
+
+export type FormServicesGetPlanErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesGetPlanError = FormServicesGetPlanErrors[keyof FormServicesGetPlanErrors];
+
+export type FormServicesGetPlanResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormPlan;
+    };
+};
+
+export type FormServicesGetPlanResponse = FormServicesGetPlanResponses[keyof FormServicesGetPlanResponses];
+
+export type FormServicesActivatePlanData = {
+    body: ActivatePlanRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/plans/{id}/activate';
+};
+
+export type FormServicesActivatePlanErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesActivatePlanError = FormServicesActivatePlanErrors[keyof FormServicesActivatePlanErrors];
+
+export type FormServicesActivatePlanResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormPlan;
+    };
+};
+
+export type FormServicesActivatePlanResponse = FormServicesActivatePlanResponses[keyof FormServicesActivatePlanResponses];
+
+export type FormServicesPausePlanData = {
+    body: PausePlanRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/plans/{id}/pause';
+};
+
+export type FormServicesPausePlanErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesPausePlanError = FormServicesPausePlanErrors[keyof FormServicesPausePlanErrors];
+
+export type FormServicesPausePlanResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormPlan;
+    };
+};
+
+export type FormServicesPausePlanResponse = FormServicesPausePlanResponses[keyof FormServicesPausePlanResponses];
+
+export type FormServicesPreviewScheduleData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/plans/{id}/schedule-preview';
+};
+
+export type FormServicesPreviewScheduleErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesPreviewScheduleError = FormServicesPreviewScheduleErrors[keyof FormServicesPreviewScheduleErrors];
+
+export type FormServicesPreviewScheduleResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<Date>;
+    };
+};
+
+export type FormServicesPreviewScheduleResponse = FormServicesPreviewScheduleResponses[keyof FormServicesPreviewScheduleResponses];
+
+export type FormServicesListReviewQueueData = {
+    body?: never;
+    path?: never;
+    query: {
+        companyId: string;
+    };
+    url: '/forms/reviews';
+};
+
+export type FormServicesListReviewQueueErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesListReviewQueueError = FormServicesListReviewQueueErrors[keyof FormServicesListReviewQueueErrors];
+
+export type FormServicesListReviewQueueResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<FormSubmission>;
+    };
+};
+
+export type FormServicesListReviewQueueResponse = FormServicesListReviewQueueResponses[keyof FormServicesListReviewQueueResponses];
+
 export type FormServicesListSubmissionsData = {
     body?: never;
     path?: never;
     query?: {
         companyId?: string;
-        roleId?: string;
-        formTemplateId?: string;
+        assignmentId?: string;
     };
     url: '/forms/submissions';
 };
@@ -2567,16 +3138,17 @@ export type FormServicesGetSubmissionResponses = {
 
 export type FormServicesGetSubmissionResponse = FormServicesGetSubmissionResponses[keyof FormServicesGetSubmissionResponses];
 
-export type FormServicesCloneData = {
-    body: CloneFormSubmissionRequest;
+export type FormServicesRecordAnswerReviewData = {
+    body: RecordReviewRequest;
     path: {
         id: string;
+        answerId: string;
     };
     query?: never;
-    url: '/forms/submissions/{id}/clone';
+    url: '/forms/submissions/{id}/answers/{answerId}/review';
 };
 
-export type FormServicesCloneErrors = {
+export type FormServicesRecordAnswerReviewErrors = {
     /**
      * 400 Bad Request — INVALID_DATA
      */
@@ -2591,9 +3163,48 @@ export type FormServicesCloneErrors = {
     404: ApiErrorResponse;
 };
 
-export type FormServicesCloneError = FormServicesCloneErrors[keyof FormServicesCloneErrors];
+export type FormServicesRecordAnswerReviewError = FormServicesRecordAnswerReviewErrors[keyof FormServicesRecordAnswerReviewErrors];
 
-export type FormServicesCloneResponses = {
+export type FormServicesRecordAnswerReviewResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    201: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormReviewEntry;
+    };
+};
+
+export type FormServicesRecordAnswerReviewResponse = FormServicesRecordAnswerReviewResponses[keyof FormServicesRecordAnswerReviewResponses];
+
+export type FormServicesCreateCorrectionData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/submissions/{id}/correction';
+};
+
+export type FormServicesCreateCorrectionErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesCreateCorrectionError = FormServicesCreateCorrectionErrors[keyof FormServicesCreateCorrectionErrors];
+
+export type FormServicesCreateCorrectionResponses = {
     /**
      * Successful response wrapping data payload
      */
@@ -2604,7 +3215,7 @@ export type FormServicesCloneResponses = {
     };
 };
 
-export type FormServicesCloneResponse = FormServicesCloneResponses[keyof FormServicesCloneResponses];
+export type FormServicesCreateCorrectionResponse = FormServicesCreateCorrectionResponses[keyof FormServicesCreateCorrectionResponses];
 
 export type FormServicesSaveDraftData = {
     body: SaveFormSubmissionDraftRequest;
@@ -2645,16 +3256,16 @@ export type FormServicesSaveDraftResponses = {
 
 export type FormServicesSaveDraftResponse = FormServicesSaveDraftResponses[keyof FormServicesSaveDraftResponses];
 
-export type FormServicesReviewData = {
-    body: ReviewFormSubmissionRequest;
+export type FormServicesFinalizeReviewData = {
+    body: FinalizeReviewRequest;
     path: {
         id: string;
     };
     query?: never;
-    url: '/forms/submissions/{id}/review';
+    url: '/forms/submissions/{id}/finalize-review';
 };
 
-export type FormServicesReviewErrors = {
+export type FormServicesFinalizeReviewErrors = {
     /**
      * 400 Bad Request — INVALID_DATA
      */
@@ -2669,20 +3280,95 @@ export type FormServicesReviewErrors = {
     404: ApiErrorResponse;
 };
 
-export type FormServicesReviewError = FormServicesReviewErrors[keyof FormServicesReviewErrors];
+export type FormServicesFinalizeReviewError = FormServicesFinalizeReviewErrors[keyof FormServicesFinalizeReviewErrors];
 
-export type FormServicesReviewResponses = {
+export type FormServicesFinalizeReviewResponses = {
     /**
      * Successful response wrapping data payload
      */
     200: {
         success: boolean;
         message: string;
-        data?: SubmissionReview;
+        data?: DomainEntityFormReviewEntry;
     };
 };
 
-export type FormServicesReviewResponse = FormServicesReviewResponses[keyof FormServicesReviewResponses];
+export type FormServicesFinalizeReviewResponse = FormServicesFinalizeReviewResponses[keyof FormServicesFinalizeReviewResponses];
+
+export type FormServicesGetReviewDetailData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/submissions/{id}/review-entries';
+};
+
+export type FormServicesGetReviewDetailErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesGetReviewDetailError = FormServicesGetReviewDetailErrors[keyof FormServicesGetReviewDetailErrors];
+
+export type FormServicesGetReviewDetailResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<DomainEntityFormReviewEntry>;
+    };
+};
+
+export type FormServicesGetReviewDetailResponse = FormServicesGetReviewDetailResponses[keyof FormServicesGetReviewDetailResponses];
+
+export type FormServicesRecordSectionReviewData = {
+    body: RecordReviewRequest;
+    path: {
+        id: string;
+        sectionId: string;
+    };
+    query?: never;
+    url: '/forms/submissions/{id}/sections/{sectionId}/review';
+};
+
+export type FormServicesRecordSectionReviewErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesRecordSectionReviewError = FormServicesRecordSectionReviewErrors[keyof FormServicesRecordSectionReviewErrors];
+
+export type FormServicesRecordSectionReviewResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    201: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormReviewEntry;
+    };
+};
+
+export type FormServicesRecordSectionReviewResponse = FormServicesRecordSectionReviewResponses[keyof FormServicesRecordSectionReviewResponses];
 
 export type FormServicesSubmitData = {
     body: SubmitFormSubmissionRequest;
@@ -3038,45 +3724,6 @@ export type FormServicesPublishVersionResponses = {
 };
 
 export type FormServicesPublishVersionResponse = FormServicesPublishVersionResponses[keyof FormServicesPublishVersionResponses];
-
-export type FormServicesAssignRolesData = {
-    body: AssignFormRolesRequest;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/forms/templates/{id}/roles';
-};
-
-export type FormServicesAssignRolesErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type FormServicesAssignRolesError = FormServicesAssignRolesErrors[keyof FormServicesAssignRolesErrors];
-
-export type FormServicesAssignRolesResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<FormTemplateRole>;
-    };
-};
-
-export type FormServicesAssignRolesResponse = FormServicesAssignRolesResponses[keyof FormServicesAssignRolesResponses];
 
 export type FormServicesCreateSectionData = {
     body: CreateFormSection;

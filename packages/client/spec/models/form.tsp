@@ -9,13 +9,6 @@ model CreateFormTemplate
 model UpdateFormTemplate
   is OptionalProperties<OmitProperties<FormTemplate, "id" | "createdAt" | "updatedAt">>;
 
-// ─── FormTemplateRole ─────────────────────────────────────────────────────────
-model FormTemplateRole is Domain.Entity.FormTemplateRole;
-
-model AssignFormRolesRequest {
-  roleIds: string[];
-}
-
 // ─── FormVersion ──────────────────────────────────────────────────────────────
 model FormVersion is Domain.Entity.FormVersion;
 
@@ -44,9 +37,7 @@ model FormSubmission is Domain.Entity.FormSubmission;
 model FormSubmissionContributor is Domain.Entity.FormSubmissionContributor;
 
 model StartFormSubmissionRequest {
-  formTemplateId: string;
-  roleId: string;
-  memberId: string;
+  assignmentId: string;
 }
 
 model AnswerInput {
@@ -55,26 +46,71 @@ model AnswerInput {
 }
 
 model SaveFormSubmissionDraftRequest {
-  memberId: string;
   expectedRevision: int32;
   answers: AnswerInput[];
 }
 
 model SubmitFormSubmissionRequest {
-  memberId: string;
   expectedRevision: int32;
 }
 
-model CloneFormSubmissionRequest {
-  memberId: string;
+// ─── Form Plans & Occurrences ──────────────────────────────────────────────────
+
+model CreateFormPlanRequest {
+  data: PickProperties<Domain.Entity.FormPlan, "companyId" | "formTemplateId" | "name" | "scheduleKind" | "scheduleConfig" | "timezone" | "fixedVersionId" | "reviewMode" | "latePolicy" | "missedPolicy">;
+  targets: CreateFormPlanTarget[];
+  periods?: CreateFormPlanPeriod[];
 }
 
-// ─── SubmissionReview ─────────────────────────────────────────────────────────
-model SubmissionReview is Domain.Entity.SubmissionReview;
+model CreateFormPlanTarget {
+  roleId?: string;
+  companyMemberId?: string;
+  roleDistribution?: Domain.Entity.FormRoleDistribution;
+}
 
-model ReviewFormSubmissionRequest {
-  memberId: string;
-  action: Domain.Entity.SubmissionReviewAction;
+model CreateFormPlanPeriod {
+  opensAt: utcDateTime;
+  dueAt: utcDateTime;
+}
+
+model ActivatePlanRequest {
+  expectedRevision: int32;
+}
+
+model PausePlanRequest {
+  expectedRevision: int32;
+}
+
+model CancelOccurrenceRequest {
+  cancelReason: string;
+  expectedRevision: int32;
+}
+
+model OpenOccurrencesRequest {
+  companyId: string;
+}
+
+model CancelAssignmentRequest {
+  cancelReason: string;
+  expectedRevision: int32;
+}
+
+model ReplaceAssignmentRequest {
+  cancelReason: string;
+  newCompanyMemberId?: string;
+  newRoleId?: string;
+}
+
+// ─── Reviews ───────────────────────────────────────────────────────────────────
+
+model RecordReviewRequest {
+  action: Domain.Entity.FormReviewAction;
+  note?: string;
+  supersedesEntryId?: string;
+}
+
+model FinalizeReviewRequest {
+  action: Domain.Entity.FormReviewAction;
   note?: string;
 }
 
@@ -83,7 +119,6 @@ model FormTemplateDetail {
   template: FormTemplate;
   activeVersion: FormVersion | null;
   draftVersion: FormVersion | null;
-  roles: FormTemplateRole[];
   sections: FormSection[];
   fields: FormField[];
 }
@@ -96,7 +131,6 @@ model FormSubmissionDetail {
   fields: FormField[];
   answers: FormAnswer[];
   contributors: FormSubmissionContributor[];
-  review: SubmissionReview | null;
 }
 
 model ReorderFormItemsRequest {

@@ -20,7 +20,7 @@ export const formTemplateDataColumns = ({
     header: 'ชื่อแบบฟอร์ม',
     cell: ({ row }) => (
       <Link
-        href={`/company/forms/templates/${row.original.id}/builder`}
+        href={`/company/forms/templates/${row.original.id}`}
         className="flex flex-col group hover:underline cursor-pointer"
       >
         <span className="font-semibold text-sm group-hover:text-primary transition-colors">

@@ -32,8 +32,7 @@ export default function FormTemplatePreviewDialog({
     );
   }
 
-  const { template, activeVersion, draftVersion, sections, fields, roles } =
-    data;
+  const { template, activeVersion, draftVersion, sections, fields } = data;
 
   // Group fields by section
   const fieldsBySection = new Map<string, typeof fields>();
@@ -75,9 +74,7 @@ export default function FormTemplatePreviewDialog({
               <Badge variant="secondary">v{draftVersion.version}</Badge>
             </span>
           )}
-          <span>
-            สิทธิ์เข้าถึง: {roles.filter((r) => r.isEnabled).length} ตำแหน่ง
-          </span>
+          
         </div>
       </div>
 

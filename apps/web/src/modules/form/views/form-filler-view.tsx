@@ -32,11 +32,11 @@ import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-c
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
-import { useFormSubmissionQueries } from '../hooks/form-queries';
+import { useFormSubmissionQueries, useReviewDetailQueries } from '../hooks/form-queries';
 import {
   useFormSubmissionSaveDraft,
   useFormSubmissionSubmit,
-  useFormSubmissionClone,
+  useFormSubmissionCreateCorrection,
 } from '../hooks/form-mutations';
 import { getFormSubmissionStatus } from '../lib/submission-status';
 import { getErrorMessage } from '@/shared/utils';
@@ -92,6 +92,9 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
   const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
   const submissionQuery = useFormSubmissionQueries(submissionId);
+  const reviewQuery = useReviewDetailQueries(submissionId);
+  const reviewEntries = reviewQuery.data || [];
+  const review = reviewEntries.find((r) => !r.answerId && !r.sectionId);
 
   const saveDraftMutation = useFormSubmissionSaveDraft(
     submissionId,
@@ -101,7 +104,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     submissionId,
     activeCompanyId || '',
   );
-  const cloneMutation = useFormSubmissionClone(activeCompanyId || '');
+  const correctionMutation = useFormSubmissionCreateCorrection(submissionId, activeCompanyId || '');
 
   const [edits, setEdits] = useState<Record<string, unknown>>({});
 
@@ -112,7 +115,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   const memberId = currentMember?.id || session?.user.id || '';
 
   const roles = rolesQuery.data || [];
-  const assignedRole = roles.find((r) => r.id === detail?.submission?.roleId);
+  
 
   // Derive current answers from query + user edits without setState in effect
   const answers = useMemo(() => {
@@ -131,7 +134,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
   const detailStatus = getFormSubmissionStatus(
     detail?.submission,
-    detail?.review,
+    undefined,
   );
   const isReadOnly = detailStatus !== 'DRAFT';
 
@@ -156,7 +159,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
     saveDraftMutation.mutate(
       {
-        memberId,
+        
         expectedRevision: detail.submission.revision,
         answers: answerEntries,
       },
@@ -169,7 +172,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         },
       },
     );
-  }, [detail, answers, memberId, saveDraftMutation]);
+  }, [detail, answers,  saveDraftMutation]);
 
   const handleSubmit = useCallback(() => {
     if (!detail) return;
@@ -196,7 +199,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
     saveDraftMutation.mutate(
       {
-        memberId,
+        
         expectedRevision: detail.submission.revision,
         answers: answerEntries,
       },
@@ -204,7 +207,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         onSuccess: (updatedSub) => {
           submitMutation.mutate(
             {
-              memberId,
+              
               expectedRevision:
                 updatedSub?.data?.revision ?? detail.submission.revision + 1,
             },
@@ -226,7 +229,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         },
       },
     );
-  }, [detail, answers, memberId, saveDraftMutation, submitMutation, router]);
+  }, [detail, answers,  saveDraftMutation, submitMutation, router]);
 
   const handleClone = useCallback(() => {
     if (!detail || !activeCompanyId || !currentMember) return;
@@ -236,11 +239,8 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         'ระบบจะคัดลอกคำตอบทั้งหมดจากฉบับเดิมที่ถูกปฏิเสธ มาสร้างเป็นฉบับร่างใหม่ (Draft) เพื่อให้แก้ไขและส่งใหม่',
       confirmVariant: 'default',
       onConfirm: () => {
-        cloneMutation.mutate(
-          {
-            id: submissionId,
-            data: { memberId: currentMember.id },
-          },
+        correctionMutation.mutate(
+          undefined,
           {
             onSuccess: (res) => {
               ui.alert.close();
@@ -262,7 +262,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     detail,
     activeCompanyId,
     currentMember,
-    cloneMutation,
+    correctionMutation,
     submissionId,
     router,
   ]);
@@ -311,7 +311,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     );
   }
 
-  const { submission, template, version, sections, review, contributors } =
+  const { submission, template, version, sections, contributors } =
     detail || {};
   const currentStatus = getFormSubmissionStatus(submission, review);
   const statusInfo = (currentStatus && STATUS_CONFIG[currentStatus]) || {
@@ -375,7 +375,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
               size="sm"
               className="gap-1.5"
               onPress={handleClone}
-              isLoading={cloneMutation.isPending}
+              isLoading={correctionMutation.isPending}
             >
               <Copy className="size-4" />
               คัดลอกสร้างฉบับแก้ไข (Clone)
@@ -439,7 +439,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 <span>
                   บทบาทที่รับผิดชอบ:{' '}
                   <strong className="text-foreground">
-                    {assignedRole?.name || 'สมาชิกทั่วไป'}
+                    {'สมาชิกทั่วไป'}
                   </strong>
                 </span>
               </div>
@@ -487,7 +487,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         )}
 
         {/* 2. REJECTED Alert */}
-        {currentStatus === 'REJECTED' && review && (
+        {currentStatus === 'REJECTED' && (
           <div className="flex items-start justify-between gap-3 p-4 bg-destructive/10 text-destructive border border-destructive/25 rounded-xl text-xs sm:text-sm">
             <div className="flex items-start gap-3">
               <AlertCircle className="size-5 text-destructive shrink-0 mt-0.5" />
@@ -495,12 +495,12 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 <span className="font-semibold">
                   แบบฟอร์มนี้ได้รับการปฏิเสธ (Rejected)
                 </span>
-                {review.note && (
+                {review?.note && (
                   <p className="text-xs leading-relaxed">
                     เหตุผล: <strong>{review.note}</strong>
                   </p>
                 )}
-                {review.createdAt && (
+                {review?.createdAt && (
                   <span className="text-[11px] text-muted-foreground mt-0.5">
                     ตรวจสอบเมื่อ {formatDateTime(review.createdAt)}
                   </span>
@@ -512,7 +512,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
               variant="destructive"
               className="shrink-0 gap-1.5"
               onPress={handleClone}
-              isLoading={cloneMutation.isPending}
+              isLoading={correctionMutation.isPending}
             >
               <Copy className="size-3.5" />
               คัดลอกสร้างฉบับแก้ไข
@@ -660,7 +660,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 <ButtonLoading
                   size="sm"
                   onPress={handleClone}
-                  isLoading={cloneMutation.isPending}
+                  isLoading={correctionMutation.isPending}
                   className="gap-1.5"
                 >
                   <Copy className="size-4" />

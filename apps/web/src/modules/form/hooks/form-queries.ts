@@ -3,6 +3,9 @@ import {
   formServicesGetTemplate,
   formServicesListSubmissions,
   formServicesListTemplatesByCompany,
+  formServicesListMyAssignments,
+  formServicesListReviewQueue,
+  formServicesGetReviewDetail,
 } from '@repo/client';
 import { useQuery } from '@tanstack/react-query';
 import { formKeys } from '@/shared/utils';
@@ -38,8 +41,7 @@ export function useFormTemplateQueries(id?: string) {
 
 export function useFormSubmissionsQueries(filters?: {
   companyId?: string;
-  roleId?: string;
-  formTemplateId?: string;
+  assignmentId?: string;
 }) {
   return useQuery({
     queryKey: formKeys.submissions(filters?.companyId, filters),
@@ -65,5 +67,52 @@ export function useFormSubmissionQueries(id?: string) {
       return response.data?.data || null;
     },
     enabled: Boolean(id),
+  });
+}
+
+export function useMyAssignmentsQueries(filters: { companyId: string, memberId: string }) {
+  return useQuery({
+    queryKey: ['FORM', 'MY_ASSIGNMENTS', filters.companyId, filters],
+    queryFn: async ({ signal }) => {
+      const response = await formServicesListMyAssignments({
+        signal,
+        query: {
+          companyId: filters.companyId,
+          memberId: filters.memberId,
+        },
+      });
+      return response.data?.data || [];
+    },
+    enabled: Boolean(filters.companyId && filters.memberId),
+  });
+}
+
+export function useReviewQueueQueries(filters: { companyId: string }) {
+  return useQuery({
+    queryKey: ['FORM', 'REVIEW_QUEUE', filters.companyId, filters],
+    queryFn: async ({ signal }) => {
+      const response = await formServicesListReviewQueue({
+        signal,
+        query: {
+          companyId: filters.companyId,
+        },
+      });
+      return response.data?.data || [];
+    },
+    enabled: Boolean(filters.companyId),
+  });
+}
+
+export function useReviewDetailQueries(submissionId: string) {
+  return useQuery({
+    queryKey: ['FORM', 'REVIEW_DETAIL', submissionId],
+    queryFn: async ({ signal }) => {
+      const response = await formServicesGetReviewDetail({
+        signal,
+        path: { id: submissionId },
+      });
+      return response.data?.data || [];
+    },
+    enabled: Boolean(submissionId),
   });
 }

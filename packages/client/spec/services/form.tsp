@@ -44,15 +44,6 @@ interface FormServices {
     | ApiUnauthorizedResponse;
 
   @post
-  @route("/templates/{id}/roles")
-  @summary("Assign roles to form template")
-  assignRoles(@path id: string, @body body: AssignFormRolesRequest):
-    | ApiOkResponse<FormTemplateRole[]>
-    | ApiNotFoundResponse
-    | ApiBadRequestResponse
-    | ApiUnauthorizedResponse;
-
-  @post
   @route("/templates/{id}/sections")
   @summary("Create form section")
   createSection(@path id: string, @body body: CreateFormSection):
@@ -106,6 +97,69 @@ interface FormServices {
   @route("/templates/{id}/fields/{fieldId}")
   deleteField(@path id: string, @path fieldId: string): ApiOkResponse<null> | ApiBadRequestResponse | ApiNotFoundResponse | ApiForbiddenResponse | ApiUnauthorizedResponse;
 
+  // ─── Plans ────────────────────────────────────────────────────────────────
+  @post
+  @route("/plans")
+  @summary("Create form plan")
+  createPlan(@body body: CreateFormPlanRequest): ApiCreatedResponse<Domain.Entity.FormPlan> | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @get
+  @route("/plans")
+  @summary("List form plans")
+  listPlans(@query companyId: string): ApiOkResponse<Domain.Entity.FormPlan[]> | ApiUnauthorizedResponse;
+
+  @get
+  @route("/plans/{id}")
+  @summary("Get form plan")
+  getPlan(@path id: string): ApiOkResponse<Domain.Entity.FormPlan> | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/plans/{id}/activate")
+  @summary("Activate form plan")
+  activatePlan(@path id: string, @body body: ActivatePlanRequest): ApiOkResponse<Domain.Entity.FormPlan> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/plans/{id}/pause")
+  @summary("Pause form plan")
+  pausePlan(@path id: string, @body body: PausePlanRequest): ApiOkResponse<Domain.Entity.FormPlan> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @get
+  @route("/plans/{id}/schedule-preview")
+  @summary("Preview form plan schedule")
+  previewSchedule(@path id: string): ApiOkResponse<utcDateTime[]> | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
+  // ─── Occurrences ─────────────────────────────────────────────────────────
+  @post
+  @route("/occurrences/open")
+  @summary("Open due occurrences")
+  openOccurrences(@body body: OpenOccurrencesRequest): ApiOkResponse<Domain.Entity.FormOccurrence[]> | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/occurrences/{id}/cancel")
+  @summary("Cancel occurrence")
+  cancelOccurrence(@path id: string, @body body: CancelOccurrenceRequest): ApiOkResponse<Domain.Entity.FormOccurrence> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  // ─── Assignments ──────────────────────────────────────────────────────────
+  @get
+  @route("/assignments")
+  @summary("List my assignments")
+  listMyAssignments(@query companyId: string, @query memberId: string): ApiOkResponse<Domain.Entity.FormAssignment[]> | ApiUnauthorizedResponse;
+
+  @get
+  @route("/assignments/{id}")
+  @summary("Get assignment")
+  getAssignment(@path id: string): ApiOkResponse<Domain.Entity.FormAssignment> | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/assignments/{id}/cancel")
+  @summary("Cancel assignment")
+  cancelAssignment(@path id: string, @body body: CancelAssignmentRequest): ApiOkResponse<Domain.Entity.FormAssignment> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/assignments/{id}/replace")
+  @summary("Replace assignment")
+  replaceAssignment(@path id: string, @body body: ReplaceAssignmentRequest): ApiOkResponse<Domain.Entity.FormAssignment> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
   // ─── Submissions ──────────────────────────────────────────────────────────
   @post
   @route("/submissions")
@@ -134,9 +188,9 @@ interface FormServices {
     | ApiUnauthorizedResponse;
 
   @post
-  @route("/submissions/{id}/clone")
-  @summary("Clone rejected submission into new rework draft")
-  clone(@path id: string, @body body: CloneFormSubmissionRequest):
+  @route("/submissions/{id}/correction")
+  @summary("Create correction draft for returned submission")
+  createCorrection(@path id: string):
     | ApiCreatedResponse<FormSubmission>
     | ApiNotFoundResponse
     | ApiBadRequestResponse
@@ -155,19 +209,34 @@ interface FormServices {
   @summary("List form submissions")
   listSubmissions(
     @query companyId?: string,
-    @query roleId?: string,
-    @query formTemplateId?: string,
+    @query assignmentId?: string,
   ):
     | ApiOkResponse<FormSubmission[]>
     | ApiUnauthorizedResponse;
 
-  // ─── Submission Review ────────────────────────────────────────────────────
+  // ─── Reviews ─────────────────────────────────────────────────────────────
+  @get
+  @route("/reviews")
+  @summary("List review queue")
+  listReviewQueue(@query companyId: string): ApiOkResponse<FormSubmission[]> | ApiUnauthorizedResponse;
+
+  @get
+  @route("/submissions/{id}/review-entries")
+  @summary("Get submission review entries")
+  getReviewDetail(@path id: string): ApiOkResponse<Domain.Entity.FormReviewEntry[]> | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
   @post
-  @route("/submissions/{id}/review")
-  @summary("Review form submission (approve or reject as owner)")
-  review(@path id: string, @body body: ReviewFormSubmissionRequest):
-    | ApiOkResponse<SubmissionReview>
-    | ApiNotFoundResponse
-    | ApiBadRequestResponse
-    | ApiUnauthorizedResponse;
+  @route("/submissions/{id}/answers/{answerId}/review")
+  @summary("Record answer review")
+  recordAnswerReview(@path id: string, @path answerId: string, @body body: RecordReviewRequest): ApiCreatedResponse<Domain.Entity.FormReviewEntry> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/submissions/{id}/sections/{sectionId}/review")
+  @summary("Record section review")
+  recordSectionReview(@path id: string, @path sectionId: string, @body body: RecordReviewRequest): ApiCreatedResponse<Domain.Entity.FormReviewEntry> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/submissions/{id}/finalize-review")
+  @summary("Finalize submission review")
+  finalizeReview(@path id: string, @body body: FinalizeReviewRequest): ApiOkResponse<Domain.Entity.FormReviewEntry> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
 }

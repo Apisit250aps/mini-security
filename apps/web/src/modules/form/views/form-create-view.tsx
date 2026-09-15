@@ -27,7 +27,7 @@ import { useCompanyMembersQueries } from '@/modules/company/hooks/company-querie
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import {
   useFormTemplateCreate,
-  useFormRolesAssign,
+  useFormTemplateUpdate,
 } from '../hooks/form-mutations';
 import { buildPageUrl, getErrorMessage } from '@/shared/utils';
 
@@ -46,17 +46,14 @@ export default function FormCreateView() {
   const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
 
   const createMutation = useFormTemplateCreate(activeCompanyId || '');
-  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  
 
   const currentMember = membersQuery.data?.find(
     (m) => m.userId === session?.user.id && m.isActive,
   );
   const createdBy = currentMember?.id || session?.user.id || '';
 
-  const assignRolesMutation = useFormRolesAssign(
-    activeCompanyId || '',
-    'pending',
-  );
+  
 
   const methods = useForm<CreateFormValues>({
     resolver: zodResolver(createFormSchema as never),
@@ -66,13 +63,6 @@ export default function FormCreateView() {
     },
   });
 
-  const toggleRole = useCallback((roleId: string) => {
-    setSelectedRoleIds((prev) =>
-      prev.includes(roleId)
-        ? prev.filter((id) => id !== roleId)
-        : [...prev, roleId],
-    );
-  }, []);
 
   const handleSubmit = useCallback(
     (values: CreateFormValues) => {
@@ -97,34 +87,8 @@ export default function FormCreateView() {
               return;
             }
 
-            if (selectedRoleIds.length > 0) {
-              assignRolesMutation.mutate(
-                { roleIds: selectedRoleIds },
-                {
-                  onSuccess: () => {
-                    toast.success(
-                      'สร้างแบบฟอร์มสำเร็จ กำลังนำเข้าสู่หน้าออกแบบฟิลด์คำถาม',
-                    );
-                    router.push(
-                      `/company/forms/templates/${template.id}/builder`,
-                    );
-                  },
-                  onError: (err) => {
-                    toast.error(
-                      getErrorMessage(err, 'กำหนดสิทธิ์ Role ไม่สำเร็จ'),
-                    );
-                    router.push(
-                      `/company/forms/templates/${template.id}/builder`,
-                    );
-                  },
-                },
-              );
-            } else {
-              toast.success(
-                'สร้างแบบฟอร์มสำเร็จ กำลังนำเข้าสู่หน้าออกแบบฟิลด์คำถาม',
-              );
+            toast.success('สร้างแบบฟอร์มสำเร็จ กำลังนำเข้าสู่หน้าออกแบบฟิลด์คำถาม');
               router.push(`/company/forms/templates/${template.id}/builder`);
-            }
           },
           onError: (err) => {
             toast.error(getErrorMessage(err, 'ไม่สามารถสร้างแบบฟอร์มได้'));
@@ -132,14 +96,7 @@ export default function FormCreateView() {
         },
       );
     },
-    [
-      activeCompanyId,
-      createMutation,
-      createdBy,
-      selectedRoleIds,
-      assignRolesMutation,
-      router,
-    ],
+    [activeCompanyId, createMutation, createdBy, router],
   );
 
   const isPageLoading = isCompanyLoading || !activeCompanyId;
@@ -206,58 +163,6 @@ export default function FormCreateView() {
                 />
               </FieldGroup>
 
-              {/* Role Selection Section */}
-              <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/20 p-4">
-                <div className="flex items-center gap-2">
-                  <Shield className="size-4 text-primary" />
-                  <h3 className="text-sm font-medium">
-                    กำหนดตำแหน่งที่เข้าถึงแบบฟอร์มนี้ (Roles)
-                  </h3>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  เลือกบทบาทในองค์กรที่มีสิทธิ์มองเห็นและเริ่มสร้างรายการคำตอบสำหรับแบบฟอร์มนี้
-                  (สามารถปรับเปลี่ยนได้ในภายหลัง)
-                </p>
-
-                {rolesQuery.isLoading ? (
-                  <p className="py-2 text-xs text-muted-foreground">
-                    กำลังโหลดรายชื่อตำแหน่ง...
-                  </p>
-                ) : roles.length === 0 ? (
-                  <p className="py-2 text-xs text-muted-foreground">
-                    ยังไม่มีตำแหน่งที่กำหนดในองค์กร
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                    {roles.map((role) => {
-                      const isChecked = selectedRoleIds.includes(role.id);
-                      return (
-                        <div
-                          key={role.id}
-                          className="flex items-center space-x-2.5 rounded-md border border-border/50 bg-background/80 p-2.5 hover:bg-muted/40 transition-colors cursor-pointer"
-                          onClick={() => toggleRole(role.id)}
-                        >
-                          <Checkbox
-                            isSelected={isChecked}
-                            onChange={() => toggleRole(role.id)}
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium leading-none">
-                              {role.name}
-                            </span>
-                            {role.description && (
-                              <span className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                                {role.description}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
               {/* Submit Buttons */}
               <div className="flex items-center justify-between pt-2 border-t border-border/50">
                 <Link href={buildPageUrl('companyFormTemplates')}>
@@ -269,7 +174,7 @@ export default function FormCreateView() {
                 <ButtonLoading
                   type="submit"
                   isLoading={
-                    createMutation.isPending || assignRolesMutation.isPending
+                    createMutation.isPending 
                   }
                   className="gap-2"
                 >

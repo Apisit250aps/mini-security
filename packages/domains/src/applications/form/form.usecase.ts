@@ -1,175 +1,93 @@
 import type { BaseUseCase } from '../../index';
 import type { ISecurityContext } from '#constants/permissions';
 import type {
-  FormAnswer,
-  FormField,
-  FormSection,
-  FormSubmission,
-  FormSubmissionContributor,
-  FormTemplate,
-  FormTemplateRole,
-  FormVersion,
-  SubmissionReview,
+  FormAnswer, FormField, FormSection, FormSubmission, FormSubmissionContributor, FormTemplate, FormVersion,
+  FormPlan, FormPlanTarget, FormPlanPeriod, FormOccurrence, FormAssignment, FormReviewEntry
 } from '#entities/form';
 import type {
-  CreateFormField,
-  EditFormField,
-  CreateFormSection,
-  CreateFormTemplate,
-  SubmissionReviewAction,
-  UpdateFormTemplate,
+  CreateFormField, EditFormField, CreateFormSection, CreateFormTemplate, UpdateFormTemplate,
+  CreateFormPlan, CreateFormOccurrence, CreateFormAssignment,
+  FormReviewAction, FormRoleDistribution
 } from '#schema/form';
 
-// ==========================================
-// 1. Form Template & Builder Contexts & Use Cases
-// ==========================================
-
-export type ICreateFormTemplateContext = ISecurityContext & {
-  data: CreateFormTemplate;
-};
-
-export type IUpdateFormTemplateContext = ISecurityContext & {
-  id: string;
-  data: UpdateFormTemplate;
-};
-
-export type IGetFormTemplateContext = ISecurityContext & {
-  id: string;
-};
-
-export type IListFormTemplatesByCompanyContext = ISecurityContext & {
-  companyId: string;
-};
-
-export type IAssignFormRolesContext = ISecurityContext & {
-  formTemplateId: string;
-  roleIds: string[];
-};
-
-export type ICreateFormSectionContext = ISecurityContext & {
-  data: CreateFormSection;
-};
-
-export type ICreateFormFieldContext = ISecurityContext & {
-  data: CreateFormField;
-};
-
-export type IPublishFormVersionContext = ISecurityContext & {
-  formTemplateId: string;
-  memberId: string;
-};
+export type ICreateFormTemplateContext = ISecurityContext & { data: CreateFormTemplate; };
+export type IUpdateFormTemplateContext = ISecurityContext & { id: string; data: UpdateFormTemplate; };
+export type IGetFormTemplateContext = ISecurityContext & { id: string; };
+export type IListFormTemplatesByCompanyContext = ISecurityContext & { companyId: string; };
+export type ICreateFormSectionContext = ISecurityContext & { data: CreateFormSection; };
+export type ICreateFormFieldContext = ISecurityContext & { data: CreateFormField; };
+export type IPublishFormVersionContext = ISecurityContext & { formTemplateId: string; memberId: string; };
 
 export type FormTemplateDetail = {
   template: FormTemplate;
   activeVersion: FormVersion | null;
   draftVersion: FormVersion | null;
-  roles: FormTemplateRole[];
   sections: FormSection[];
   fields: FormField[];
 };
 
-export type ICreateFormTemplateUseCase = BaseUseCase<
-  ICreateFormTemplateContext,
-  FormTemplate
->;
+export type ICreateFormTemplateUseCase = BaseUseCase<ICreateFormTemplateContext, FormTemplate>;
+export type IUpdateFormTemplateUseCase = BaseUseCase<IUpdateFormTemplateContext, FormTemplate>;
+export type IGetFormTemplateUseCase = BaseUseCase<IGetFormTemplateContext, FormTemplateDetail | null>;
+export type IListFormTemplatesByCompanyUseCase = BaseUseCase<IListFormTemplatesByCompanyContext, FormTemplate[]>;
+export type ICreateFormSectionUseCase = BaseUseCase<ICreateFormSectionContext, FormSection>;
+export type ICreateFormFieldUseCase = BaseUseCase<ICreateFormFieldContext, FormField>;
+export type IPublishFormVersionUseCase = BaseUseCase<IPublishFormVersionContext, FormVersion>;
 
-export type IUpdateFormTemplateUseCase = BaseUseCase<
-  IUpdateFormTemplateContext,
-  FormTemplate
->;
+export type IReorderFormSectionsContext = ISecurityContext & { formTemplateId: string; formVersionId: string; items: Array<{ id: string; sortOrder: number }>; };
+export type IReorderFormFieldsContext = ISecurityContext & { formTemplateId: string; formVersionId: string; items: Array<{ id: string; sortOrder: number }>; };
+export type IReorderFormSectionsUseCase = BaseUseCase<IReorderFormSectionsContext, void>;
+export type IReorderFormFieldsUseCase = BaseUseCase<IReorderFormFieldsContext, void>;
 
-export type IGetFormTemplateUseCase = BaseUseCase<
-  IGetFormTemplateContext,
-  FormTemplateDetail | null
->;
-
-export type IListFormTemplatesByCompanyUseCase = BaseUseCase<
-  IListFormTemplatesByCompanyContext,
-  FormTemplate[]
->;
-
-export type IAssignFormRolesUseCase = BaseUseCase<
-  IAssignFormRolesContext,
-  FormTemplateRole[]
->;
-
-export type ICreateFormSectionUseCase = BaseUseCase<
-  ICreateFormSectionContext,
-  FormSection
->;
-
-export type ICreateFormFieldUseCase = BaseUseCase<
-  ICreateFormFieldContext,
-  FormField
->;
-
-export type IPublishFormVersionUseCase = BaseUseCase<
-  IPublishFormVersionContext,
-  FormVersion
->;
-
-export type IReorderFormSectionsContext = ISecurityContext & {
-  formTemplateId: string;
-  formVersionId: string;
-  items: Array<{ id: string; sortOrder: number }>;
+// Plan, Schedule, Occurrence, Assignment
+export type ICreateFormPlanTargetInput = {
+  roleId?: string | null;
+  companyMemberId?: string | null;
+  roleDistribution?: FormRoleDistribution | null;
 };
-
-export type IReorderFormFieldsContext = ISecurityContext & {
-  formTemplateId: string;
-  formVersionId: string;
-  items: Array<{ id: string; sortOrder: number }>;
+export type ICreateFormPlanPeriodInput = {
+  opensAt: Date | string;
+  dueAt: Date | string;
 };
-
-export type IReorderFormSectionsUseCase = BaseUseCase<
-  IReorderFormSectionsContext,
-  void
->;
-
-export type IReorderFormFieldsUseCase = BaseUseCase<
-  IReorderFormFieldsContext,
-  void
->;
-
-// ==========================================
-// 2. Form Submission Contexts & Use Cases
-// ==========================================
-
-export type IStartFormSubmissionContext = ISecurityContext & {
-  formTemplateId: string;
-  roleId: string;
-  memberId: string;
+export type ICreateFormPlanContext = ISecurityContext & {
+  data: CreateFormPlan;
+  targets: ICreateFormPlanTargetInput[];
+  periods?: ICreateFormPlanPeriodInput[];
 };
+export type ICreateFormPlanUseCase = BaseUseCase<ICreateFormPlanContext, FormPlan>;
+export type IGetFormPlanContext = ISecurityContext & { id: string };
+export type IGetFormPlanUseCase = BaseUseCase<IGetFormPlanContext, FormPlan>;
+export type IListFormPlansContext = ISecurityContext & { companyId: string };
+export type IListFormPlansUseCase = BaseUseCase<IListFormPlansContext, FormPlan[]>;
+export type IActivateFormPlanContext = ISecurityContext & { id: string; expectedRevision: number };
+export type IActivateFormPlanUseCase = BaseUseCase<IActivateFormPlanContext, FormPlan>;
+export type IPauseFormPlanContext = ISecurityContext & { id: string; expectedRevision: number; memberId?: string | null };
+export type IPauseFormPlanUseCase = BaseUseCase<IPauseFormPlanContext, FormPlan>;
+export type IPreviewScheduleContext = ISecurityContext & { planId: string; };
+export type IPreviewScheduleUseCase = BaseUseCase<IPreviewScheduleContext, Date[]>;
 
-export type ISaveFormSubmissionDraftContext = ISecurityContext & {
-  submissionId: string;
-  memberId: string;
-  expectedRevision: number;
-  answers: {
-    fieldId: string;
-    value?: unknown;
-  }[];
-};
+export type IOpenDueOccurrencesContext = ISecurityContext & { companyId: string; };
+export type IOpenDueOccurrencesUseCase = BaseUseCase<IOpenDueOccurrencesContext, FormOccurrence[]>;
+export type ICancelOccurrenceContext = ISecurityContext & { occurrenceId: string; cancelReason: string; expectedRevision?: number; memberId?: string | null };
+export type ICancelOccurrenceUseCase = BaseUseCase<ICancelOccurrenceContext, FormOccurrence>;
 
-export type ISubmitFormSubmissionContext = ISecurityContext & {
-  submissionId: string;
-  memberId: string;
-  expectedRevision: number;
-};
+export type IListMyAssignmentsContext = ISecurityContext & { companyId: string; memberId: string; };
+export type IListMyAssignmentsUseCase = BaseUseCase<IListMyAssignmentsContext, FormAssignment[]>;
+export type IGetAssignmentContext = ISecurityContext & { assignmentId: string; memberId?: string | null };
+export type IGetAssignmentUseCase = BaseUseCase<IGetAssignmentContext, FormAssignment>;
+export type ICancelAssignmentContext = ISecurityContext & { assignmentId: string; cancelReason: string; expectedRevision?: number; memberId?: string | null };
+export type ICancelAssignmentUseCase = BaseUseCase<ICancelAssignmentContext, FormAssignment>;
+export type IReplaceAssignmentContext = ISecurityContext & { assignmentId: string; newCompanyMemberId?: string; newRoleId?: string; cancelReason: string; memberId?: string | null };
+export type IReplaceAssignmentUseCase = BaseUseCase<IReplaceAssignmentContext, FormAssignment>;
 
-export type ICloneFormSubmissionContext = ISecurityContext & {
-  submissionId: string;
-  memberId: string;
-};
-
-export type IGetFormSubmissionContext = ISecurityContext & {
-  id: string;
-};
-
-export type IListFormSubmissionsContext = ISecurityContext & {
-  companyId?: string;
-  roleId?: string;
-  formTemplateId?: string;
-};
+// Submission
+export type IStartAssignmentSubmissionContext = ISecurityContext & { assignmentId: string; memberId?: string | null; };
+export type ISaveFormSubmissionDraftContext = ISecurityContext & { submissionId: string; memberId?: string | null; expectedRevision: number; answers: { fieldId: string; value?: unknown; }[]; };
+export type ISubmitFormSubmissionContext = ISecurityContext & { submissionId: string; memberId?: string | null; expectedRevision: number; };
+export type ICreateCorrectionContext = ISecurityContext & { submissionId: string; memberId?: string | null };
+export type ICreateCorrectionUseCase = BaseUseCase<ICreateCorrectionContext, FormSubmission>;
+export type IGetFormSubmissionContext = ISecurityContext & { id: string; };
+export type IListFormSubmissionsContext = ISecurityContext & { companyId?: string; assignmentId?: string; };
 
 export type FormSubmissionDetail = {
   submission: FormSubmission;
@@ -179,67 +97,22 @@ export type FormSubmissionDetail = {
   fields: FormField[];
   answers: FormAnswer[];
   contributors: FormSubmissionContributor[];
-  review: SubmissionReview | null;
 };
 
-export type IStartFormSubmissionUseCase = BaseUseCase<
-  IStartFormSubmissionContext,
-  FormSubmission
->;
+export type IStartFormSubmissionUseCase = BaseUseCase<IStartAssignmentSubmissionContext, FormSubmission>;
+export type ISaveFormSubmissionDraftUseCase = BaseUseCase<ISaveFormSubmissionDraftContext, FormSubmission>;
+export type ISubmitFormSubmissionUseCase = BaseUseCase<ISubmitFormSubmissionContext, FormSubmission>;
+export type IGetFormSubmissionUseCase = BaseUseCase<IGetFormSubmissionContext, FormSubmissionDetail | null>;
+export type IListFormSubmissionsUseCase = BaseUseCase<IListFormSubmissionsContext, FormSubmission[]>;
 
-export type ISaveFormSubmissionDraftUseCase = BaseUseCase<
-  ISaveFormSubmissionDraftContext,
-  FormSubmission
->;
+// Review
+export type IListReviewQueueUseCase = BaseUseCase<ISecurityContext & { companyId: string }, FormSubmission[]>;
+export type IGetReviewDetailUseCase = BaseUseCase<ISecurityContext & { submissionId: string }, FormReviewEntry[]>;
+export type IRecordAnswerReviewUseCase = BaseUseCase<ISecurityContext & { submissionId: string; answerId: string; action: FormReviewAction; note?: string }, FormReviewEntry>;
+export type IRecordSectionReviewUseCase = BaseUseCase<ISecurityContext & { submissionId: string; sectionId: string; action: FormReviewAction; note?: string }, FormReviewEntry>;
+export type IFinalizeSubmissionReviewUseCase = BaseUseCase<ISecurityContext & { submissionId: string; action: FormReviewAction; note?: string }, FormReviewEntry>;
 
-export type ISubmitFormSubmissionUseCase = BaseUseCase<
-  ISubmitFormSubmissionContext,
-  FormSubmission
->;
-
-export type ICloneFormSubmissionUseCase = BaseUseCase<
-  ICloneFormSubmissionContext,
-  FormSubmission
->;
-
-export type IGetFormSubmissionUseCase = BaseUseCase<
-  IGetFormSubmissionContext,
-  FormSubmissionDetail | null
->;
-
-export type IListFormSubmissionsUseCase = BaseUseCase<
-  IListFormSubmissionsContext,
-  FormSubmission[]
->;
-
-// ==========================================
-// 3. Submission Review Contexts & Use Cases
-// ==========================================
-
-export type IReviewFormSubmissionContext = ISecurityContext & {
-  submissionId: string;
-  memberId: string;
-  action: SubmissionReviewAction;
-  note?: string | null;
-};
-
-export type IReviewFormSubmissionUseCase = BaseUseCase<
-  IReviewFormSubmissionContext,
-  SubmissionReview
->;
-
-export type IDeleteFormFieldContext = ISecurityContext & {
-  formTemplateId: string;
-  fieldId: string;
-};
-export type IEditFormFieldContext = IDeleteFormFieldContext & {
-  data: EditFormField;
-};
-export type IEditFormFieldUseCase = BaseUseCase<
-  IEditFormFieldContext,
-  FormField
->;
-export type IDeleteFormFieldUseCase = BaseUseCase<
-  IDeleteFormFieldContext,
-  void
->;
+export type IDeleteFormFieldContext = ISecurityContext & { formTemplateId: string; fieldId: string; };
+export type IEditFormFieldContext = IDeleteFormFieldContext & { data: EditFormField; };
+export type IEditFormFieldUseCase = BaseUseCase<IEditFormFieldContext, FormField>;
+export type IDeleteFormFieldUseCase = BaseUseCase<IDeleteFormFieldContext, void>;

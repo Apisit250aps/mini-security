@@ -1,13 +1,26 @@
 // ==========================================
 // Mini-Security Database Schema (DBML)
-// Existing modules + proposed Form Builder / Responses / Owner Approval MVP
+// โมดูลเดิมและแบบเสนอ Form ใช้ซ้ำ / ตารางเวลา / Role และสมาชิก / ตรวจตาม Permissions
 // and implemented many-to-many Check-in Schedule / Role assignments.
 // PROPOSED sections are not implemented in Drizzle or migrations yet.
 // Location additions and tenant-safe attendance keys are PROPOSED; see docs/check-in-location-design.md.
 // Source-only storage redesign is PROPOSED: docs/erd-storage-audit.md; runtime schema may differ.
-// Design decisions: docs/inspection-form-design.md
+// แบบและคำอธิบายภาษาไทย: docs/form-workflow-design.md และ docs/erd-description-th.md
 // Attendance design: docs/check-in-schedule-design.md
 // ==========================================
+
+Project mini_security {
+  database_type: 'PostgreSQL'
+  Note: '''
+  แผนภาพข้อมูล Mini Security: ตัวตน บริษัท สิทธิ์ ฟีเจอร์ สถานที่ การเช็คอิน การลา และ Form
+  ส่วน Form เป็นแบบเสนอใหม่วันที่ 2026-09-15 แยกแม่แบบ/ฉบับคำถาม แผนเวลา รอบงาน ผู้รับงาน คำตอบ และผลตรวจ
+  ผู้รับงานเป็น Role ร่วมทำหรือสมาชิกรายบุคคล ผู้ตรวจใช้ Permissions ที่ tenant ตั้ง ไม่กำหนดตำแหน่งพิเศษ
+  การขอแก้ภาพหรือหมวดบันทึก comment พร้อมเป้าหมาย ส่วน RETURN ทั้งชุดเปิดทางให้ส่ง revision ใหม่โดยรักษาหลักฐานเก่า
+  เก็บเฉพาะข้อมูลต้นทาง การตัดสินใจ ประวัติที่สร้างกลับไม่ได้ และ integrity/concurrency keys ไม่เก็บยอดหรือสถานะที่คำนวณซ้ำได้
+  คำอธิบายละเอียด: docs/erd-description-th.md; flow: docs/form-workflow-design.md; หน้าจอ: docs/form-workflow-ui-flow.md
+  ยังไม่ใช่ runtime schema/migration; partial indexes และกติกา application ที่อธิบายใน docs ต้องทำเพิ่มก่อนใช้งานจริง
+  '''
+}
 
 // --- Enum Definitions ---
 
@@ -38,7 +51,7 @@ Table user {
     is_admin [name: 'user_is_admin_idx']
   }
 
-  Note: 'User identity and core profile'
+  Note: 'บัญชีตัวตนผู้ใช้ระดับระบบ หนึ่งคนเข้าร่วมได้หลายบริษัทผ่าน company_member เก็บข้อมูลโปรไฟล์และข้อเท็จจริงบัญชี ไม่เก็บสิทธิ์ของแต่ละบริษัทในตารางนี้'
 }
 
 Table account {
@@ -62,7 +75,7 @@ Table account {
     (provider_id, account_id) [name: 'account_provider_account_idx']
   }
 
-  Note: 'OAuth providers and password credentials for Better Auth'
+  Note: 'ข้อมูลช่องทางเข้าสู่ระบบของ Better Auth เช่นบัญชี OAuth หรือข้อมูลรหัสผ่าน ผูกกับ user และไม่ใช้แทนสมาชิกบริษัท'
 }
 
 Table session {
@@ -81,7 +94,7 @@ Table session {
     user_id [name: 'session_user_id_idx']
   }
 
-  Note: 'Active user authentication sessions'
+  Note: 'เซสชันที่ใช้ยืนยันตัวตนและบริษัทที่เลือกอยู่ สิทธิ์ใช้งานต้องคำนวณจากสมาชิกและ Role ปัจจุบัน ไม่เก็บ permission cache'
 }
 
 Table verification {
@@ -96,7 +109,7 @@ Table verification {
     identifier [name: 'verification_identifier_idx']
   }
 
-  Note: 'Email verification, OTPs, and password reset tokens'
+  Note: 'ข้อมูลตรวจสอบอีเมล รหัสใช้ครั้งเดียว และคำขอตั้งรหัสผ่านใหม่ เก็บค่าและเวลาหมดอายุตามกระบวนการยืนยันตัวตน'
 }
 
 Table jwks {
@@ -108,7 +121,7 @@ Table jwks {
   alg text
   crv text
 
-  Note: 'JSON Web Key Set for JWT signing and verification'
+  Note: 'กุญแจสำหรับลงนามและตรวจสอบ JWT ของระบบยืนยันตัวตน ไม่ใช่ข้อมูลสิทธิ์ทางธุรกิจของบริษัท'
 }
 
 // --- Multi-Tenant & Organization ---
@@ -126,7 +139,7 @@ Table company {
     slug [name: 'company_slug_idx']
   }
 
-  Note: 'Tenant organization workspace'
+  Note: 'พื้นที่ทำงานของบริษัทและขอบเขต tenant หลัก ข้อมูลธุรกิจและสมาชิกต้องอ้างบริษัทที่ถูกต้องเพื่อไม่ให้เข้าถึงข้อมูลข้ามบริษัท'
 }
 
 Table company_branch {
@@ -143,7 +156,7 @@ Table company_branch {
     (id, company_id) [unique, note: 'PROPOSED: tenant-safe location references']
   }
 
-  Note: 'Branches of a company'
+  Note: 'สาขาภายใต้บริษัท ใช้จัดกลุ่มสถานที่และข้อมูลปฏิบัติงาน ไม่ใช้สาขาแทน tenant boundary'
 }
 
 Table company_member {
@@ -164,7 +177,7 @@ Table company_member {
     (id, company_id) [unique, name: 'company_member_id_company_unique', note: 'PROPOSED: tenant-safe actor references']
   }
 
-  Note: 'Membership association linking Users to Companies with assigned Roles'
+  Note: 'ความสัมพันธ์ผู้ใช้กับบริษัทพร้อม Role และสถานะสมาชิก การบันทึกผู้กรอกหรือผู้ตรวจอ้างสมาชิกนี้และตรวจ user identity เมื่อต้องตรวจประวัติคนเดียวกัน'
 }
 
 // --- Access Control & Permissions (RBAC) ---
@@ -185,7 +198,7 @@ Table role {
     role_type [name: 'role_role_type_idx']
   }
 
-  Note: 'Roles scoped to a company or system-wide defaults'
+  Note: 'ชุดสิทธิ์ที่บริษัทกำหนด หรือ Role ค่าเริ่มต้นระบบที่ company_id ว่าง ชื่อและ role_type ไม่ใช่เงื่อนไขพิเศษสำหรับผู้ตรวจ Form ต้องตรวจ permission ที่ได้รับจริง'
 }
 
 Table permission {
@@ -203,7 +216,7 @@ Table permission {
     feature_id [name: 'permission_feature_id_idx']
   }
 
-  Note: 'Granular permissions / actions in system modules'
+  Note: 'รายการการกระทำที่ระบบรองรับ แต่ละ tenant เลือกมอบสิทธิ์ให้ Role ได้ เช่นตรวจรายข้อ ตรวจหมวด หรือตัดสินทั้งชุด ไม่ตีความข้อความเป็นโปรแกรม workflow'
 }
 
 Table role_permission {
@@ -219,7 +232,7 @@ Table role_permission {
     (role_id, permission_id) [name: 'role_permission_unique_idx']
   }
 
-  Note: 'Many-to-Many junction table between Roles and Permissions'
+  Note: 'ตารางเชื่อม Role กับ Permission แบบหลายต่อหลาย เป็นการมอบสิทธิ์ที่ตั้งไว้จริง ใช้ resolve สิทธิ์ปัจจุบันทุกครั้งที่ดำเนินการสำคัญ'
 }
 
 // --- Feature Management & Tenant Entitlement ---
@@ -653,11 +666,12 @@ TableGroup leave_management {
 }
 
 // ==========================================
-// PROPOSED — Role-based Forms / Collaborative Responses / Owner Approval MVP (10 tables)
-// UUIDv7 generated by application; timestamptz stores instants.
-// Mutable tables have id/created_at/updated_at; append-only contributor/review omit redundant updated_at (PROPOSED).
-// Composite FKs enforce tenant/version consistency, not authorization.
+// แบบเสนอ 2026-09-15: ฟอร์มใช้ซ้ำ แผนเวลา งานราย Role/สมาชิก และตรวจตาม Permission
+// ยังไม่ใช่ Drizzle schema หรือ migration ที่ใช้งานจริง
+// คำอธิบาย: docs/erd-description-th.md และ docs/form-workflow-design.md
+// Partial unique และกติกาข้ามแถว: ดูคำอธิบาย ERD ก่อน implement
 // ==========================================
+
 
 Enum form_version_status {
   DRAFT
@@ -665,22 +679,57 @@ Enum form_version_status {
   ARCHIVED
 }
 
+
 Enum form_field_type {
-  TEXT [note: 'ข้อความสั้น/หลายบรรทัด ใช้ multiline ใน config']
+  TEXT
   NUMBER
-  SELECT [note: 'เลือกค่าเดียว เช่น ผ่าน / ไม่ผ่าน / ไม่เกี่ยวข้อง']
-  BOOLEAN [note: 'เช็กลิสต์ ใช่/ไม่ใช่; false เป็นคำตอบที่มีค่า']
+  SELECT
+  BOOLEAN
   DATE
   IMAGE
   FILE
 }
 
-// Submission status is derived in queries: submitted_at + submission_review.action.
 
-Enum submission_review_action {
-  APPROVE
-  REJECT
+Enum form_schedule_kind {
+  RECURRING
+  EXPLICIT
 }
+
+
+Enum form_review_mode {
+  NONE
+  OVERALL
+  ALL_SECTIONS
+  ALL_ANSWERS
+}
+
+
+Enum form_role_distribution {
+  SHARED
+  PER_MEMBER
+}
+
+
+Enum form_late_policy {
+  ALLOW
+  DENY
+}
+
+
+Enum form_missed_policy {
+  SKIP
+  CATCH_UP
+}
+
+
+Enum form_review_action {
+  PASS
+  NEEDS_CHANGES
+  APPROVE
+  RETURN
+}
+
 
 Table form_template {
   id uuid [pk, note: 'UUIDv7']
@@ -700,31 +749,13 @@ Table form_template {
   Note: 'PROPOSED: ตัวตนของฟอร์ม; ปิดใช้งานแทนลบเมื่อมีประวัติ'
 }
 
-Table form_template_role {
-  id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
-  form_template_id uuid [not null]
-  role_id uuid [not null, note: 'Role เดิมที่ทำฟอร์มได้ เช่น แม่บ้าน/รปภ.; ตรวจบริษัทของ role ใน use case']
-  is_enabled boolean [not null, default: true, note: 'ปิดสิทธิ์แทนลบแถวที่มีประวัติ; สมาชิก role นี้หยุดเริ่ม/อ่าน/แก้/ส่งตาม ACL แต่ Owner ยังอ่านตรวจได้']
-  created_at timestamptz [not null, default: `now()`]
-  updated_at timestamptz [not null]
-
-  Indexes {
-    (form_template_id, role_id) [unique]
-    (form_template_id, company_id, role_id) [unique]
-    (company_id, role_id)
-  }
-
-  Note: 'PROPOSED: Form M:N Role; role ต้องอยู่บริษัทเดียวกัน หรือ system default ที่อนุญาตตามระบบเดิม; FK role_id อย่างเดียวไม่กัน role ข้ามบริษัท ต้องตรวจ use case; template เดียวใช้หลาย role ได้แต่ submission ไม่ร่วมข้าม role'
-}
-
 Table form_version {
   id uuid [pk, note: 'UUIDv7']
   company_id uuid [not null]
   form_template_id uuid [not null]
   version integer [not null, check: `version > 0`]
   status form_version_status [not null, default: 'DRAFT']
-  title text [not null, note: 'Snapshot ชื่อที่แสดงบนฟอร์ม ไม่เปลี่ยนตาม template.name']
+  title text [not null, note: 'ชื่อในฉบับที่เผยแพร่ เป็นเนื้อหาประวัติไม่เปลี่ยนตามชื่อแม่แบบ']
   description text
   created_by uuid [not null]
   published_by uuid
@@ -734,7 +765,7 @@ Table form_version {
 
   Indexes {
     (id, company_id) [unique]
-    (id, company_id, form_template_id) [unique, note: 'รองรับ submission ที่ต้องตรงทั้ง template และ version']
+    (id, company_id, form_template_id) [unique, note: 'บังคับแผนและรอบงานเลือกฉบับของฟอร์มเดียวกัน']
     (form_template_id, version) [unique]
     (company_id, status)
   }
@@ -786,26 +817,152 @@ Table form_field {
   Note: 'PROPOSED: MVP 7 ชนิด; ใช้ SELECT สำหรับผลตรวจ และ BOOLEAN สำหรับเช็กลิสต์; ตรวจ config ตาม type ด้วย Zod'
 }
 
+Table form_plan {
+  id uuid [pk, note: 'รหัสชุดการตั้งค่าแผน UUIDv7; เมื่อแก้แผนที่เปิดใช้แล้วให้สร้างชุดถัดไป']
+  company_id uuid [not null]
+  form_template_id uuid [not null]
+  supersedes_plan_id uuid [unique, note: 'ชุดการตั้งค่าก่อนหน้าในแผนเดียวกัน ไม่ใช่แผนใหม่ที่ผู้ใช้ต้องจัดการแยก']
+  name text [not null]
+  schedule_kind form_schedule_kind [not null]
+  schedule_config jsonb [note: 'RECURRING เท่านั้น: frequency, interval, local anchor, weekdays/day/month, invalid-day policy, due offset และหน่วย; ตรวจรูปแบบด้วย Zod']
+  timezone text [not null, note: 'ชื่อเขตเวลา IANA ใช้ตีความปฏิทิน เช่น Asia/Bangkok']
+  fixed_version_id uuid [note: 'มีค่า = ล็อกฉบับนี้; ไม่มีค่า = เลือกฉบับเผยแพร่ล่าสุดตอนเปิดรอบ ไม่เก็บ version_mode ซ้ำ']
+  review_mode form_review_mode [not null, default: 'OVERALL']
+  late_policy form_late_policy [not null, default: 'DENY']
+  missed_policy form_missed_policy [not null, default: 'SKIP']
+  effective_from timestamptz [note: 'เริ่มช่วงเปิดใช้; null คือยังไม่เคยเปิดใช้งาน ไม่ต้องมี is_enabled ซ้ำ']
+  effective_until timestamptz [note: 'สิ้นสุดช่วงแบบไม่รวมขอบ เวลา pause หรือเริ่ม config ถัดไป; null คือยังไม่กำหนดสิ้นสุด']
+  created_by uuid [not null]
+  closed_by uuid [note: 'ผู้สั่งปิดช่วงใช้งานเมื่อมี manual action; ไม่ใช่ actor ปลอมของ worker']
+  revision integer [not null, default: 1, check: `revision > 0`]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null]
+  Indexes {
+    (id, company_id) [unique]
+    (id, company_id, form_template_id) [unique]
+    (company_id, effective_from, effective_until)
+  }
+  checks {
+    `(schedule_kind = 'RECURRING' AND schedule_config IS NOT NULL AND jsonb_typeof(schedule_config) = 'object') OR (schedule_kind = 'EXPLICIT' AND schedule_config IS NULL)` [name: 'form_plan_schedule_check']
+    `effective_until IS NULL OR (effective_from IS NOT NULL AND effective_until > effective_from)` [name: 'form_plan_effective_check']
+    `supersedes_plan_id IS NULL OR supersedes_plan_id <> id` [name: 'form_plan_no_self_check']
+    `closed_by IS NULL OR effective_until IS NOT NULL` [name: 'form_plan_closed_actor_check']
+  }
+  Note: 'แบบเสนอ: หนึ่งแถวคือกติกาแผนหนึ่งช่วงเวลา เก็บประวัติด้วย successor เมื่อแก้เวลา ผู้รับ หรือ policy หลังเปิดใช้ ช่วง effective เป็นคำสั่งธุรกิจ ไม่ใช่ cache; use case กันช่วงทับและ cycle ในสายแผน การ pause ปิดช่วงเดิม resume สร้างช่วงใหม่ ไม่เปิดย้อนหลังในช่วงที่ตั้งใจหยุด'
+}
+
+Table form_plan_target {
+  id uuid [pk]
+  company_id uuid [not null]
+  plan_id uuid [not null]
+  role_id uuid [note: 'ใช้ Role ของ tenant หรือ system default ที่ระบบอนุญาต; use case ตรวจ scope เพราะ role.company_id nullable']
+  company_member_id uuid
+  role_distribution form_role_distribution [note: 'มีค่าเฉพาะเป้าหมาย Role: SHARED ร่วมทำหนึ่งชุด, PER_MEMBER แจกคนละงาน']
+  created_at timestamptz [not null, default: `now()`]
+  Indexes {
+    (plan_id, role_id) [unique]
+    (plan_id, company_member_id) [unique]
+  }
+  checks {
+    `(role_id IS NOT NULL AND company_member_id IS NULL AND role_distribution IS NOT NULL) OR (role_id IS NULL AND company_member_id IS NOT NULL AND role_distribution IS NULL)` [name: 'form_plan_target_xor_check']
+  }
+  Note: 'แบบเสนอ: รายการผู้รับที่ใช้สร้างงานในอนาคต ไม่ใช่ผู้รับจริงของรอบเก่า แก้ได้เมื่อแผนยังไม่เปิดใช้ หลังเปิดแล้ว clone ไป config ถัดไป เก็บแยกจาก Assignment เพราะสมาชิก Role เปลี่ยนได้'
+}
+
+Table form_plan_period {
+  id uuid [pk]
+  company_id uuid [not null]
+  plan_id uuid [not null]
+  opens_at timestamptz [not null]
+  due_at timestamptz [not null]
+  created_at timestamptz [not null, default: `now()`]
+  Indexes {
+    (id, company_id, plan_id) [unique]
+    (plan_id, opens_at, due_at) [unique]
+  }
+  checks {
+    `due_at > opens_at` [name: 'form_plan_period_time_check']
+  }
+  Note: 'แบบเสนอ: ช่วงเวลาที่ผู้ใช้ระบุเอง หนึ่งครั้งคือหนึ่งแถว หลายช่วงคือหลายแถว ใช้กับ EXPLICIT เท่านั้นตาม use case ไม่เก็บรอบ recurring ล่วงหน้าในตารางนี้ หลังเปิดใช้แผนห้ามแก้ช่วงเก่า'
+}
+
+Table form_occurrence {
+  id uuid [pk]
+  company_id uuid [not null]
+  plan_id uuid [not null]
+  form_template_id uuid [not null, note: 'เก็บเพื่อ composite FK บังคับ plan และ version เป็นฟอร์มเดียวกัน ไม่ใช่ cache']
+  form_version_id uuid [not null]
+  period_id uuid [note: 'มีค่าเฉพาะ explicit period ของ plan เดียวกัน; recurring ใช้ occurrence_key']
+  occurrence_key text [not null, note: 'รหัสรอบตามปฏิทินและ offset หรือ period ID เพื่อกัน retry ซ้ำ ไม่ใช่เวลา worker ทำงาน']
+  opens_at timestamptz [not null, note: 'เวลาเปิดตามรอบ; created_at คือเวลาเปิดบันทึกจริงหาก worker ล่าช้า']
+  due_at timestamptz [not null]
+  cancelled_at timestamptz
+  cancelled_by uuid
+  cancel_reason text
+  revision integer [not null, default: 1, check: `revision > 0`]
+  created_at timestamptz [not null, default: `now()`]
+  Indexes {
+    (id, company_id) [unique]
+    (id, company_id, form_version_id) [unique]
+    (plan_id, occurrence_key) [unique]
+    (plan_id, period_id) [unique]
+    (company_id, opens_at)
+  }
+  checks {
+    `due_at > opens_at` [name: 'form_occurrence_time_check']
+    `(cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL) OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND cancel_reason IS NOT NULL AND length(trim(cancel_reason)) > 0)` [name: 'form_occurrence_cancel_check']
+  }
+  Note: 'แบบเสนอ: รอบงานที่เปิดจริง ล็อกฉบับคำถามและเวลาที่นำไปใช้ ไม่คัดลอก review/late policy ซ้ำเพราะอ้าง plan config ที่เก็บประวัติและห้ามแก้แล้ว การยกเลิกรอบมีผลต่อทุกงานลูกโดยคำนวณ ไม่เขียน cancelled ซ้ำทุก Assignment; ไม่มีสถานะหรือยอดงานสะสม'
+}
+
+Table form_assignment {
+  id uuid [pk]
+  company_id uuid [not null]
+  occurrence_id uuid [not null]
+  form_version_id uuid [not null, note: 'จำเป็นสำหรับ composite FK ให้คำตอบทุก revision ใช้ฉบับของรอบเดียวกัน']
+  role_id uuid
+  company_member_id uuid
+  replaces_assignment_id uuid [unique, note: 'งานเดิมที่ถูกยกเลิกและมอบหมายใหม่ ไม่ย้ายคำตอบเก่ามาเป็นของผู้รับใหม่']
+  assigned_by uuid [note: 'null เมื่อสร้างอัตโนมัติจากแผน; มีค่าเมื่อผู้ใช้มอบหมายทดแทนจริง']
+  cancelled_at timestamptz
+  cancelled_by uuid
+  cancel_reason text
+  revision integer [not null, default: 1, check: `revision > 0`]
+  created_at timestamptz [not null, default: `now()`, note: 'เวลามอบหมายจริง ไม่เพิ่ม assigned_at ซ้ำ']
+  Indexes {
+    (id, company_id, form_version_id) [unique]
+    (id, company_id, occurrence_id) [unique]
+    (company_id, company_member_id, created_at)
+    (company_id, role_id, created_at)
+  }
+  checks {
+    `num_nonnulls(role_id, company_member_id) = 1` [name: 'form_assignment_target_check']
+    `replaces_assignment_id IS NULL OR replaces_assignment_id <> id` [name: 'form_assignment_no_self_check']
+    `(cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL) OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND cancel_reason IS NOT NULL AND length(trim(cancel_reason)) > 0)` [name: 'form_assignment_cancel_check']
+  }
+  Note: 'แบบเสนอ: ผู้รับงานจริงของรอบ Role คือร่วมทำ ส่วน member คือส่วนตัว PER_MEMBER ขยายรายชื่อตอนเปิดจริงและรวมสมาชิกซ้ำแล้ว ไม่เก็บ target_type หรือ distribution ซ้ำในงานจริง ต้องมี partial unique ของผู้รับที่ยังไม่ถูกยกเลิกใน migration เพื่ออนุญาต replacement โดยรักษาประวัติ'
+}
+
+
 Table form_submission {
   id uuid [pk, note: 'UUIDv7']
   company_id uuid [not null]
-  form_template_id uuid [not null, note: 'Composite FKs บังคับ version กับ role access อยู่ template เดียวกัน']
+  assignment_id uuid [not null]
   form_version_id uuid [not null]
-  role_id uuid [not null, note: 'Role scope ของชุดคำตอบ; immutable; สมาชิกต้องมี roleId นี้ในบริษัทนี้ ณ เวลาใช้งาน']
   started_by uuid [not null, note: 'สมาชิกผู้เริ่มชุดคำตอบ/รอบแก้ไข; ไม่ใช่เจ้าของคำตอบทั้งหมดหรือผู้ส่งโดยอัตโนมัติ']
-  submitted_by uuid [note: 'สมาชิกผู้กดส่งจริง; NULL ระหว่าง DRAFT; สมาชิก role เดียวกันที่มีสิทธิ์คนใดก็ส่งได้']
+  submitted_by uuid [note: 'สมาชิกผู้กดส่งจริง; NULL ระหว่าง DRAFT; ผู้รับแบบ member หรือสมาชิก Role ของ Assignment ที่มี permission ส่งได้']
   revision integer [not null, default: 1, check: `revision > 0`, note: 'Optimistic concurrency ทั้งชุด; ทุก mutation ต้องเทียบ expected_revision และเพิ่มค่าใน transaction']
-  supersedes_submission_id uuid [unique, note: 'รอบแก้ไขชี้ไป REJECTED เดิม; หนึ่งรอบเดิมมีรอบถัดไปได้หนึ่งเดียว']
+  supersedes_submission_id uuid [unique, note: 'รอบแก้ไขชี้ไป RETURN เดิม; หนึ่งรอบเดิมมีรอบถัดไปได้หนึ่งเดียว']
   submitted_at timestamptz
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
 
   Indexes {
     (id, company_id, form_version_id) [unique]
-    (id, company_id, form_version_id, role_id) [unique, note: 'รอบแก้ไขต้องคง role เดิม']
+    (id, company_id, form_version_id, assignment_id) [unique, note: 'บังคับ revision ถัดไปอยู่ Assignment และฉบับเดิม']
     (id, company_id) [unique]
     (company_id, submitted_at)
-    (company_id, role_id, form_template_id)
+    (company_id, assignment_id)
     (company_id, started_by, created_at)
     (company_id, submitted_by, created_at)
     form_version_id
@@ -817,7 +974,7 @@ Table form_submission {
     `supersedes_submission_id IS NULL OR supersedes_submission_id <> id` [name: 'form_submission_no_self_revision_check']
   }
 
-  Note: 'PROPOSED: สมาชิก active role เดียวกันร่วมอ่าน/แก้/ส่ง DRAFT เดียวกันได้ตาม form role access; ไม่ใช้ started_by หรือ contributor เป็น ACL; submit แล้วล็อก content/actors/contributors; reject แล้วสมาชิก role นี้ clone version/role เดิมพร้อมผู้มีส่วนร่วมเดิม'
+  Note: 'แบบเสนอ: ชุดคำตอบหนึ่ง revision ของ Assignment ไม่ผูกสิทธิ์กับผู้เริ่มหรือ contributor หลังส่งล็อกเนื้อหาและไฟล์ RETURN แล้วสร้าง successor พร้อมคงหลักฐานเดิม; revision เป็น concurrency token ของการบันทึกและตรวจ ไม่ใช่เลขรอบ ต้องมี partial unique root ต่อ Assignment ใน migration'
 }
 
 Table form_submission_contributor {
@@ -832,7 +989,7 @@ Table form_submission_contributor {
     (company_id, member_id)
   }
 
-  Note: 'PROPOSED: บันทึกผู้มีส่วนร่วมครั้งแรกใน transaction เดียวกับการเขียน; ห้ามลบเมื่อคำตอบถูกแก้/ลบหรือสมาชิกเปลี่ยน role; clone ทุกแถวจากรอบเดิมเพื่อห้าม self-approval; ไม่มีค่าเก่าของคำตอบและไม่ใช้เป็น ACL'
+  Note: 'PROPOSED: บันทึกผู้มีส่วนร่วมครั้งแรกใน transaction เดียวกับการเขียน; ห้ามลบเมื่อคำตอบถูกแก้/ลบหรือสมาชิกเปลี่ยน role; clone ทุกแถวจากรอบเดิมเพื่อประเมิน permission ตรวจงานตนเองตลอดประวัติ; ไม่มีค่าเก่าของคำตอบและไม่ใช้เป็น ACL'
 }
 
 Table form_answer {
@@ -848,6 +1005,7 @@ Table form_answer {
 
   Indexes {
     (id, company_id) [unique]
+    (id, company_id, submission_id) [unique, note: 'บังคับ review รายข้ออ้างคำตอบของ submission เดียวกัน']
     (submission_id, field_id) [unique]
     (company_id, field_id)
   }
@@ -877,57 +1035,89 @@ Table form_answer_attachment {
   Note: 'PROPOSED: IMAGE/FILE ใช้ metadata นี้; clone คำตอบอ้าง object เดิมได้ จึงไม่ unique storage_key ทั้งระบบ; ลบ object เมื่อไม่มี reference และผ่าน retention เท่านั้น'
 }
 
-// Owner approval is part of the MVP for every submitted response.
-Table submission_review {
-  id uuid [pk, note: 'UUIDv7']
+Table form_review_entry {
+  id uuid [pk]
   company_id uuid [not null]
-  submission_id uuid [not null, unique]
-  reviewed_by uuid [not null, note: 'สมาชิก active บริษัทเดียวกันที่ role.role_type = OWNER; ตรวจจริงใน use case ไม่ใช้ created_by']
-  action submission_review_action [not null]
-  note text
-  created_at timestamptz [not null, default: `now()`, note: 'เวลาตัดสินผล']
-
+  submission_id uuid [not null]
+  form_version_id uuid [not null, note: 'บังคับเป้าหมายหมวดและ submission อยู่ฉบับเดียวกันด้วย composite FK']
+  answer_id uuid [note: 'มีค่าเมื่อตรวจคำตอบรายข้อ รวมข้อแนบภาพ']
+  section_id uuid [note: 'มีค่าเมื่อตรวจทั้งหมวด; ห้ามมีพร้อม answer_id']
+  action form_review_action [not null]
+  note text [note: 'คำอธิบาย/คำแนะนำ บังคับเมื่อ NEEDS_CHANGES หรือ RETURN ไม่ใช่เธรดสนทนา']
+  reviewed_by uuid [not null, note: 'สมาชิกผู้ตรวจจริง ตรวจ Role permissions ปัจจุบัน ไม่บังคับ OWNER']
+  supersedes_entry_id uuid [unique, note: 'ผลตรวจรายละเอียดที่ถูกแทน ต้องเป็น head ของเป้าหมายเดิม ตรวจด้วย transaction']
+  created_at timestamptz [not null, default: `now()`]
   Indexes {
+    (id, company_id, submission_id) [unique]
+    (submission_id, answer_id, created_at)
+    (submission_id, section_id, created_at)
     (company_id, reviewed_by, created_at)
   }
-
   checks {
-    `action <> 'REJECT' OR (note IS NOT NULL AND length(trim(note)) > 0)` [name: 'submission_review_reject_note_check']
+    `(num_nonnulls(answer_id, section_id) = 1 AND action IN ('PASS', 'NEEDS_CHANGES')) OR (answer_id IS NULL AND section_id IS NULL AND action IN ('APPROVE', 'RETURN') AND supersedes_entry_id IS NULL)` [name: 'form_review_target_action_check']
+    `action NOT IN ('NEEDS_CHANGES', 'RETURN') OR (note IS NOT NULL AND length(trim(note)) > 0)` [name: 'form_review_note_check']
+    `supersedes_entry_id IS NULL OR supersedes_entry_id <> id` [name: 'form_review_no_self_check']
   }
-
-  Note: 'PROPOSED: Owner อนุมัติทั้งใบขั้นเดียว; ห้าม review หากเคยเป็นผู้เริ่ม/ผู้ส่ง/ผู้มีส่วนร่วมในสาย revision แม้เปลี่ยน role หรือคำตอบถูกแก้ทับ; ตรวจ user identity ป้องกันเปลี่ยน membership; ไม่อนุมัติแยก section'
+  Note: 'แบบเสนอ: ประวัติผลตรวจแบบเพิ่มอย่างเดียว รายข้อ/หมวดไม่ส่งงานกลับทันที ต้องมี RETURN ทั้งชุด ไม่มีตาราง review แบบหนึ่งต่อหนึ่ง ไม่มีสถานะตรวจซ้ำ ต้องเพิ่ม partial unique สำหรับ root ผลรายเป้าและคำตัดสินสุดท้ายใน migration; permission, coverage, head เป้าหมายเดิม และห้ามตรวจหลัง finalize บังคับใน use case'
 }
 
+
 Ref: form_template.company_id > company.id [delete: restrict]
-Ref: form_template_role.(form_template_id, company_id) > form_template.(id, company_id) [delete: restrict]
-Ref: form_template_role.role_id > role.id [delete: restrict]
 Ref: form_template.(created_by, company_id) > company_member.(id, company_id) [delete: restrict]
-Ref: form_version.(form_template_id, company_id) > form_template.(id, company_id) [delete: restrict]
 Ref: form_version.(created_by, company_id) > company_member.(id, company_id) [delete: restrict]
 Ref: form_version.(published_by, company_id) > company_member.(id, company_id) [delete: restrict]
-Ref: form_section.(form_version_id, company_id) > form_version.(id, company_id) [delete: restrict]
-Ref: form_field.(form_section_id, company_id, form_version_id) > form_section.(id, company_id, form_version_id) [delete: restrict]
-Ref: form_submission.(form_version_id, company_id, form_template_id) > form_version.(id, company_id, form_template_id) [delete: restrict]
-Ref: form_submission.(form_template_id, company_id, role_id) > form_template_role.(form_template_id, company_id, role_id) [delete: restrict]
+Ref: form_plan.(created_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_plan.(closed_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_occurrence.(cancelled_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_assignment.(company_member_id, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_assignment.(assigned_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_assignment.(cancelled_by, company_id) > company_member.(id, company_id) [delete: restrict]
 Ref: form_submission.(started_by, company_id) > company_member.(id, company_id) [delete: restrict]
 Ref: form_submission.(submitted_by, company_id) > company_member.(id, company_id) [delete: restrict]
-Ref: form_submission.(supersedes_submission_id, company_id, form_version_id, role_id) > form_submission.(id, company_id, form_version_id, role_id) [delete: restrict]
-Ref: form_submission_contributor.(submission_id, company_id) > form_submission.(id, company_id) [delete: restrict]
 Ref: form_submission_contributor.(member_id, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_answer.(updated_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_answer_attachment.(uploaded_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_review_entry.(reviewed_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_plan_target.(company_member_id, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_version.(form_template_id, company_id) > form_template.(id, company_id) [delete: restrict]
+Ref: form_section.(form_version_id, company_id) > form_version.(id, company_id) [delete: restrict]
+Ref: form_field.(form_section_id, company_id, form_version_id) > form_section.(id, company_id, form_version_id) [delete: restrict]
+Ref: form_plan.(form_template_id, company_id) > form_template.(id, company_id) [delete: restrict]
+Ref: form_plan.(fixed_version_id, company_id, form_template_id) > form_version.(id, company_id, form_template_id) [delete: restrict]
+Ref: form_plan.(supersedes_plan_id, company_id, form_template_id) > form_plan.(id, company_id, form_template_id) [delete: restrict]
+Ref: form_plan_target.(plan_id, company_id) > form_plan.(id, company_id) [delete: restrict]
+Ref: form_plan_target.role_id > role.id [delete: restrict]
+Ref: form_plan_period.(plan_id, company_id) > form_plan.(id, company_id) [delete: restrict]
+Ref: form_occurrence.(plan_id, company_id, form_template_id) > form_plan.(id, company_id, form_template_id) [delete: restrict]
+Ref: form_occurrence.(form_version_id, company_id, form_template_id) > form_version.(id, company_id, form_template_id) [delete: restrict]
+Ref: form_occurrence.(period_id, company_id, plan_id) > form_plan_period.(id, company_id, plan_id) [delete: restrict]
+Ref: form_assignment.(occurrence_id, company_id, form_version_id) > form_occurrence.(id, company_id, form_version_id) [delete: restrict]
+Ref: form_assignment.role_id > role.id [delete: restrict]
+Ref: form_assignment.(replaces_assignment_id, company_id, occurrence_id) > form_assignment.(id, company_id, occurrence_id) [delete: restrict]
+Ref: form_submission.(assignment_id, company_id, form_version_id) > form_assignment.(id, company_id, form_version_id) [delete: restrict]
+Ref: form_submission.(supersedes_submission_id, company_id, form_version_id, assignment_id) > form_submission.(id, company_id, form_version_id, assignment_id) [delete: restrict]
+Ref: form_submission_contributor.(submission_id, company_id) > form_submission.(id, company_id) [delete: restrict]
 Ref: form_answer.(submission_id, company_id, form_version_id) > form_submission.(id, company_id, form_version_id) [delete: restrict]
 Ref: form_answer.(field_id, company_id, form_version_id) > form_field.(id, company_id, form_version_id) [delete: restrict]
-Ref: form_answer.(updated_by, company_id) > company_member.(id, company_id) [delete: restrict]
 Ref: form_answer_attachment.(answer_id, company_id) > form_answer.(id, company_id) [delete: restrict]
-Ref: form_answer_attachment.(uploaded_by, company_id) > company_member.(id, company_id) [delete: restrict]
-Ref: submission_review.(submission_id, company_id) > form_submission.(id, company_id) [delete: restrict]
-Ref: submission_review.(reviewed_by, company_id) > company_member.(id, company_id) [delete: restrict]
+Ref: form_review_entry.(submission_id, company_id, form_version_id) > form_submission.(id, company_id, form_version_id) [delete: restrict]
+Ref: form_review_entry.(answer_id, company_id, submission_id) > form_answer.(id, company_id, submission_id) [delete: restrict]
+Ref: form_review_entry.(section_id, company_id, form_version_id) > form_section.(id, company_id, form_version_id) [delete: restrict]
+Ref: form_review_entry.(supersedes_entry_id, company_id, submission_id) > form_review_entry.(id, company_id, submission_id) [delete: restrict]
 
 TableGroup form_definition {
   form_template
-  form_template_role
   form_version
   form_section
   form_field
+}
+
+TableGroup form_planning {
+  form_plan
+  form_plan_target
+  form_plan_period
+  form_occurrence
+  form_assignment
 }
 
 TableGroup form_response {
@@ -935,5 +1125,5 @@ TableGroup form_response {
   form_submission_contributor
   form_answer
   form_answer_attachment
-  submission_review
+  form_review_entry
 }

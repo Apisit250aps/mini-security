@@ -6,12 +6,14 @@ import { created, response, success, validator } from '../lib/response';
 export abstract class Controller {
   protected securityContext(c: Context): ISecurityContext {
     const user: Session['user'] | undefined = c.get('user');
-    const session: Session['session'] | undefined = c.get('session');
+    const session = c.get('session') as (Session['session'] & { memberId?: string | null }) | undefined;
     return {
       user,
       userId: user?.id,
+      companyId: session?.activeCompanyId ?? undefined,
       permissions: session?.permissions,
       activeCompanyId: session?.activeCompanyId,
+      memberId: session?.memberId ?? null,
     };
   }
 

@@ -62,6 +62,40 @@ namespace Domain.Entity;
     REJECTED: "REJECTED",
   }
 
+  enum FormScheduleKind {
+    RECURRING: "RECURRING",
+    EXPLICIT: "EXPLICIT",
+  }
+
+  enum FormReviewMode {
+    NONE: "NONE",
+    OVERALL: "OVERALL",
+    ALL_SECTIONS: "ALL_SECTIONS",
+    ALL_ANSWERS: "ALL_ANSWERS",
+  }
+
+  enum FormRoleDistribution {
+    SHARED: "SHARED",
+    PER_MEMBER: "PER_MEMBER",
+  }
+
+  enum FormLatePolicy {
+    ALLOW: "ALLOW",
+    DENY: "DENY",
+  }
+
+  enum FormMissedPolicy {
+    SKIP: "SKIP",
+    CATCH_UP: "CATCH_UP",
+  }
+
+  enum FormReviewAction {
+    PASS: "PASS",
+    NEEDS_CHANGES: "NEEDS_CHANGES",
+    APPROVE: "APPROVE",
+    RETURN: "RETURN",
+  }
+
   enum SubmissionReviewAction {
     APPROVE: "APPROVE",
     REJECT: "REJECT",
@@ -252,14 +286,7 @@ namespace Domain.Entity;
     createdBy: string;
   }
 
-  model FormTemplateRole {
-    ...BaseEntity;
-
-    companyId: string;
-    formTemplateId: string;
-    roleId: string;
-    isEnabled: boolean;
-  }
+  
 
   model FormVersion {
     ...BaseEntity;
@@ -303,9 +330,8 @@ namespace Domain.Entity;
     ...BaseEntity;
 
     companyId: string;
-    formTemplateId: string;
+    assignmentId: string;
     formVersionId: string;
-    roleId: string;
     startedBy: string;
     submittedBy?: string | null;
     revision: int32;
@@ -353,6 +379,87 @@ namespace Domain.Entity;
     reviewedBy: string;
     action: SubmissionReviewAction;
     note?: string | null;
+  }
+
+  model FormPlan {
+    ...BaseEntity;
+    companyId: string;
+    formTemplateId: string;
+    supersedesPlanId: string | null;
+    name: string;
+    scheduleKind: FormScheduleKind;
+    scheduleConfig: Record<unknown> | null;
+    timezone: string;
+    fixedVersionId: string | null;
+    reviewMode: FormReviewMode;
+    latePolicy: FormLatePolicy;
+    missedPolicy: FormMissedPolicy;
+    effectiveFrom: utcDateTime | null;
+    effectiveUntil: utcDateTime | null;
+    createdBy: string;
+    closedBy: string | null;
+    revision: int32;
+  }
+
+  model FormPlanTarget {
+    ...AppendOnlyBaseEntity;
+    companyId: string;
+    planId: string;
+    roleId: string | null;
+    companyMemberId: string | null;
+    roleDistribution: FormRoleDistribution | null;
+  }
+
+  model FormPlanPeriod {
+    ...AppendOnlyBaseEntity;
+    companyId: string;
+    planId: string;
+    opensAt: utcDateTime;
+    dueAt: utcDateTime;
+  }
+
+  model FormOccurrence {
+    ...AppendOnlyBaseEntity;
+    companyId: string;
+    planId: string;
+    formTemplateId: string;
+    formVersionId: string;
+    periodId: string | null;
+    occurrenceKey: string;
+    opensAt: utcDateTime;
+    dueAt: utcDateTime;
+    cancelledAt: utcDateTime | null;
+    cancelledBy: string | null;
+    cancelReason: string | null;
+    revision: int32;
+  }
+
+  model FormAssignment {
+    ...AppendOnlyBaseEntity;
+    companyId: string;
+    occurrenceId: string;
+    formVersionId: string;
+    roleId: string | null;
+    companyMemberId: string | null;
+    replacesAssignmentId: string | null;
+    assignedBy: string | null;
+    cancelledAt: utcDateTime | null;
+    cancelledBy: string | null;
+    cancelReason: string | null;
+    revision: int32;
+  }
+
+  model FormReviewEntry {
+    ...AppendOnlyBaseEntity;
+    companyId: string;
+    submissionId: string;
+    formVersionId: string;
+    answerId: string | null;
+    sectionId: string | null;
+    action: FormReviewAction;
+    note: string | null;
+    reviewedBy: string;
+    supersedesEntryId: string | null;
   }
 
   model LeaveType {

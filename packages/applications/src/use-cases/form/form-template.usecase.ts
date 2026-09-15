@@ -4,12 +4,9 @@ import type {
   FormSection,
   FormField,
   FormTemplate,
-  FormTemplateRole,
   FormVersion,
 } from '@repo/domains/entities/form';
 import type {
-  IAssignFormRolesContext,
-  IAssignFormRolesUseCase,
   ICreateFormFieldContext,
   ICreateFormFieldUseCase,
   ICreateFormSectionContext,
@@ -30,7 +27,6 @@ import type {
   IFormFieldRepository,
   IFormSectionRepository,
   IFormTemplateRepository,
-  IFormTemplateRoleRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
 import {
@@ -118,7 +114,6 @@ export class GetFormTemplateUseCase implements IGetFormTemplateUseCase {
     private readonly unitOfWork: IUnitOfWork,
     private readonly templateRepo: IFormTemplateRepository,
     private readonly versionRepo: IFormVersionRepository,
-    private readonly roleRepo: IFormTemplateRoleRepository,
     private readonly sectionRepo: IFormSectionRepository,
     private readonly fieldRepo: IFormFieldRepository,
   ) {}
@@ -131,10 +126,9 @@ export class GetFormTemplateUseCase implements IGetFormTemplateUseCase {
       const template = await this.templateRepo.findById(context.id);
       if (!template) return null;
 
-      const [publishedVersion, draftVersion, roles] = await Promise.all([
+      const [publishedVersion, draftVersion] = await Promise.all([
         this.versionRepo.findPublishedByTemplateId(template.id),
         this.versionRepo.findDraftByTemplateId(template.id),
-        this.roleRepo.findByTemplateId(template.id),
       ]);
 
       // Active inspection version defaults to draft (for builder) or published
@@ -151,7 +145,6 @@ export class GetFormTemplateUseCase implements IGetFormTemplateUseCase {
         template,
         activeVersion: publishedVersion,
         draftVersion,
-        roles,
         sections,
         fields,
       };
@@ -176,43 +169,6 @@ export class ListFormTemplatesByCompanyUseCase
   }
 }
 
-// ==========================================
-// 5. Assign Form Roles
-// ==========================================
-
-export class AssignFormRolesUseCase implements IAssignFormRolesUseCase {
-  constructor(
-    private readonly unitOfWork: IUnitOfWork,
-    private readonly templateRepo: IFormTemplateRepository,
-    private readonly roleRepo: IFormTemplateRoleRepository,
-  ) {}
-
-  @RequirePermission('form_template:update')
-  async execute(context: IAssignFormRolesContext): Promise<FormTemplateRole[]> {
-    return this.unitOfWork.transaction(async () => {
-      const template = await this.templateRepo.findById(context.formTemplateId);
-      if (!template) {
-        throw new NotFoundError('Form template not found');
-      }
-
-      // Replace assignments
-      await this.roleRepo.deleteByTemplateId(template.id);
-
-      const created: FormTemplateRole[] = [];
-      for (const roleId of context.roleIds) {
-        const item = await this.roleRepo.create({
-          companyId: template.companyId,
-          formTemplateId: template.id,
-          roleId,
-          isEnabled: true,
-        });
-        created.push(item);
-      }
-
-      return created;
-    });
-  }
-}
 
 // ==========================================
 // 6. Create Form Section
@@ -294,7 +250,6 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
   constructor(
     private readonly unitOfWork: IUnitOfWork,
     private readonly versionRepo: IFormVersionRepository,
-    private readonly roleRepo: IFormTemplateRoleRepository,
     private readonly sectionRepo: IFormSectionRepository,
     private readonly fieldRepo: IFormFieldRepository,
   ) {}
@@ -309,18 +264,12 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
         throw new NotFoundError('No draft version found to publish');
       }
 
-      // Verify requirements: at least 1 section, 1 field, and 1 assigned role
-      const [roles, sections, fields] = await Promise.all([
-        this.roleRepo.findByTemplateId(context.formTemplateId),
+      // Verify requirements: at least 1 section, 1 field
+      const [sections, fields] = await Promise.all([
         this.sectionRepo.findByVersionId(draft.id),
         this.fieldRepo.findByVersionId(draft.id),
       ]);
 
-      if (roles.length === 0) {
-        throw new BadRequestError(
-          'Cannot publish form without any role assignments',
-        );
-      }
       if (sections.length === 0) {
         throw new BadRequestError('Cannot publish form without any sections');
       }

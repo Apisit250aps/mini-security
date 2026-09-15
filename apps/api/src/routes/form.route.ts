@@ -1,24 +1,39 @@
 import { Hono } from 'hono';
 import {
-  assignFormRolesUseCase,
-  cloneFormSubmissionUseCase,
+  createFormTemplateUseCase,
+  updateFormTemplateUseCase,
+  getFormTemplateUseCase,
+  listFormTemplatesByCompanyUseCase,
+  createFormSectionUseCase,
   createFormFieldUseCase,
   editFormFieldUseCase,
   deleteFormFieldUseCase,
-  createFormSectionUseCase,
-  createFormTemplateUseCase,
-  getFormSubmissionUseCase,
-  getFormTemplateUseCase,
-  listFormSubmissionsUseCase,
-  listFormTemplatesByCompanyUseCase,
   publishFormVersionUseCase,
-  reorderFormFieldUseCase,
   reorderFormSectionUseCase,
-  reviewFormSubmissionUseCase,
-  saveFormSubmissionDraftUseCase,
+  reorderFormFieldUseCase,
+  createFormPlanUseCase,
+  getFormPlanUseCase,
+  listFormPlansUseCase,
+  activateFormPlanUseCase,
+  pauseFormPlanUseCase,
+  previewScheduleUseCase,
+  openDueOccurrencesUseCase,
+  cancelOccurrenceUseCase,
+  listMyAssignmentsUseCase,
+  getAssignmentUseCase,
+  cancelAssignmentUseCase,
+  replaceAssignmentUseCase,
   startFormSubmissionUseCase,
+  saveFormSubmissionDraftUseCase,
   submitFormSubmissionUseCase,
-  updateFormTemplateUseCase,
+  createCorrectionUseCase,
+  getFormSubmissionUseCase,
+  listFormSubmissionsUseCase,
+  listReviewQueueUseCase,
+  getReviewDetailUseCase,
+  recordAnswerReviewUseCase,
+  recordSectionReviewUseCase,
+  finalizeSubmissionReviewUseCase
 } from '@repo/infrastructures/compositions';
 import { FormController } from '../controllers/form.controller';
 import { authMiddleware } from '../middleware';
@@ -28,7 +43,6 @@ const formController = new FormController(
   updateFormTemplateUseCase,
   getFormTemplateUseCase,
   listFormTemplatesByCompanyUseCase,
-  assignFormRolesUseCase,
   createFormSectionUseCase,
   createFormFieldUseCase,
   editFormFieldUseCase,
@@ -36,13 +50,29 @@ const formController = new FormController(
   publishFormVersionUseCase,
   reorderFormSectionUseCase,
   reorderFormFieldUseCase,
+  createFormPlanUseCase,
+  getFormPlanUseCase,
+  listFormPlansUseCase,
+  activateFormPlanUseCase,
+  pauseFormPlanUseCase,
+  previewScheduleUseCase,
+  openDueOccurrencesUseCase,
+  cancelOccurrenceUseCase,
+  listMyAssignmentsUseCase,
+  getAssignmentUseCase,
+  cancelAssignmentUseCase,
+  replaceAssignmentUseCase,
   startFormSubmissionUseCase,
   saveFormSubmissionDraftUseCase,
   submitFormSubmissionUseCase,
-  cloneFormSubmissionUseCase,
+  createCorrectionUseCase,
   getFormSubmissionUseCase,
   listFormSubmissionsUseCase,
-  reviewFormSubmissionUseCase,
+  listReviewQueueUseCase,
+  getReviewDetailUseCase,
+  recordAnswerReviewUseCase,
+  recordSectionReviewUseCase,
+  finalizeSubmissionReviewUseCase
 );
 
 const formRoutes = new Hono();
@@ -57,9 +87,10 @@ formRoutes.get(
   '/companies/:companyId/templates',
   formController.listTemplatesByCompany,
 );
-formRoutes.post('/templates/:id/roles', formController.assignRoles);
 formRoutes.post('/templates/:id/sections', formController.createSection);
 formRoutes.post('/templates/:id/fields', formController.createField);
+formRoutes.put('/templates/:id/fields/:fieldId', formController.editField);
+formRoutes.delete('/templates/:id/fields/:fieldId', formController.deleteField);
 formRoutes.post('/templates/:id/publish', formController.publishVersion);
 formRoutes.patch(
   '/templates/:id/sections/reorder',
@@ -67,18 +98,37 @@ formRoutes.patch(
 );
 formRoutes.patch('/templates/:id/fields/reorder', formController.reorderFields);
 
-formRoutes.put('/templates/:id/fields/:fieldId', formController.editField);
-formRoutes.delete('/templates/:id/fields/:fieldId', formController.deleteField);
+// --- Plans ---
+formRoutes.post('/plans', formController.createPlan);
+formRoutes.get('/plans', formController.listPlans);
+formRoutes.get('/plans/:id', formController.getPlan);
+formRoutes.post('/plans/:id/activate', formController.activatePlan);
+formRoutes.post('/plans/:id/pause', formController.pausePlan);
+formRoutes.get('/plans/:id/schedule-preview', formController.previewSchedule);
 
-// --- Form Submissions ---
+// --- Occurrences ---
+formRoutes.post('/occurrences/open', formController.openOccurrences);
+formRoutes.post('/occurrences/:id/cancel', formController.cancelOccurrence);
+
+// --- Assignments ---
+formRoutes.get('/assignments', formController.listMyAssignments);
+formRoutes.get('/assignments/:id', formController.getAssignment);
+formRoutes.post('/assignments/:id/cancel', formController.cancelAssignment);
+formRoutes.post('/assignments/:id/replace', formController.replaceAssignment);
+
+// --- Submissions ---
 formRoutes.post('/submissions', formController.startSubmission);
 formRoutes.put('/submissions/:id/draft', formController.saveDraft);
 formRoutes.post('/submissions/:id/submit', formController.submit);
-formRoutes.post('/submissions/:id/clone', formController.clone);
+formRoutes.post('/submissions/:id/correction', formController.createCorrection);
 formRoutes.get('/submissions/:id', formController.getSubmission);
 formRoutes.get('/submissions', formController.listSubmissions);
 
-// --- Submission Review ---
-formRoutes.post('/submissions/:id/review', formController.review);
+// --- Reviews ---
+formRoutes.get('/reviews', formController.listReviewQueue);
+formRoutes.get('/submissions/:id/review-entries', formController.getReviewDetail);
+formRoutes.post('/submissions/:id/answers/:answerId/review', formController.recordAnswerReview);
+formRoutes.post('/submissions/:id/sections/:sectionId/review', formController.recordSectionReview);
+formRoutes.post('/submissions/:id/finalize-review', formController.finalizeReview);
 
 export default formRoutes;

@@ -16,18 +16,15 @@ export default function FormTemplateEditDialog({
   template,
   onClose,
 }: FormTemplateEditDialogProps) {
-  const updateMutation = useFormTemplateUpdate(companyId);
+  const updateMutation = useFormTemplateUpdate(companyId, template.id);
 
   const handleSubmit = useCallback(
     (values: FormTemplateFormValues) => {
       updateMutation.mutate(
         {
-          id: template.id,
-          data: {
             name: values.name,
             description: values.description || null,
             isActive: values.isActive,
-          },
         },
         {
           onSuccess: () => {

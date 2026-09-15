@@ -13,7 +13,6 @@ import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useFormVersionPublish } from '../../hooks/form-mutations';
 import FormTemplateEditDialog from './form-template-edit-dialog';
-import FormTemplateRolesDialog from './form-template-roles-dialog';
 import FormTemplateSectionDialog from './form-template-section-dialog';
 import FormTemplateFieldDialog from './form-template-field-dialog';
 import FormTemplatePreviewDialog from './form-template-preview-dialog';
@@ -68,29 +67,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
     });
   }, [ui.dialog, companyId, template]);
 
-  const actionRoles = useCallback(async () => {
-    // Fetch template detail to get current roles
-    const res = await formServicesGetTemplate({ path: { id: template.id } });
-    const detail = res.data?.data;
-    if (!detail) {
-      toast.error('ไม่สามารถโหลดข้อมูลสิทธิ์ของแบบฟอร์มได้');
-      return;
-    }
 
-    ui.dialog.open({
-      title: 'จัดการสิทธิ์ตำแหน่งที่เข้าถึงฟอร์มได้',
-      description: template.name,
-      size: 'md',
-      children: (
-        <FormTemplateRolesDialog
-          companyId={companyId}
-          templateId={template.id}
-          currentRoles={detail.roles}
-          onClose={() => ui.dialog.close()}
-        />
-      ),
-    });
-  }, [ui.dialog, companyId, template]);
 
   const actionAddSection = useCallback(async () => {
     const res = await formServicesGetTemplate({ path: { id: template.id } });
@@ -190,16 +167,14 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
   return (
     <ColumnActions
       actions={{
-        'ออกแบบและจัดการฟิลด์ (Builder)': {
+        'รายละเอียด (Detail View)': {
           onAction: () =>
-            router.push(`/company/forms/templates/${template.id}/builder`),
+            router.push(`/company/forms/templates/${template.id}`),
         },
         ดูตัวอย่างแบบฟอร์ม: {
           onAction: actionPreview,
         },
-        'กำหนดสิทธิ์ Role': {
-          onAction: actionRoles,
-        },
+
         'เพิ่มหมวดหมู่ (Section)': {
           onAction: actionAddSection,
         },

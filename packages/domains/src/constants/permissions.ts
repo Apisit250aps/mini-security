@@ -6,6 +6,7 @@ export type PermissionAction = string;
 export interface ISecurityContext {
   userId?: string;
   companyId?: string;
+  memberId?: string | null;
   /** Trusted session snapshot; never populate from request input. */
   permissions?: string | null;
   activeCompanyId?: string | null;

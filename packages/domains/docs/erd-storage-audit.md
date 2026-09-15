@@ -1,5 +1,8 @@
 # ERD source-data storage audit — 2026-09-13
 
+> เอกสาร Form รุ่นถัดไป: [Forms workflow design](form-workflow-design.md), [UI flow](form-workflow-ui-flow.md), [development plan](form-workflow-development-plan.md) — Proposed 2026-09-15; ส่วน Form/Owner approval ในเอกสารนี้เป็นแบบก่อนหน้า ส่วน audit โมดูลอื่นยังใช้อ้างอิงได้ canonical DBML ปรับเป็นแบบเสนอใหม่แล้ว ดู [คำอธิบาย ERD ภาษาไทย](erd-description-th.md); runtime ยังไม่ได้ปรับตามข้อเสนอใหม่
+
+
 สถานะ: **ปรับแบบเสนอเท่านั้น** ตรวจครบ 33 ตาราง ยังไม่เปลี่ยน Drizzle, migration, API, Auth หรือ UI กฎถาวรอยู่ที่ [AGENTS.md](../../../../AGENTS.md)
 
 เก็บข้อมูลต้นทางที่จำเป็นและข้อเท็จจริงซึ่งกู้คืนไม่ได้จากข้อมูลที่เหลือ ค่าที่คำนวณซ้ำได้ให้คำนวณตอนอ่าน ไม่สร้างคอลัมน์ซ้ำ
@@ -69,3 +72,19 @@ Snapshot ชื่อ/ศูนย์กลาง/รัศมีสถานท
 - Auth ต้องเปลี่ยน consumer ที่เคยอ่าน session.permissions ก่อนลบคอลัมน์จริง; การปรับนี้ไม่ได้ยืนยันว่า runtime เลิกใช้ cache แล้ว
 - ตรวจข้อมูลเดิมก่อน migration โดยเฉพาะจำนวนวันลาแบบกรอกเอง ช่วงเวลารายชั่วโมงที่หาย started_at ที่อาจไม่ตรง created_at และ review/status ที่ไม่ตรงกัน; ห้ามทิ้งค่าที่กู้ต้นทางไม่ได้ ให้หยุด migration และรายงาน
 - เอกสาร implementation เก่าของ Schedule/Role เป็นบันทึกระบบที่ใช้งานแล้ว; audit นี้เป็นเป้าหมาย ERD ใหม่เหนือส่วนเก่าที่ต่างกัน
+
+## Form audit รุ่นใหม่ — 2026-09-15
+
+ส่วน Form ในตาราง audit เก่าด้านบนเป็นหลักฐานแบบเดิม ถูกแทนด้วย [ERD ใหม่](../erDiagram.dbml) และ [คำอธิบาย/เหตุผลเก็บข้อมูลรายตาราง](erd-description-th.md) ส่วนโมดูลอื่นไม่ได้เปลี่ยนโครงสร้างในรอบนี้
+
+| รายการ | ผลตรวจแบบเสนอใหม่ |
+| --- | --- |
+| form_template_role / submission_review | ถอด ACL ตาม template role; ใช้ assignment และแทนผลตรวจเดิมด้วย form_review_entry |
+| form_plan/target/period | เก็บกติกาและประวัติช่วง effective ไม่แก้ inputs หลัง activate; ไม่เก็บ enabled หรือ version mode ซ้ำ |
+| form_occurrence | เก็บ version/ขอบเขตเวลาที่เปิดจริงและ key กันซ้ำ; ไม่ copy review/late policy เพราะอ่าน immutable plan config ได้ |
+| form_assignment | ผู้รับงานจริง Role XOR member; created_at เป็นเวลามอบหมาย ไม่เพิ่ม assigned_at |
+| form_submission | assignment เป็นขอบเขต revision; ไม่มี role/template ACL ซ้ำ; คง version key เพื่อ integrity |
+| form_review_entry | ผลจริง/เป้าหมาย/comment/actor/history ไม่เก็บ progress หรือ status ซ้ำ |
+| Integrity keys | company/template/version keys ที่ซ้ำเพื่อ composite FK มีเหตุผลใน ERD description |
+
+ผลนี้เป็น design audit และ DBML validation ไม่ใช่ migration หรือฐานข้อมูลจริง

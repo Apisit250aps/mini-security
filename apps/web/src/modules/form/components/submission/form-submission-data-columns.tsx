@@ -27,34 +27,25 @@ const STATUS_MAP: Record<
 
 export const formSubmissionDataColumns = ({
   companyId,
-  templatesMap,
+  templatesMap: _templatesMap,
   usersMap,
 }: FormSubmissionColumnsOptions): ColumnDef<FormSubmission>[] => [
   {
-    accessorKey: 'formTemplateId',
+    id: 'formTemplateId',
     header: 'แบบฟอร์ม',
-    cell: ({ row }) => {
-      const template = templatesMap.get(row.original.formTemplateId);
-      return (
-        <Link
-          href={`/company/forms/submissions/${row.original.id}`}
-          className="flex flex-col group cursor-pointer"
-        >
-          <span className="font-semibold text-sm text-primary hover:underline transition-colors">
-            {template?.name || 'แบบฟอร์มตรวจสอบทั่วไป'}
-          </span>
-          {template?.description ? (
-            <span className="text-xs text-muted-foreground line-clamp-1">
-              {template.description}
-            </span>
-          ) : (
-            <span className="text-xs text-muted-foreground">
-              ฉบับแก้ไขที่ {row.original.revision}
-            </span>
-          )}
-        </Link>
-      );
-    },
+    cell: ({ row }) => (
+      <Link
+        href={`/company/forms/submissions/${row.original.id}`}
+        className="flex flex-col group cursor-pointer"
+      >
+        <span className="font-semibold text-sm text-primary hover:underline transition-colors">
+          แบบฟอร์มบันทึกข้อมูล #{row.original.id.slice(0, 8)}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          ฉบับแก้ไขที่ {row.original.revision}
+        </span>
+      </Link>
+    ),
   },
   {
     id: 'submitter',

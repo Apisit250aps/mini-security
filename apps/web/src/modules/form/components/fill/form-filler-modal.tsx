@@ -43,7 +43,7 @@ export default function FormFillerModal({
 }: FormFillerModalProps) {
   const { data: detail, isLoading } = useFormSubmissionQueries(submissionId);
 
-  const saveDraftMutation = useFormSubmissionSaveDraft(submissionId, companyId);
+  const saveDraftMutation = useFormSubmissionSaveDraft(submissionId);
   const submitMutation = useFormSubmissionSubmit(submissionId, companyId);
 
   const [edits, setEdits] = useState<Record<string, unknown>>({});
@@ -63,10 +63,7 @@ export default function FormFillerModal({
     setEdits((prev) => ({ ...prev, [fieldId]: val }));
   }, []);
 
-  const status = getFormSubmissionStatus(
-    detail?.submission,
-    detail?.review,
-  );
+  const status = getFormSubmissionStatus(detail?.submission);
   const isReadOnly = status !== 'DRAFT';
 
   // Group fields by section
@@ -89,11 +86,10 @@ export default function FormFillerModal({
     }));
 
     saveDraftMutation.mutate({
-      memberId,
       expectedRevision: detail.submission.revision,
       answers: answerEntries,
     });
-  }, [detail, answers, memberId, saveDraftMutation]);
+  }, [detail, answers, saveDraftMutation]);
 
   const handleSubmit = useCallback(() => {
     if (!detail) return;
@@ -121,7 +117,6 @@ export default function FormFillerModal({
 
     saveDraftMutation.mutate(
       {
-        memberId,
         expectedRevision: detail.submission.revision,
         answers: answerEntries,
       },
@@ -129,7 +124,6 @@ export default function FormFillerModal({
         onSuccess: (updatedSub) => {
           submitMutation.mutate(
             {
-              memberId,
               expectedRevision:
                 updatedSub?.data?.revision ?? detail.submission.revision + 1,
             },
@@ -142,7 +136,7 @@ export default function FormFillerModal({
         },
       },
     );
-  }, [detail, answers, memberId, saveDraftMutation, submitMutation, onClose]);
+  }, [detail, answers, saveDraftMutation, submitMutation, onClose]);
 
   if (isLoading) {
     return (
@@ -160,8 +154,8 @@ export default function FormFillerModal({
     );
   }
 
-  const { submission, template, version, sections, review } = detail;
-  const currentStatus = getFormSubmissionStatus(submission, review);
+  const { submission, template, version, sections } = detail;
+  const currentStatus = getFormSubmissionStatus(submission);
   const statusInfo = STATUS_MAP[currentStatus] || {
     label: currentStatus,
     variant: 'outline',
@@ -200,14 +194,13 @@ export default function FormFillerModal({
         )}
 
         {/* Rejection Alert if rejected */}
-        {currentStatus === 'REJECTED' && review && (
+        {currentStatus === 'REJECTED' && (
           <div className="flex items-start gap-3 p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-sm">
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
             <div className="flex flex-col gap-0.5">
               <span className="font-semibold">
                 แบบฟอร์มนี้ได้รับการปฏิเสธ (Rejected)
               </span>
-              {review.note && <span>เหตุผล: {review.note}</span>}
             </div>
           </div>
         )}

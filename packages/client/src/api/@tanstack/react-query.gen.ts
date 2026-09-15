@@ -4,8 +4,8 @@ import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { attendanceServicesCheckIn, attendanceServicesCreateSchedule, attendanceServicesCreateSlot, attendanceServicesDeleteSlot, attendanceServicesGetCompanyLogs, attendanceServicesGetMemberLogs, attendanceServicesGetSchedulesByCompany, attendanceServicesGetSchedulesByRole, attendanceServicesGetSlotsBySchedule, attendanceServicesManualCheckIn, attendanceServicesUpdateSchedule, attendanceServicesUpdateSlot, companyServicesAddCompanyMember, companyServicesCreateCompany, companyServicesCreateCompanyBranch, companyServicesDeleteCompany, companyServicesDeleteCompanyBranch, companyServicesGetCompanies, companyServicesGetCompany, companyServicesGetCompanyBranch, companyServicesGetCompanyBranches, companyServicesGetCompanyBySlug, companyServicesGetCompanyMembers, companyServicesRemoveCompanyMember, companyServicesSwitchActiveCompany, companyServicesUpdateCompany, companyServicesUpdateCompanyBranch, companyServicesUpdateCompanyMember, featureServicesAssignCompanyFeature, featureServicesAssignRoleFeature, featureServicesCheckRoleFeatureAccess, featureServicesCreateFeature, featureServicesGetCompanyAvailableFeatures, featureServicesGetCompanyFeatures, featureServicesGetCompanyRoleFeatures, featureServicesGetFeature, featureServicesGetFeatures, featureServicesGetRoleFeatures, featureServicesRemoveCompanyFeature, featureServicesRevokeRoleFeature, featureServicesToggleCompanyFeature, featureServicesToggleFeature, featureServicesToggleRoleFeature, featureServicesUpdateFeature, formServicesAssignRoles, formServicesClone, formServicesCreateField, formServicesCreateSection, formServicesCreateTemplate, formServicesDeleteField, formServicesEditField, formServicesGetSubmission, formServicesGetTemplate, formServicesListSubmissions, formServicesListTemplatesByCompany, formServicesPublishVersion, formServicesReorderFields, formServicesReorderSections, formServicesReview, formServicesSaveDraft, formServicesStartSubmission, formServicesSubmit, formServicesUpdateTemplate, leaveServicesCancelRequest, leaveServicesCreateQuota, leaveServicesCreateType, leaveServicesGetCompanyRequests, leaveServicesGetMemberRequests, leaveServicesGetQuotasByMember, leaveServicesGetTypesByCompany, leaveServicesReviewRequest, leaveServicesSubmitRequest, leaveServicesUpdateQuota, leaveServicesUpdateType, locationServiceAssignSlotLocation, locationServiceCreateLocation, locationServiceDeleteLocation, locationServiceGetLocation, locationServiceGetSlotLocationAssignments, locationServiceGetSlotLocations, locationServiceListLocationsByBranch, locationServiceListLocationsByCompany, locationServiceSetPrimaryLocation, locationServiceUpdateLocation, locationServiceUpdateSlotLocation, type Options, permissionServicesCreatePermission, permissionServicesDeletePermission, permissionServicesGetMyPermissions, permissionServicesGetPermissions, permissionServicesUpdatePermission, roleServicesAssignPermissionToRole, roleServicesCreateRole, roleServicesDeleteRole, roleServicesGetCompanyRoles, roleServicesGetRole, roleServicesGetRolePermissions, roleServicesGetSystemDefaultRoles, roleServicesRevokePermissionFromRole, roleServicesUpdateRole, userServicesCreateUser, userServicesDeleteUser, userServicesGetUser, userServicesGetUsers, userServicesUpdateUser } from '../sdk.gen';
-import type { AttendanceServicesCheckInData, AttendanceServicesCheckInError, AttendanceServicesCheckInResponse, AttendanceServicesCreateScheduleData, AttendanceServicesCreateScheduleError, AttendanceServicesCreateScheduleResponse, AttendanceServicesCreateSlotData, AttendanceServicesCreateSlotError, AttendanceServicesCreateSlotResponse, AttendanceServicesDeleteSlotData, AttendanceServicesDeleteSlotError, AttendanceServicesDeleteSlotResponse, AttendanceServicesGetCompanyLogsData, AttendanceServicesGetCompanyLogsError, AttendanceServicesGetCompanyLogsResponse, AttendanceServicesGetMemberLogsData, AttendanceServicesGetMemberLogsError, AttendanceServicesGetMemberLogsResponse, AttendanceServicesGetSchedulesByCompanyData, AttendanceServicesGetSchedulesByCompanyError, AttendanceServicesGetSchedulesByCompanyResponse, AttendanceServicesGetSchedulesByRoleData, AttendanceServicesGetSchedulesByRoleError, AttendanceServicesGetSchedulesByRoleResponse, AttendanceServicesGetSlotsByScheduleData, AttendanceServicesGetSlotsByScheduleError, AttendanceServicesGetSlotsByScheduleResponse, AttendanceServicesManualCheckInData, AttendanceServicesManualCheckInError, AttendanceServicesManualCheckInResponse, AttendanceServicesUpdateScheduleData, AttendanceServicesUpdateScheduleError, AttendanceServicesUpdateScheduleResponse, AttendanceServicesUpdateSlotData, AttendanceServicesUpdateSlotError, AttendanceServicesUpdateSlotResponse, CompanyServicesAddCompanyMemberData, CompanyServicesAddCompanyMemberError, CompanyServicesAddCompanyMemberResponse, CompanyServicesCreateCompanyBranchData, CompanyServicesCreateCompanyBranchError, CompanyServicesCreateCompanyBranchResponse, CompanyServicesCreateCompanyData, CompanyServicesCreateCompanyError, CompanyServicesCreateCompanyResponse, CompanyServicesDeleteCompanyBranchData, CompanyServicesDeleteCompanyBranchError, CompanyServicesDeleteCompanyBranchResponse, CompanyServicesDeleteCompanyData, CompanyServicesDeleteCompanyError, CompanyServicesDeleteCompanyResponse, CompanyServicesGetCompaniesData, CompanyServicesGetCompaniesError, CompanyServicesGetCompaniesResponse, CompanyServicesGetCompanyBranchData, CompanyServicesGetCompanyBranchError, CompanyServicesGetCompanyBranchesData, CompanyServicesGetCompanyBranchesError, CompanyServicesGetCompanyBranchesResponse, CompanyServicesGetCompanyBranchResponse, CompanyServicesGetCompanyBySlugData, CompanyServicesGetCompanyBySlugError, CompanyServicesGetCompanyBySlugResponse, CompanyServicesGetCompanyData, CompanyServicesGetCompanyError, CompanyServicesGetCompanyMembersData, CompanyServicesGetCompanyMembersError, CompanyServicesGetCompanyMembersResponse, CompanyServicesGetCompanyResponse, CompanyServicesRemoveCompanyMemberData, CompanyServicesRemoveCompanyMemberError, CompanyServicesRemoveCompanyMemberResponse, CompanyServicesSwitchActiveCompanyData, CompanyServicesSwitchActiveCompanyError, CompanyServicesSwitchActiveCompanyResponse, CompanyServicesUpdateCompanyBranchData, CompanyServicesUpdateCompanyBranchError, CompanyServicesUpdateCompanyBranchResponse, CompanyServicesUpdateCompanyData, CompanyServicesUpdateCompanyError, CompanyServicesUpdateCompanyMemberData, CompanyServicesUpdateCompanyMemberError, CompanyServicesUpdateCompanyMemberResponse, CompanyServicesUpdateCompanyResponse, FeatureServicesAssignCompanyFeatureData, FeatureServicesAssignCompanyFeatureError, FeatureServicesAssignCompanyFeatureResponse, FeatureServicesAssignRoleFeatureData, FeatureServicesAssignRoleFeatureError, FeatureServicesAssignRoleFeatureResponse, FeatureServicesCheckRoleFeatureAccessData, FeatureServicesCheckRoleFeatureAccessError, FeatureServicesCheckRoleFeatureAccessResponse, FeatureServicesCreateFeatureData, FeatureServicesCreateFeatureError, FeatureServicesCreateFeatureResponse, FeatureServicesGetCompanyAvailableFeaturesData, FeatureServicesGetCompanyAvailableFeaturesError, FeatureServicesGetCompanyAvailableFeaturesResponse, FeatureServicesGetCompanyFeaturesData, FeatureServicesGetCompanyFeaturesError, FeatureServicesGetCompanyFeaturesResponse, FeatureServicesGetCompanyRoleFeaturesData, FeatureServicesGetCompanyRoleFeaturesError, FeatureServicesGetCompanyRoleFeaturesResponse, FeatureServicesGetFeatureData, FeatureServicesGetFeatureError, FeatureServicesGetFeatureResponse, FeatureServicesGetFeaturesData, FeatureServicesGetFeaturesError, FeatureServicesGetFeaturesResponse, FeatureServicesGetRoleFeaturesData, FeatureServicesGetRoleFeaturesError, FeatureServicesGetRoleFeaturesResponse, FeatureServicesRemoveCompanyFeatureData, FeatureServicesRemoveCompanyFeatureError, FeatureServicesRemoveCompanyFeatureResponse, FeatureServicesRevokeRoleFeatureData, FeatureServicesRevokeRoleFeatureError, FeatureServicesRevokeRoleFeatureResponse, FeatureServicesToggleCompanyFeatureData, FeatureServicesToggleCompanyFeatureError, FeatureServicesToggleCompanyFeatureResponse, FeatureServicesToggleFeatureData, FeatureServicesToggleFeatureError, FeatureServicesToggleFeatureResponse, FeatureServicesToggleRoleFeatureData, FeatureServicesToggleRoleFeatureError, FeatureServicesToggleRoleFeatureResponse, FeatureServicesUpdateFeatureData, FeatureServicesUpdateFeatureError, FeatureServicesUpdateFeatureResponse, FormServicesAssignRolesData, FormServicesAssignRolesError, FormServicesAssignRolesResponse, FormServicesCloneData, FormServicesCloneError, FormServicesCloneResponse, FormServicesCreateFieldData, FormServicesCreateFieldError, FormServicesCreateFieldResponse, FormServicesCreateSectionData, FormServicesCreateSectionError, FormServicesCreateSectionResponse, FormServicesCreateTemplateData, FormServicesCreateTemplateError, FormServicesCreateTemplateResponse, FormServicesDeleteFieldData, FormServicesDeleteFieldError, FormServicesDeleteFieldResponse, FormServicesEditFieldData, FormServicesEditFieldError, FormServicesEditFieldResponse, FormServicesGetSubmissionData, FormServicesGetSubmissionError, FormServicesGetSubmissionResponse, FormServicesGetTemplateData, FormServicesGetTemplateError, FormServicesGetTemplateResponse, FormServicesListSubmissionsData, FormServicesListSubmissionsError, FormServicesListSubmissionsResponse, FormServicesListTemplatesByCompanyData, FormServicesListTemplatesByCompanyError, FormServicesListTemplatesByCompanyResponse, FormServicesPublishVersionData, FormServicesPublishVersionError, FormServicesPublishVersionResponse, FormServicesReorderFieldsData, FormServicesReorderFieldsError, FormServicesReorderFieldsResponse, FormServicesReorderSectionsData, FormServicesReorderSectionsError, FormServicesReorderSectionsResponse, FormServicesReviewData, FormServicesReviewError, FormServicesReviewResponse, FormServicesSaveDraftData, FormServicesSaveDraftError, FormServicesSaveDraftResponse, FormServicesStartSubmissionData, FormServicesStartSubmissionError, FormServicesStartSubmissionResponse, FormServicesSubmitData, FormServicesSubmitError, FormServicesSubmitResponse, FormServicesUpdateTemplateData, FormServicesUpdateTemplateError, FormServicesUpdateTemplateResponse, LeaveServicesCancelRequestData, LeaveServicesCancelRequestError, LeaveServicesCancelRequestResponse, LeaveServicesCreateQuotaData, LeaveServicesCreateQuotaError, LeaveServicesCreateQuotaResponse, LeaveServicesCreateTypeData, LeaveServicesCreateTypeError, LeaveServicesCreateTypeResponse, LeaveServicesGetCompanyRequestsData, LeaveServicesGetCompanyRequestsError, LeaveServicesGetCompanyRequestsResponse, LeaveServicesGetMemberRequestsData, LeaveServicesGetMemberRequestsError, LeaveServicesGetMemberRequestsResponse, LeaveServicesGetQuotasByMemberData, LeaveServicesGetQuotasByMemberError, LeaveServicesGetQuotasByMemberResponse, LeaveServicesGetTypesByCompanyData, LeaveServicesGetTypesByCompanyError, LeaveServicesGetTypesByCompanyResponse, LeaveServicesReviewRequestData, LeaveServicesReviewRequestError, LeaveServicesReviewRequestResponse, LeaveServicesSubmitRequestData, LeaveServicesSubmitRequestError, LeaveServicesSubmitRequestResponse, LeaveServicesUpdateQuotaData, LeaveServicesUpdateQuotaError, LeaveServicesUpdateQuotaResponse, LeaveServicesUpdateTypeData, LeaveServicesUpdateTypeError, LeaveServicesUpdateTypeResponse, LocationServiceAssignSlotLocationData, LocationServiceAssignSlotLocationError, LocationServiceAssignSlotLocationResponse, LocationServiceCreateLocationData, LocationServiceCreateLocationError, LocationServiceCreateLocationResponse, LocationServiceDeleteLocationData, LocationServiceDeleteLocationError, LocationServiceDeleteLocationResponse, LocationServiceGetLocationData, LocationServiceGetLocationError, LocationServiceGetLocationResponse, LocationServiceGetSlotLocationAssignmentsData, LocationServiceGetSlotLocationAssignmentsError, LocationServiceGetSlotLocationAssignmentsResponse, LocationServiceGetSlotLocationsData, LocationServiceGetSlotLocationsError, LocationServiceGetSlotLocationsResponse, LocationServiceListLocationsByBranchData, LocationServiceListLocationsByBranchError, LocationServiceListLocationsByBranchResponse, LocationServiceListLocationsByCompanyData, LocationServiceListLocationsByCompanyError, LocationServiceListLocationsByCompanyResponse, LocationServiceSetPrimaryLocationData, LocationServiceSetPrimaryLocationError, LocationServiceSetPrimaryLocationResponse, LocationServiceUpdateLocationData, LocationServiceUpdateLocationError, LocationServiceUpdateLocationResponse, LocationServiceUpdateSlotLocationData, LocationServiceUpdateSlotLocationError, LocationServiceUpdateSlotLocationResponse, PermissionServicesCreatePermissionData, PermissionServicesCreatePermissionError, PermissionServicesCreatePermissionResponse, PermissionServicesDeletePermissionData, PermissionServicesDeletePermissionError, PermissionServicesDeletePermissionResponse, PermissionServicesGetMyPermissionsData, PermissionServicesGetMyPermissionsError, PermissionServicesGetMyPermissionsResponse, PermissionServicesGetPermissionsData, PermissionServicesGetPermissionsError, PermissionServicesGetPermissionsResponse, PermissionServicesUpdatePermissionData, PermissionServicesUpdatePermissionError, PermissionServicesUpdatePermissionResponse, RoleServicesAssignPermissionToRoleData, RoleServicesAssignPermissionToRoleError, RoleServicesAssignPermissionToRoleResponse, RoleServicesCreateRoleData, RoleServicesCreateRoleError, RoleServicesCreateRoleResponse, RoleServicesDeleteRoleData, RoleServicesDeleteRoleError, RoleServicesDeleteRoleResponse, RoleServicesGetCompanyRolesData, RoleServicesGetCompanyRolesError, RoleServicesGetCompanyRolesResponse, RoleServicesGetRoleData, RoleServicesGetRoleError, RoleServicesGetRolePermissionsData, RoleServicesGetRolePermissionsError, RoleServicesGetRolePermissionsResponse, RoleServicesGetRoleResponse, RoleServicesGetSystemDefaultRolesData, RoleServicesGetSystemDefaultRolesError, RoleServicesGetSystemDefaultRolesResponse, RoleServicesRevokePermissionFromRoleData, RoleServicesRevokePermissionFromRoleError, RoleServicesRevokePermissionFromRoleResponse, RoleServicesUpdateRoleData, RoleServicesUpdateRoleError, RoleServicesUpdateRoleResponse, UserServicesCreateUserData, UserServicesCreateUserError, UserServicesCreateUserResponse, UserServicesDeleteUserData, UserServicesDeleteUserError, UserServicesDeleteUserResponse, UserServicesGetUserData, UserServicesGetUserError, UserServicesGetUserResponse, UserServicesGetUsersData, UserServicesGetUsersError, UserServicesGetUsersResponse, UserServicesUpdateUserData, UserServicesUpdateUserError, UserServicesUpdateUserResponse } from '../types.gen';
+import { attendanceServicesCheckIn, attendanceServicesCreateSchedule, attendanceServicesCreateSlot, attendanceServicesDeleteSlot, attendanceServicesGetCompanyLogs, attendanceServicesGetMemberLogs, attendanceServicesGetSchedulesByCompany, attendanceServicesGetSchedulesByRole, attendanceServicesGetSlotsBySchedule, attendanceServicesManualCheckIn, attendanceServicesUpdateSchedule, attendanceServicesUpdateSlot, companyServicesAddCompanyMember, companyServicesCreateCompany, companyServicesCreateCompanyBranch, companyServicesDeleteCompany, companyServicesDeleteCompanyBranch, companyServicesGetCompanies, companyServicesGetCompany, companyServicesGetCompanyBranch, companyServicesGetCompanyBranches, companyServicesGetCompanyBySlug, companyServicesGetCompanyMembers, companyServicesRemoveCompanyMember, companyServicesSwitchActiveCompany, companyServicesUpdateCompany, companyServicesUpdateCompanyBranch, companyServicesUpdateCompanyMember, featureServicesAssignCompanyFeature, featureServicesAssignRoleFeature, featureServicesCheckRoleFeatureAccess, featureServicesCreateFeature, featureServicesGetCompanyAvailableFeatures, featureServicesGetCompanyFeatures, featureServicesGetCompanyRoleFeatures, featureServicesGetFeature, featureServicesGetFeatures, featureServicesGetRoleFeatures, featureServicesRemoveCompanyFeature, featureServicesRevokeRoleFeature, featureServicesToggleCompanyFeature, featureServicesToggleFeature, featureServicesToggleRoleFeature, featureServicesUpdateFeature, formServicesActivatePlan, formServicesCancelAssignment, formServicesCancelOccurrence, formServicesCreateCorrection, formServicesCreateField, formServicesCreatePlan, formServicesCreateSection, formServicesCreateTemplate, formServicesDeleteField, formServicesEditField, formServicesFinalizeReview, formServicesGetAssignment, formServicesGetPlan, formServicesGetReviewDetail, formServicesGetSubmission, formServicesGetTemplate, formServicesListMyAssignments, formServicesListPlans, formServicesListReviewQueue, formServicesListSubmissions, formServicesListTemplatesByCompany, formServicesOpenOccurrences, formServicesPausePlan, formServicesPreviewSchedule, formServicesPublishVersion, formServicesRecordAnswerReview, formServicesRecordSectionReview, formServicesReorderFields, formServicesReorderSections, formServicesReplaceAssignment, formServicesSaveDraft, formServicesStartSubmission, formServicesSubmit, formServicesUpdateTemplate, leaveServicesCancelRequest, leaveServicesCreateQuota, leaveServicesCreateType, leaveServicesGetCompanyRequests, leaveServicesGetMemberRequests, leaveServicesGetQuotasByMember, leaveServicesGetTypesByCompany, leaveServicesReviewRequest, leaveServicesSubmitRequest, leaveServicesUpdateQuota, leaveServicesUpdateType, locationServiceAssignSlotLocation, locationServiceCreateLocation, locationServiceDeleteLocation, locationServiceGetLocation, locationServiceGetSlotLocationAssignments, locationServiceGetSlotLocations, locationServiceListLocationsByBranch, locationServiceListLocationsByCompany, locationServiceSetPrimaryLocation, locationServiceUpdateLocation, locationServiceUpdateSlotLocation, type Options, permissionServicesCreatePermission, permissionServicesDeletePermission, permissionServicesGetMyPermissions, permissionServicesGetPermissions, permissionServicesUpdatePermission, roleServicesAssignPermissionToRole, roleServicesCreateRole, roleServicesDeleteRole, roleServicesGetCompanyRoles, roleServicesGetRole, roleServicesGetRolePermissions, roleServicesGetSystemDefaultRoles, roleServicesRevokePermissionFromRole, roleServicesUpdateRole, userServicesCreateUser, userServicesDeleteUser, userServicesGetUser, userServicesGetUsers, userServicesUpdateUser } from '../sdk.gen';
+import type { AttendanceServicesCheckInData, AttendanceServicesCheckInError, AttendanceServicesCheckInResponse, AttendanceServicesCreateScheduleData, AttendanceServicesCreateScheduleError, AttendanceServicesCreateScheduleResponse, AttendanceServicesCreateSlotData, AttendanceServicesCreateSlotError, AttendanceServicesCreateSlotResponse, AttendanceServicesDeleteSlotData, AttendanceServicesDeleteSlotError, AttendanceServicesDeleteSlotResponse, AttendanceServicesGetCompanyLogsData, AttendanceServicesGetCompanyLogsError, AttendanceServicesGetCompanyLogsResponse, AttendanceServicesGetMemberLogsData, AttendanceServicesGetMemberLogsError, AttendanceServicesGetMemberLogsResponse, AttendanceServicesGetSchedulesByCompanyData, AttendanceServicesGetSchedulesByCompanyError, AttendanceServicesGetSchedulesByCompanyResponse, AttendanceServicesGetSchedulesByRoleData, AttendanceServicesGetSchedulesByRoleError, AttendanceServicesGetSchedulesByRoleResponse, AttendanceServicesGetSlotsByScheduleData, AttendanceServicesGetSlotsByScheduleError, AttendanceServicesGetSlotsByScheduleResponse, AttendanceServicesManualCheckInData, AttendanceServicesManualCheckInError, AttendanceServicesManualCheckInResponse, AttendanceServicesUpdateScheduleData, AttendanceServicesUpdateScheduleError, AttendanceServicesUpdateScheduleResponse, AttendanceServicesUpdateSlotData, AttendanceServicesUpdateSlotError, AttendanceServicesUpdateSlotResponse, CompanyServicesAddCompanyMemberData, CompanyServicesAddCompanyMemberError, CompanyServicesAddCompanyMemberResponse, CompanyServicesCreateCompanyBranchData, CompanyServicesCreateCompanyBranchError, CompanyServicesCreateCompanyBranchResponse, CompanyServicesCreateCompanyData, CompanyServicesCreateCompanyError, CompanyServicesCreateCompanyResponse, CompanyServicesDeleteCompanyBranchData, CompanyServicesDeleteCompanyBranchError, CompanyServicesDeleteCompanyBranchResponse, CompanyServicesDeleteCompanyData, CompanyServicesDeleteCompanyError, CompanyServicesDeleteCompanyResponse, CompanyServicesGetCompaniesData, CompanyServicesGetCompaniesError, CompanyServicesGetCompaniesResponse, CompanyServicesGetCompanyBranchData, CompanyServicesGetCompanyBranchError, CompanyServicesGetCompanyBranchesData, CompanyServicesGetCompanyBranchesError, CompanyServicesGetCompanyBranchesResponse, CompanyServicesGetCompanyBranchResponse, CompanyServicesGetCompanyBySlugData, CompanyServicesGetCompanyBySlugError, CompanyServicesGetCompanyBySlugResponse, CompanyServicesGetCompanyData, CompanyServicesGetCompanyError, CompanyServicesGetCompanyMembersData, CompanyServicesGetCompanyMembersError, CompanyServicesGetCompanyMembersResponse, CompanyServicesGetCompanyResponse, CompanyServicesRemoveCompanyMemberData, CompanyServicesRemoveCompanyMemberError, CompanyServicesRemoveCompanyMemberResponse, CompanyServicesSwitchActiveCompanyData, CompanyServicesSwitchActiveCompanyError, CompanyServicesSwitchActiveCompanyResponse, CompanyServicesUpdateCompanyBranchData, CompanyServicesUpdateCompanyBranchError, CompanyServicesUpdateCompanyBranchResponse, CompanyServicesUpdateCompanyData, CompanyServicesUpdateCompanyError, CompanyServicesUpdateCompanyMemberData, CompanyServicesUpdateCompanyMemberError, CompanyServicesUpdateCompanyMemberResponse, CompanyServicesUpdateCompanyResponse, FeatureServicesAssignCompanyFeatureData, FeatureServicesAssignCompanyFeatureError, FeatureServicesAssignCompanyFeatureResponse, FeatureServicesAssignRoleFeatureData, FeatureServicesAssignRoleFeatureError, FeatureServicesAssignRoleFeatureResponse, FeatureServicesCheckRoleFeatureAccessData, FeatureServicesCheckRoleFeatureAccessError, FeatureServicesCheckRoleFeatureAccessResponse, FeatureServicesCreateFeatureData, FeatureServicesCreateFeatureError, FeatureServicesCreateFeatureResponse, FeatureServicesGetCompanyAvailableFeaturesData, FeatureServicesGetCompanyAvailableFeaturesError, FeatureServicesGetCompanyAvailableFeaturesResponse, FeatureServicesGetCompanyFeaturesData, FeatureServicesGetCompanyFeaturesError, FeatureServicesGetCompanyFeaturesResponse, FeatureServicesGetCompanyRoleFeaturesData, FeatureServicesGetCompanyRoleFeaturesError, FeatureServicesGetCompanyRoleFeaturesResponse, FeatureServicesGetFeatureData, FeatureServicesGetFeatureError, FeatureServicesGetFeatureResponse, FeatureServicesGetFeaturesData, FeatureServicesGetFeaturesError, FeatureServicesGetFeaturesResponse, FeatureServicesGetRoleFeaturesData, FeatureServicesGetRoleFeaturesError, FeatureServicesGetRoleFeaturesResponse, FeatureServicesRemoveCompanyFeatureData, FeatureServicesRemoveCompanyFeatureError, FeatureServicesRemoveCompanyFeatureResponse, FeatureServicesRevokeRoleFeatureData, FeatureServicesRevokeRoleFeatureError, FeatureServicesRevokeRoleFeatureResponse, FeatureServicesToggleCompanyFeatureData, FeatureServicesToggleCompanyFeatureError, FeatureServicesToggleCompanyFeatureResponse, FeatureServicesToggleFeatureData, FeatureServicesToggleFeatureError, FeatureServicesToggleFeatureResponse, FeatureServicesToggleRoleFeatureData, FeatureServicesToggleRoleFeatureError, FeatureServicesToggleRoleFeatureResponse, FeatureServicesUpdateFeatureData, FeatureServicesUpdateFeatureError, FeatureServicesUpdateFeatureResponse, FormServicesActivatePlanData, FormServicesActivatePlanError, FormServicesActivatePlanResponse, FormServicesCancelAssignmentData, FormServicesCancelAssignmentError, FormServicesCancelAssignmentResponse, FormServicesCancelOccurrenceData, FormServicesCancelOccurrenceError, FormServicesCancelOccurrenceResponse, FormServicesCreateCorrectionData, FormServicesCreateCorrectionError, FormServicesCreateCorrectionResponse, FormServicesCreateFieldData, FormServicesCreateFieldError, FormServicesCreateFieldResponse, FormServicesCreatePlanData, FormServicesCreatePlanError, FormServicesCreatePlanResponse, FormServicesCreateSectionData, FormServicesCreateSectionError, FormServicesCreateSectionResponse, FormServicesCreateTemplateData, FormServicesCreateTemplateError, FormServicesCreateTemplateResponse, FormServicesDeleteFieldData, FormServicesDeleteFieldError, FormServicesDeleteFieldResponse, FormServicesEditFieldData, FormServicesEditFieldError, FormServicesEditFieldResponse, FormServicesFinalizeReviewData, FormServicesFinalizeReviewError, FormServicesFinalizeReviewResponse, FormServicesGetAssignmentData, FormServicesGetAssignmentError, FormServicesGetAssignmentResponse, FormServicesGetPlanData, FormServicesGetPlanError, FormServicesGetPlanResponse, FormServicesGetReviewDetailData, FormServicesGetReviewDetailError, FormServicesGetReviewDetailResponse, FormServicesGetSubmissionData, FormServicesGetSubmissionError, FormServicesGetSubmissionResponse, FormServicesGetTemplateData, FormServicesGetTemplateError, FormServicesGetTemplateResponse, FormServicesListMyAssignmentsData, FormServicesListMyAssignmentsError, FormServicesListMyAssignmentsResponse, FormServicesListPlansData, FormServicesListPlansError, FormServicesListPlansResponse, FormServicesListReviewQueueData, FormServicesListReviewQueueError, FormServicesListReviewQueueResponse, FormServicesListSubmissionsData, FormServicesListSubmissionsError, FormServicesListSubmissionsResponse, FormServicesListTemplatesByCompanyData, FormServicesListTemplatesByCompanyError, FormServicesListTemplatesByCompanyResponse, FormServicesOpenOccurrencesData, FormServicesOpenOccurrencesError, FormServicesOpenOccurrencesResponse, FormServicesPausePlanData, FormServicesPausePlanError, FormServicesPausePlanResponse, FormServicesPreviewScheduleData, FormServicesPreviewScheduleError, FormServicesPreviewScheduleResponse, FormServicesPublishVersionData, FormServicesPublishVersionError, FormServicesPublishVersionResponse, FormServicesRecordAnswerReviewData, FormServicesRecordAnswerReviewError, FormServicesRecordAnswerReviewResponse, FormServicesRecordSectionReviewData, FormServicesRecordSectionReviewError, FormServicesRecordSectionReviewResponse, FormServicesReorderFieldsData, FormServicesReorderFieldsError, FormServicesReorderFieldsResponse, FormServicesReorderSectionsData, FormServicesReorderSectionsError, FormServicesReorderSectionsResponse, FormServicesReplaceAssignmentData, FormServicesReplaceAssignmentError, FormServicesReplaceAssignmentResponse, FormServicesSaveDraftData, FormServicesSaveDraftError, FormServicesSaveDraftResponse, FormServicesStartSubmissionData, FormServicesStartSubmissionError, FormServicesStartSubmissionResponse, FormServicesSubmitData, FormServicesSubmitError, FormServicesSubmitResponse, FormServicesUpdateTemplateData, FormServicesUpdateTemplateError, FormServicesUpdateTemplateResponse, LeaveServicesCancelRequestData, LeaveServicesCancelRequestError, LeaveServicesCancelRequestResponse, LeaveServicesCreateQuotaData, LeaveServicesCreateQuotaError, LeaveServicesCreateQuotaResponse, LeaveServicesCreateTypeData, LeaveServicesCreateTypeError, LeaveServicesCreateTypeResponse, LeaveServicesGetCompanyRequestsData, LeaveServicesGetCompanyRequestsError, LeaveServicesGetCompanyRequestsResponse, LeaveServicesGetMemberRequestsData, LeaveServicesGetMemberRequestsError, LeaveServicesGetMemberRequestsResponse, LeaveServicesGetQuotasByMemberData, LeaveServicesGetQuotasByMemberError, LeaveServicesGetQuotasByMemberResponse, LeaveServicesGetTypesByCompanyData, LeaveServicesGetTypesByCompanyError, LeaveServicesGetTypesByCompanyResponse, LeaveServicesReviewRequestData, LeaveServicesReviewRequestError, LeaveServicesReviewRequestResponse, LeaveServicesSubmitRequestData, LeaveServicesSubmitRequestError, LeaveServicesSubmitRequestResponse, LeaveServicesUpdateQuotaData, LeaveServicesUpdateQuotaError, LeaveServicesUpdateQuotaResponse, LeaveServicesUpdateTypeData, LeaveServicesUpdateTypeError, LeaveServicesUpdateTypeResponse, LocationServiceAssignSlotLocationData, LocationServiceAssignSlotLocationError, LocationServiceAssignSlotLocationResponse, LocationServiceCreateLocationData, LocationServiceCreateLocationError, LocationServiceCreateLocationResponse, LocationServiceDeleteLocationData, LocationServiceDeleteLocationError, LocationServiceDeleteLocationResponse, LocationServiceGetLocationData, LocationServiceGetLocationError, LocationServiceGetLocationResponse, LocationServiceGetSlotLocationAssignmentsData, LocationServiceGetSlotLocationAssignmentsError, LocationServiceGetSlotLocationAssignmentsResponse, LocationServiceGetSlotLocationsData, LocationServiceGetSlotLocationsError, LocationServiceGetSlotLocationsResponse, LocationServiceListLocationsByBranchData, LocationServiceListLocationsByBranchError, LocationServiceListLocationsByBranchResponse, LocationServiceListLocationsByCompanyData, LocationServiceListLocationsByCompanyError, LocationServiceListLocationsByCompanyResponse, LocationServiceSetPrimaryLocationData, LocationServiceSetPrimaryLocationError, LocationServiceSetPrimaryLocationResponse, LocationServiceUpdateLocationData, LocationServiceUpdateLocationError, LocationServiceUpdateLocationResponse, LocationServiceUpdateSlotLocationData, LocationServiceUpdateSlotLocationError, LocationServiceUpdateSlotLocationResponse, PermissionServicesCreatePermissionData, PermissionServicesCreatePermissionError, PermissionServicesCreatePermissionResponse, PermissionServicesDeletePermissionData, PermissionServicesDeletePermissionError, PermissionServicesDeletePermissionResponse, PermissionServicesGetMyPermissionsData, PermissionServicesGetMyPermissionsError, PermissionServicesGetMyPermissionsResponse, PermissionServicesGetPermissionsData, PermissionServicesGetPermissionsError, PermissionServicesGetPermissionsResponse, PermissionServicesUpdatePermissionData, PermissionServicesUpdatePermissionError, PermissionServicesUpdatePermissionResponse, RoleServicesAssignPermissionToRoleData, RoleServicesAssignPermissionToRoleError, RoleServicesAssignPermissionToRoleResponse, RoleServicesCreateRoleData, RoleServicesCreateRoleError, RoleServicesCreateRoleResponse, RoleServicesDeleteRoleData, RoleServicesDeleteRoleError, RoleServicesDeleteRoleResponse, RoleServicesGetCompanyRolesData, RoleServicesGetCompanyRolesError, RoleServicesGetCompanyRolesResponse, RoleServicesGetRoleData, RoleServicesGetRoleError, RoleServicesGetRolePermissionsData, RoleServicesGetRolePermissionsError, RoleServicesGetRolePermissionsResponse, RoleServicesGetRoleResponse, RoleServicesGetSystemDefaultRolesData, RoleServicesGetSystemDefaultRolesError, RoleServicesGetSystemDefaultRolesResponse, RoleServicesRevokePermissionFromRoleData, RoleServicesRevokePermissionFromRoleError, RoleServicesRevokePermissionFromRoleResponse, RoleServicesUpdateRoleData, RoleServicesUpdateRoleError, RoleServicesUpdateRoleResponse, UserServicesCreateUserData, UserServicesCreateUserError, UserServicesCreateUserResponse, UserServicesDeleteUserData, UserServicesDeleteUserError, UserServicesDeleteUserResponse, UserServicesGetUserData, UserServicesGetUserError, UserServicesGetUserResponse, UserServicesGetUsersData, UserServicesGetUsersError, UserServicesGetUsersResponse, UserServicesUpdateUserData, UserServicesUpdateUserError, UserServicesUpdateUserResponse } from '../types.gen';
 
 /**
  * Check in attendance
@@ -806,6 +806,76 @@ export const featureServicesToggleFeatureMutation = (options?: Partial<Options<F
     return mutationOptions;
 };
 
+export const formServicesListMyAssignmentsQueryKey = (options: Options<FormServicesListMyAssignmentsData>) => createQueryKey('formServicesListMyAssignments', options);
+
+/**
+ * List my assignments
+ */
+export const formServicesListMyAssignmentsOptions = (options: Options<FormServicesListMyAssignmentsData>) => queryOptions<FormServicesListMyAssignmentsResponse, AxiosError<FormServicesListMyAssignmentsError>, FormServicesListMyAssignmentsResponse, ReturnType<typeof formServicesListMyAssignmentsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await formServicesListMyAssignments({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: formServicesListMyAssignmentsQueryKey(options)
+});
+
+export const formServicesGetAssignmentQueryKey = (options: Options<FormServicesGetAssignmentData>) => createQueryKey('formServicesGetAssignment', options);
+
+/**
+ * Get assignment
+ */
+export const formServicesGetAssignmentOptions = (options: Options<FormServicesGetAssignmentData>) => queryOptions<FormServicesGetAssignmentResponse, AxiosError<FormServicesGetAssignmentError>, FormServicesGetAssignmentResponse, ReturnType<typeof formServicesGetAssignmentQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await formServicesGetAssignment({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: formServicesGetAssignmentQueryKey(options)
+});
+
+/**
+ * Cancel assignment
+ */
+export const formServicesCancelAssignmentMutation = (options?: Partial<Options<FormServicesCancelAssignmentData>>): UseMutationOptions<FormServicesCancelAssignmentResponse, AxiosError<FormServicesCancelAssignmentError>, Options<FormServicesCancelAssignmentData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCancelAssignmentResponse, AxiosError<FormServicesCancelAssignmentError>, Options<FormServicesCancelAssignmentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesCancelAssignment({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Replace assignment
+ */
+export const formServicesReplaceAssignmentMutation = (options?: Partial<Options<FormServicesReplaceAssignmentData>>): UseMutationOptions<FormServicesReplaceAssignmentResponse, AxiosError<FormServicesReplaceAssignmentError>, Options<FormServicesReplaceAssignmentData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesReplaceAssignmentResponse, AxiosError<FormServicesReplaceAssignmentError>, Options<FormServicesReplaceAssignmentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesReplaceAssignment({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const formServicesListTemplatesByCompanyQueryKey = (options: Options<FormServicesListTemplatesByCompanyData>) => createQueryKey('formServicesListTemplatesByCompany', options);
 
 /**
@@ -822,6 +892,163 @@ export const formServicesListTemplatesByCompanyOptions = (options: Options<FormS
         return data;
     },
     queryKey: formServicesListTemplatesByCompanyQueryKey(options)
+});
+
+/**
+ * Open due occurrences
+ */
+export const formServicesOpenOccurrencesMutation = (options?: Partial<Options<FormServicesOpenOccurrencesData>>): UseMutationOptions<FormServicesOpenOccurrencesResponse, AxiosError<FormServicesOpenOccurrencesError>, Options<FormServicesOpenOccurrencesData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesOpenOccurrencesResponse, AxiosError<FormServicesOpenOccurrencesError>, Options<FormServicesOpenOccurrencesData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesOpenOccurrences({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Cancel occurrence
+ */
+export const formServicesCancelOccurrenceMutation = (options?: Partial<Options<FormServicesCancelOccurrenceData>>): UseMutationOptions<FormServicesCancelOccurrenceResponse, AxiosError<FormServicesCancelOccurrenceError>, Options<FormServicesCancelOccurrenceData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCancelOccurrenceResponse, AxiosError<FormServicesCancelOccurrenceError>, Options<FormServicesCancelOccurrenceData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesCancelOccurrence({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const formServicesListPlansQueryKey = (options: Options<FormServicesListPlansData>) => createQueryKey('formServicesListPlans', options);
+
+/**
+ * List form plans
+ */
+export const formServicesListPlansOptions = (options: Options<FormServicesListPlansData>) => queryOptions<FormServicesListPlansResponse, AxiosError<FormServicesListPlansError>, FormServicesListPlansResponse, ReturnType<typeof formServicesListPlansQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await formServicesListPlans({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: formServicesListPlansQueryKey(options)
+});
+
+/**
+ * Create form plan
+ */
+export const formServicesCreatePlanMutation = (options?: Partial<Options<FormServicesCreatePlanData>>): UseMutationOptions<FormServicesCreatePlanResponse, AxiosError<FormServicesCreatePlanError>, Options<FormServicesCreatePlanData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCreatePlanResponse, AxiosError<FormServicesCreatePlanError>, Options<FormServicesCreatePlanData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesCreatePlan({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const formServicesGetPlanQueryKey = (options: Options<FormServicesGetPlanData>) => createQueryKey('formServicesGetPlan', options);
+
+/**
+ * Get form plan
+ */
+export const formServicesGetPlanOptions = (options: Options<FormServicesGetPlanData>) => queryOptions<FormServicesGetPlanResponse, AxiosError<FormServicesGetPlanError>, FormServicesGetPlanResponse, ReturnType<typeof formServicesGetPlanQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await formServicesGetPlan({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: formServicesGetPlanQueryKey(options)
+});
+
+/**
+ * Activate form plan
+ */
+export const formServicesActivatePlanMutation = (options?: Partial<Options<FormServicesActivatePlanData>>): UseMutationOptions<FormServicesActivatePlanResponse, AxiosError<FormServicesActivatePlanError>, Options<FormServicesActivatePlanData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesActivatePlanResponse, AxiosError<FormServicesActivatePlanError>, Options<FormServicesActivatePlanData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesActivatePlan({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Pause form plan
+ */
+export const formServicesPausePlanMutation = (options?: Partial<Options<FormServicesPausePlanData>>): UseMutationOptions<FormServicesPausePlanResponse, AxiosError<FormServicesPausePlanError>, Options<FormServicesPausePlanData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesPausePlanResponse, AxiosError<FormServicesPausePlanError>, Options<FormServicesPausePlanData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesPausePlan({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const formServicesPreviewScheduleQueryKey = (options: Options<FormServicesPreviewScheduleData>) => createQueryKey('formServicesPreviewSchedule', options);
+
+/**
+ * Preview form plan schedule
+ */
+export const formServicesPreviewScheduleOptions = (options: Options<FormServicesPreviewScheduleData>) => queryOptions<FormServicesPreviewScheduleResponse, AxiosError<FormServicesPreviewScheduleError>, FormServicesPreviewScheduleResponse, ReturnType<typeof formServicesPreviewScheduleQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await formServicesPreviewSchedule({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: formServicesPreviewScheduleQueryKey(options)
+});
+
+export const formServicesListReviewQueueQueryKey = (options: Options<FormServicesListReviewQueueData>) => createQueryKey('formServicesListReviewQueue', options);
+
+/**
+ * List review queue
+ */
+export const formServicesListReviewQueueOptions = (options: Options<FormServicesListReviewQueueData>) => queryOptions<FormServicesListReviewQueueResponse, AxiosError<FormServicesListReviewQueueError>, FormServicesListReviewQueueResponse, ReturnType<typeof formServicesListReviewQueueQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await formServicesListReviewQueue({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: formServicesListReviewQueueQueryKey(options)
 });
 
 export const formServicesListSubmissionsQueryKey = (options?: Options<FormServicesListSubmissionsData>) => createQueryKey('formServicesListSubmissions', options);
@@ -878,12 +1105,29 @@ export const formServicesGetSubmissionOptions = (options: Options<FormServicesGe
 });
 
 /**
- * Clone rejected submission into new rework draft
+ * Record answer review
  */
-export const formServicesCloneMutation = (options?: Partial<Options<FormServicesCloneData>>): UseMutationOptions<FormServicesCloneResponse, AxiosError<FormServicesCloneError>, Options<FormServicesCloneData>> => {
-    const mutationOptions: UseMutationOptions<FormServicesCloneResponse, AxiosError<FormServicesCloneError>, Options<FormServicesCloneData>> = {
+export const formServicesRecordAnswerReviewMutation = (options?: Partial<Options<FormServicesRecordAnswerReviewData>>): UseMutationOptions<FormServicesRecordAnswerReviewResponse, AxiosError<FormServicesRecordAnswerReviewError>, Options<FormServicesRecordAnswerReviewData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesRecordAnswerReviewResponse, AxiosError<FormServicesRecordAnswerReviewError>, Options<FormServicesRecordAnswerReviewData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await formServicesClone({
+            const { data } = await formServicesRecordAnswerReview({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Create correction draft for returned submission
+ */
+export const formServicesCreateCorrectionMutation = (options?: Partial<Options<FormServicesCreateCorrectionData>>): UseMutationOptions<FormServicesCreateCorrectionResponse, AxiosError<FormServicesCreateCorrectionError>, Options<FormServicesCreateCorrectionData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesCreateCorrectionResponse, AxiosError<FormServicesCreateCorrectionError>, Options<FormServicesCreateCorrectionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesCreateCorrection({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -912,12 +1156,47 @@ export const formServicesSaveDraftMutation = (options?: Partial<Options<FormServ
 };
 
 /**
- * Review form submission (approve or reject as owner)
+ * Finalize submission review
  */
-export const formServicesReviewMutation = (options?: Partial<Options<FormServicesReviewData>>): UseMutationOptions<FormServicesReviewResponse, AxiosError<FormServicesReviewError>, Options<FormServicesReviewData>> => {
-    const mutationOptions: UseMutationOptions<FormServicesReviewResponse, AxiosError<FormServicesReviewError>, Options<FormServicesReviewData>> = {
+export const formServicesFinalizeReviewMutation = (options?: Partial<Options<FormServicesFinalizeReviewData>>): UseMutationOptions<FormServicesFinalizeReviewResponse, AxiosError<FormServicesFinalizeReviewError>, Options<FormServicesFinalizeReviewData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesFinalizeReviewResponse, AxiosError<FormServicesFinalizeReviewError>, Options<FormServicesFinalizeReviewData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await formServicesReview({
+            const { data } = await formServicesFinalizeReview({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const formServicesGetReviewDetailQueryKey = (options: Options<FormServicesGetReviewDetailData>) => createQueryKey('formServicesGetReviewDetail', options);
+
+/**
+ * Get submission review entries
+ */
+export const formServicesGetReviewDetailOptions = (options: Options<FormServicesGetReviewDetailData>) => queryOptions<FormServicesGetReviewDetailResponse, AxiosError<FormServicesGetReviewDetailError>, FormServicesGetReviewDetailResponse, ReturnType<typeof formServicesGetReviewDetailQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await formServicesGetReviewDetail({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: formServicesGetReviewDetailQueryKey(options)
+});
+
+/**
+ * Record section review
+ */
+export const formServicesRecordSectionReviewMutation = (options?: Partial<Options<FormServicesRecordSectionReviewData>>): UseMutationOptions<FormServicesRecordSectionReviewResponse, AxiosError<FormServicesRecordSectionReviewError>, Options<FormServicesRecordSectionReviewData>> => {
+    const mutationOptions: UseMutationOptions<FormServicesRecordSectionReviewResponse, AxiosError<FormServicesRecordSectionReviewError>, Options<FormServicesRecordSectionReviewData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await formServicesRecordSectionReview({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -1066,23 +1345,6 @@ export const formServicesPublishVersionMutation = (options?: Partial<Options<For
     const mutationOptions: UseMutationOptions<FormServicesPublishVersionResponse, AxiosError<FormServicesPublishVersionError>, Options<FormServicesPublishVersionData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await formServicesPublishVersion({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Assign roles to form template
- */
-export const formServicesAssignRolesMutation = (options?: Partial<Options<FormServicesAssignRolesData>>): UseMutationOptions<FormServicesAssignRolesResponse, AxiosError<FormServicesAssignRolesError>, Options<FormServicesAssignRolesData>> => {
-    const mutationOptions: UseMutationOptions<FormServicesAssignRolesResponse, AxiosError<FormServicesAssignRolesError>, Options<FormServicesAssignRolesData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await formServicesAssignRoles({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

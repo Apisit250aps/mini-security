@@ -15,8 +15,13 @@ import {
   FormSubmissionContributorRepository,
   FormSubmissionRepository,
   FormTemplateRepository,
-  FormTemplateRoleRepository,
   FormVersionRepository,
+  FormPlanRepository,
+  FormPlanTargetRepository,
+  FormPlanPeriodRepository,
+  FormOccurrenceRepository,
+  FormAssignmentRepository,
+  FormReviewEntryRepository,
   LeaveQuotaRepository,
   LeaveRequestRepository,
   LeaveTypeRepository,
@@ -28,7 +33,6 @@ import {
   ScheduleSlotLocationRepository,
   ScheduleSlotRepository,
   SessionRepository,
-  SubmissionReviewRepository,
   UserRepository,
 } from '#repositories';
 
@@ -58,17 +62,21 @@ export const leaveQuotaRepository = new LeaveQuotaRepository(db);
 export const leaveRequestRepository = new LeaveRequestRepository(db);
 
 export const formTemplateRepository = new FormTemplateRepository(db);
-export const formTemplateRoleRepository = new FormTemplateRoleRepository(db);
 export const formVersionRepository = new FormVersionRepository(db);
 export const formSectionRepository = new FormSectionRepository(db);
 export const formFieldRepository = new FormFieldRepository(db);
+export const formPlanRepository = new FormPlanRepository(db);
+export const formPlanTargetRepository = new FormPlanTargetRepository(db);
+export const formPlanPeriodRepository = new FormPlanPeriodRepository(db);
+export const formOccurrenceRepository = new FormOccurrenceRepository(db);
+export const formAssignmentRepository = new FormAssignmentRepository(db);
 export const formSubmissionRepository = new FormSubmissionRepository(db);
 export const formSubmissionContributorRepository =
   new FormSubmissionContributorRepository(db);
 export const formAnswerRepository = new FormAnswerRepository(db);
 export const formAnswerAttachmentRepository =
   new FormAnswerAttachmentRepository(db);
-export const submissionReviewRepository = new SubmissionReviewRepository(db);
+export const formReviewEntryRepository = new FormReviewEntryRepository(db);
 
 export const locationRepository = new LocationRepository(db);
 export const scheduleSlotLocationRepository =

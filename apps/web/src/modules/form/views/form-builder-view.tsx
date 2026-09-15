@@ -46,7 +46,7 @@ import { buildPageUrl, getErrorMessage } from '@/shared/utils';
 import type { FormFieldType } from '@repo/domains/schema/form';
 
 import FormTemplateEditDialog from '../components/template/form-template-edit-dialog';
-import FormTemplateRolesDialog from '../components/template/form-template-roles-dialog';
+
 import FormTemplateSectionDialog from '../components/template/form-template-section-dialog';
 import FormTemplateFieldDialog from '../components/template/form-template-field-dialog';
 import DynamicFieldRenderer from '../components/fill/dynamic-field-renderer';
@@ -98,7 +98,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
     (a, b) => a.sortOrder - b.sortOrder,
   );
   const fields = detail?.fields || [];
-  const roles = detail?.roles || [];
+
   const reorderDisabled =
     !draftVersion ||
     deleteField.isPending ||
@@ -152,22 +152,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
     });
   }, [ui.dialog, activeCompanyId, template]);
 
-  const handleEditRoles = useCallback(() => {
-    if (!activeCompanyId) return;
-    ui.dialog.open({
-      title: 'จัดการตำแหน่งที่มีสิทธิ์กรอกฟอร์ม (Roles)',
-      description: template?.name || '',
-      size: 'md',
-      children: (
-        <FormTemplateRolesDialog
-          companyId={activeCompanyId}
-          templateId={templateId}
-          currentRoles={roles}
-          onClose={() => ui.dialog.close()}
-        />
-      ),
-    });
-  }, [ui.dialog, activeCompanyId, templateId, roles, template?.name]);
+
 
   const handleAddSection = useCallback(() => {
     if (!activeCompanyId || !currentVersion) {
@@ -439,42 +424,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
               <Card className="border-border/60 shadow-xs">
                 <CardHeader className="py-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-2">
-                        <Shield className="size-4 text-primary" />
-                        <span className="text-sm font-medium">
-                          สิทธิ์ตำแหน่งที่เข้าถึงแบบฟอร์มนี้:
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {roles.length === 0 ? (
-                          <span className="text-xs text-muted-foreground italic">
-                            ยังไม่ได้ระบุตำแหน่ง (ผู้มีสิทธิ์ทุกคนเข้าถึงได้)
-                          </span>
-                        ) : (
-                          roles.map((r) => (
-                            <Badge
-                              key={r.id}
-                              variant="secondary"
-                              className="text-xs font-normal"
-                            >
-                              {r.roleId}
-                            </Badge>
-                          ))
-                        )}
-                      </div>
-                    </div>
-
                     <div className="flex items-center gap-2 self-end sm:self-auto">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 text-xs"
-                        onPress={handleEditRoles}
-                      >
-                        <Shield className="size-3.5" />
-                        จัดการสิทธิ์ Role
-                      </Button>
                       <Button
                         variant="outline"
                         size="sm"

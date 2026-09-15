@@ -1928,6 +1928,201 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ToggleFeatureRequest'
+  /forms/assignments:
+    get:
+      operationId: FormServices_listMyAssignments
+      summary: List my assignments
+      parameters:
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: memberId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Domain.Entity.FormAssignment'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/assignments/{id}:
+    get:
+      operationId: FormServices_getAssignment
+      summary: Get assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormAssignment'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/assignments/{id}/cancel:
+    post:
+      operationId: FormServices_cancelAssignment
+      summary: Cancel assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormAssignment'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelAssignmentRequest'
+  /forms/assignments/{id}/replace:
+    post:
+      operationId: FormServices_replaceAssignment
+      summary: Replace assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormAssignment'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplaceAssignmentRequest'
   /forms/companies/{companyId}/templates:
     get:
       operationId: FormServices_listTemplatesByCompany
@@ -1957,6 +2152,420 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FormTemplate'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/occurrences/open:
+    post:
+      operationId: FormServices_openOccurrences
+      summary: Open due occurrences
+      parameters: []
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Domain.Entity.FormOccurrence'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenOccurrencesRequest'
+  /forms/occurrences/{id}/cancel:
+    post:
+      operationId: FormServices_cancelOccurrence
+      summary: Cancel occurrence
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormOccurrence'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOccurrenceRequest'
+  /forms/plans:
+    post:
+      operationId: FormServices_createPlan
+      summary: Create form plan
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormPlan'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFormPlanRequest'
+    get:
+      operationId: FormServices_listPlans
+      summary: List form plans
+      parameters:
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Domain.Entity.FormPlan'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/plans/{id}:
+    get:
+      operationId: FormServices_getPlan
+      summary: Get form plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormPlan'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/plans/{id}/activate:
+    post:
+      operationId: FormServices_activatePlan
+      summary: Activate form plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormPlan'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivatePlanRequest'
+  /forms/plans/{id}/pause:
+    post:
+      operationId: FormServices_pausePlan
+      summary: Pause form plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormPlan'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PausePlanRequest'
+  /forms/plans/{id}/schedule-preview:
+    get:
+      operationId: FormServices_previewSchedule
+      summary: Preview form plan schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: string
+                      format: date-time
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/reviews:
+    get:
+      operationId: FormServices_listReviewQueue
+      summary: List review queue
+      parameters:
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormSubmission'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -2019,13 +2628,7 @@ paths:
           schema:
             type: string
           explode: false
-        - name: roleId
-          in: query
-          required: false
-          schema:
-            type: string
-          explode: false
-        - name: formTemplateId
+        - name: assignmentId
           in: query
           required: false
           schema:
@@ -2101,10 +2704,69 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Form
-  /forms/submissions/{id}/clone:
+  /forms/submissions/{id}/answers/{answerId}/review:
     post:
-      operationId: FormServices_clone
-      summary: Clone rejected submission into new rework draft
+      operationId: FormServices_recordAnswerReview
+      summary: Record answer review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormReviewEntry'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordReviewRequest'
+  /forms/submissions/{id}/correction:
+    post:
+      operationId: FormServices_createCorrection
+      summary: Create correction draft for returned submission
       parameters:
         - name: id
           in: path
@@ -2149,12 +2811,6 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Form
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CloneFormSubmissionRequest'
   /forms/submissions/{id}/draft:
     put:
       operationId: FormServices_saveDraft
@@ -2209,10 +2865,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SaveFormSubmissionDraftRequest'
-  /forms/submissions/{id}/review:
+  /forms/submissions/{id}/finalize-review:
     post:
-      operationId: FormServices_review
-      summary: Review form submission (approve or reject as owner)
+      operationId: FormServices_finalizeReview
+      summary: Finalize submission review
       parameters:
         - name: id
           in: path
@@ -2235,7 +2891,7 @@ paths:
                   message:
                     type: string
                   data:
-                    $ref: '#/components/schemas/SubmissionReview'
+                    $ref: '#/components/schemas/Domain.Entity.FormReviewEntry'
                 description: Successful response wrapping data payload
         '400':
           description: 400 Bad Request — INVALID_DATA
@@ -2262,7 +2918,110 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReviewFormSubmissionRequest'
+              $ref: '#/components/schemas/FinalizeReviewRequest'
+  /forms/submissions/{id}/review-entries:
+    get:
+      operationId: FormServices_getReviewDetail
+      summary: Get submission review entries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Domain.Entity.FormReviewEntry'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/submissions/{id}/sections/{sectionId}/review:
+    post:
+      operationId: FormServices_recordSectionReview
+      summary: Record section review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: sectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Domain.Entity.FormReviewEntry'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordReviewRequest'
   /forms/submissions/{id}/submit:
     post:
       operationId: FormServices_submit
@@ -2744,62 +3503,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PublishFormVersionRequest'
-  /forms/templates/{id}/roles:
-    post:
-      operationId: FormServices_assignRoles
-      summary: Assign roles to form template
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/FormTemplateRole'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Form
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AssignFormRolesRequest'
   /forms/templates/{id}/sections:
     post:
       operationId: FormServices_createSection
@@ -4633,6 +5336,14 @@ paths:
         - User
 components:
   schemas:
+    ActivatePlanRequest:
+      type: object
+      required:
+        - expectedRevision
+      properties:
+        expectedRevision:
+          type: integer
+          format: int32
     AnswerInput:
       type: object
       required:
@@ -4662,15 +5373,6 @@ components:
         body:
           $ref: '#/components/schemas/ApiErrorResponse'
       description: 500 Internal Server Error — INTERNAL_ERROR
-    AssignFormRolesRequest:
-      type: object
-      required:
-        - roleIds
-      properties:
-        roleIds:
-          type: array
-          items:
-            type: string
     AttendanceLog:
       type: object
       required:
@@ -4758,6 +5460,28 @@ components:
         message:
           type: string
       description: Successful response without data payload
+    CancelAssignmentRequest:
+      type: object
+      required:
+        - cancelReason
+        - expectedRevision
+      properties:
+        cancelReason:
+          type: string
+        expectedRevision:
+          type: integer
+          format: int32
+    CancelOccurrenceRequest:
+      type: object
+      required:
+        - cancelReason
+        - expectedRevision
+      properties:
+        cancelReason:
+          type: string
+        expectedRevision:
+          type: integer
+          format: int32
     CheckInRequest:
       type: object
       required:
@@ -4807,13 +5531,6 @@ components:
           type: string
         isActive:
           type: boolean
-    CloneFormSubmissionRequest:
-      type: object
-      required:
-        - memberId
-      properties:
-        memberId:
-          type: string
     Company:
       type: object
       required:
@@ -5165,6 +5882,81 @@ components:
           type: object
           unevaluatedProperties: {}
       description: The template for omitting properties.
+    CreateFormPlanPeriod:
+      type: object
+      required:
+        - opensAt
+        - dueAt
+      properties:
+        opensAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+    CreateFormPlanRequest:
+      type: object
+      required:
+        - data
+        - targets
+      properties:
+        data:
+          type: object
+          required:
+            - companyId
+            - formTemplateId
+            - name
+            - scheduleKind
+            - scheduleConfig
+            - timezone
+            - fixedVersionId
+            - reviewMode
+            - latePolicy
+            - missedPolicy
+          properties:
+            companyId:
+              type: string
+            formTemplateId:
+              type: string
+            name:
+              type: string
+            scheduleKind:
+              $ref: '#/components/schemas/Domain.Entity.FormScheduleKind'
+            scheduleConfig:
+              anyOf:
+                - type: object
+                  unevaluatedProperties: {}
+                - type: 'null'
+            timezone:
+              type: string
+            fixedVersionId:
+              anyOf:
+                - type: string
+                - type: 'null'
+            reviewMode:
+              $ref: '#/components/schemas/Domain.Entity.FormReviewMode'
+            latePolicy:
+              $ref: '#/components/schemas/Domain.Entity.FormLatePolicy'
+            missedPolicy:
+              $ref: '#/components/schemas/Domain.Entity.FormMissedPolicy'
+          description: The template for picking properties.
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateFormPlanTarget'
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateFormPlanPeriod'
+    CreateFormPlanTarget:
+      type: object
+      properties:
+        roleId:
+          type: string
+        companyMemberId:
+          type: string
+        roleDistribution:
+          $ref: '#/components/schemas/Domain.Entity.FormRoleDistribution'
     CreateFormSection:
       type: object
       required:
@@ -5478,6 +6270,66 @@ components:
         - absent
         - late
         - excused
+    Domain.Entity.FormAssignment:
+      type: object
+      required:
+        - id
+        - createdAt
+        - companyId
+        - occurrenceId
+        - formVersionId
+        - roleId
+        - companyMemberId
+        - replacesAssignmentId
+        - assignedBy
+        - cancelledAt
+        - cancelledBy
+        - cancelReason
+        - revision
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        occurrenceId:
+          type: string
+        formVersionId:
+          type: string
+        roleId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        companyMemberId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        replacesAssignmentId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        assignedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        cancelledAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        cancelledBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        cancelReason:
+          anyOf:
+            - type: string
+            - type: 'null'
+        revision:
+          type: integer
+          format: int32
     Domain.Entity.FormFieldType:
       type: string
       enum:
@@ -5488,6 +6340,224 @@ components:
         - DATE
         - IMAGE
         - FILE
+    Domain.Entity.FormLatePolicy:
+      type: string
+      enum:
+        - ALLOW
+        - DENY
+    Domain.Entity.FormMissedPolicy:
+      type: string
+      enum:
+        - SKIP
+        - CATCH_UP
+    Domain.Entity.FormOccurrence:
+      type: object
+      required:
+        - id
+        - createdAt
+        - companyId
+        - planId
+        - formTemplateId
+        - formVersionId
+        - periodId
+        - occurrenceKey
+        - opensAt
+        - dueAt
+        - cancelledAt
+        - cancelledBy
+        - cancelReason
+        - revision
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        planId:
+          type: string
+        formTemplateId:
+          type: string
+        formVersionId:
+          type: string
+        periodId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        occurrenceKey:
+          type: string
+        opensAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+        cancelledAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        cancelledBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        cancelReason:
+          anyOf:
+            - type: string
+            - type: 'null'
+        revision:
+          type: integer
+          format: int32
+    Domain.Entity.FormPlan:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - formTemplateId
+        - supersedesPlanId
+        - name
+        - scheduleKind
+        - scheduleConfig
+        - timezone
+        - fixedVersionId
+        - reviewMode
+        - latePolicy
+        - missedPolicy
+        - effectiveFrom
+        - effectiveUntil
+        - createdBy
+        - closedBy
+        - revision
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        formTemplateId:
+          type: string
+        supersedesPlanId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        name:
+          type: string
+        scheduleKind:
+          $ref: '#/components/schemas/Domain.Entity.FormScheduleKind'
+        scheduleConfig:
+          anyOf:
+            - type: object
+              unevaluatedProperties: {}
+            - type: 'null'
+        timezone:
+          type: string
+        fixedVersionId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewMode:
+          $ref: '#/components/schemas/Domain.Entity.FormReviewMode'
+        latePolicy:
+          $ref: '#/components/schemas/Domain.Entity.FormLatePolicy'
+        missedPolicy:
+          $ref: '#/components/schemas/Domain.Entity.FormMissedPolicy'
+        effectiveFrom:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        effectiveUntil:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        createdBy:
+          type: string
+        closedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        revision:
+          type: integer
+          format: int32
+    Domain.Entity.FormReviewAction:
+      type: string
+      enum:
+        - PASS
+        - NEEDS_CHANGES
+        - APPROVE
+        - RETURN
+    Domain.Entity.FormReviewEntry:
+      type: object
+      required:
+        - id
+        - createdAt
+        - companyId
+        - submissionId
+        - formVersionId
+        - answerId
+        - sectionId
+        - action
+        - note
+        - reviewedBy
+        - supersedesEntryId
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        submissionId:
+          type: string
+        formVersionId:
+          type: string
+        answerId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        sectionId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        action:
+          $ref: '#/components/schemas/Domain.Entity.FormReviewAction'
+        note:
+          anyOf:
+            - type: string
+            - type: 'null'
+        reviewedBy:
+          type: string
+        supersedesEntryId:
+          anyOf:
+            - type: string
+            - type: 'null'
+    Domain.Entity.FormReviewMode:
+      type: string
+      enum:
+        - NONE
+        - OVERALL
+        - ALL_SECTIONS
+        - ALL_ANSWERS
+    Domain.Entity.FormRoleDistribution:
+      type: string
+      enum:
+        - SHARED
+        - PER_MEMBER
+    Domain.Entity.FormScheduleKind:
+      type: string
+      enum:
+        - RECURRING
+        - EXPLICIT
     Domain.Entity.FormVersionStatus:
       type: string
       enum:
@@ -5515,11 +6585,6 @@ components:
         - ADMIN
         - MEMBER
         - VIEWER
-    Domain.Entity.SubmissionReviewAction:
-      type: string
-      enum:
-        - APPROVE
-        - REJECT
     EditFormField:
       type: object
       required:
@@ -5583,6 +6648,15 @@ components:
       properties:
         hasAccess:
           type: boolean
+    FinalizeReviewRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          $ref: '#/components/schemas/Domain.Entity.FormReviewAction'
+        note:
+          type: string
     FormAnswer:
       type: object
       required:
@@ -5751,9 +6825,8 @@ components:
         - createdAt
         - updatedAt
         - companyId
-        - formTemplateId
+        - assignmentId
         - formVersionId
-        - roleId
         - startedBy
         - revision
       properties:
@@ -5767,11 +6840,9 @@ components:
           format: date-time
         companyId:
           type: string
-        formTemplateId:
+        assignmentId:
           type: string
         formVersionId:
-          type: string
-        roleId:
           type: string
         startedBy:
           type: string
@@ -5821,7 +6892,6 @@ components:
         - fields
         - answers
         - contributors
-        - review
       properties:
         submission:
           $ref: '#/components/schemas/FormSubmission'
@@ -5849,10 +6919,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FormSubmissionContributor'
-        review:
-          anyOf:
-            - $ref: '#/components/schemas/SubmissionReview'
-            - type: 'null'
     FormTemplate:
       type: object
       required:
@@ -5890,7 +6956,6 @@ components:
         - template
         - activeVersion
         - draftVersion
-        - roles
         - sections
         - fields
       properties:
@@ -5904,10 +6969,6 @@ components:
           anyOf:
             - $ref: '#/components/schemas/FormVersion'
             - type: 'null'
-        roles:
-          type: array
-          items:
-            $ref: '#/components/schemas/FormTemplateRole'
         sections:
           type: array
           items:
@@ -5916,33 +6977,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FormField'
-    FormTemplateRole:
-      type: object
-      required:
-        - id
-        - createdAt
-        - updatedAt
-        - companyId
-        - formTemplateId
-        - roleId
-        - isEnabled
-      properties:
-        id:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        companyId:
-          type: string
-        formTemplateId:
-          type: string
-        roleId:
-          type: string
-        isEnabled:
-          type: boolean
     FormVersion:
       type: object
       required:
@@ -6172,6 +7206,21 @@ components:
           type: boolean
         isActive:
           type: boolean
+    OpenOccurrencesRequest:
+      type: object
+      required:
+        - companyId
+      properties:
+        companyId:
+          type: string
+    PausePlanRequest:
+      type: object
+      required:
+        - expectedRevision
+      properties:
+        expectedRevision:
+          type: integer
+          format: int32
     Permission:
       type: object
       required:
@@ -6208,6 +7257,17 @@ components:
       properties:
         memberId:
           type: string
+    RecordReviewRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          $ref: '#/components/schemas/Domain.Entity.FormReviewAction'
+        note:
+          type: string
+        supersedesEntryId:
+          type: string
     ReorderFormItemsRequest:
       type: object
       required:
@@ -6221,17 +7281,16 @@ components:
           items:
             $ref: '#/components/schemas/FormReorderItem'
           minItems: 1
-    ReviewFormSubmissionRequest:
+    ReplaceAssignmentRequest:
       type: object
       required:
-        - memberId
-        - action
+        - cancelReason
       properties:
-        memberId:
+        cancelReason:
           type: string
-        action:
-          $ref: '#/components/schemas/Domain.Entity.SubmissionReviewAction'
-        note:
+        newCompanyMemberId:
+          type: string
+        newRoleId:
           type: string
     ReviewLeaveRequestRequest:
       type: object
@@ -6342,12 +7401,9 @@ components:
     SaveFormSubmissionDraftRequest:
       type: object
       required:
-        - memberId
         - expectedRevision
         - answers
       properties:
-        memberId:
-          type: string
         expectedRevision:
           type: integer
           format: int32
@@ -6432,51 +7488,15 @@ components:
     StartFormSubmissionRequest:
       type: object
       required:
-        - formTemplateId
-        - roleId
-        - memberId
+        - assignmentId
       properties:
-        formTemplateId:
+        assignmentId:
           type: string
-        roleId:
-          type: string
-        memberId:
-          type: string
-    SubmissionReview:
-      type: object
-      required:
-        - id
-        - createdAt
-        - companyId
-        - submissionId
-        - reviewedBy
-        - action
-      properties:
-        id:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        companyId:
-          type: string
-        submissionId:
-          type: string
-        reviewedBy:
-          type: string
-        action:
-          $ref: '#/components/schemas/Domain.Entity.SubmissionReviewAction'
-        note:
-          anyOf:
-            - type: string
-            - type: 'null'
     SubmitFormSubmissionRequest:
       type: object
       required:
-        - memberId
         - expectedRevision
       properties:
-        memberId:
-          type: string
         expectedRevision:
           type: integer
           format: int32

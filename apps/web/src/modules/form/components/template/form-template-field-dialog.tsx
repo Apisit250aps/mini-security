@@ -72,7 +72,7 @@ export default function FormTemplateFieldDialog({
   field,
   onClose,
 }: FormTemplateFieldDialogProps) {
-  const createFieldMutation = useFormFieldCreate(companyId, templateId);
+  const createFieldMutation = useFormFieldCreate(templateId);
 
   const editFieldMutation = useFormFieldEdit(templateId);
   const existingOptions = z
