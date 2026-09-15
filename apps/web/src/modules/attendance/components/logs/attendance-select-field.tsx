@@ -1,21 +1,7 @@
 'use client';
 
-import { useId } from 'react';
-import {
-  Controller,
-  type Control,
-  type FieldValues,
-  type Path,
-} from 'react-hook-form';
-import { Field, FieldLabel, FieldError } from '@repo/ui/components/field';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@repo/ui/components/select';
+import type { FieldValues, Control, Path } from 'react-hook-form';
+import { SelectField } from '@repo/ui/form';
 
 export default function AttendanceSelectField<T extends FieldValues>({
   control,
@@ -32,55 +18,16 @@ export default function AttendanceSelectField<T extends FieldValues>({
   disabled?: boolean;
   onChange?: () => void;
 }) {
-  const id = useId();
   return (
-    <Controller
+    <SelectField
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={id}>{label}</FieldLabel>
-          <Select
-            aria-label={label}
-            className="w-full"
-            placeholder={`เลือก${label}`}
-            isDisabled={disabled}
-            selectedKey={
-              options.some((option) => option.value === field.value)
-                ? field.value
-                : null
-            }
-            isInvalid={fieldState.invalid}
-            onSelectionChange={(key) => {
-              field.onChange(key == null ? '' : String(key));
-              onChange?.();
-            }}
-          >
-            <SelectTrigger
-              id={id}
-              ref={field.ref}
-              onBlur={field.onBlur}
-              aria-invalid={fieldState.invalid}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {options.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    id={option.value}
-                    textValue={option.label}
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <FieldError errors={[fieldState.error]} />
-        </Field>
-      )}
+      label={label}
+      placeholder={`เลือก${label}`}
+      options={options}
+      disabled={disabled}
+      onValueChange={() => onChange?.()}
     />
   );
 }
+

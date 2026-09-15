@@ -17,7 +17,12 @@ import {
   CardContent,
   CardAction,
 } from '@repo/ui/components/card';
-import { Clock, CalendarCheck2 } from 'lucide-react';
+import { Clock, CalendarCheck2, CalendarRange, Building2 } from 'lucide-react';
+import {
+  MetricCard,
+  DashboardStatsGrid,
+} from '@repo/ui/components/shared/dashboard';
+import { useCompanySchedulesQueries } from '../hooks/attendance-queries';
 import ScheduleDataTable from '../components/schedules/schedule-data-table';
 import ScheduleCreateAction from '../components/schedules/schedule-create-action';
 import AttendanceLogDataTable from '../components/logs/attendance-log-data-table';
@@ -34,6 +39,8 @@ export default function AdminAttendanceView() {
 
   const activeCompanyId = selectedCompanyId || companies[0]?.id || '';
   const selectedCompany = companies.find((c) => c.id === activeCompanyId);
+  const schedulesQuery = useCompanySchedulesQueries(activeCompanyId);
+  const schedulesCount = schedulesQuery.data?.length || 0;
 
   return (
     <PageLayout
@@ -65,12 +72,32 @@ export default function AdminAttendanceView() {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-          <div className="rounded-lg border bg-card p-4">
-            <h2 className="font-semibold text-lg">{selectedCompany?.name}</h2>
-            <p className="text-xs text-muted-foreground">
-              รหัสประจำบริษัท: {selectedCompany?.slug} | ID: {activeCompanyId}
-            </p>
-          </div>
+          {/* Top Metric Cards */}
+          <DashboardStatsGrid columns={3}>
+            <MetricCard
+              title="องค์กรปัจจุบัน"
+              value={selectedCompany?.name || '-'}
+              icon={Building2}
+              description={`Slug: ${selectedCompany?.slug || '-'}`}
+            />
+            <MetricCard
+              title="ตารางกะ / เวลาเข้างาน"
+              value={`${schedulesCount} กะ`}
+              icon={CalendarRange}
+              description="ตารางเวลาที่เปิดใช้งานในบริษัท"
+            />
+            <MetricCard
+              title="ระบบบันทึกเวลา"
+              value="พร้อมบันทึก"
+              icon={Clock}
+              trend={{
+                value: 'Online',
+                isPositive: true,
+                label: 'ปกติ',
+              }}
+              description="ตรวจสอบพิกัดและรอบเวลาเรียลไทม์"
+            />
+          </DashboardStatsGrid>
 
           <Tabs defaultSelectedKey="schedules" className="w-full">
             <TabsList className="grid w-full grid-cols-2 max-w-md">

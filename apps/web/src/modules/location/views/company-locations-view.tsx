@@ -1,18 +1,40 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import PageLayout from '@/shared/components/layouts/page-layout';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
 import { useHasPermission } from '@/modules/auth/hooks/permission-provider';
 import { useCompanyBranchesQueries } from '@/modules/company/hooks/company-queries';
+import {
+  MetricCard,
+  DashboardStatsGrid,
+} from '@repo/ui/components/shared/dashboard';
+import {
+  Empty,
+  EmptyMedia,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+} from '@repo/ui/components/empty';
 import { Alert, AlertTitle, AlertDescription } from '@repo/ui/components/alert';
 import { Button } from '@repo/ui/components/button';
+import { MapPin, Building2, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { useCompanyLocations } from '../hooks/location-queries';
 import LocationTable from '../components/location-table';
 
 function CompanyLocations({ companyId }: { companyId: string }) {
   const locations = useCompanyLocations(companyId);
   const branches = useCompanyBranchesQueries(companyId);
+
+  const locationList = locations.data ?? [];
+  const branchList = branches.data ?? [];
+
+  const activeCount = useMemo(
+    () => locationList.filter((l) => l.isActive).length,
+    [locationList],
+  );
+
   return (
     <PageLayout
       pageId="companyLocations"
@@ -34,7 +56,33 @@ function CompanyLocations({ companyId }: { companyId: string }) {
           </AlertDescription>
         </Alert>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
+          <DashboardStatsGrid columns={3}>
+            <MetricCard
+              title="สถานที่ลงเวลาทั้งหมด"
+              value={`${locationList.length} จุด`}
+              icon={MapPin}
+              description="จุดพิกัดเช็คชื่อที่กำหนดในระบบ"
+            />
+            <MetricCard
+              title="เปิดใช้งาน (Active)"
+              value={`${activeCount} จุด`}
+              icon={CheckCircle2}
+              trend={{
+                value: `${activeCount}`,
+                isPositive: true,
+                label: 'พร้อมใช้งาน',
+              }}
+              description="จุดลงเวลาที่สามารถสแกนหรือเช็คอินได้"
+            />
+            <MetricCard
+              title="สาขาที่รองรับ (Branches)"
+              value={`${branchList.length} สาขา`}
+              icon={Building2}
+              description="จำนวนสาขาองค์กรที่ผูกสถานที่"
+            />
+          </DashboardStatsGrid>
+
           <Alert>
             <AlertTitle>ตั้งค่าตำแหน่งการเข้างานใน Slots</AlertTitle>
             <AlertDescription>
@@ -43,9 +91,10 @@ function CompanyLocations({ companyId }: { companyId: string }) {
               </Link>
             </AlertDescription>
           </Alert>
+
           <LocationTable
-            locations={locations.data ?? []}
-            branches={branches.data ?? []}
+            locations={locationList}
+            branches={branchList}
           />
         </div>
       )}
@@ -60,8 +109,19 @@ export default function CompanyLocationsView() {
   if (!canRead || !activeCompanyId)
     return (
       <PageLayout pageId="companyLocations">
-        <p>ไม่พบองค์กรหรือไม่มีสิทธิ์ดูสถานที่</p>
+        <Empty className="py-16 border rounded-xl bg-card">
+          <EmptyMedia variant="icon">
+            <ShieldAlert className="size-6 text-muted-foreground" />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle>ไม่พบองค์กรหรือไม่มีสิทธิ์ดูสถานที่</EmptyTitle>
+            <EmptyDescription>
+              คุณไม่มีสิทธิ์ในการเข้าถึงข้อมูลสถานที่ หรือยังไม่ได้เลือกองค์กรที่สังกัด
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </PageLayout>
     );
   return <CompanyLocations key={activeCompanyId} companyId={activeCompanyId} />;
 }
+

@@ -13,6 +13,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@repo/ui/components/card';
+import {
+  MetricCard,
+  DashboardStatsGrid,
+} from '@repo/ui/components/shared/dashboard';
 import { Button } from '@repo/ui/components/button';
 import { Badge } from '@repo/ui/components/badge';
 import {
@@ -21,6 +25,7 @@ import {
   ShieldCheck,
   UserPlus,
   ArrowRight,
+  Activity,
 } from 'lucide-react';
 import { buildPageUrl } from '@/shared/utils';
 
@@ -83,54 +88,33 @@ export default function CompanyDashboardView() {
           </div>
 
           {/* Metrics Cards */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  จำนวนพนักงานทั้งหมด
-                </CardTitle>
-                <Users className="size-5 text-primary" />
-              </CardHeader>
-              <CardContent className="flex flex-col gap-1">
-                <div className="text-3xl font-bold">{memberCount} คน</div>
-                <p className="text-xs text-muted-foreground">
-                  สมาชิกที่สังกัดในองค์กรนี้
-                </p>
-              </CardContent>
-            </Card>
+          <DashboardStatsGrid columns={3}>
+            <MetricCard
+              title="จำนวนพนักงานทั้งหมด"
+              value={`${memberCount} คน`}
+              icon={Users}
+              description="สมาชิกที่สังกัดในองค์กรนี้"
+            />
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  บทบาทและตำแหน่ง (Roles)
-                </CardTitle>
-                <ShieldCheck className="size-5 text-primary" />
-              </CardHeader>
-              <CardContent className="flex flex-col gap-1">
-                <div className="text-3xl font-bold">{roleCount} บทบาท</div>
-                <p className="text-xs text-muted-foreground">
-                  ตำแหน่งและสิทธิ์ที่ใช้งานได้
-                </p>
-              </CardContent>
-            </Card>
+            <MetricCard
+              title="บทบาทและตำแหน่ง (Roles)"
+              value={`${roleCount} บทบาท`}
+              icon={ShieldCheck}
+              description="ตำแหน่งและสิทธิ์ที่ใช้งานได้"
+            />
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  สถานะองค์กร
-                </CardTitle>
-                <Building2 className="size-5 text-primary" />
-              </CardHeader>
-              <CardContent className="flex flex-col gap-1">
-                <div className="text-2xl font-bold text-emerald-600">
-                  พร้อมใช้งาน
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  ระบบความปลอดภัยและสิทธิ์เปิดทำงานปกติ
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+            <MetricCard
+              title="สถานะองค์กร"
+              value="พร้อมใช้งาน"
+              icon={Activity}
+              trend={{
+                value: 'Active',
+                isPositive: true,
+                label: 'ปกติ',
+              }}
+              description="ระบบความปลอดภัยเปิดทำงานปกติ"
+            />
+          </DashboardStatsGrid>
 
           {/* Quick Navigation Cards */}
           <div className="grid gap-4 md:grid-cols-2">

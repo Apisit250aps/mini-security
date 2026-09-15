@@ -15,6 +15,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@repo/ui/components/card';
+import {
+  MetricCard,
+  DashboardStatsGrid,
+  RecentActivityCard,
+} from '@repo/ui/components/shared/dashboard';
 import { Button } from '@repo/ui/components/button';
 import { Badge } from '@repo/ui/components/badge';
 import {
@@ -90,6 +95,52 @@ export default function AdminDashboardView() {
     return [...users].slice(0, 5);
   }, [users]);
 
+  const companyActivityItems = useMemo(
+    () =>
+      recentCompanies.map((c) => ({
+        id: c.id,
+        title: (
+          <Link
+            href={buildPageUrl('company', [c.id])}
+            className="hover:text-primary hover:underline transition-colors"
+          >
+            {c.name}
+          </Link>
+        ),
+        subtitle: c.slug,
+        icon: <Building2 className="size-4" />,
+        badge: {
+          label: c.isActive ? 'เปิดใช้งาน' : 'ปิดใช้งาน',
+          variant: (c.isActive ? 'default' : 'destructive') as 'default' | 'destructive',
+          className: 'text-[11px]',
+        },
+      })),
+    [recentCompanies],
+  );
+
+  const userActivityItems = useMemo(
+    () =>
+      recentUsers.map((u) => ({
+        id: u.id,
+        title: u.name || 'ไม่ระบุชื่อ',
+        subtitle: u.email,
+        avatarText: u.name ? u.name.slice(0, 2).toUpperCase() : 'US',
+        badge: u.isAdmin
+          ? {
+              label: 'Super Admin',
+              variant: 'secondary' as const,
+              className: 'text-[11px]',
+            }
+          : undefined,
+        value: u.isActive ? (
+          <span className="flex size-2 rounded-full bg-emerald-500" title="Active" />
+        ) : (
+          <span className="flex size-2 rounded-full bg-destructive" title="Inactive" />
+        ),
+      })),
+    [recentUsers],
+  );
+
   return (
     <PageLayout
       pageId="adminDashboard"
@@ -98,32 +149,21 @@ export default function AdminDashboardView() {
         <Link href={buildPageUrl('companyDashboard')}>
           <Button variant="outline" className="gap-2">
             <Building2 className="size-4" />
-            ไปยัง Company Workspace
-            <ExternalLink className="size-3.5" />
+            <span>Company Workspace</span>
+            <ExternalLink className="size-3.5 text-muted-foreground" />
           </Button>
         </Link>
       }
     >
       <div className="flex flex-col gap-4">
         {/* 4 Metrics Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Users Metric */}
-          <Card className="hover:border-primary/50 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                ผู้ใช้ทั้งหมด (Users)
-              </CardTitle>
-              <Users className="size-5 text-primary" />
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              <div className="text-3xl font-bold">{users.length}</div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>เปิดใช้งาน {activeUsersCount} คน</span>
-                <span>•</span>
-                <span className="text-primary font-medium">
-                  Admin {adminUsersCount} คน
-                </span>
-              </div>
+        <DashboardStatsGrid columns={4}>
+          <MetricCard
+            title="ผู้ใช้ทั้งหมด (Users)"
+            value={users.length}
+            icon={Users}
+            description={`เปิดใช้งาน ${activeUsersCount} คน • Admin ${adminUsersCount} คน`}
+            footerAction={
               <Link
                 href={buildPageUrl('user')}
                 className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
@@ -131,22 +171,15 @@ export default function AdminDashboardView() {
                 จัดการผู้ใช้
                 <ArrowRight className="size-3" />
               </Link>
-            </CardContent>
-          </Card>
+            }
+          />
 
-          {/* Companies Metric */}
-          <Card className="hover:border-primary/50 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                บริษัททั้งหมด (Companies)
-              </CardTitle>
-              <Building2 className="size-5 text-primary" />
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              <div className="text-3xl font-bold">{companies.length}</div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>เปิดใช้งาน {activeCompaniesCount} บริษัท</span>
-              </div>
+          <MetricCard
+            title="บริษัททั้งหมด (Companies)"
+            value={companies.length}
+            icon={Building2}
+            description={`เปิดใช้งาน ${activeCompaniesCount} บริษัท`}
+            footerAction={
               <Link
                 href={buildPageUrl('company')}
                 className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
@@ -154,22 +187,15 @@ export default function AdminDashboardView() {
                 จัดการบริษัท
                 <ArrowRight className="size-3" />
               </Link>
-            </CardContent>
-          </Card>
+            }
+          />
 
-          {/* Roles Metric */}
-          <Card className="hover:border-primary/50 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                บทบาททั้งหมด (Roles)
-              </CardTitle>
-              <Shield className="size-5 text-primary" />
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              <div className="text-3xl font-bold">{roles.length}</div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>บทบาทและระดับสิทธิ์</span>
-              </div>
+          <MetricCard
+            title="บทบาททั้งหมด (Roles)"
+            value={roles.length}
+            icon={Shield}
+            description="บทบาทและระดับสิทธิ์"
+            footerAction={
               <Link
                 href={buildPageUrl('role')}
                 className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
@@ -177,22 +203,15 @@ export default function AdminDashboardView() {
                 จัดการบทบาท
                 <ArrowRight className="size-3" />
               </Link>
-            </CardContent>
-          </Card>
+            }
+          />
 
-          {/* Permissions Metric */}
-          <Card className="hover:border-primary/50 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                สิทธิ์ในระบบ (Permissions)
-              </CardTitle>
-              <Key className="size-5 text-primary" />
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              <div className="text-3xl font-bold">{permissions.length}</div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>ครอบคลุม {permissionModulesCount} โมดูล</span>
-              </div>
+          <MetricCard
+            title="สิทธิ์ในระบบ (Permissions)"
+            value={permissions.length}
+            icon={Key}
+            description={`ครอบคลุม ${permissionModulesCount} โมดูล`}
+            footerAction={
               <Link
                 href={buildPageUrl('permission')}
                 className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
@@ -200,144 +219,41 @@ export default function AdminDashboardView() {
                 จัดการสิทธิ์
                 <ArrowRight className="size-3" />
               </Link>
-            </CardContent>
-          </Card>
-        </div>
+            }
+          />
+        </DashboardStatsGrid>
 
         {/* Overview Lists / Activity */}
         <div className="grid gap-4 lg:grid-cols-2">
-          {/* Recent Companies */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>บริษัทในระบบ (Companies)</CardTitle>
-                <CardDescription>
-                  รายชื่อองค์กรและบริษัทที่ลงทะเบียนล่าสุด
-                </CardDescription>
-              </div>
-              <CardAction>
-                <Link href={buildPageUrl('company')}>
-                  <Button variant="ghost" size="sm" className="gap-1 text-xs">
-                    ดูทั้งหมด
-                    <ArrowRight className="size-3.5" />
-                  </Button>
-                </Link>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              {recentCompanies.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
-                  ยังไม่มีข้อมูลบริษัท
-                </p>
-              ) : (
-                <div className="flex flex-col divide-y">
-                  {recentCompanies.map((c) => (
-                    <div
-                      key={c.id}
-                      className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                          <Building2 className="size-4" />
-                        </div>
-                        <div className="flex flex-col">
-                          <Link
-                            href={buildPageUrl('company', [c.id])}
-                            className="font-medium text-sm hover:underline hover:text-primary transition-colors"
-                          >
-                            {c.name}
-                          </Link>
-                          <span className="text-xs text-muted-foreground font-mono">
-                            {c.slug}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {c.isActive ? (
-                          <Badge variant="default" className="text-[11px]">
-                            เปิดใช้งาน
-                          </Badge>
-                        ) : (
-                          <Badge variant="destructive" className="text-[11px]">
-                            ปิดใช้งาน
-                          </Badge>
-                        )}
-                        <Link href={buildPageUrl('company', [c.id])}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs"
-                          >
-                            จัดการ
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <RecentActivityCard
+            title="บริษัทในระบบ (Companies)"
+            description="รายชื่อองค์กรและบริษัทที่ลงทะเบียนล่าสุด"
+            items={companyActivityItems}
+            emptyMessage="ยังไม่มีข้อมูลบริษัท"
+            headerAction={
+              <Link href={buildPageUrl('company')}>
+                <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                  ดูทั้งหมด
+                  <ArrowRight className="size-3.5" />
+                </Button>
+              </Link>
+            }
+          />
 
-          {/* Recent Users */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>ผู้ใช้งานล่าสุด (Recent Users)</CardTitle>
-                <CardDescription>
-                  บัญชีผู้ใช้งานที่ลงทะเบียนในระบบ
-                </CardDescription>
-              </div>
-              <CardAction>
-                <Link href={buildPageUrl('user')}>
-                  <Button variant="ghost" size="sm" className="gap-1 text-xs">
-                    ดูทั้งหมด
-                    <ArrowRight className="size-3.5" />
-                  </Button>
-                </Link>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              {recentUsers.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
-                  ยังไม่มีผู้ใช้งาน
-                </p>
-              ) : (
-                <div className="flex flex-col divide-y">
-                  {recentUsers.map((u) => (
-                    <div
-                      key={u.id}
-                      className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-xs">
-                          {u.name ? u.name.slice(0, 2).toUpperCase() : 'US'}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-sm">{u.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {u.email}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {u.isAdmin && (
-                          <Badge variant="secondary" className="text-[11px]">
-                            Super Admin
-                          </Badge>
-                        )}
-                        {u.isActive ? (
-                          <span className="flex size-2 rounded-full bg-emerald-500" />
-                        ) : (
-                          <span className="flex size-2 rounded-full bg-destructive" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <RecentActivityCard
+            title="ผู้ใช้งานล่าสุด (Recent Users)"
+            description="บัญชีผู้ใช้งานที่ลงทะเบียนในระบบ"
+            items={userActivityItems}
+            emptyMessage="ยังไม่มีผู้ใช้งาน"
+            headerAction={
+              <Link href={buildPageUrl('user')}>
+                <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                  ดูทั้งหมด
+                  <ArrowRight className="size-3.5" />
+                </Button>
+              </Link>
+            }
+          />
         </div>
 
         {/* Security Health / RBAC Banner */}

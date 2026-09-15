@@ -8,7 +8,7 @@ import {
 } from '@repo/ui/form';
 
 import React, { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createRoleSchema } from '@repo/domains/schema/permission';
 import type { FormProps } from '@/types';
@@ -16,6 +16,7 @@ import { z } from 'zod';
 
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
+import { CompanySelectField } from '@/shared/components/form';
 
 export type RoleFormValues = z.infer<typeof createRoleSchema>;
 
@@ -55,6 +56,11 @@ export default function RoleForm({
       roleType: 'MEMBER',
       isSystemDefault: false,
     },
+  });
+
+  const isSystemDefault = useWatch({
+    control: methods.control,
+    name: 'isSystemDefault',
   });
 
   return (
@@ -110,7 +116,18 @@ export default function RoleForm({
             />
           </FieldGroup>
         )}
+
+        {!hideSystemDefault && !isSystemDefault && (
+          <CompanySelectField
+            name="companyId"
+            label="สังกัดองค์กร (Company)"
+            placeholder="เลือกองค์กรสำหรับบทบาทนี้..."
+            control={methods.control}
+            disabled={readOnly}
+          />
+        )}
       </FieldGroup>
+
 
       {!readOnly && (
         <div className="flex justify-end">

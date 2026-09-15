@@ -2,11 +2,21 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClipboardCheck, Shield, Clock } from 'lucide-react';
+import {
+  ClipboardCheck,
+  Shield,
+  Clock,
+  CheckCircle2,
+  FileText,
+} from 'lucide-react';
 import { Button } from '@repo/ui/components/button';
 import { Badge } from '@repo/ui/components/badge';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
+import {
+  MetricCard,
+  DashboardStatsGrid,
+} from '@repo/ui/components/shared/dashboard';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
@@ -48,6 +58,19 @@ export default function FormSubmissionsView() {
   const activeTemplates = useMemo(() => {
     return (templatesQuery.data || []).filter((t) => t.isActive);
   }, [templatesQuery.data]);
+
+  const submissions = useMemo(
+    () => submissionsQuery.data || [],
+    [submissionsQuery.data],
+  );
+  const submittedCount = useMemo(
+    () => submissions.filter((s) => Boolean(s.submittedAt)).length,
+    [submissions],
+  );
+  const draftCount = useMemo(
+    () => submissions.filter((s) => !s.submittedAt).length,
+    [submissions],
+  );
 
   // Find active shared drafts per template for current role
   const activeDraftsByTemplate = useMemo(() => {
@@ -109,6 +132,38 @@ export default function FormSubmissionsView() {
       loadingText="กำลังโหลดรายการแบบฟอร์มและผลการตรวจ..."
     >
       <div className="flex flex-col gap-6">
+        {/* Metric Cards Grid */}
+        <DashboardStatsGrid columns={4}>
+          <MetricCard
+            title="แบบฟอร์มพร้อมตรวจ"
+            value={`${activeTemplates.length} ฟอร์ม`}
+            icon={ClipboardCheck}
+            description="ฟอร์มที่เปิดให้เข้าบันทึกตามกะ"
+          />
+          <MetricCard
+            title="ส่งผลตรวจแล้ว"
+            value={`${submittedCount} ฉบับ`}
+            icon={CheckCircle2}
+            trend={{
+              value: `${submittedCount}`,
+              isPositive: true,
+              label: 'เสร็จสมบูรณ์',
+            }}
+            description="รายการที่บันทึกข้อมูลเรียบร้อย"
+          />
+          <MetricCard
+            title="ฉบับร่างค้างส่ง"
+            value={`${draftCount} ฉบับ`}
+            icon={Clock}
+            description="ฟอร์มที่กำลังตรวจหรือบันทึกค้างไว้"
+          />
+          <MetricCard
+            title="ประวัติทั้งหมด"
+            value={`${submissions.length} รายการ`}
+            icon={FileText}
+            description="ประวัติการตรวจในองค์กรทั้งหมด"
+          />
+        </DashboardStatsGrid>
         {/* Role Context Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border/70 bg-muted/20">
           <div className="flex items-start sm:items-center gap-3">

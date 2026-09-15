@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { InputField, SelectField } from '@repo/ui/form';
+import { InputField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { useCompanyLeaveTypesQueries } from '../../hooks/leave-queries';
+import { LeaveTypeSelectField } from '@/shared/components/form';
 import type { FormProps } from '@/types';
 
 export const quotaFormSchema = z.object({
@@ -30,15 +30,6 @@ export default function QuotaForm({
   isLoading,
   isEditing = false,
 }: QuotaFormProps) {
-  const typesQuery = useCompanyLeaveTypesQueries(companyId, true);
-
-  const typeOptions = useMemo(() => {
-    return (typesQuery.data || []).map((t) => ({
-      value: t.id,
-      label: `${t.name} (${t.maxDaysPerYear ? `${t.maxDaysPerYear} วัน` : 'ไม่จำกัด'})`,
-    }));
-  }, [typesQuery.data]);
-
   const methods = useForm<QuotaFormValues>({
     resolver: zodResolver(quotaFormSchema as never),
     defaultValues: defaultValues ?? {
@@ -54,15 +45,16 @@ export default function QuotaForm({
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <SelectField
+        <LeaveTypeSelectField
+          companyId={companyId}
           name="leaveTypeId"
           label="ประเภทการลา"
           placeholder="เลือกประเภทการลา..."
-          options={typeOptions}
           control={methods.control}
-          disabled={isEditing || typesQuery.isLoading}
+          disabled={isEditing}
           required
         />
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <InputField

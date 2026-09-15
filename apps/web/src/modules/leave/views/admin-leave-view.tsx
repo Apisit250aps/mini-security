@@ -17,7 +17,15 @@ import {
   CardContent,
   CardAction,
 } from '@repo/ui/components/card';
-import { CalendarRange, Sliders } from 'lucide-react';
+import { CalendarRange, Sliders, Building2, Clock, CheckCircle2 } from 'lucide-react';
+import {
+  MetricCard,
+  DashboardStatsGrid,
+} from '@repo/ui/components/shared/dashboard';
+import {
+  useCompanyLeaveRequestsQueries,
+  useCompanyLeaveTypesQueries,
+} from '../hooks/leave-queries';
 import LeaveRequestDataTable from '../components/requests/leave-request-data-table';
 import LeaveRequestSubmitAction from '../components/requests/leave-request-submit-action';
 import LeaveTypeDataTable from '../components/types/leave-type-data-table';
@@ -34,6 +42,22 @@ export default function AdminLeaveView() {
 
   const activeCompanyId = selectedCompanyId || companies[0]?.id || '';
   const selectedCompany = companies.find((c) => c.id === activeCompanyId);
+
+  const requestsQuery = useCompanyLeaveRequestsQueries(activeCompanyId);
+  const typesQuery = useCompanyLeaveTypesQueries(activeCompanyId);
+
+  const requests = requestsQuery.data || [];
+  const types = typesQuery.data || [];
+
+  const pendingCount = useMemo(
+    () => requests.filter((r) => r.status === 'pending').length,
+    [requests],
+  );
+
+  const approvedCount = useMemo(
+    () => requests.filter((r) => r.status === 'approved').length,
+    [requests],
+  );
 
   return (
     <PageLayout
@@ -65,12 +89,38 @@ export default function AdminLeaveView() {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-          <div className="rounded-lg border bg-card p-4">
-            <h2 className="font-semibold text-lg">{selectedCompany?.name}</h2>
-            <p className="text-xs text-muted-foreground">
-              รหัสประจำบริษัท: {selectedCompany?.slug} | ID: {activeCompanyId}
-            </p>
-          </div>
+          {/* Top Metric Cards */}
+          <DashboardStatsGrid columns={4}>
+            <MetricCard
+              title="องค์กรปัจจุบัน"
+              value={selectedCompany?.name || '-'}
+              icon={Building2}
+              description={`Slug: ${selectedCompany?.slug || '-'}`}
+            />
+            <MetricCard
+              title="คำขอลาทั้งหมด"
+              value={`${requests.length} รายการ`}
+              icon={CalendarRange}
+              description="ประวัติคำขอลาในระบบ"
+            />
+            <MetricCard
+              title="รออนุมัติ (Pending)"
+              value={`${pendingCount} รายการ`}
+              icon={Clock}
+              trend={{
+                value: `${pendingCount}`,
+                isPositive: pendingCount === 0,
+                label: 'รายการรอตรวจ',
+              }}
+              description="คำขอลาที่รอการพิจารณา"
+            />
+            <MetricCard
+              title="ประเภทการลาที่เปิดใช้"
+              value={`${types.length} ประเภท`}
+              icon={Sliders}
+              description="นโยบายวันลาของบริษัท"
+            />
+          </DashboardStatsGrid>
 
           <Tabs defaultSelectedKey="requests" className="w-full">
             <TabsList className="grid w-full grid-cols-2 max-w-md">

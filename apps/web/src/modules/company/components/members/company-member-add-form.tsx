@@ -1,8 +1,10 @@
 'use client';
 
-import { UserSelectField } from '@/modules/user/components/user-select-field';
-import { RoleSelectField } from '@/modules/role/components/role-select-field';
-import { CompanyBranchSelectField } from '@/modules/company/components/branches/company-branch-select-field';
+import {
+  UserSelectField,
+  RoleSelectField,
+  CompanyBranchSelectField,
+} from '@/shared/components/form';
 
 import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';

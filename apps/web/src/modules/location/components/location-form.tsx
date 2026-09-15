@@ -10,6 +10,7 @@ import { FieldGroup } from '@repo/ui/components/field';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useCompanyBranchesQueries } from '@/modules/company/hooks/company-queries';
+import { CompanyBranchSelectField } from '@/shared/components/form';
 import { useLocationSave } from '../hooks/location-mutations';
 
 export default function LocationForm({
@@ -84,16 +85,12 @@ export default function LocationForm({
             )?.name ?? location.companyBranchId}
           </p>
         ) : (
-          <SelectField
+          <CompanyBranchSelectField
+            companyId={companyId}
             control={form.control}
             name="companyBranchId"
             label="สาขา"
             required
-            options={(branches.data ?? [])
-              .filter((branch) => branch.isActive)
-              .map((branch) => ({ label: branch.name, value: branch.id }))}
-            isLoading={branches.isLoading}
-            loadError={branches.isError}
           />
         )}
         <InputField

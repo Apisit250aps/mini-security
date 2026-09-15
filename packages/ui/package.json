@@ -9,10 +9,17 @@
     "./shared/*": "./src/shared/*.tsx",
     "./shared/form": "./src/shared/form/index.ts",
     "./shared/form/*": "./src/shared/form/*.tsx",
+    "./shared/dashboard": "./src/shared/dashboard/index.ts",
+    "./shared/dashboard/*": "./src/shared/dashboard/*.tsx",
+    "./components/shared/dashboard": "./src/shared/dashboard/index.ts",
+    "./components/shared/dashboard/*": "./src/shared/dashboard/*.tsx",
+    "./components/shared/form": "./src/shared/form/index.ts",
+    "./components/shared/form/*": "./src/shared/form/*.tsx",
     "./form": "./src/shared/form/index.ts",
     "./form/*": "./src/shared/form/*.tsx",
     "./lib/*": "./src/lib/*.ts",
-    "./hooks": "./src/hooks/index.ts"
+    "./hooks": "./src/hooks/index.ts",
+    "./hooks/*": "./src/hooks/*.ts"
   },
   "imports": {
     "#components/*": "./src/components/*.tsx",
@@ -20,6 +27,8 @@
     "#shared/*": "./src/shared/*.tsx",
     "#form": "./src/shared/form/index.ts",
     "#form/*": "./src/shared/form/*.tsx",
+    "#dashboard": "./src/shared/dashboard/index.ts",
+    "#dashboard/*": "./src/shared/dashboard/*.tsx",
     "#hooks/*": "./src/hooks/*.tsx",
     "#hooks": "./src/hooks/index.ts",
     "#types/*": "./src/types/*.d.ts"

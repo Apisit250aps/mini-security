@@ -20,6 +20,13 @@ import {
   TabsList,
   TabsTrigger,
 } from '@repo/ui/components/tabs';
+import {
+  Empty,
+  EmptyMedia,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+} from '@repo/ui/components/empty';
 import { Building2, GitBranch } from 'lucide-react';
 
 export default function CompanySettingsView() {
@@ -28,10 +35,17 @@ export default function CompanySettingsView() {
   return (
     <PageLayout pageId="companySettings" isLoading={isLoading}>
       {!activeCompany ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-          <Building2 className="size-12 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">ไม่พบข้อมูลบริษัท</h2>
-        </div>
+        <Empty className="py-16 border rounded-xl bg-card">
+          <EmptyMedia variant="icon">
+            <Building2 className="size-6 text-muted-foreground" />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle>ไม่พบข้อมูลบริษัท</EmptyTitle>
+            <EmptyDescription>
+              กรุณาเลือกหรือสร้างบริษัทก่อนเข้าสู่การตั้งค่าองค์กร
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <Tabs defaultSelectedKey="profile" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md mb-4">

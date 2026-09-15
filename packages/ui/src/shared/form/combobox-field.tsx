@@ -1,15 +1,15 @@
 'use client';
 
 import { useId } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@repo/ui/components/select';
 import { FieldValues, Controller } from 'react-hook-form';
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+} from '@repo/ui/components/combobox';
 import {
   Field,
   FieldLabel,
@@ -18,30 +18,38 @@ import {
 } from '@repo/ui/components/field';
 import type { BaseFieldProps, Option } from '#types/form';
 
-export const SelectField = <T extends FieldValues>({
+export interface ComboboxFieldProps<T extends FieldValues>
+  extends BaseFieldProps<T> {
+  options: Option[];
+  placeholder?: string;
+  id?: string;
+  isLoading?: boolean;
+  loadError?: boolean;
+  description?: string;
+  emptyText?: string;
+  className?: string;
+}
+
+export const ComboboxField = <T extends FieldValues>({
   control,
   name,
   label,
-  placeholder,
+  placeholder = 'ค้นหาหรือเลือกรายการ...',
   options,
   required,
-  valueAsNumber = false,
   id,
   disabled,
   isLoading,
   loadError,
+  description,
+  emptyText = 'ไม่พบข้อมูลที่ค้นหา',
+  className,
   onValueChange,
-}: BaseFieldProps<T> & {
-  options: Option[];
-  placeholder?: string;
-  valueAsNumber?: boolean;
-  id?: string;
-  isLoading?: boolean;
-  loadError?: boolean;
-  onValueChange?: (value: string | number | null) => void;
+}: ComboboxFieldProps<T> & {
+  onValueChange?: (value: string | null) => void;
 }) => {
   const generatedId = useId();
-  const selectId = id ?? generatedId;
+  const comboboxId = id ?? generatedId;
   const status = loadError
     ? 'โหลดรายการไม่สำเร็จ กรุณาลองใหม่'
     : isLoading
@@ -58,12 +66,13 @@ export const SelectField = <T extends FieldValues>({
       render={({ field, fieldState }) => {
         let descriptionId: string | undefined;
         if (status && fieldState.invalid) {
-          descriptionId = `${selectId}-status ${selectId}-error`;
+          descriptionId = `${comboboxId}-status ${comboboxId}-error`;
         } else if (status) {
-          descriptionId = `${selectId}-status`;
+          descriptionId = `${comboboxId}-status`;
         } else if (fieldState.invalid) {
-          descriptionId = `${selectId}-error`;
+          descriptionId = `${comboboxId}-error`;
         }
+
         const selectedKey =
           field.value != null && field.value !== ''
             ? String(field.value)
@@ -73,69 +82,69 @@ export const SelectField = <T extends FieldValues>({
           <Field
             data-invalid={fieldState.invalid}
             data-disabled={field.disabled}
+            className={className}
           >
             {label != null && (
-              <FieldLabel htmlFor={selectId}>
+              <FieldLabel htmlFor={comboboxId}>
                 {label}
                 {required && <span className="text-destructive ml-0.5">*</span>}
               </FieldLabel>
             )}
-            <Select
+
+            <Combobox
               className="w-full"
-              placeholder={placeholder ?? 'เลือกรายการ'}
               aria-label={label ?? placeholder ?? name}
-              isInvalid={fieldState.invalid}
               selectedKey={selectedKey}
               onSelectionChange={(key) => {
-                const value =
-                  key == null
-                    ? null
-                    : valueAsNumber
-                      ? Number(key)
-                      : String(key);
-                const nextValue =
-                  typeof value === 'number' && Number.isNaN(value)
-                    ? null
-                    : value;
-                field.onChange(nextValue);
-                onValueChange?.(nextValue);
+                const nextVal = key == null ? null : String(key);
+                field.onChange(nextVal);
+                onValueChange?.(nextVal);
               }}
+              isDisabled={field.disabled || disabled || isLoading}
+              isInvalid={fieldState.invalid}
               isRequired={required}
-              isDisabled={field.disabled}
               aria-invalid={fieldState.invalid}
             >
-              <SelectTrigger
-                className="w-full"
-                id={selectId}
+              <ComboboxInput
+                id={comboboxId}
                 ref={field.ref}
                 onBlur={() => field.onBlur()}
+                placeholder={placeholder}
+                disabled={field.disabled || disabled || isLoading}
+                showTrigger
+                showClear
                 aria-invalid={fieldState.invalid}
                 aria-describedby={descriptionId}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
+              />
+              <ComboboxContent>
+                <ComboboxList>
                   {options.map((option) => (
-                    <SelectItem
+                    <ComboboxItem
                       key={String(option.value)}
                       id={String(option.value)}
                       textValue={option.label}
                     >
                       {option.label}
-                    </SelectItem>
+                    </ComboboxItem>
                   ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+                </ComboboxList>
+                <ComboboxEmpty>{status || emptyText}</ComboboxEmpty>
+              </ComboboxContent>
+            </Combobox>
+
+            {description && (
+              <FieldDescription id={`${comboboxId}-desc`}>
+                {description}
+              </FieldDescription>
+            )}
             {status && (
-              <FieldDescription id={`${selectId}-status`} role="status">
+              <FieldDescription id={`${comboboxId}-status`} role="status">
                 {status}
               </FieldDescription>
             )}
             {fieldState.invalid && (
               <FieldError
-                id={`${selectId}-error`}
+                id={`${comboboxId}-error`}
                 errors={[fieldState.error]}
               />
             )}

@@ -12,8 +12,10 @@ import {
 } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { CompanyMemberSelectField } from '@/modules/company/components/members/company-member-select-field';
-import { useCompanyLeaveTypesQueries } from '../../hooks/leave-queries';
+import {
+  CompanyMemberSelectField,
+  LeaveTypeSelectField,
+} from '@/shared/components/form';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import type { FormProps } from '@/types';
@@ -50,7 +52,6 @@ export default function LeaveRequestForm({
   isLoading,
 }: LeaveRequestFormProps) {
   const { data: session } = useSession();
-  const typesQuery = useCompanyLeaveTypesQueries(companyId, true);
   const membersQuery = useCompanyMembersQueries(companyId);
 
   const currentMember = useMemo(() => {
@@ -94,13 +95,6 @@ export default function LeaveRequestForm({
     [methods],
   );
 
-  const typeOptions = useMemo(() => {
-    return (typesQuery.data || []).map((t) => ({
-      value: t.id,
-      label: `${t.name} (${t.isPaid ? 'ได้รับค่าจ้าง' : 'ไม่ได้รับค่าจ้าง'})`,
-    }));
-  }, [typesQuery.data]);
-
   const handleFormSubmit = useCallback(
     (values: LeaveRequestFormValues) => {
       onSubmit(values);
@@ -123,13 +117,12 @@ export default function LeaveRequestForm({
           required
         />
 
-        <SelectField
+        <LeaveTypeSelectField
+          companyId={companyId}
           name="leaveTypeId"
           label="ประเภทการลา"
           placeholder="เลือกประเภทการลา..."
-          options={typeOptions}
           control={methods.control}
-          disabled={typesQuery.isLoading}
           required
         />
 

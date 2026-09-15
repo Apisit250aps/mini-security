@@ -5,6 +5,7 @@ import type { FormField } from '@repo/domains/entities';
 import { Input } from '@repo/ui/components/input';
 import { Textarea } from '@repo/ui/components/textarea';
 import { Switch } from '@repo/ui/components/switch';
+import { FileUpload, type FileMetadata } from '@repo/ui/components/shared/form';
 
 interface DynamicFieldRendererProps {
   field: FormField;
@@ -96,37 +97,74 @@ export default function DynamicFieldRenderer({
           />
         );
 
-      case 'IMAGE':
-        return (
-          <div className="flex flex-col gap-2">
-            <Input
-              type="text"
-              value={typeof value === 'string' ? value : ''}
-              onChange={(e) => onChange(e.target.value)}
-              disabled={disabled}
-              placeholder="URL รูปภาพหรือลิงก์รูปถ่ายตรวจสอบ..."
-            />
-            {typeof value === 'string' && value && (
-              <div className="mt-1">
-                {/* Preview image if valid URL */}
-                <span className="text-xs text-muted-foreground block truncate">
-                  รูปถ่าย: {value}
-                </span>
-              </div>
-            )}
-          </div>
-        );
+      case 'IMAGE': {
+        const imageFiles: FileMetadata[] = [];
+        if (typeof value === 'string' && value) {
+          imageFiles.push({
+            id: 'init-img',
+            name: value.split('/').pop() || 'image.jpg',
+            size: 0,
+            type: 'image/jpeg',
+            url: value,
+            preview: value,
+          });
+        } else if (Array.isArray(value)) {
+          imageFiles.push(...(value as FileMetadata[]));
+        }
 
-      case 'FILE':
         return (
-          <Input
-            type="text"
-            value={typeof value === 'string' ? value : ''}
-            onChange={(e) => onChange(e.target.value)}
+          <FileUpload
+            accept="image/*"
+            maxSizeMB={5}
+            multiple={false}
             disabled={disabled}
-            placeholder="URL หรือลิงก์เอกสารแนบ..."
+            placeholder="ลากรูปภาพมาวางที่นี่ หรือคลิกเพื่อเลือกรูป"
+            description="รองรับไฟล์รูปภาพ JPG, PNG, WebP (สูงสุด 5MB)"
+            value={imageFiles}
+            onChange={(files: FileMetadata[]) => {
+              if (files.length === 0) {
+                onChange('');
+              } else {
+                onChange(files[0]?.preview || files[0]?.url || files[0]?.name || '');
+              }
+            }}
           />
         );
+      }
+
+      case 'FILE': {
+        const docFiles: FileMetadata[] = [];
+        if (typeof value === 'string' && value) {
+          docFiles.push({
+            id: 'init-file',
+            name: value.split('/').pop() || 'attachment',
+            size: 0,
+            type: 'application/octet-stream',
+            url: value,
+          });
+        } else if (Array.isArray(value)) {
+          docFiles.push(...(value as FileMetadata[]));
+        }
+
+        return (
+          <FileUpload
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.png,.jpg"
+            maxSizeMB={10}
+            multiple={false}
+            disabled={disabled}
+            placeholder="ลากไฟล์เอกสารมาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์แนบ"
+            description="รองรับไฟล์เอกสาร PDF, Office, ภาพถ่าย (สูงสุด 10MB)"
+            value={docFiles}
+            onChange={(files: FileMetadata[]) => {
+              if (files.length === 0) {
+                onChange('');
+              } else {
+                onChange(files[0]?.preview || files[0]?.url || files[0]?.name || '');
+              }
+            }}
+          />
+        );
+      }
 
       default:
         return (
