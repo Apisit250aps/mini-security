@@ -98,3 +98,16 @@ model FormSubmissionDetail {
   contributors: FormSubmissionContributor[];
   review: SubmissionReview | null;
 }
+
+model ReorderFormItemsRequest {
+  formVersionId: string;
+  @minItems(1)
+  items: FormReorderItem[];
+}
+model FormReorderItem {
+  id: string;
+  @minValue(0)
+  sortOrder: int32;
+}
+
+model EditFormField is PickProperties<FormField, "formSectionId" | "type" | "label" | "description" | "isRequired" | "config">;

@@ -13,8 +13,11 @@ import {
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Button } from '@repo/ui/components/button';
-import { useFormFieldCreate } from '../../hooks/form-mutations';
-import type { FormSection } from '@repo/domains/entities';
+import {
+  useFormFieldCreate,
+  useFormFieldEdit,
+} from '../../hooks/form-mutations';
+import type { FormField, FormSection } from '@repo/domains/entities';
 
 const FIELD_TYPE_OPTIONS = [
   { value: 'TEXT', label: 'ข้อความสั้น / ยาว (Text)' },
@@ -37,10 +40,12 @@ const formFieldSchema = z.object({
     'IMAGE',
     'FILE',
   ]),
-  label: z.string().min(1, 'กรุณาระบุคำถามหรือชื่อฟิลด์'),
-  description: z.string().optional(),
+  label: z
+    .string()
+    .min(1, 'กรุณาระบุคำถามหรือชื่อฟิลด์')
+    .max(255, 'คำถามยาวได้ไม่เกิน 255 ตัวอักษร'),
+  description: z.string().max(1000).optional(),
   isRequired: z.boolean().default(false),
-  sortOrder: z.coerce.number().default(0),
   selectOptions: z.string().optional(),
 });
 
@@ -51,7 +56,9 @@ interface FormTemplateFieldDialogProps {
   templateId: string;
   formVersionId: string;
   sections: FormSection[];
+  fields: FormField[];
   defaultSectionId?: string;
+  field?: FormField;
   onClose: () => void;
 }
 
@@ -60,10 +67,18 @@ export default function FormTemplateFieldDialog({
   templateId,
   formVersionId,
   sections,
+  fields,
   defaultSectionId,
+  field,
   onClose,
 }: FormTemplateFieldDialogProps) {
   const createFieldMutation = useFormFieldCreate(companyId, templateId);
+
+  const editFieldMutation = useFormFieldEdit(templateId);
+  const existingOptions = z
+    .array(z.object({ label: z.string(), value: z.string() }))
+    .safeParse(field?.config?.options);
+  const originalOptions = existingOptions.success ? existingOptions.data : [];
 
   const sectionOptions = sections.map((s) => ({
     value: s.id,
@@ -73,30 +88,68 @@ export default function FormTemplateFieldDialog({
   const methods = useForm<FormFieldValues>({
     resolver: zodResolver(formFieldSchema as never),
     defaultValues: {
-      formSectionId: defaultSectionId || sections[0]?.id || '',
-      type: 'TEXT',
-      label: '',
-      description: '',
-      isRequired: false,
-      sortOrder: 0,
-      selectOptions: '',
+      formSectionId:
+        field?.formSectionId || defaultSectionId || sections[0]?.id || '',
+      type: field?.type || 'TEXT',
+      label: field?.label || '',
+      description: field?.description || '',
+      isRequired: field?.isRequired ?? false,
+      selectOptions: originalOptions.map((option) => option.label).join('\n'),
     },
   });
 
   const selectedType = useWatch({ control: methods.control, name: 'type' });
+  const selectedSectionId = useWatch({
+    control: methods.control,
+    name: 'formSectionId',
+  });
 
   const handleSubmit = useCallback(
     (values: FormFieldValues) => {
-      let config: Record<string, unknown> = {};
+      let config: Record<string, unknown> =
+        field?.type === values.type ? { ...field.config } : {};
       if (values.type === 'SELECT' && values.selectOptions) {
         const parsedOptions = values.selectOptions
           .split('\n')
           .map((item) => item.trim())
           .filter(Boolean)
-          .map((item) => ({ label: item, value: item }));
-        config = { options: parsedOptions };
+          .map((item) => ({
+            label: item,
+            value:
+              originalOptions.find((option) => option.label === item)?.value ??
+              item,
+          }));
+        config = { ...config, options: parsedOptions };
       }
 
+      // Auto-compute sortOrder as next index in chosen section
+      const sectionFieldCount = fields.filter(
+        (f) => f.formSectionId === values.formSectionId,
+      ).length;
+
+      if (values.type === 'SELECT' && !values.selectOptions?.trim()) {
+        methods.setError('selectOptions', {
+          message: 'กรุณาระบุตัวเลือกอย่างน้อย 1 รายการ',
+        });
+        return;
+      }
+      if (field) {
+        editFieldMutation.mutate(
+          {
+            fieldId: field.id,
+            data: {
+              formSectionId: values.formSectionId,
+              type: values.type,
+              label: values.label,
+              description: values.description || null,
+              isRequired: values.isRequired,
+              config,
+            },
+          },
+          { onSuccess: onClose },
+        );
+        return;
+      }
       createFieldMutation.mutate(
         {
           companyId,
@@ -106,7 +159,7 @@ export default function FormTemplateFieldDialog({
           label: values.label,
           description: values.description || null,
           isRequired: values.isRequired,
-          sortOrder: values.sortOrder,
+          sortOrder: sectionFieldCount,
           config,
         },
         {
@@ -116,7 +169,17 @@ export default function FormTemplateFieldDialog({
         },
       );
     },
-    [createFieldMutation, companyId, formVersionId, onClose],
+    [
+      createFieldMutation,
+      editFieldMutation,
+      field,
+      originalOptions,
+      methods,
+      companyId,
+      formVersionId,
+      fields,
+      onClose,
+    ],
   );
 
   return (
@@ -163,21 +226,15 @@ export default function FormTemplateFieldDialog({
           <TextareaField
             name="selectOptions"
             label="ตัวเลือก (ใส่บรรทัดละ 1 ตัวเลือก)"
-            placeholder="ปกติ&#10;ชำรุด&#10;ไม่สามารถตรวจสอบได้"
+            placeholder={`ปกติ\nชำรุด\nไม่สามารถตรวจสอบได้`}
             control={methods.control}
             rows={3}
             required
           />
         )}
 
-        <div className="flex items-center justify-between gap-4">
-          <InputField
-            name="sortOrder"
-            label="ลำดับคำถาม"
-            type="number"
-            control={methods.control}
-          />
-          <div className="pt-6">
+        <div className="flex items-center justify-end gap-4">
+          <div className="pt-1">
             <SwitchField
               name="isRequired"
               label="จำเป็นต้องตอบ (Required)"
@@ -185,14 +242,29 @@ export default function FormTemplateFieldDialog({
             />
           </div>
         </div>
+
+        {/* Show how many fields currently in this section */}
+        {!field && selectedSectionId && (
+          <p className="text-xs text-muted-foreground">
+            คำถามนี้จะถูกเพิ่มเป็นลำดับที่{' '}
+            {fields.filter((f) => f.formSectionId === selectedSectionId)
+              .length + 1}{' '}
+            ในหมวดหมู่นี้ (สามารถเรียงลำดับใหม่ได้ในหน้า Builder)
+          </p>
+        )}
       </FieldGroup>
 
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="outline" onPress={onClose}>
           ยกเลิก
         </Button>
-        <ButtonLoading type="submit" isLoading={createFieldMutation.isPending}>
-          เพิ่มคำถาม
+        <ButtonLoading
+          type="submit"
+          isLoading={
+            createFieldMutation.isPending || editFieldMutation.isPending
+          }
+        >
+          {field ? 'บันทึกการแก้ไข' : 'เพิ่มคำถาม'}
         </ButtonLoading>
       </div>
     </form>

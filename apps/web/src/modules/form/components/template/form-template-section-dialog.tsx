@@ -13,7 +13,6 @@ import { useFormSectionCreate } from '../../hooks/form-mutations';
 const formSectionSchema = z.object({
   title: z.string().min(1, 'กรุณาระบุหัวข้อหมวดหมู่'),
   description: z.string().optional(),
-  sortOrder: z.coerce.number().default(0),
 });
 
 type FormSectionValues = z.infer<typeof formSectionSchema>;
@@ -40,7 +39,6 @@ export default function FormTemplateSectionDialog({
     defaultValues: {
       title: '',
       description: '',
-      sortOrder: currentSectionsCount,
     },
   });
 
@@ -52,7 +50,7 @@ export default function FormTemplateSectionDialog({
           formVersionId,
           title: values.title,
           description: values.description || null,
-          sortOrder: values.sortOrder,
+          sortOrder: currentSectionsCount,
         },
         {
           onSuccess: () => {
@@ -61,7 +59,13 @@ export default function FormTemplateSectionDialog({
         },
       );
     },
-    [createSectionMutation, companyId, formVersionId, onClose],
+    [
+      createSectionMutation,
+      companyId,
+      formVersionId,
+      currentSectionsCount,
+      onClose,
+    ],
   );
 
   return (
@@ -84,13 +88,6 @@ export default function FormTemplateSectionDialog({
           placeholder="ระบุคำอธิบายย่อยของหมวดหมู่นี้ (ถ้ามี)"
           control={methods.control}
           rows={2}
-        />
-
-        <InputField
-          name="sortOrder"
-          label="ลำดับการแสดงผล"
-          type="number"
-          control={methods.control}
         />
       </FieldGroup>
 

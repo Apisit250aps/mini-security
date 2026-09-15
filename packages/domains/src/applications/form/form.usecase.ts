@@ -13,6 +13,7 @@ import type {
 } from '#entities/form';
 import type {
   CreateFormField,
+  EditFormField,
   CreateFormSection,
   CreateFormTemplate,
   SubmissionReviewAction,
@@ -105,6 +106,28 @@ export type ICreateFormFieldUseCase = BaseUseCase<
 export type IPublishFormVersionUseCase = BaseUseCase<
   IPublishFormVersionContext,
   FormVersion
+>;
+
+export type IReorderFormSectionsContext = ISecurityContext & {
+  formTemplateId: string;
+  formVersionId: string;
+  items: Array<{ id: string; sortOrder: number }>;
+};
+
+export type IReorderFormFieldsContext = ISecurityContext & {
+  formTemplateId: string;
+  formVersionId: string;
+  items: Array<{ id: string; sortOrder: number }>;
+};
+
+export type IReorderFormSectionsUseCase = BaseUseCase<
+  IReorderFormSectionsContext,
+  void
+>;
+
+export type IReorderFormFieldsUseCase = BaseUseCase<
+  IReorderFormFieldsContext,
+  void
 >;
 
 // ==========================================
@@ -203,4 +226,20 @@ export type IReviewFormSubmissionContext = ISecurityContext & {
 export type IReviewFormSubmissionUseCase = BaseUseCase<
   IReviewFormSubmissionContext,
   SubmissionReview
+>;
+
+export type IDeleteFormFieldContext = ISecurityContext & {
+  formTemplateId: string;
+  fieldId: string;
+};
+export type IEditFormFieldContext = IDeleteFormFieldContext & {
+  data: EditFormField;
+};
+export type IEditFormFieldUseCase = BaseUseCase<
+  IEditFormFieldContext,
+  FormField
+>;
+export type IDeleteFormFieldUseCase = BaseUseCase<
+  IDeleteFormFieldContext,
+  void
 >;

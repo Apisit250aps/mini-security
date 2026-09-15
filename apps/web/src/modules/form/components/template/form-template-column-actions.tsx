@@ -145,6 +145,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
           templateId={template.id}
           formVersionId={formVersionId}
           sections={detail.sections}
+          fields={detail.fields}
           onClose={() => ui.dialog.close()}
         />
       ),

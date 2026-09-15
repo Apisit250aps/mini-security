@@ -79,6 +79,33 @@ interface FormServices {
     | ApiBadRequestResponse
     | ApiUnauthorizedResponse;
 
+  @patch
+  @route("/templates/{id}/sections/reorder")
+  @summary("Reorder form sections")
+  reorderSections(@path id: string, @body body: ReorderFormItemsRequest):
+    | ApiOkResponse<null>
+    | ApiBadRequestResponse
+    | ApiNotFoundResponse
+    | ApiForbiddenResponse
+    | ApiUnauthorizedResponse;
+
+  @patch
+  @route("/templates/{id}/fields/reorder")
+  @summary("Reorder form fields")
+  reorderFields(@path id: string, @body body: ReorderFormItemsRequest):
+    | ApiOkResponse<null>
+    | ApiBadRequestResponse
+    | ApiNotFoundResponse
+    | ApiForbiddenResponse
+    | ApiUnauthorizedResponse;
+
+  @put
+  @route("/templates/{id}/fields/{fieldId}")
+  editField(@path id: string, @path fieldId: string, @body body: EditFormField): ApiOkResponse<FormField> | ApiBadRequestResponse | ApiNotFoundResponse | ApiForbiddenResponse | ApiUnauthorizedResponse;
+  @delete
+  @route("/templates/{id}/fields/{fieldId}")
+  deleteField(@path id: string, @path fieldId: string): ApiOkResponse<null> | ApiBadRequestResponse | ApiNotFoundResponse | ApiForbiddenResponse | ApiUnauthorizedResponse;
+
   // ─── Submissions ──────────────────────────────────────────────────────────
   @post
   @route("/submissions")

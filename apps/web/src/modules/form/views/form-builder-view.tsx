@@ -36,7 +36,12 @@ import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-c
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useFormTemplateQueries } from '../hooks/form-queries';
-import { useFormVersionPublish } from '../hooks/form-mutations';
+import {
+  useFormSectionReorder,
+  useFormFieldDelete,
+  useFormFieldReorder,
+  useFormVersionPublish,
+} from '../hooks/form-mutations';
 import { buildPageUrl, getErrorMessage } from '@/shared/utils';
 import type { FormFieldType } from '@repo/domains/schema/form';
 
@@ -45,6 +50,11 @@ import FormTemplateRolesDialog from '../components/template/form-template-roles-
 import FormTemplateSectionDialog from '../components/template/form-template-section-dialog';
 import FormTemplateFieldDialog from '../components/template/form-template-field-dialog';
 import DynamicFieldRenderer from '../components/fill/dynamic-field-renderer';
+
+import {
+  FormBuilderSortableList,
+  FormBuilderSortableItem,
+} from '../components/template/form-builder-sortable';
 
 interface FormBuilderViewProps {
   templateId: string;
@@ -62,6 +72,13 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
     templateId,
   );
 
+  const deleteField = useFormFieldDelete(templateId);
+  const sectionReorder = useFormSectionReorder(
+    activeCompanyId || '',
+    templateId,
+  );
+  const fieldReorder = useFormFieldReorder(activeCompanyId || '', templateId);
+
   const [activeTab, setActiveTab] = useState<'builder' | 'preview'>('builder');
   const [previewAnswers, setPreviewAnswers] = useState<Record<string, unknown>>(
     {},
@@ -77,9 +94,46 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
   const draftVersion = detail?.draftVersion;
   const activeVersion = detail?.activeVersion;
   const currentVersion = draftVersion ?? activeVersion;
-  const sections = detail?.sections || [];
+  const sections = [...(detail?.sections || [])].sort(
+    (a, b) => a.sortOrder - b.sortOrder,
+  );
   const fields = detail?.fields || [];
   const roles = detail?.roles || [];
+  const reorderDisabled =
+    !draftVersion ||
+    deleteField.isPending ||
+    publishMutation.isPending ||
+    sectionReorder.isPending ||
+    fieldReorder.isPending;
+
+  const handleEditField = (field: (typeof fields)[number]) => {
+    if (!activeCompanyId || !draftVersion) return;
+    ui.dialog.open({
+      title: 'แก้ไขคำถาม',
+      size: 'lg',
+      children: (
+        <FormTemplateFieldDialog
+          companyId={activeCompanyId}
+          templateId={templateId}
+          formVersionId={draftVersion.id}
+          sections={sections}
+          fields={fields}
+          field={field}
+          onClose={() => ui.dialog.close()}
+        />
+      ),
+    });
+  };
+  const handleDeleteField = (field: (typeof fields)[number]) => {
+    if (!draftVersion) return;
+    ui.alert.open({
+      title: 'ลบคำถาม',
+      description: `ต้องการลบคำถาม “${field.label}” ใช่หรือไม่?`,
+      confirmVariant: 'destructive',
+      onConfirm: () =>
+        deleteField.mutate(field.id, { onSuccess: () => ui.alert.close() }),
+    });
+  };
 
   // Dialog Handlers
   const handleEditInfo = useCallback(() => {
@@ -166,6 +220,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
             templateId={templateId}
             formVersionId={currentVersion.id}
             sections={sections}
+            fields={fields}
             defaultSectionId={defaultSectionId}
             onClose={() => ui.dialog.close()}
           />
@@ -178,6 +233,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
       templateId,
       currentVersion,
       sections,
+      fields,
       template?.name,
     ],
   );
@@ -296,7 +352,11 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
               size="sm"
               className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
               onPress={handlePublish}
-              isDisabled={publishMutation.isPending}
+              isDisabled={
+                publishMutation.isPending ||
+                sectionReorder.isPending ||
+                fieldReorder.isPending
+              }
             >
               <Sparkles className="w-4 h-4" />
               เผยแพร่แบบฟอร์ม (Publish)
@@ -456,146 +516,205 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
                 </Card>
               ) : (
                 <div className="flex flex-col gap-6">
-                  {sections.map((section, sIdx) => {
-                    const sectionFields = fields
-                      .filter((f) => f.formSectionId === section.id)
-                      .sort((a, b) => a.sortOrder - b.sortOrder);
+                  <FormBuilderSortableList
+                    items={sections}
+                    disabled={reorderDisabled}
+                    onReorder={(items) => {
+                      if (draftVersion)
+                        sectionReorder.mutate({
+                          formVersionId: draftVersion.id,
+                          items,
+                        });
+                    }}
+                  >
+                    {sections.map((section, sIdx) => {
+                      const sectionFields = fields
+                        .filter((f) => f.formSectionId === section.id)
+                        .sort((a, b) => a.sortOrder - b.sortOrder);
 
-                    return (
-                      <Card
-                        key={section.id}
-                        className="border-border/60 shadow-xs"
-                      >
-                        {/* Section Header */}
-                        <CardHeader className="py-4 bg-muted/20 border-b border-border/50">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary text-xs font-semibold">
-                                  {sIdx + 1}
-                                </span>
-                                <h3 className="text-base font-semibold">
-                                  {section.title}
-                                </h3>
-                                <Badge
-                                  variant="outline"
-                                  className="text-[11px] font-normal"
-                                >
-                                  {sectionFields.length} คำถาม
-                                </Badge>
-                              </div>
-                              {section.description && (
-                                <p className="text-xs text-muted-foreground mt-1 ml-8">
-                                  {section.description}
-                                </p>
-                              )}
-                            </div>
-
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="gap-1.5 text-xs self-start sm:self-auto"
-                              onPress={() => handleAddField(section.id)}
-                            >
-                              <Plus className="size-3.5" />
-                              เพิ่มคำถามในหมวดนี้
-                            </Button>
-                          </div>
-                        </CardHeader>
-
-                        {/* Fields inside Section */}
-                        <CardContent className="p-4">
-                          {sectionFields.length === 0 ? (
-                            <div className="py-6 text-center text-xs text-muted-foreground border border-dashed border-border/50 rounded-lg">
-                              ยังไม่มีคำถามในหมวดหมู่นี้ คลิก
-                              &quot;เพิ่มคำถามในหมวดนี้&quot; ด้านบน
-                            </div>
-                          ) : (
-                            <div className="flex flex-col gap-2.5">
-                              {sectionFields.map((field, fIdx) => {
-                                const selectConfig = field.config as {
-                                  options?: Array<{
-                                    label: string;
-                                    value: string;
-                                  }>;
-                                };
-                                const options = Array.isArray(
-                                  selectConfig?.options,
-                                )
-                                  ? selectConfig.options
-                                  : [];
-
-                                return (
-                                  <div
-                                    key={field.id}
-                                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-lg border border-border/50 bg-background/60 hover:bg-muted/20 transition-colors"
-                                  >
-                                    <div className="flex items-start gap-3">
-                                      <div className="flex size-8 items-center justify-center rounded-md bg-muted/60 shrink-0 mt-0.5">
-                                        {getFieldIcon(field.type)}
-                                      </div>
-                                      <div className="flex flex-col">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                          <span className="text-xs text-muted-foreground font-mono">
-                                            {sIdx + 1}.{fIdx + 1}
-                                          </span>
-                                          <span className="text-sm font-medium">
-                                            {field.label}
-                                          </span>
-                                          {field.isRequired && (
-                                            <Badge
-                                              variant="outline"
-                                              className="border-red-500/40 text-red-600 bg-red-50 dark:bg-red-950/30 text-[10px] px-1.5 py-0 h-4"
-                                            >
-                                              จำเป็น
-                                            </Badge>
-                                          )}
-                                        </div>
-
-                                        {field.description && (
-                                          <p className="text-xs text-muted-foreground mt-0.5">
-                                            {field.description}
-                                          </p>
-                                        )}
-
-                                        {/* Select Options Pill Badges */}
-                                        {field.type === 'SELECT' &&
-                                          options.length > 0 && (
-                                            <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                                              <span className="text-[11px] text-muted-foreground">
-                                                ตัวเลือก:
-                                              </span>
-                                              {options.map((opt) => (
-                                                <Badge
-                                                  key={opt.value}
-                                                  variant="secondary"
-                                                  className="text-[10px] px-1.5 py-0 font-normal"
-                                                >
-                                                  {opt.label}
-                                                </Badge>
-                                              ))}
-                                            </div>
-                                          )}
-                                      </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                                      <Badge
-                                        variant="secondary"
-                                        className="text-xs font-normal"
-                                      >
-                                        {getFieldTypeName(field.type)}
-                                      </Badge>
-                                    </div>
+                      return (
+                        <FormBuilderSortableItem
+                          key={section.id}
+                          id={section.id}
+                          label={section.title}
+                          disabled={reorderDisabled}
+                        >
+                          <Card className="border-border/60 shadow-xs">
+                            {/* Section Header */}
+                            <CardHeader className="py-4 bg-muted/20 border-b border-border/50">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary text-xs font-semibold">
+                                      {sIdx + 1}
+                                    </span>
+                                    <h3 className="text-base font-semibold">
+                                      {section.title}
+                                    </h3>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-[11px] font-normal"
+                                    >
+                                      {sectionFields.length} คำถาม
+                                    </Badge>
                                   </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                                  {section.description && (
+                                    <p className="text-xs text-muted-foreground mt-1 ml-8">
+                                      {section.description}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="gap-1.5 text-xs self-start sm:self-auto"
+                                  onPress={() => handleAddField(section.id)}
+                                >
+                                  <Plus className="size-3.5" />
+                                  เพิ่มคำถามในหมวดนี้
+                                </Button>
+                              </div>
+                            </CardHeader>
+
+                            {/* Fields inside Section */}
+                            <CardContent className="p-4">
+                              {sectionFields.length === 0 ? (
+                                <div className="py-6 text-center text-xs text-muted-foreground border border-dashed border-border/50 rounded-lg">
+                                  ยังไม่มีคำถามในหมวดหมู่นี้ คลิก
+                                  &quot;เพิ่มคำถามในหมวดนี้&quot; ด้านบน
+                                </div>
+                              ) : (
+                                <div className="flex flex-col gap-2.5">
+                                  <FormBuilderSortableList
+                                    items={sectionFields}
+                                    disabled={reorderDisabled}
+                                    onReorder={(items) => {
+                                      if (draftVersion)
+                                        fieldReorder.mutate({
+                                          formVersionId: draftVersion.id,
+                                          items,
+                                        });
+                                    }}
+                                  >
+                                    {sectionFields.map((field, fIdx) => {
+                                      const selectConfig = field.config as {
+                                        options?: Array<{
+                                          label: string;
+                                          value: string;
+                                        }>;
+                                      };
+                                      const options = Array.isArray(
+                                        selectConfig?.options,
+                                      )
+                                        ? selectConfig.options
+                                        : [];
+
+                                      return (
+                                        <FormBuilderSortableItem
+                                          key={field.id}
+                                          id={field.id}
+                                          label={field.label}
+                                          disabled={reorderDisabled}
+                                        >
+                                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-lg border border-border/50 bg-background/60 hover:bg-muted/20 transition-colors">
+                                            <div className="flex items-start gap-3">
+                                              <div className="flex size-8 items-center justify-center rounded-md bg-muted/60 shrink-0 mt-0.5">
+                                                {getFieldIcon(field.type)}
+                                              </div>
+                                              <div className="flex flex-col">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                  <span className="text-xs text-muted-foreground font-mono">
+                                                    {sIdx + 1}.{fIdx + 1}
+                                                  </span>
+                                                  <span className="text-sm font-medium">
+                                                    {field.label}
+                                                  </span>
+                                                  {field.isRequired && (
+                                                    <Badge
+                                                      variant="outline"
+                                                      className="border-red-500/40 text-red-600 bg-red-50 dark:bg-red-950/30 text-[10px] px-1.5 py-0 h-4"
+                                                    >
+                                                      จำเป็น
+                                                    </Badge>
+                                                  )}
+                                                </div>
+
+                                                {field.description && (
+                                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                                    {field.description}
+                                                  </p>
+                                                )}
+
+                                                {/* Select Options Pill Badges */}
+                                                {field.type === 'SELECT' &&
+                                                  options.length > 0 && (
+                                                    <div className="flex flex-wrap items-center gap-1 mt-1.5">
+                                                      <span className="text-[11px] text-muted-foreground">
+                                                        ตัวเลือก:
+                                                      </span>
+                                                      {options.map((opt) => (
+                                                        <Badge
+                                                          key={opt.value}
+                                                          variant="secondary"
+                                                          className="text-[10px] px-1.5 py-0 font-normal"
+                                                        >
+                                                          {opt.label}
+                                                        </Badge>
+                                                      ))}
+                                                    </div>
+                                                  )}
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                                              {draftVersion && (
+                                                <>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    isDisabled={reorderDisabled}
+                                                    onPress={() =>
+                                                      handleEditField(field)
+                                                    }
+                                                    aria-label={`แก้ไข ${field.label}`}
+                                                  >
+                                                    แก้ไข
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    isDisabled={reorderDisabled}
+                                                    onPress={() =>
+                                                      handleDeleteField(field)
+                                                    }
+                                                    aria-label={`ลบ ${field.label}`}
+                                                  >
+                                                    ลบ
+                                                  </Button>
+                                                </>
+                                              )}
+
+                                              <Badge
+                                                variant="secondary"
+                                                className="text-xs font-normal"
+                                              >
+                                                {getFieldTypeName(field.type)}
+                                              </Badge>
+                                            </div>
+                                          </div>
+                                        </FormBuilderSortableItem>
+                                      );
+                                    })}
+                                  </FormBuilderSortableList>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </FormBuilderSortableItem>
+                      );
+                    })}
+                  </FormBuilderSortableList>
 
                   {/* Add Section Button */}
                   <div className="flex justify-center pt-2">

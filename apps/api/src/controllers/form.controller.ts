@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import {
   AssignFormRolesUseCase,
+  EditFormFieldUseCase,
+  DeleteFormFieldUseCase,
   CloneFormSubmissionUseCase,
   CreateFormFieldUseCase,
   CreateFormSectionUseCase,
@@ -10,6 +12,8 @@ import {
   ListFormSubmissionsUseCase,
   ListFormTemplatesByCompanyUseCase,
   PublishFormVersionUseCase,
+  ReorderFormFieldUseCase,
+  ReorderFormSectionUseCase,
   ReviewFormSubmissionUseCase,
   SaveFormSubmissionDraftUseCase,
   StartFormSubmissionUseCase,
@@ -18,8 +22,10 @@ import {
 } from '@repo/applications';
 import {
   createFormFieldSchema,
+  editFormFieldSchema,
   createFormSectionSchema,
   createFormTemplateSchema,
+  reorderFormItemsSchema,
   updateFormTemplateSchema,
 } from '@repo/domains/schema/form';
 import Controller from './base.controller';
@@ -82,7 +88,11 @@ export class FormController extends Controller {
     private readonly assignFormRolesUseCase: AssignFormRolesUseCase,
     private readonly createFormSectionUseCase: CreateFormSectionUseCase,
     private readonly createFormFieldUseCase: CreateFormFieldUseCase,
+    private readonly editFormFieldUseCase: EditFormFieldUseCase,
+    private readonly deleteFormFieldUseCase: DeleteFormFieldUseCase,
     private readonly publishFormVersionUseCase: PublishFormVersionUseCase,
+    private readonly reorderFormSectionUseCase: ReorderFormSectionUseCase,
+    private readonly reorderFormFieldUseCase: ReorderFormFieldUseCase,
     private readonly startFormSubmissionUseCase: StartFormSubmissionUseCase,
     private readonly saveFormSubmissionDraftUseCase: SaveFormSubmissionDraftUseCase,
     private readonly submitFormSubmissionUseCase: SubmitFormSubmissionUseCase,
@@ -185,6 +195,35 @@ export class FormController extends Controller {
     },
   );
 
+  public editField = this.validator(
+    {
+      params: z.object({ id: z.string().uuid(), fieldId: z.string().uuid() }),
+      body: editFormFieldSchema,
+    },
+    async (c) => {
+      const { id, fieldId } = c.get('params');
+      const field = await this.editFormFieldUseCase.execute({
+        ...this.securityContext(c),
+        formTemplateId: id,
+        fieldId,
+        data: c.get('body'),
+      });
+      return this.success(c, 'Form field updated successfully', field);
+    },
+  );
+  public deleteField = this.validator(
+    { params: z.object({ id: z.string().uuid(), fieldId: z.string().uuid() }) },
+    async (c) => {
+      const { id, fieldId } = c.get('params');
+      await this.deleteFormFieldUseCase.execute({
+        ...this.securityContext(c),
+        formTemplateId: id,
+        fieldId,
+      });
+      return this.success(c, 'Form field deleted successfully', null);
+    },
+  );
+
   public publishVersion = this.validator(
     { params: idParamSchema, body: publishBodySchema },
     async (c) => {
@@ -196,6 +235,36 @@ export class FormController extends Controller {
         memberId: body.memberId,
       });
       return this.success(c, 'Form published successfully', version);
+    },
+  );
+
+  public reorderSections = this.validator(
+    { params: idParamSchema, body: reorderFormItemsSchema },
+    async (c) => {
+      const { id } = c.get('params');
+      const body = c.get('body');
+      await this.reorderFormSectionUseCase.execute({
+        ...this.securityContext(c),
+        formTemplateId: id,
+        formVersionId: body.formVersionId,
+        items: body.items,
+      });
+      return this.success(c, 'Sections reordered successfully', null);
+    },
+  );
+
+  public reorderFields = this.validator(
+    { params: idParamSchema, body: reorderFormItemsSchema },
+    async (c) => {
+      const { id } = c.get('params');
+      const body = c.get('body');
+      await this.reorderFormFieldUseCase.execute({
+        ...this.securityContext(c),
+        formTemplateId: id,
+        formVersionId: body.formVersionId,
+        items: body.items,
+      });
+      return this.success(c, 'Fields reordered successfully', null);
     },
   );
 

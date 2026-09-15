@@ -1,4 +1,14 @@
 import {
+  formServicesEditField,
+  formServicesDeleteField,
+  type EditFormField,
+} from '@repo/client';
+import {
+  formServicesReorderSections,
+  formServicesReorderFields,
+} from '@repo/client';
+import type { FormTemplateDetail, ReorderFormItemsRequest } from '@repo/client';
+import {
   formServicesAssignRoles,
   formServicesClone,
   formServicesCreateField,
@@ -340,5 +350,122 @@ export function useFormSubmissionReview(
         ),
       );
     },
+  });
+}
+
+function useFormItemsReorder(
+  companyId: string,
+  templateId: string,
+  kind: 'sections' | 'fields',
+) {
+  const queryClient = useQueryClient();
+  const queryKey = formKeys.template(templateId);
+  return useMutation({
+    mutationKey: ['FORM', 'REORDER', templateId],
+    mutationFn: async (body: ReorderFormItemsRequest) => {
+      const service =
+        kind === 'sections'
+          ? formServicesReorderSections
+          : formServicesReorderFields;
+      return (
+        await service({ path: { id: templateId }, body, throwOnError: true })
+      ).data;
+    },
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<FormTemplateDetail | null>(
+        queryKey,
+      );
+      const orders = new Map(
+        body.items.map((item) => [item.id, item.sortOrder]),
+      );
+      queryClient.setQueryData<FormTemplateDetail | null>(
+        queryKey,
+        (detail) => {
+          if (!detail || detail.draftVersion?.id !== body.formVersionId)
+            return detail;
+          return {
+            ...detail,
+            [kind]: detail[kind]
+              .map((item) => ({
+                ...item,
+                sortOrder: orders.get(item.id) ?? item.sortOrder,
+              }))
+              .sort((a, b) => a.sortOrder - b.sortOrder),
+          };
+        },
+      );
+      return { previous };
+    },
+    onError: (error, _body, context) => {
+      if (context?.previous !== undefined)
+        queryClient.setQueryData(queryKey, context.previous);
+      toast.error(
+        getErrorMessage(error, 'บันทึกลำดับไม่สำเร็จ คืนค่าลำดับเดิมแล้ว'),
+      );
+    },
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.templates(companyId),
+        }),
+      ]);
+    },
+  });
+}
+
+export function useFormSectionReorder(companyId: string, templateId: string) {
+  return useFormItemsReorder(companyId, templateId, 'sections');
+}
+
+export function useFormFieldReorder(companyId: string, templateId: string) {
+  return useFormItemsReorder(companyId, templateId, 'fields');
+}
+
+export function useFormFieldEdit(templateId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      fieldId,
+      data,
+    }: {
+      fieldId: string;
+      data: EditFormField;
+    }) =>
+      (
+        await formServicesEditField({
+          path: { id: templateId, fieldId },
+          body: data,
+          throwOnError: true,
+        })
+      ).data,
+    onSuccess: async () => {
+      toast.success('แก้ไขคำถามสำเร็จ');
+      await queryClient.invalidateQueries({
+        queryKey: formKeys.template(templateId),
+      });
+    },
+    onError: (error) =>
+      toast.error(getErrorMessage(error, 'แก้ไขคำถามไม่สำเร็จ')),
+  });
+}
+export function useFormFieldDelete(templateId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (fieldId: string) =>
+      (
+        await formServicesDeleteField({
+          path: { id: templateId, fieldId },
+          throwOnError: true,
+        })
+      ).data,
+    onSuccess: async () => {
+      toast.success('ลบคำถามสำเร็จ');
+      await queryClient.invalidateQueries({
+        queryKey: formKeys.template(templateId),
+      });
+    },
+    onError: (error) => toast.error(getErrorMessage(error, 'ลบคำถามไม่สำเร็จ')),
   });
 }

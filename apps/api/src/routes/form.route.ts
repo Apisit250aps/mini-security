@@ -3,6 +3,8 @@ import {
   assignFormRolesUseCase,
   cloneFormSubmissionUseCase,
   createFormFieldUseCase,
+  editFormFieldUseCase,
+  deleteFormFieldUseCase,
   createFormSectionUseCase,
   createFormTemplateUseCase,
   getFormSubmissionUseCase,
@@ -10,6 +12,8 @@ import {
   listFormSubmissionsUseCase,
   listFormTemplatesByCompanyUseCase,
   publishFormVersionUseCase,
+  reorderFormFieldUseCase,
+  reorderFormSectionUseCase,
   reviewFormSubmissionUseCase,
   saveFormSubmissionDraftUseCase,
   startFormSubmissionUseCase,
@@ -27,7 +31,11 @@ const formController = new FormController(
   assignFormRolesUseCase,
   createFormSectionUseCase,
   createFormFieldUseCase,
+  editFormFieldUseCase,
+  deleteFormFieldUseCase,
   publishFormVersionUseCase,
+  reorderFormSectionUseCase,
+  reorderFormFieldUseCase,
   startFormSubmissionUseCase,
   saveFormSubmissionDraftUseCase,
   submitFormSubmissionUseCase,
@@ -53,6 +61,14 @@ formRoutes.post('/templates/:id/roles', formController.assignRoles);
 formRoutes.post('/templates/:id/sections', formController.createSection);
 formRoutes.post('/templates/:id/fields', formController.createField);
 formRoutes.post('/templates/:id/publish', formController.publishVersion);
+formRoutes.patch(
+  '/templates/:id/sections/reorder',
+  formController.reorderSections,
+);
+formRoutes.patch('/templates/:id/fields/reorder', formController.reorderFields);
+
+formRoutes.put('/templates/:id/fields/:fieldId', formController.editField);
+formRoutes.delete('/templates/:id/fields/:fieldId', formController.deleteField);
 
 // --- Form Submissions ---
 formRoutes.post('/submissions', formController.startSubmission);

@@ -2509,6 +2509,187 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateFormField'
+  /forms/templates/{id}/fields/reorder:
+    patch:
+      operationId: FormServices_reorderFields
+      summary: Reorder form fields
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: 'null'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '403':
+          description: 403 Forbidden — FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderFormItemsRequest'
+  /forms/templates/{id}/fields/{fieldId}:
+    put:
+      operationId: FormServices_editField
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/FormField'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '403':
+          description: 403 Forbidden — FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditFormField'
+    delete:
+      operationId: FormServices_deleteField
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: 'null'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '403':
+          description: 403 Forbidden — FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
   /forms/templates/{id}/publish:
     post:
       operationId: FormServices_publishVersion
@@ -2673,6 +2854,66 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateFormSection'
+  /forms/templates/{id}/sections/reorder:
+    patch:
+      operationId: FormServices_reorderSections
+      summary: Reorder form sections
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: 'null'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '403':
+          description: 403 Forbidden — FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderFormItemsRequest'
   /leaves/companies/{companyId}/requests:
     get:
       operationId: LeaveServices_getCompanyRequests
@@ -4413,14 +4654,6 @@ components:
         error:
           type: string
       description: Error response returned on failures
-    ApiForbiddenResponse:
-      type: object
-      required:
-        - body
-      properties:
-        body:
-          $ref: '#/components/schemas/ApiErrorResponse'
-      description: 403 Forbidden — FORBIDDEN
     ApiInternalErrorResponse:
       type: object
       required:
@@ -5287,6 +5520,31 @@ components:
       enum:
         - APPROVE
         - REJECT
+    EditFormField:
+      type: object
+      required:
+        - formSectionId
+        - type
+        - label
+        - isRequired
+        - config
+      properties:
+        formSectionId:
+          type: string
+        type:
+          $ref: '#/components/schemas/Domain.Entity.FormFieldType'
+        label:
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isRequired:
+          type: boolean
+        config:
+          type: object
+          unevaluatedProperties: {}
+      description: The template for picking properties.
     Feature:
       type: object
       required:
@@ -5442,6 +5700,18 @@ components:
         config:
           type: object
           unevaluatedProperties: {}
+    FormReorderItem:
+      type: object
+      required:
+        - id
+        - sortOrder
+      properties:
+        id:
+          type: string
+        sortOrder:
+          type: integer
+          format: int32
+          minimum: 0
     FormSection:
       type: object
       required:
@@ -5938,6 +6208,19 @@ components:
       properties:
         memberId:
           type: string
+    ReorderFormItemsRequest:
+      type: object
+      required:
+        - formVersionId
+        - items
+      properties:
+        formVersionId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormReorderItem'
+          minItems: 1
     ReviewFormSubmissionRequest:
       type: object
       required:

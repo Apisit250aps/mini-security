@@ -265,6 +265,19 @@ export class FormSectionRepository
       .delete(formSection)
       .where(eq(formSection.formVersionId, versionId));
   }
+
+  async reorderItems(
+    items: Array<{ id: string; sortOrder: number }>,
+  ): Promise<void> {
+    await Promise.all(
+      items.map(({ id, sortOrder }) =>
+        this.db
+          .update(formSection)
+          .set({ sortOrder, updatedAt: new Date() })
+          .where(eq(formSection.id, id)),
+      ),
+    );
+  }
 }
 
 // ==========================================
@@ -301,6 +314,19 @@ export class FormFieldRepository
     await this.db
       .delete(formField)
       .where(eq(formField.formVersionId, versionId));
+  }
+
+  async reorderItems(
+    items: Array<{ id: string; sortOrder: number }>,
+  ): Promise<void> {
+    await Promise.all(
+      items.map(({ id, sortOrder }) =>
+        this.db
+          .update(formField)
+          .set({ sortOrder, updatedAt: new Date() })
+          .where(eq(formField.id, id)),
+      ),
+    );
   }
 }
 

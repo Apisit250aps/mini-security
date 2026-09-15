@@ -74,6 +74,7 @@ export interface IFormSectionRepository
   extends BaseRepository<FormSection, CreateFormSection, UpdateFormSection> {
   findByVersionId(versionId: string): Promise<FormSection[]>;
   deleteByVersionId(versionId: string): Promise<void>;
+  reorderItems(items: Array<{ id: string; sortOrder: number }>): Promise<void>;
 }
 
 export interface IFormFieldRepository
@@ -81,6 +82,7 @@ export interface IFormFieldRepository
   findByVersionId(versionId: string): Promise<FormField[]>;
   findBySectionId(sectionId: string): Promise<FormField[]>;
   deleteByVersionId(versionId: string): Promise<void>;
+  reorderItems(items: Array<{ id: string; sortOrder: number }>): Promise<void>;
 }
 
 export interface IFormSubmissionRepository

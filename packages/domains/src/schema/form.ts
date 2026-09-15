@@ -189,7 +189,6 @@ export type UpdateFormField = z.infer<typeof updateFormFieldSchema>;
 // 6. Form Submission Schema
 // ==========================================
 
-
 export const formSubmissionSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
@@ -204,13 +203,11 @@ export const formSubmissionSchema = BaseEntity({
   supersedesSubmissionId: UUIDField({ required: false, nullable: true }),
   submittedAt: DateField({ required: false, nullable: true }),
 })
-  .refine(
-    (data) => (data.submittedAt == null) === (data.submittedBy == null),
-    {
-      message: 'submittedAt and submittedBy must either both be set or both be null',
-      path: ['submittedAt'],
-    },
-  )
+  .refine((data) => (data.submittedAt == null) === (data.submittedBy == null), {
+    message:
+      'submittedAt and submittedBy must either both be set or both be null',
+    path: ['submittedAt'],
+  })
   .refine(
     (data) =>
       data.submittedAt == null ||
@@ -251,13 +248,11 @@ export const createFormSubmissionSchema = BaseEntity({
     createdAt: true,
     updatedAt: true,
   })
-  .refine(
-    (data) => (data.submittedAt == null) === (data.submittedBy == null),
-    {
-      message: 'submittedAt and submittedBy must either both be set or both be null',
-      path: ['submittedAt'],
-    },
-  );
+  .refine((data) => (data.submittedAt == null) === (data.submittedBy == null), {
+    message:
+      'submittedAt and submittedBy must either both be set or both be null',
+    path: ['submittedAt'],
+  });
 
 export const updateFormSubmissionSchema = z
   .object({
@@ -373,7 +368,8 @@ const submissionReviewBaseSchema = AppendOnlyBaseEntity({
 const hasRequiredRejectionNote = (
   data: Pick<z.infer<typeof submissionReviewBaseSchema>, 'action' | 'note'>,
 ) =>
-  data.action !== 'REJECT' || (data.note != null && data.note.trim().length > 0);
+  data.action !== 'REJECT' ||
+  (data.note != null && data.note.trim().length > 0);
 
 const rejectionNoteError = {
   message: 'Rejection note is required when action is REJECT',
@@ -393,3 +389,45 @@ export type SubmissionReviewEntity = z.infer<typeof submissionReviewSchema>;
 export type CreateSubmissionReview = z.infer<
   typeof createSubmissionReviewSchema
 >;
+
+// ==========================================
+// Reorder Schema (shared for sections & fields)
+// ==========================================
+
+export const reorderFormItemsSchema = z.object({
+  formVersionId: z.string().uuid(),
+  items: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        sortOrder: z.number().int().min(0),
+      }),
+    )
+    .min(1)
+    .refine(
+      (items) => new Set(items.map((item) => item.id)).size === items.length,
+      'Duplicate item IDs',
+    )
+    .refine((items) => {
+      const orders = new Set(items.map((item) => item.sortOrder));
+      return (
+        orders.size === items.length &&
+        items.every((item) => item.sortOrder < items.length)
+      );
+    }, 'Sort orders must be unique and consecutive from zero'),
+});
+
+export type ReorderFormItems = z.infer<typeof reorderFormItemsSchema>;
+
+// Editable draft field facts; ownership and ordering are controlled by the server.
+export const editFormFieldSchema = formFieldSchema
+  .pick({
+    formSectionId: true,
+    type: true,
+    label: true,
+    description: true,
+    isRequired: true,
+    config: true,
+  })
+  .strict();
+export type EditFormField = z.infer<typeof editFormFieldSchema>;

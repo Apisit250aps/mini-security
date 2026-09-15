@@ -19,13 +19,6 @@ export type ApiErrorResponse = {
 };
 
 /**
- * 403 Forbidden — FORBIDDEN
- */
-export type ApiForbiddenResponse = {
-    body: ApiErrorResponse;
-};
-
-/**
  * 500 Internal Server Error — INTERNAL_ERROR
  */
 export type ApiInternalErrorResponse = {
@@ -400,6 +393,20 @@ export type DomainEntityRoleType = 'SUPER_ADMIN' | 'OWNER' | 'ADMIN' | 'MEMBER' 
 
 export type DomainEntitySubmissionReviewAction = 'APPROVE' | 'REJECT';
 
+/**
+ * The template for picking properties.
+ */
+export type EditFormField = {
+    formSectionId: string;
+    type: DomainEntityFormFieldType;
+    label: string;
+    description?: string | null;
+    isRequired: boolean;
+    config: {
+        [key: string]: unknown;
+    };
+};
+
 export type Feature = {
     id: string;
     createdAt: Date;
@@ -456,6 +463,11 @@ export type FormField = {
     config: {
         [key: string]: unknown;
     };
+};
+
+export type FormReorderItem = {
+    id: string;
+    sortOrder: number;
 };
 
 export type FormSection = {
@@ -619,6 +631,11 @@ export type Permission = {
 
 export type PublishFormVersionRequest = {
     memberId: string;
+};
+
+export type ReorderFormItemsRequest = {
+    formVersionId: string;
+    items: Array<FormReorderItem>;
 };
 
 export type ReviewFormSubmissionRequest = {
@@ -2852,6 +2869,137 @@ export type FormServicesCreateFieldResponses = {
 
 export type FormServicesCreateFieldResponse = FormServicesCreateFieldResponses[keyof FormServicesCreateFieldResponses];
 
+export type FormServicesReorderFieldsData = {
+    body: ReorderFormItemsRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/templates/{id}/fields/reorder';
+};
+
+export type FormServicesReorderFieldsErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 403 Forbidden — FORBIDDEN
+     */
+    403: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesReorderFieldsError = FormServicesReorderFieldsErrors[keyof FormServicesReorderFieldsErrors];
+
+export type FormServicesReorderFieldsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: null;
+    };
+};
+
+export type FormServicesReorderFieldsResponse = FormServicesReorderFieldsResponses[keyof FormServicesReorderFieldsResponses];
+
+export type FormServicesDeleteFieldData = {
+    body?: never;
+    path: {
+        id: string;
+        fieldId: string;
+    };
+    query?: never;
+    url: '/forms/templates/{id}/fields/{fieldId}';
+};
+
+export type FormServicesDeleteFieldErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 403 Forbidden — FORBIDDEN
+     */
+    403: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesDeleteFieldError = FormServicesDeleteFieldErrors[keyof FormServicesDeleteFieldErrors];
+
+export type FormServicesDeleteFieldResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: null;
+    };
+};
+
+export type FormServicesDeleteFieldResponse = FormServicesDeleteFieldResponses[keyof FormServicesDeleteFieldResponses];
+
+export type FormServicesEditFieldData = {
+    body: EditFormField;
+    path: {
+        id: string;
+        fieldId: string;
+    };
+    query?: never;
+    url: '/forms/templates/{id}/fields/{fieldId}';
+};
+
+export type FormServicesEditFieldErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 403 Forbidden — FORBIDDEN
+     */
+    403: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesEditFieldError = FormServicesEditFieldErrors[keyof FormServicesEditFieldErrors];
+
+export type FormServicesEditFieldResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: FormField;
+    };
+};
+
+export type FormServicesEditFieldResponse = FormServicesEditFieldResponses[keyof FormServicesEditFieldResponses];
+
 export type FormServicesPublishVersionData = {
     body: PublishFormVersionRequest;
     path: {
@@ -2968,6 +3116,49 @@ export type FormServicesCreateSectionResponses = {
 };
 
 export type FormServicesCreateSectionResponse = FormServicesCreateSectionResponses[keyof FormServicesCreateSectionResponses];
+
+export type FormServicesReorderSectionsData = {
+    body: ReorderFormItemsRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/templates/{id}/sections/reorder';
+};
+
+export type FormServicesReorderSectionsErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 403 Forbidden — FORBIDDEN
+     */
+    403: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesReorderSectionsError = FormServicesReorderSectionsErrors[keyof FormServicesReorderSectionsErrors];
+
+export type FormServicesReorderSectionsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: null;
+    };
+};
+
+export type FormServicesReorderSectionsResponse = FormServicesReorderSectionsResponses[keyof FormServicesReorderSectionsResponses];
 
 export type LeaveServicesGetCompanyRequestsData = {
     body?: never;

@@ -1,6 +1,8 @@
 import { unitOfWork } from '../../unit-of-work';
 import {
   AssignFormRolesUseCase,
+  EditFormFieldUseCase,
+  DeleteFormFieldUseCase,
   CloneFormSubmissionUseCase,
   CreateFormFieldUseCase,
   CreateFormSectionUseCase,
@@ -10,6 +12,8 @@ import {
   ListFormSubmissionsUseCase,
   ListFormTemplatesByCompanyUseCase,
   PublishFormVersionUseCase,
+  ReorderFormFieldUseCase,
+  ReorderFormSectionUseCase,
   ReviewFormSubmissionUseCase,
   SaveFormSubmissionDraftUseCase,
   StartFormSubmissionUseCase,
@@ -83,6 +87,18 @@ export const publishFormVersionUseCase = new PublishFormVersionUseCase(
   formFieldRepository,
 );
 
+export const reorderFormSectionUseCase = new ReorderFormSectionUseCase(
+  unitOfWork,
+  formVersionRepository,
+  formSectionRepository,
+);
+
+export const reorderFormFieldUseCase = new ReorderFormFieldUseCase(
+  unitOfWork,
+  formVersionRepository,
+  formFieldRepository,
+);
+
 // ==========================================
 // Submission Use Cases
 // ==========================================
@@ -149,4 +165,16 @@ export const reviewFormSubmissionUseCase = new ReviewFormSubmissionUseCase(
   formSubmissionContributorRepository,
   companyMemberRepository,
   roleRepository,
+);
+
+export const editFormFieldUseCase = new EditFormFieldUseCase(
+  unitOfWork,
+  formVersionRepository,
+  formFieldRepository,
+  formSectionRepository,
+);
+export const deleteFormFieldUseCase = new DeleteFormFieldUseCase(
+  unitOfWork,
+  formVersionRepository,
+  formFieldRepository,
 );
