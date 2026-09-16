@@ -22,8 +22,8 @@ import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import {
-  useCompanyFormTemplatesQueries,
   useFormSubmissionsQueries,
+  useMyAssignmentsQueries,
 } from '../hooks/form-queries';
 import { useFormSubmissionStart } from '../hooks/form-mutations';
 import { getErrorMessage } from '@/shared/utils';
@@ -41,12 +41,6 @@ export default function FormSubmissionsView() {
 
   const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
   const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
-  const templatesQuery = useCompanyFormTemplatesQueries(activeCompanyId || '');
-  const submissionsQuery = useFormSubmissionsQueries({
-    companyId: activeCompanyId || '',
-  });
-
-  const startMutation = useFormSubmissionStart(activeCompanyId || '');
 
   const currentMember = membersQuery.data?.find(
     (m) => m.userId === session?.user.id && m.isActive,
@@ -55,9 +49,17 @@ export default function FormSubmissionsView() {
   const roles = rolesQuery.data || [];
   const currentRole = roles.find((r) => r.id === currentRoleId);
 
-  const activeTemplates = useMemo(() => {
-    return (templatesQuery.data || []).filter((t) => t.isActive);
-  }, [templatesQuery.data]);
+  const assignmentsQuery = useMyAssignmentsQueries({
+    companyId: activeCompanyId || '',
+    memberId: currentMember?.id || '',
+  });
+  const myAssignments = assignmentsQuery.data || [];
+
+  const submissionsQuery = useFormSubmissionsQueries({
+    companyId: activeCompanyId || '',
+  });
+
+  const startMutation = useFormSubmissionStart(activeCompanyId || '');
 
   const submissions = useMemo(
     () => submissionsQuery.data || [],
@@ -72,21 +74,21 @@ export default function FormSubmissionsView() {
     [submissions],
   );
 
-  // Find active shared drafts per template for current role
-  const activeDraftsByTemplate = useMemo(() => {
+  // Find active shared drafts per assignment
+  const activeDraftsByAssignment = useMemo(() => {
     const map = new Map<string, FormSubmission>();
-    if (!submissionsQuery.data || !currentRoleId) return map;
+    if (!submissionsQuery.data) return map;
 
     for (const sub of submissionsQuery.data) {
-      if (sub.assignmentId === currentRoleId && !sub.submittedAt) {
+      if (!sub.submittedAt && sub.assignmentId) {
         map.set(sub.assignmentId, sub);
       }
     }
     return map;
-  }, [submissionsQuery.data, currentRoleId]);
+  }, [submissionsQuery.data]);
 
   const handleStartOrJoin = useCallback(
-    (templateId: string) => {
+    (assignmentId: string) => {
       if (!currentMember || !activeCompanyId) {
         toast.error('ไม่พบข้อมูลสมาชิกองค์กรของคุณ');
         return;
@@ -94,7 +96,7 @@ export default function FormSubmissionsView() {
 
       startMutation.mutate(
         {
-          assignmentId: templateId,
+          assignmentId,
         },
         {
           onSuccess: (res) => {
@@ -107,7 +109,7 @@ export default function FormSubmissionsView() {
             toast.error(
               getErrorMessage(
                 err,
-                'ไม่สามารถเปิดหรือสร้างแบบฟอร์มสำหรับบทบาทของคุณได้',
+                'ไม่สามารถเปิดหรือสร้างแบบฟอร์มสำหรับงานนี้ได้',
               ),
             );
           },
@@ -121,7 +123,7 @@ export default function FormSubmissionsView() {
     isCompanyLoading ||
     !activeCompanyId ||
     membersQuery.isLoading ||
-    templatesQuery.isLoading;
+    assignmentsQuery.isLoading;
 
   return (
     <PageLayout
@@ -133,10 +135,10 @@ export default function FormSubmissionsView() {
         {/* Metric Cards Grid */}
         <DashboardStatsGrid columns={4}>
           <MetricCard
-            title="แบบฟอร์มพร้อมตรวจ"
-            value={`${activeTemplates.length} ฟอร์ม`}
+            title="แบบฟอร์มที่ต้องตรวจ"
+            value={`${myAssignments.length} งาน`}
             icon={ClipboardCheck}
-            description="ฟอร์มที่เปิดให้เข้าบันทึกตามกะ"
+            description="แบบฟอร์มที่ได้รับมอบหมายตามรอบงาน"
           />
           <MetricCard
             title="ส่งผลตรวจแล้ว"
@@ -178,8 +180,8 @@ export default function FormSubmissionsView() {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                รายการแบบฟอร์มที่เปิดใช้งานตามบทบาทของคุณ
-                สามารถเลือกแบบฟอร์มเพื่อเริ่มหรือบันทึกข้อมูลต่อได้ทันที
+                รายการแบบฟอร์มที่ได้รับมอบหมายตามรอบงานของบทบาทหรือตัวคุณ
+                สามารถเลือกงานเพื่อเริ่มหรือบันทึกข้อมูลต่อได้ทันที
               </p>
             </div>
           </div>
@@ -193,7 +195,7 @@ export default function FormSubmissionsView() {
               onPress={() => setActiveTab('forms')}
             >
               <ClipboardCheck className="size-3.5" />
-              แบบฟอร์มที่ต้องตรวจ ({activeTemplates.length})
+              แบบฟอร์มที่ต้องตรวจ ({myAssignments.length})
             </Button>
             <Button
               variant={activeTab === 'history' ? 'default' : 'ghost'}
@@ -218,20 +220,20 @@ export default function FormSubmissionsView() {
                 </h2>
               </div>
               <span className="text-xs text-muted-foreground">
-                เลือกแบบฟอร์มเพื่อบันทึกข้อมูล
+                เลือกแบบฟอร์มที่ได้รับมอบหมายเพื่อเริ่มหรือบันทึกข้อมูลต่อ
               </span>
             </div>
 
             <ActiveFormTable
-              templates={activeTemplates}
-              activeDraftsByTemplate={activeDraftsByTemplate}
+              assignments={myAssignments}
+              activeDraftsByAssignment={activeDraftsByAssignment}
               onStartOrJoin={handleStartOrJoin}
-              pendingTemplateId={
+              pendingAssignmentId={
                 startMutation.isPending
                   ? startMutation.variables?.assignmentId
                   : undefined
               }
-              isLoading={templatesQuery.isLoading}
+              isLoading={assignmentsQuery.isLoading}
             />
           </div>
         )}

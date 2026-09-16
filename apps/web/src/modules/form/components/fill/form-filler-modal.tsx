@@ -1,5 +1,7 @@
 'use client';
 
+import { useIsMutating } from '@tanstack/react-query';
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
@@ -46,6 +48,13 @@ export default function FormFillerModal({
   const saveDraftMutation = useFormSubmissionSaveDraft(submissionId);
   const submitMutation = useFormSubmissionSubmit(submissionId, companyId);
 
+  const attachmentPending =
+    useIsMutating({ mutationKey: ['FORM', 'ATTACHMENT', submissionId] }) > 0;
+  const busy =
+    attachmentPending ||
+    saveDraftMutation.isPending ||
+    submitMutation.isPending;
+
   const [edits, setEdits] = useState<Record<string, unknown>>({});
 
   // Derive current answers from query + user edits without setState in effect
@@ -80,16 +89,19 @@ export default function FormFillerModal({
 
   const handleSaveDraft = useCallback(() => {
     if (!detail) return;
-    const answerEntries = Object.entries(answers).map(([fieldId, value]) => ({
+    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
       fieldId,
       value,
     }));
 
-    saveDraftMutation.mutate({
-      expectedRevision: detail.submission.revision,
-      answers: answerEntries,
-    });
-  }, [detail, answers, saveDraftMutation]);
+    saveDraftMutation.mutate(
+      {
+        expectedRevision: detail.submission.revision,
+        answers: answerEntries,
+      },
+      { onSuccess: () => setEdits({}) },
+    );
+  }, [detail, edits, saveDraftMutation]);
 
   const handleSubmit = useCallback(() => {
     if (!detail) return;
@@ -97,6 +109,14 @@ export default function FormFillerModal({
     // Validate required fields
     const missingFields = detail.fields.filter((field) => {
       if (!field.isRequired) return false;
+      if (field.type === 'IMAGE' || field.type === 'FILE') {
+        const answer = detail.answers.find(
+          (answer) => answer.fieldId === field.id,
+        );
+        return !detail.attachments.some(
+          (attachment) => attachment.answerId === answer?.id,
+        );
+      }
       const val = answers[field.id];
       if (val === undefined || val === null || val === '') return true;
       return false;
@@ -110,7 +130,7 @@ export default function FormFillerModal({
     }
 
     // First save draft with current answers, then submit
-    const answerEntries = Object.entries(answers).map(([fieldId, value]) => ({
+    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
       fieldId,
       value,
     }));
@@ -122,6 +142,7 @@ export default function FormFillerModal({
       },
       {
         onSuccess: (updatedSub) => {
+          setEdits({});
           submitMutation.mutate(
             {
               expectedRevision:
@@ -136,7 +157,7 @@ export default function FormFillerModal({
         },
       },
     );
-  }, [detail, answers, saveDraftMutation, submitMutation, onClose]);
+  }, [detail, answers, edits, saveDraftMutation, submitMutation, onClose]);
 
   if (isLoading) {
     return (
@@ -234,11 +255,12 @@ export default function FormFillerModal({
               <div className="grid grid-cols-1 gap-3">
                 {sectionFields.map((field) => (
                   <DynamicFieldRenderer
+                    submissionId={submissionId}
                     key={field.id}
                     field={field}
                     value={answers[field.id]}
                     onChange={(val) => handleFieldChange(field.id, val)}
-                    disabled={isReadOnly}
+                    disabled={isReadOnly || busy}
                   />
                 ))}
               </div>
@@ -258,6 +280,7 @@ export default function FormFillerModal({
             <ButtonLoading
               variant="outline"
               onPress={handleSaveDraft}
+              isDisabled={busy}
               isLoading={saveDraftMutation.isPending}
             >
               <Save className="w-4 h-4 mr-1.5" />
@@ -267,7 +290,9 @@ export default function FormFillerModal({
             <ButtonLoading
               onPress={handleSubmit}
               isLoading={
-                submitMutation.isPending || saveDraftMutation.isPending
+                submitMutation.isPending ||
+                saveDraftMutation.isPending ||
+                attachmentPending
               }
             >
               <Send className="w-4 h-4 mr-1.5" />

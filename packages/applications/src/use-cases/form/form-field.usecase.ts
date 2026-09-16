@@ -1,3 +1,4 @@
+import { validateFormFieldConfig } from './form-answer-validation';
 import type { IUnitOfWork } from '@repo/domains';
 import type {
   IDeleteFormFieldContext,
@@ -65,6 +66,7 @@ export class EditFormFieldUseCase implements IEditFormFieldUseCase {
         throw new BadRequestError(
           'Section must belong to the same draft version',
         );
+      await validateFormFieldConfig(parsed.data);
       let sortOrder = field.sortOrder;
       if (field.formSectionId !== section.id) {
         const fields = await this.fieldRepo.findByVersionId(

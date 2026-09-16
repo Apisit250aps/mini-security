@@ -1,5 +1,8 @@
+import { LocalFormAttachmentStorage } from '../../../storage/form-attachment.storage';
+import { resolve } from 'node:path';
 import { unitOfWork } from '../../unit-of-work';
 import {
+  FormAttachmentUseCase,
   CreateFormTemplateUseCase,
   UpdateFormTemplateUseCase,
   GetFormTemplateUseCase,
@@ -11,37 +14,34 @@ import {
   ReorderFormFieldUseCase,
   EditFormFieldUseCase,
   DeleteFormFieldUseCase,
-
   CreateFormPlanUseCase,
   GetFormPlanUseCase,
   ListFormPlansUseCase,
   ActivateFormPlanUseCase,
   PauseFormPlanUseCase,
   PreviewScheduleUseCase,
-
   OpenDueOccurrencesUseCase,
   CancelOccurrenceUseCase,
-
+  ListOccurrencesUseCase,
   ListMyAssignmentsUseCase,
   GetAssignmentUseCase,
   CancelAssignmentUseCase,
   ReplaceAssignmentUseCase,
-
   StartFormSubmissionUseCase,
   SaveFormSubmissionDraftUseCase,
   SubmitFormSubmissionUseCase,
   CreateCorrectionUseCase,
   GetFormSubmissionUseCase,
   ListFormSubmissionsUseCase,
-
   ListReviewQueueUseCase,
   GetReviewDetailUseCase,
   RecordAnswerReviewUseCase,
   RecordSectionReviewUseCase,
-  FinalizeSubmissionReviewUseCase
+  FinalizeSubmissionReviewUseCase,
 } from '@repo/applications';
 import {
   companyMemberRepository,
+  roleRepository,
   formTemplateRepository,
   formVersionRepository,
   formSectionRepository,
@@ -55,7 +55,7 @@ import {
   formSubmissionContributorRepository,
   formAnswerRepository,
   formAnswerAttachmentRepository,
-  formReviewEntryRepository
+  formReviewEntryRepository,
 } from '../../repositories';
 
 // ==========================================
@@ -80,9 +80,8 @@ export const getFormTemplateUseCase = new GetFormTemplateUseCase(
   formFieldRepository,
 );
 
-export const listFormTemplatesByCompanyUseCase = new ListFormTemplatesByCompanyUseCase(
-  formTemplateRepository
-);
+export const listFormTemplatesByCompanyUseCase =
+  new ListFormTemplatesByCompanyUseCase(formTemplateRepository);
 
 export const createFormSectionUseCase = new CreateFormSectionUseCase(
   unitOfWork,
@@ -128,7 +127,6 @@ export const deleteFormFieldUseCase = new DeleteFormFieldUseCase(
   formFieldRepository,
 );
 
-
 // ==========================================
 // Plan Use Cases
 // ==========================================
@@ -139,15 +137,14 @@ export const createFormPlanUseCase = new CreateFormPlanUseCase(
   formPlanTargetRepository,
   formPlanPeriodRepository,
   formTemplateRepository,
-  formVersionRepository
+  formVersionRepository,
+  companyMemberRepository,
 );
 
-export const getFormPlanUseCase = new GetFormPlanUseCase(
-  formPlanRepository
-);
+export const getFormPlanUseCase = new GetFormPlanUseCase(formPlanRepository);
 
 export const listFormPlansUseCase = new ListFormPlansUseCase(
-  formPlanRepository
+  formPlanRepository,
 );
 
 export const activateFormPlanUseCase = new ActivateFormPlanUseCase(
@@ -156,17 +153,17 @@ export const activateFormPlanUseCase = new ActivateFormPlanUseCase(
   formTemplateRepository,
   formVersionRepository,
   formPlanTargetRepository,
-  formPlanPeriodRepository
+  formPlanPeriodRepository,
 );
 
 export const pauseFormPlanUseCase = new PauseFormPlanUseCase(
   unitOfWork,
-  formPlanRepository
+  formPlanRepository,
 );
 
 export const previewScheduleUseCase = new PreviewScheduleUseCase(
   formPlanRepository,
-  formPlanPeriodRepository
+  formPlanPeriodRepository,
 );
 
 // ==========================================
@@ -178,11 +175,18 @@ export const openDueOccurrencesUseCase = new OpenDueOccurrencesUseCase(
   formPlanRepository,
   formOccurrenceRepository,
   formAssignmentRepository,
-  formPlanTargetRepository
+  formPlanTargetRepository,
+  formVersionRepository,
+  formPlanPeriodRepository,
+  companyMemberRepository,
 );
 
 export const cancelOccurrenceUseCase = new CancelOccurrenceUseCase(
-  formOccurrenceRepository
+  formOccurrenceRepository,
+);
+
+export const listOccurrencesUseCase = new ListOccurrencesUseCase(
+  formOccurrenceRepository,
 );
 
 // ==========================================
@@ -191,23 +195,26 @@ export const cancelOccurrenceUseCase = new CancelOccurrenceUseCase(
 
 export const listMyAssignmentsUseCase = new ListMyAssignmentsUseCase(
   formAssignmentRepository,
-  companyMemberRepository
+  companyMemberRepository,
+  formOccurrenceRepository,
+  formTemplateRepository,
+  roleRepository,
 );
 
 export const getAssignmentUseCase = new GetAssignmentUseCase(
   formAssignmentRepository,
-  companyMemberRepository
+  companyMemberRepository,
 );
 
 export const cancelAssignmentUseCase = new CancelAssignmentUseCase(
   unitOfWork,
   formAssignmentRepository,
-  formOccurrenceRepository
+  formOccurrenceRepository,
 );
 
 export const replaceAssignmentUseCase = new ReplaceAssignmentUseCase(
   unitOfWork,
-  formAssignmentRepository
+  formAssignmentRepository,
 );
 
 // ==========================================
@@ -220,17 +227,20 @@ export const startFormSubmissionUseCase = new StartFormSubmissionUseCase(
   formOccurrenceRepository,
   formSubmissionRepository,
   formSubmissionContributorRepository,
-  companyMemberRepository
+  companyMemberRepository,
 );
 
-export const saveFormSubmissionDraftUseCase = new SaveFormSubmissionDraftUseCase(
-  unitOfWork,
-  formSubmissionRepository,
-  formAssignmentRepository,
-  formAnswerRepository,
-  formSubmissionContributorRepository,
-  companyMemberRepository
-);
+export const saveFormSubmissionDraftUseCase =
+  new SaveFormSubmissionDraftUseCase(
+    unitOfWork,
+    formSubmissionRepository,
+    formAssignmentRepository,
+    formAnswerRepository,
+    formSubmissionContributorRepository,
+    companyMemberRepository,
+    formOccurrenceRepository,
+    formFieldRepository,
+  );
 
 export const submitFormSubmissionUseCase = new SubmitFormSubmissionUseCase(
   unitOfWork,
@@ -242,7 +252,7 @@ export const submitFormSubmissionUseCase = new SubmitFormSubmissionUseCase(
   formAnswerRepository,
   formAnswerAttachmentRepository,
   formSubmissionContributorRepository,
-  companyMemberRepository
+  companyMemberRepository,
 );
 
 export const createCorrectionUseCase = new CreateCorrectionUseCase(
@@ -251,7 +261,10 @@ export const createCorrectionUseCase = new CreateCorrectionUseCase(
   formReviewEntryRepository,
   formAnswerRepository,
   formAnswerAttachmentRepository,
-  formSubmissionContributorRepository
+  formSubmissionContributorRepository,
+  formAssignmentRepository,
+  formOccurrenceRepository,
+  companyMemberRepository,
 );
 
 export const getFormSubmissionUseCase = new GetFormSubmissionUseCase(
@@ -262,11 +275,16 @@ export const getFormSubmissionUseCase = new GetFormSubmissionUseCase(
   formSectionRepository,
   formFieldRepository,
   formAnswerRepository,
-  formSubmissionContributorRepository
+  formSubmissionContributorRepository,
+  formAnswerAttachmentRepository,
+  formAssignmentRepository,
+  companyMemberRepository,
 );
 
 export const listFormSubmissionsUseCase = new ListFormSubmissionsUseCase(
-  formSubmissionRepository
+  formSubmissionRepository,
+  formAssignmentRepository,
+  companyMemberRepository,
 );
 
 // ==========================================
@@ -275,36 +293,66 @@ export const listFormSubmissionsUseCase = new ListFormSubmissionsUseCase(
 
 export const listReviewQueueUseCase = new ListReviewQueueUseCase(
   formSubmissionRepository,
-  formReviewEntryRepository
-);
-
-export const getReviewDetailUseCase = new GetReviewDetailUseCase(
-  formReviewEntryRepository
-);
-
-export const recordAnswerReviewUseCase = new RecordAnswerReviewUseCase(
-  formSubmissionRepository,
-  formAnswerRepository,
   formReviewEntryRepository,
-  formSubmissionContributorRepository
-);
-
-export const recordSectionReviewUseCase = new RecordSectionReviewUseCase(
-  formSubmissionRepository,
-  formSectionRepository,
-  formReviewEntryRepository,
-  formSubmissionContributorRepository
-);
-
-export const finalizeSubmissionReviewUseCase = new FinalizeSubmissionReviewUseCase(
-  unitOfWork,
-  formSubmissionRepository,
-  formReviewEntryRepository,
-  formSubmissionContributorRepository,
   formAssignmentRepository,
   formOccurrenceRepository,
   formPlanRepository,
-  formSectionRepository,
+  formVersionRepository,
+  formTemplateRepository,
+  companyMemberRepository,
+);
+
+export const getReviewDetailUseCase = new GetReviewDetailUseCase(
+  formReviewEntryRepository,
+  formSubmissionRepository,
+  formAssignmentRepository,
+  companyMemberRepository,
+);
+
+export const recordAnswerReviewUseCase = new RecordAnswerReviewUseCase(
+  unitOfWork,
+  formSubmissionRepository,
   formAnswerRepository,
-  formFieldRepository
+  formReviewEntryRepository,
+  formSubmissionContributorRepository,
+  companyMemberRepository,
+);
+
+export const recordSectionReviewUseCase = new RecordSectionReviewUseCase(
+  unitOfWork,
+  formSubmissionRepository,
+  formSectionRepository,
+  formReviewEntryRepository,
+  formSubmissionContributorRepository,
+  companyMemberRepository,
+);
+
+export const finalizeSubmissionReviewUseCase =
+  new FinalizeSubmissionReviewUseCase(
+    unitOfWork,
+    formSubmissionRepository,
+    formReviewEntryRepository,
+    formSubmissionContributorRepository,
+    companyMemberRepository,
+    formAssignmentRepository,
+    formOccurrenceRepository,
+    formPlanRepository,
+    formSectionRepository,
+    formAnswerRepository,
+    formFieldRepository,
+  );
+
+export const formAttachmentUseCase = new FormAttachmentUseCase(
+  unitOfWork,
+  formSubmissionRepository,
+  formAssignmentRepository,
+  formOccurrenceRepository,
+  companyMemberRepository,
+  formFieldRepository,
+  formAnswerRepository,
+  formAnswerAttachmentRepository,
+  formSubmissionContributorRepository,
+  new LocalFormAttachmentStorage(
+    resolve(process.env.FORM_UPLOAD_DIR ?? '.data/form-attachments'),
+  ),
 );

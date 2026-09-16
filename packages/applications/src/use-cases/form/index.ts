@@ -9,3 +9,5 @@ export * from './form-field.usecase';
 export * from './form-plan.usecase';
 export * from './form-schedule.usecase';
 export * from './form-occurrence.usecase';
+
+export * from './form-attachment.usecase';

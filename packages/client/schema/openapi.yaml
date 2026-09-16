@@ -1963,7 +1963,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Domain.Entity.FormAssignment'
+                      $ref: '#/components/schemas/FormAssignmentItem'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -2123,6 +2123,71 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReplaceAssignmentRequest'
+  /forms/attachments/{attachmentId}:
+    get:
+      operationId: FormServices_downloadAttachment
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            '*/*':
+              schema:
+                contentMediaType: '*/*'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+    delete:
+      operationId: FormServices_deleteAttachment
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitFormSubmissionRequest'
   /forms/companies/{companyId}/templates:
     get:
       operationId: FormServices_listTemplatesByCompany
@@ -2152,6 +2217,57 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FormTemplate'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+  /forms/occurrences:
+    get:
+      operationId: FormServices_listOccurrences
+      summary: List form occurrences
+      parameters:
+        - name: companyId
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: formTemplateId
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: planId
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Domain.Entity.FormOccurrence'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -2565,7 +2681,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/FormSubmission'
+                      $ref: '#/components/schemas/ReviewQueueItem'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -2865,6 +2981,71 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SaveFormSubmissionDraftRequest'
+  /forms/submissions/{id}/fields/{fieldId}/attachments:
+    post:
+      operationId: FormServices_uploadAttachment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/FormAnswerAttachment'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: {}
+                expectedRevision:
+                  type: integer
+                  format: int32
+              required:
+                - file
+                - expectedRevision
+            encoding:
+              file:
+                contentType: '*/*'
+              expectedRevision:
+                contentType: text/plain
   /forms/submissions/{id}/finalize-review:
     post:
       operationId: FormServices_finalizeReview
@@ -6558,6 +6739,50 @@ components:
       enum:
         - RECURRING
         - EXPLICIT
+    Domain.Entity.FormSubmission:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - assignmentId
+        - formVersionId
+        - startedBy
+        - revision
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        assignmentId:
+          type: string
+        formVersionId:
+          type: string
+        startedBy:
+          type: string
+        submittedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        revision:
+          type: integer
+          format: int32
+        supersedesSubmissionId:
+          anyOf:
+            - type: string
+            - type: 'null'
+        submittedAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
     Domain.Entity.FormVersionStatus:
       type: string
       enum:
@@ -6651,8 +6876,12 @@ components:
     FinalizeReviewRequest:
       type: object
       required:
+        - expectedRevision
         - action
       properties:
+        expectedRevision:
+          type: integer
+          format: int32
         action:
           $ref: '#/components/schemas/Domain.Entity.FormReviewAction'
         note:
@@ -6729,6 +6958,23 @@ components:
           format: int32
         uploadedBy:
           type: string
+    FormAssignmentItem:
+      type: object
+      properties:
+        templateName:
+          type: string
+        templateDescription:
+          type: string
+        opensAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+        roleName:
+          type: string
+      allOf:
+        - $ref: '#/components/schemas/Domain.Entity.FormAssignment'
     FormField:
       type: object
       required:
@@ -6891,6 +7137,7 @@ components:
         - sections
         - fields
         - answers
+        - attachments
         - contributors
       properties:
         submission:
@@ -6915,6 +7162,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FormAnswer'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormAnswerAttachment'
         contributors:
           type: array
           items:
@@ -7260,8 +7511,12 @@ components:
     RecordReviewRequest:
       type: object
       required:
+        - expectedRevision
         - action
       properties:
+        expectedRevision:
+          type: integer
+          format: int32
         action:
           $ref: '#/components/schemas/Domain.Entity.FormReviewAction'
         note:
@@ -7304,6 +7559,15 @@ components:
             - rejected
         reviewNote:
           type: string
+    ReviewQueueItem:
+      type: object
+      properties:
+        templateName:
+          type: string
+        submitterName:
+          type: string
+      allOf:
+        - $ref: '#/components/schemas/Domain.Entity.FormSubmission'
     Role:
       type: object
       required:

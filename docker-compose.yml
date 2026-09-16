@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    volumes:
+      - form-attachments:/app/data/form-attachments
     expose:
       - '8000'
     env_file:
@@ -38,3 +40,6 @@ services:
       - api
       - web
     restart: always
+
+volumes:
+  form-attachments:

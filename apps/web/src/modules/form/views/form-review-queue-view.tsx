@@ -43,11 +43,11 @@ export default function FormReviewQueueView() {
                     <FileCheck className="size-5" />
                   </div>
                   <div>
-                    <h4 className="font-semibold">{`แบบฟอร์ม #${sub.id.slice(0, 8)}`}</h4>
+                    <h4 className="font-semibold">{sub.templateName || `แบบฟอร์ม #${sub.id.slice(0, 8)}`}</h4>
                     <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
                       <span>ส่งเมื่อ: {sub.submittedAt ? formatDate(sub.submittedAt) : '-'}</span>
                       <span>•</span>
-                      <span>โดย: {sub.submittedBy || 'ไม่ทราบชื่อ'}</span>
+                      <span>โดย: {sub.submitterName || sub.submittedBy || 'ไม่ทราบชื่อ'}</span>
                       <Badge variant="outline">ฉบับที่ {sub.revision}</Badge>
                     </div>
                   </div>

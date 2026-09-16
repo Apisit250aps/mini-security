@@ -1,3 +1,4 @@
+import { validateFormFieldConfig } from './form-answer-validation';
 import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
@@ -169,7 +170,6 @@ export class ListFormTemplatesByCompanyUseCase
   }
 }
 
-
 // ==========================================
 // 6. Create Form Section
 // ==========================================
@@ -237,6 +237,7 @@ export class CreateFormFieldUseCase implements ICreateFormFieldUseCase {
         );
       }
 
+      await validateFormFieldConfig(parsed.data);
       return this.fieldRepo.create(parsed.data);
     });
   }
@@ -276,6 +277,8 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
       if (fields.length === 0) {
         throw new BadRequestError('Cannot publish form without any fields');
       }
+
+      for (const field of fields) await validateFormFieldConfig(field);
 
       // Archive current published version if exists
       const currentPublished = await this.versionRepo.findPublishedByTemplateId(

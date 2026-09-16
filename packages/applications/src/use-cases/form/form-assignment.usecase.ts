@@ -4,6 +4,7 @@ import type { FormAssignment } from '@repo/domains/entities/form';
 import type {
   IListMyAssignmentsContext,
   IListMyAssignmentsUseCase,
+  MyAssignmentItem,
   IGetAssignmentContext,
   IGetAssignmentUseCase,
   ICancelAssignmentContext,
@@ -11,20 +12,39 @@ import type {
   IReplaceAssignmentContext,
   IReplaceAssignmentUseCase,
 } from '@repo/domains/applications/form';
-import type { IFormAssignmentRepository, IFormOccurrenceRepository } from '@repo/domains/repositories/form';
+import type {
+  IFormAssignmentRepository,
+  IFormOccurrenceRepository,
+  IFormTemplateRepository,
+} from '@repo/domains/repositories/form';
 import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
-import { NotFoundError, DuplicateError, BadRequestError } from '../../lib/error';
+import type { IRoleRepository } from '@repo/domains/repositories/permission';
+import {
+  NotFoundError,
+  DuplicateError,
+  BadRequestError,
+} from '../../lib/error';
 
 export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
   constructor(
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly memberRepo: ICompanyMemberRepository,
+    private readonly occurrenceRepo?: IFormOccurrenceRepository,
+    private readonly templateRepo?: IFormTemplateRepository,
+    private readonly roleRepo?: IRoleRepository,
   ) {}
 
   @RequirePermission('form_submission:read')
-  async execute(context: IListMyAssignmentsContext): Promise<FormAssignment[]> {
+  async execute(
+    context: IListMyAssignmentsContext,
+  ): Promise<MyAssignmentItem[]> {
     const member = await this.memberRepo.findById(context.memberId);
-    if (!member || member.companyId !== context.companyId) {
+    if (
+      !member ||
+      !member.isActive ||
+      member.userId !== context.user?.id ||
+      member.companyId !== context.companyId
+    ) {
       throw new NotFoundError('Company member not found');
     }
 
@@ -41,9 +61,79 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
       if (a.cancelledAt == null) merged.set(a.id, a);
     }
 
-    return Array.from(merged.values()).sort(
+    const assignments = Array.from(merged.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     );
+
+    if (!this.occurrenceRepo || !this.templateRepo) {
+      return assignments as MyAssignmentItem[];
+    }
+
+    const occurrenceIds = [...new Set(assignments.map((a) => a.occurrenceId))];
+    const occurrences = await Promise.all(
+      occurrenceIds.map((id) => this.occurrenceRepo!.findById(id)),
+    );
+    const occurrenceMap = new Map(
+      occurrences
+        .filter((o): o is NonNullable<typeof o> => o != null)
+        .map((o) => [o.id, o]),
+    );
+
+    const templateIds = [
+      ...new Set(
+        Array.from(occurrenceMap.values()).map((o) => o.formTemplateId),
+      ),
+    ];
+    const templates = await Promise.all(
+      templateIds.map((id) => this.templateRepo!.findById(id)),
+    );
+    const templateMap = new Map(
+      templates
+        .filter((t): t is NonNullable<typeof t> => t != null)
+        .map((t) => [t.id, t]),
+    );
+
+    const roleIds = [
+      ...new Set(
+        assignments
+          .map((a) => a.roleId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    const roles = this.roleRepo
+      ? await Promise.all(roleIds.map((id) => this.roleRepo!.findById(id)))
+      : [];
+    const roleMap = new Map(
+      roles
+        .filter((r): r is NonNullable<typeof r> => r != null)
+        .map((r) => [r.id, r]),
+    );
+
+    return assignments
+      .filter((a) => {
+        const occurrence = occurrenceMap.get(a.occurrenceId);
+        return (
+          occurrence &&
+          !occurrence.cancelledAt &&
+          occurrence.opensAt <= new Date()
+        );
+      })
+      .map((a) => {
+        const occurrence = occurrenceMap.get(a.occurrenceId);
+        const template = occurrence
+          ? templateMap.get(occurrence.formTemplateId)
+          : null;
+        const role = a.roleId ? roleMap.get(a.roleId) : null;
+
+        return {
+          ...a,
+          templateName: template?.name,
+          templateDescription: template?.description,
+          opensAt: occurrence?.opensAt,
+          dueAt: occurrence?.dueAt,
+          roleName: role?.name,
+        } as MyAssignmentItem;
+      });
   }
 }
 
@@ -89,7 +179,9 @@ export class CancelAssignmentUseCase implements ICancelAssignmentUseCase {
   @RequirePermission('form_plan:manage')
   async execute(context: ICancelAssignmentContext): Promise<FormAssignment> {
     return this.unitOfWork.transaction(async () => {
-      const assignment = await this.assignmentRepo.findById(context.assignmentId);
+      const assignment = await this.assignmentRepo.findById(
+        context.assignmentId,
+      );
       const companyId = context.companyId ?? context.activeCompanyId;
       if (!assignment || (companyId && assignment.companyId !== companyId)) {
         throw new NotFoundError('Assignment not found');
@@ -98,9 +190,13 @@ export class CancelAssignmentUseCase implements ICancelAssignmentUseCase {
         throw new BadRequestError('Assignment already cancelled');
       }
 
-      const occurrence = await this.occurrenceRepo.findById(assignment.occurrenceId);
+      const occurrence = await this.occurrenceRepo.findById(
+        assignment.occurrenceId,
+      );
       if (!occurrence || occurrence.cancelledAt != null) {
-        throw new BadRequestError('Cannot cancel assignment for a cancelled occurrence');
+        throw new BadRequestError(
+          'Cannot cancel assignment for a cancelled occurrence',
+        );
       }
 
       if (
@@ -128,7 +224,9 @@ export class ReplaceAssignmentUseCase implements IReplaceAssignmentUseCase {
   @RequirePermission('form_plan:manage')
   async execute(context: IReplaceAssignmentContext): Promise<FormAssignment> {
     return this.unitOfWork.transaction(async () => {
-      const oldAssignment = await this.assignmentRepo.findById(context.assignmentId);
+      const oldAssignment = await this.assignmentRepo.findById(
+        context.assignmentId,
+      );
       if (!oldAssignment || oldAssignment.companyId !== context.companyId) {
         throw new NotFoundError('Assignment not found');
       }

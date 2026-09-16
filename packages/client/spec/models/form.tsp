@@ -104,12 +104,14 @@ model ReplaceAssignmentRequest {
 // ─── Reviews ───────────────────────────────────────────────────────────────────
 
 model RecordReviewRequest {
+  expectedRevision: int32;
   action: Domain.Entity.FormReviewAction;
   note?: string;
   supersedesEntryId?: string;
 }
 
 model FinalizeReviewRequest {
+  expectedRevision: int32;
   action: Domain.Entity.FormReviewAction;
   note?: string;
 }
@@ -130,6 +132,7 @@ model FormSubmissionDetail {
   sections: FormSection[];
   fields: FormField[];
   answers: FormAnswer[];
+  attachments: FormAnswerAttachment[];
   contributors: FormSubmissionContributor[];
 }
 
@@ -145,3 +148,16 @@ model FormReorderItem {
 }
 
 model EditFormField is PickProperties<FormField, "formSectionId" | "type" | "label" | "description" | "isRequired" | "config">;
+
+model FormAssignmentItem extends Domain.Entity.FormAssignment {
+  templateName?: string;
+  templateDescription?: string;
+  opensAt?: utcDateTime;
+  dueAt?: utcDateTime;
+  roleName?: string;
+}
+
+model ReviewQueueItem extends Domain.Entity.FormSubmission {
+  templateName?: string;
+  submitterName?: string;
+}

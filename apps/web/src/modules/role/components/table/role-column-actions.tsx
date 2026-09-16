@@ -8,7 +8,15 @@ import { useOverlay } from '@repo/ui/hooks';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import RoleEditForm from '../form/role-edit-form';
 
-function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
+interface RoleColumnActionsProps<T extends Role> {
+  cell: CellContext<T, unknown>;
+  companyId?: string;
+}
+
+function RoleColumnActions<T extends Role>({
+  cell,
+  companyId,
+}: RoleColumnActionsProps<T>) {
   const router = useRouter();
   const ui = useOverlay();
   const { isSuperAdmin } = usePermission();
@@ -16,7 +24,11 @@ function RoleColumnActions<T extends Role>(cell: CellContext<T, unknown>) {
   const role = cell.row.original;
   const isSystemDefault = role.isSystemDefault;
 
-  const basePath = role.companyId ? '/company/role' : '/admin/role';
+  const basePath = companyId
+    ? '/company/role'
+    : role.companyId
+      ? '/company/role'
+      : '/admin/role';
 
   const handleDelete = useCallback(
     async (id: string) => {

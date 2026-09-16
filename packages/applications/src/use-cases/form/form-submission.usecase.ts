@@ -1,3 +1,10 @@
+import { PermissionGuard } from '../../lib/guard';
+import {
+  hasFormPermission,
+  requireAssignmentMember,
+  requireWritableAssignment,
+} from './form-access';
+import { validateFormAnswer } from './form-answer-validation';
 import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import type { FormSubmission } from '@repo/domains/entities/form';
@@ -54,38 +61,22 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
   ) {}
 
   @RequirePermission('form_submission:create')
-  async execute(context: IStartAssignmentSubmissionContext): Promise<FormSubmission> {
+  async execute(
+    context: IStartAssignmentSubmissionContext,
+  ): Promise<FormSubmission> {
     return this.unitOfWork.transaction(async () => {
-      const companyId = context.companyId ?? context.activeCompanyId;
       if (!context.memberId) {
         throw new BadRequestError('Member ID is required');
       }
       const memberId = context.memberId;
 
-      const assignment = await this.assignmentRepo.findById(context.assignmentId);
-      if (!assignment || (companyId && assignment.companyId !== companyId)) {
-        throw new NotFoundError('Assignment not found');
-      }
-      if (assignment.cancelledAt != null) {
-        throw new BadRequestError('Assignment is cancelled');
-      }
-
-      const occurrence = await this.occurrenceRepo.findById(assignment.occurrenceId);
-      if (!occurrence || occurrence.cancelledAt != null) {
-        throw new BadRequestError('Occurrence is cancelled');
-      }
-
-      const member = await this.memberRepo.findById(memberId);
-      if (!member || (companyId && member.companyId !== companyId)) {
-        throw new NotFoundError('Member not found');
-      }
-
-      if (
-        assignment.companyMemberId !== memberId &&
-        assignment.roleId !== member.roleId
-      ) {
-        throw new ForbiddenError('You are not authorized for this assignment');
-      }
+      const { assignment } = await requireWritableAssignment(
+        context,
+        context.assignmentId,
+        this.assignmentRepo,
+        this.occurrenceRepo,
+        this.memberRepo,
+      );
 
       const draft = await this.submissionRepo.findDraftByAssignmentId(
         context.assignmentId,
@@ -109,6 +100,14 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
         }
       }
 
+      const previous = await this.submissionRepo.findByAssignmentId(
+        assignment.id,
+        assignment.companyId,
+      );
+      if (previous.length)
+        throw new BadRequestError(
+          'This assignment already has a submitted response. Open it to create a correction if returned.',
+        );
       const submission = await this.submissionRepo.create({
         companyId: assignment.companyId,
         assignmentId: assignment.id,
@@ -135,7 +134,9 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
 // 2. Save Form Submission Draft
 // ==========================================
 
-export class SaveFormSubmissionDraftUseCase implements ISaveFormSubmissionDraftUseCase {
+export class SaveFormSubmissionDraftUseCase
+  implements ISaveFormSubmissionDraftUseCase
+{
   constructor(
     private readonly unitOfWork: IUnitOfWork,
     private readonly submissionRepo: IFormSubmissionRepository,
@@ -143,10 +144,14 @@ export class SaveFormSubmissionDraftUseCase implements ISaveFormSubmissionDraftU
     private readonly answerRepo: IFormAnswerRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
     private readonly memberRepo: ICompanyMemberRepository,
+    private readonly occurrenceRepo: IFormOccurrenceRepository,
+    private readonly fieldRepo: IFormFieldRepository,
   ) {}
 
   @RequirePermission('form_submission:update')
-  async execute(context: ISaveFormSubmissionDraftContext): Promise<FormSubmission> {
+  async execute(
+    context: ISaveFormSubmissionDraftContext,
+  ): Promise<FormSubmission> {
     return this.unitOfWork.transaction(async () => {
       const companyId = context.companyId ?? context.activeCompanyId;
       if (!context.memberId) {
@@ -154,7 +159,9 @@ export class SaveFormSubmissionDraftUseCase implements ISaveFormSubmissionDraftU
       }
       const memberId = context.memberId;
 
-      const submission = await this.submissionRepo.findById(context.submissionId);
+      const submission = await this.submissionRepo.findById(
+        context.submissionId,
+      );
       if (!submission || (companyId && submission.companyId !== companyId)) {
         throw new NotFoundError('Form submission not found');
       }
@@ -166,19 +173,30 @@ export class SaveFormSubmissionDraftUseCase implements ISaveFormSubmissionDraftU
         submission.id,
         memberId,
       );
-      if (!isContributor) {
-        const assignment = await this.assignmentRepo.findById(submission.assignmentId);
-        if (!assignment) throw new NotFoundError('Assignment not found');
-
-        const member = await this.memberRepo.findById(memberId);
-        if (!member) throw new NotFoundError('Member not found');
-
-        if (
-          assignment.companyMemberId !== memberId &&
-          assignment.roleId !== member.roleId
-        ) {
-          throw new ForbiddenError('You are not authorized to edit this submission');
-        }
+      await requireWritableAssignment(
+        context,
+        submission.assignmentId,
+        this.assignmentRepo,
+        this.occurrenceRepo,
+        this.memberRepo,
+      );
+      const fields = await this.fieldRepo.findByVersionId(
+        submission.formVersionId,
+      );
+      const fieldMap = new Map(fields.map((field) => [field.id, field]));
+      if (
+        new Set(context.answers.map((answer) => answer.fieldId)).size !==
+        context.answers.length
+      ) {
+        throw new ValidationError('Duplicate answer fields');
+      }
+      for (const answer of context.answers) {
+        const field = fieldMap.get(answer.fieldId);
+        if (!field)
+          throw new ValidationError(
+            'Field does not belong to this form version',
+          );
+        await validateFormAnswer(field, answer.value);
       }
 
       if (submission.revision !== context.expectedRevision) {
@@ -217,7 +235,9 @@ export class SaveFormSubmissionDraftUseCase implements ISaveFormSubmissionDraftU
 // 3. Submit Form Submission
 // ==========================================
 
-export class SubmitFormSubmissionUseCase implements ISubmitFormSubmissionUseCase {
+export class SubmitFormSubmissionUseCase
+  implements ISubmitFormSubmissionUseCase
+{
   constructor(
     private readonly unitOfWork: IUnitOfWork,
     private readonly submissionRepo: IFormSubmissionRepository,
@@ -232,7 +252,9 @@ export class SubmitFormSubmissionUseCase implements ISubmitFormSubmissionUseCase
   ) {}
 
   @RequirePermission('form_submission:submit')
-  async execute(context: ISubmitFormSubmissionContext): Promise<FormSubmission> {
+  async execute(
+    context: ISubmitFormSubmissionContext,
+  ): Promise<FormSubmission> {
     return this.unitOfWork.transaction(async () => {
       const companyId = context.companyId ?? context.activeCompanyId;
       if (!context.memberId) {
@@ -240,7 +262,9 @@ export class SubmitFormSubmissionUseCase implements ISubmitFormSubmissionUseCase
       }
       const memberId = context.memberId;
 
-      const submission = await this.submissionRepo.findById(context.submissionId);
+      const submission = await this.submissionRepo.findById(
+        context.submissionId,
+      );
       if (!submission || (companyId && submission.companyId !== companyId)) {
         throw new NotFoundError('Form submission not found');
       }
@@ -252,19 +276,13 @@ export class SubmitFormSubmissionUseCase implements ISubmitFormSubmissionUseCase
         submission.id,
         memberId,
       );
-      const assignment = await this.assignmentRepo.findById(submission.assignmentId);
-      if (!assignment) throw new NotFoundError('Assignment not found');
-
-      if (!isContributor) {
-        const member = await this.memberRepo.findById(memberId);
-        if (!member) throw new NotFoundError('Member not found');
-        if (
-          assignment.companyMemberId !== memberId &&
-          assignment.roleId !== member.roleId
-        ) {
-          throw new ForbiddenError('You are not authorized to submit this form');
-        }
-      }
+      const { occurrence } = await requireWritableAssignment(
+        context,
+        submission.assignmentId,
+        this.assignmentRepo,
+        this.occurrenceRepo,
+        this.memberRepo,
+      );
 
       if (submission.revision !== context.expectedRevision) {
         throw new DuplicateError(
@@ -272,22 +290,25 @@ export class SubmitFormSubmissionUseCase implements ISubmitFormSubmissionUseCase
         );
       }
 
-      const occurrence = await this.occurrenceRepo.findById(assignment.occurrenceId);
-      if (!occurrence) throw new NotFoundError('Occurrence not found');
-
       const plan = await this.planRepo.findById(occurrence.planId);
       if (!plan) throw new NotFoundError('Plan not found');
 
-      if (occurrence.dueAt.getTime() < Date.now() && plan.latePolicy === 'DENY') {
+      if (
+        occurrence.dueAt.getTime() < Date.now() &&
+        plan.latePolicy === 'DENY'
+      ) {
         throw new BadRequestError('Submission is past due');
       }
 
-      const fields = await this.fieldRepo.findByVersionId(submission.formVersionId);
+      const fields = await this.fieldRepo.findByVersionId(
+        submission.formVersionId,
+      );
       const answers = await this.answerRepo.findBySubmissionId(submission.id);
       const answerMap = new Map(answers.map((a) => [a.fieldId, a]));
 
       for (const field of fields) {
         const answer = answerMap.get(field.id);
+        await validateFormAnswer(field, answer?.value, true);
         if (field.isRequired) {
           if (field.type === 'IMAGE' || field.type === 'FILE') {
             if (!answer) {
@@ -295,7 +316,9 @@ export class SubmitFormSubmissionUseCase implements ISubmitFormSubmissionUseCase
                 `Required field "${field.label}" has no attachments`,
               );
             }
-            const attachments = await this.attachmentRepo.findByAnswerId(answer.id);
+            const attachments = await this.attachmentRepo.findByAnswerId(
+              answer.id,
+            );
             if (attachments.length === 0) {
               throw new ValidationError(
                 `Required field "${field.label}" requires at least one attachment`,
@@ -356,6 +379,9 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
     private readonly answerRepo: IFormAnswerRepository,
     private readonly attachmentRepo: IFormAnswerAttachmentRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
+    private readonly assignmentRepo: IFormAssignmentRepository,
+    private readonly occurrenceRepo: IFormOccurrenceRepository,
+    private readonly memberRepo: ICompanyMemberRepository,
   ) {}
 
   @RequirePermission('form_submission:create')
@@ -375,14 +401,28 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
         throw new BadRequestError('Submission has not been submitted yet');
       }
 
-      const review = await this.reviewEntryRepo.findHeadByTarget(original.id, 'final');
+      await requireWritableAssignment(
+        context,
+        original.assignmentId,
+        this.assignmentRepo,
+        this.occurrenceRepo,
+        this.memberRepo,
+      );
+      const review = await this.reviewEntryRepo.findHeadByTarget(
+        original.id,
+        'final',
+      );
       if (!review || review.action !== 'RETURN') {
         throw new BadRequestError('Only RETURNED submissions can be corrected');
       }
 
-      const existingClone = await this.submissionRepo.findBySupersedesId(original.id);
+      const existingClone = await this.submissionRepo.findBySupersedesId(
+        original.id,
+      );
       if (existingClone) {
-        throw new DuplicateError('A correction for this response already exists');
+        throw new DuplicateError(
+          'A correction for this response already exists',
+        );
       }
 
       const clone = await this.submissionRepo.create({
@@ -396,7 +436,9 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
         submittedAt: null,
       });
 
-      const originalAnswers = await this.answerRepo.findBySubmissionId(original.id);
+      const originalAnswers = await this.answerRepo.findBySubmissionId(
+        original.id,
+      );
       for (const ans of originalAnswers) {
         const newAnswer = await this.answerRepo.create({
           companyId: original.companyId,
@@ -422,7 +464,8 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
         }
       }
 
-      const originalContributors = await this.contributorRepo.findBySubmissionId(original.id);
+      const originalContributors =
+        await this.contributorRepo.findBySubmissionId(original.id);
       const memberIdSet = new Set(originalContributors.map((c) => c.memberId));
       memberIdSet.add(memberId);
 
@@ -453,27 +496,45 @@ export class GetFormSubmissionUseCase implements IGetFormSubmissionUseCase {
     private readonly fieldRepo: IFormFieldRepository,
     private readonly answerRepo: IFormAnswerRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
+    private readonly attachmentRepo: IFormAnswerAttachmentRepository,
+    private readonly assignmentRepo: IFormAssignmentRepository,
+    private readonly memberRepo: ICompanyMemberRepository,
   ) {}
 
-  @RequirePermission('form_submission:read')
-  async execute(context: IGetFormSubmissionContext): Promise<FormSubmissionDetail | null> {
+  async execute(
+    context: IGetFormSubmissionContext,
+  ): Promise<FormSubmissionDetail | null> {
+    await PermissionGuard.requirePermission(
+      hasFormPermission(context, 'form_review:read')
+        ? 'form_review:read'
+        : 'form_submission:read',
+      context,
+    );
     return this.unitOfWork.transaction(async () => {
+      const companyId = context.companyId ?? context.activeCompanyId;
       const submission = await this.submissionRepo.findById(context.id);
-      if (!submission || submission.companyId !== context.companyId) return null;
+      if (!submission || (companyId && submission.companyId !== companyId))
+        return null;
 
-      const [
-        version,
-        sections,
-        fields,
-        answers,
-        contributors,
-      ] = await Promise.all([
-        this.versionRepo.findById(submission.formVersionId),
-        this.sectionRepo.findByVersionId(submission.formVersionId),
-        this.fieldRepo.findByVersionId(submission.formVersionId),
-        this.answerRepo.findBySubmissionId(submission.id),
-        this.contributorRepo.findBySubmissionId(submission.id),
-      ]);
+      PermissionGuard.requireCompanyScope(context, submission.companyId);
+      if (
+        !hasFormPermission(context, 'form_review:read') &&
+        !hasFormPermission(context, 'form_plan:manage')
+      ) {
+        const assignment = await this.assignmentRepo.findById(
+          submission.assignmentId,
+        );
+        if (!assignment) throw new NotFoundError('Assignment not found');
+        await requireAssignmentMember(context, assignment, this.memberRepo);
+      }
+      const [version, sections, fields, answers, contributors] =
+        await Promise.all([
+          this.versionRepo.findById(submission.formVersionId),
+          this.sectionRepo.findByVersionId(submission.formVersionId),
+          this.fieldRepo.findByVersionId(submission.formVersionId),
+          this.answerRepo.findBySubmissionId(submission.id),
+          this.contributorRepo.findBySubmissionId(submission.id),
+        ]);
 
       const template = version
         ? await this.templateRepo.findById(version.formTemplateId)
@@ -486,6 +547,9 @@ export class GetFormSubmissionUseCase implements IGetFormSubmissionUseCase {
         sections,
         fields,
         answers,
+        attachments: await this.attachmentRepo.findByAnswerIds(
+          answers.map((answer) => answer.id),
+        ),
         contributors,
       };
     });
@@ -497,16 +561,51 @@ export class GetFormSubmissionUseCase implements IGetFormSubmissionUseCase {
 // ==========================================
 
 export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
-  constructor(private readonly submissionRepo: IFormSubmissionRepository) {}
+  constructor(
+    private readonly submissionRepo: IFormSubmissionRepository,
+    private readonly assignmentRepo: IFormAssignmentRepository,
+    private readonly memberRepo: ICompanyMemberRepository,
+  ) {}
 
   @RequirePermission('form_submission:read')
-  async execute(context: IListFormSubmissionsContext): Promise<FormSubmission[]> {
-    if (context.assignmentId && context.companyId) {
-      return this.submissionRepo.findByAssignmentId(context.assignmentId, context.companyId);
+  async execute(
+    context: IListFormSubmissionsContext,
+  ): Promise<FormSubmission[]> {
+    const companyId = context.companyId ?? context.activeCompanyId;
+    if (!companyId) throw new BadRequestError('Company is required');
+    PermissionGuard.requireCompanyScope(context, companyId);
+    const submissions = context.assignmentId
+      ? await this.submissionRepo.findByAssignmentId(
+          context.assignmentId,
+          companyId,
+        )
+      : await this.submissionRepo.findByCompanyId(companyId);
+    if (
+      hasFormPermission(context, 'form_review:read') ||
+      hasFormPermission(context, 'form_plan:manage')
+    )
+      return submissions;
+    const member = context.memberId
+      ? await this.memberRepo.findById(context.memberId)
+      : null;
+    if (
+      !member?.isActive ||
+      member.companyId !== companyId ||
+      member.userId !== context.user?.id
+    )
+      throw new ForbiddenError('Active company membership is required');
+    const allowed: FormSubmission[] = [];
+    for (const submission of submissions) {
+      const assignment = await this.assignmentRepo.findById(
+        submission.assignmentId,
+      );
+      if (
+        assignment &&
+        (assignment.companyMemberId === member.id ||
+          (assignment.roleId && assignment.roleId === member.roleId))
+      )
+        allowed.push(submission);
     }
-    if (context.companyId) {
-      return this.submissionRepo.findByCompanyId(context.companyId);
-    }
-    return this.submissionRepo.findAll();
+    return allowed;
   }
 }

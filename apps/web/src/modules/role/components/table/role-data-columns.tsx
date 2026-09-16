@@ -4,16 +4,19 @@ import { ColumnDef } from '@tanstack/react-table';
 import type { Role } from '@repo/client';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
+import RoleColumnActions from './role-column-actions';
 
-const roleListColumns = (): ColumnDef<Role>[] => {
+const roleListColumns = (companyId?: string): ColumnDef<Role>[] => {
   return [
     {
       accessorKey: 'name',
       header: 'ชื่อบทบาท',
       cell: ({ row, getValue }) => {
-        const basePath = row.original.companyId
+        const basePath = companyId
           ? '/company/role'
-          : '/admin/role';
+          : row.original.companyId
+            ? '/company/role'
+            : '/admin/role';
         return (
           <Link
             href={`${basePath}/${row.original.id}`}
@@ -71,6 +74,11 @@ const roleListColumns = (): ColumnDef<Role>[] => {
       accessorKey: 'createdAt',
       header: 'วันที่สร้าง',
       cell: ({ getValue }) => formatDate(getValue<Date>()),
+    },
+    {
+      id: 'actions',
+      header: 'จัดการ',
+      cell: (cell) => <RoleColumnActions cell={cell} companyId={companyId} />,
     },
   ];
 };

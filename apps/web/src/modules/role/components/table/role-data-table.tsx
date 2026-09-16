@@ -13,7 +13,7 @@ export default function RoleDataTable({ companyId }: { companyId?: string }) {
   const companyQuery = useCompanyRolesQueries(companyId || '');
 
   const query = companyId ? companyQuery : globalQuery;
-  const columns = roleListColumns();
+  const columns = useMemo(() => roleListColumns(companyId), [companyId]);
 
   const table = useMemo(() => {
     const data = query.isLoading ? [] : query.data || [];

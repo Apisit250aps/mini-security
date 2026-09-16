@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
 import {
+  formAttachmentUseCase,
   createFormTemplateUseCase,
   updateFormTemplateUseCase,
   getFormTemplateUseCase,
@@ -19,6 +21,7 @@ import {
   previewScheduleUseCase,
   openDueOccurrencesUseCase,
   cancelOccurrenceUseCase,
+  listOccurrencesUseCase,
   listMyAssignmentsUseCase,
   getAssignmentUseCase,
   cancelAssignmentUseCase,
@@ -33,12 +36,13 @@ import {
   getReviewDetailUseCase,
   recordAnswerReviewUseCase,
   recordSectionReviewUseCase,
-  finalizeSubmissionReviewUseCase
+  finalizeSubmissionReviewUseCase,
 } from '@repo/infrastructures/compositions';
 import { FormController } from '../controllers/form.controller';
 import { authMiddleware } from '../middleware';
 
 const formController = new FormController(
+  formAttachmentUseCase,
   createFormTemplateUseCase,
   updateFormTemplateUseCase,
   getFormTemplateUseCase,
@@ -58,6 +62,7 @@ const formController = new FormController(
   previewScheduleUseCase,
   openDueOccurrencesUseCase,
   cancelOccurrenceUseCase,
+  listOccurrencesUseCase,
   listMyAssignmentsUseCase,
   getAssignmentUseCase,
   cancelAssignmentUseCase,
@@ -72,7 +77,7 @@ const formController = new FormController(
   getReviewDetailUseCase,
   recordAnswerReviewUseCase,
   recordSectionReviewUseCase,
-  finalizeSubmissionReviewUseCase
+  finalizeSubmissionReviewUseCase,
 );
 
 const formRoutes = new Hono();
@@ -107,6 +112,7 @@ formRoutes.post('/plans/:id/pause', formController.pausePlan);
 formRoutes.get('/plans/:id/schedule-preview', formController.previewSchedule);
 
 // --- Occurrences ---
+formRoutes.get('/occurrences', formController.listOccurrences);
 formRoutes.post('/occurrences/open', formController.openOccurrences);
 formRoutes.post('/occurrences/:id/cancel', formController.cancelOccurrence);
 
@@ -115,6 +121,17 @@ formRoutes.get('/assignments', formController.listMyAssignments);
 formRoutes.get('/assignments/:id', formController.getAssignment);
 formRoutes.post('/assignments/:id/cancel', formController.cancelAssignment);
 formRoutes.post('/assignments/:id/replace', formController.replaceAssignment);
+
+formRoutes.post(
+  '/submissions/:id/fields/:fieldId/attachments',
+  bodyLimit({ maxSize: 11 * 1024 * 1024 }),
+  formController.uploadAttachment,
+);
+formRoutes.get('/attachments/:attachmentId', formController.downloadAttachment);
+formRoutes.delete(
+  '/attachments/:attachmentId',
+  formController.deleteAttachment,
+);
 
 // --- Submissions ---
 formRoutes.post('/submissions', formController.startSubmission);
@@ -126,9 +143,21 @@ formRoutes.get('/submissions', formController.listSubmissions);
 
 // --- Reviews ---
 formRoutes.get('/reviews', formController.listReviewQueue);
-formRoutes.get('/submissions/:id/review-entries', formController.getReviewDetail);
-formRoutes.post('/submissions/:id/answers/:answerId/review', formController.recordAnswerReview);
-formRoutes.post('/submissions/:id/sections/:sectionId/review', formController.recordSectionReview);
-formRoutes.post('/submissions/:id/finalize-review', formController.finalizeReview);
+formRoutes.get(
+  '/submissions/:id/review-entries',
+  formController.getReviewDetail,
+);
+formRoutes.post(
+  '/submissions/:id/answers/:answerId/review',
+  formController.recordAnswerReview,
+);
+formRoutes.post(
+  '/submissions/:id/sections/:sectionId/review',
+  formController.recordSectionReview,
+);
+formRoutes.post(
+  '/submissions/:id/finalize-review',
+  formController.finalizeReview,
+);
 
 export default formRoutes;

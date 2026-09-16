@@ -79,11 +79,29 @@ export const companyPageConfigs: PageConfigs = {
   },
 
   // Form Management Module
+  companyFormTasks: {
+    name: 'งานของฉัน',
+    title: 'งานของฉัน',
+    description: 'รายการแบบฟอร์มที่ต้องบันทึกข้อมูลตามรอบงาน',
+    url: '/company/forms/tasks',
+  },
   companyFormTemplates: {
-    name: 'แบบฟอร์มตรวจสอบ',
-    title: 'จัดการแบบฟอร์ม',
+    name: 'แม่แบบฟอร์ม',
+    title: 'จัดการแม่แบบฟอร์ม',
     description: 'สร้างและเผยแพร่แบบฟอร์มสำหรับบทบาทต่างๆ',
     url: '/company/forms/templates',
+  },
+  companyFormReviewQueue: {
+    name: 'คิวตรวจแบบฟอร์ม',
+    title: 'คิวตรวจ',
+    description: 'รายการแบบฟอร์มที่รอการตรวจอนุมัติ',
+    url: '/company/forms/reviews',
+  },
+  companyFormReview: {
+    name: 'ตรวจแบบฟอร์ม',
+    title: 'ตรวจแบบฟอร์ม',
+    description: 'ตรวจสอบคำตอบและพิจารณาอนุมัติหรือส่งกลับแก้ไข',
+    url: '/company/forms/reviews',
   },
   companyFormCreate: {
     name: 'สร้างแบบฟอร์มใหม่',

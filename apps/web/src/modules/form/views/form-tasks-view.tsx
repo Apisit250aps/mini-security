@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { FileText, ClipboardList } from 'lucide-react';
+import { FileText, ClipboardList, Clock } from 'lucide-react';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Badge } from '@repo/ui/components/badge';
 import { toast } from '@repo/ui/components/sonner';
@@ -13,7 +13,7 @@ import { useCompanyMembersQueries } from '@/modules/company/hooks/company-querie
 import { useMyAssignmentsQueries } from '../hooks/form-queries';
 import { useFormSubmissionStart } from '../hooks/form-mutations';
 import { getErrorMessage } from '@/shared/utils';
-import { formatDate } from '@/shared/utils/date';
+import { formatDate, formatDateTime } from '@/shared/utils/date';
 
 export default function FormTasksView() {
   const router = useRouter();
@@ -73,11 +73,27 @@ export default function FormTasksView() {
                     <FileText className="size-5" />
                   </div>
                   <div>
-                    <h4 className="font-semibold">แบบฟอร์มตรวจสอบ</h4>
-                    <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                      <span>สร้างเมื่อ: {assignment.createdAt ? formatDate(assignment.createdAt) : '-'}</span>
+                    <h4 className="font-semibold">{assignment.templateName || 'แบบฟอร์มตรวจสอบ'}</h4>
+                    {assignment.templateDescription && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{assignment.templateDescription}</p>
+                    )}
+                    <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2 mt-1.5">
+                      {assignment.dueAt ? (
+                        <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                          <Clock className="w-3.5 h-3.5" />
+                          กำหนดส่ง: {formatDateTime(assignment.dueAt)}
+                        </span>
+                      ) : (
+                        <span>สร้างเมื่อ: {assignment.createdAt ? formatDate(assignment.createdAt) : '-'}</span>
+                      )}
                       <span>•</span>
-                      <Badge variant="outline">{assignment.companyMemberId ? 'งานส่วนตัว' : 'งานของตำแหน่ง'}</Badge>
+                      <Badge variant="outline">
+                        {assignment.companyMemberId
+                          ? 'งานส่วนตัว'
+                          : assignment.roleName
+                            ? `ตำแหน่ง: ${assignment.roleName}`
+                            : 'งานของตำแหน่ง'}
+                      </Badge>
                     </div>
                   </div>
                 </div>

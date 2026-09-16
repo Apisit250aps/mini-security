@@ -8,50 +8,66 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
-import { useFormSubmissionQueries, useReviewDetailQueries } from '../hooks/form-queries';
+import {
+  useFormSubmissionQueries,
+  useReviewDetailQueries,
+} from '../hooks/form-queries';
 import { useFormReviewFinalize } from '../hooks/form-mutations';
 import { Textarea } from '@repo/ui/components/textarea';
 import Link from 'next/link';
 import { getErrorMessage } from '@/shared/utils';
 
-export default function FormReviewView({ submissionId }: { submissionId: string }) {
+export default function FormReviewView({
+  submissionId,
+}: {
+  submissionId: string;
+}) {
   const router = useRouter();
   const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
-  
+
   const [note, setNote] = useState('');
-  
+
   const submissionQuery = useFormSubmissionQueries(submissionId);
   const reviewQuery = useReviewDetailQueries(submissionId);
-  
+
   const finalizeMutation = useFormReviewFinalize(activeCompanyId || '');
 
   const handleFinalize = (action: 'APPROVE' | 'RETURN') => {
+    if (!submissionQuery.data) return;
     if (action === 'RETURN' && !note.trim()) {
       toast.error('กรุณาระบุหมายเหตุการตีกลับ');
       return;
     }
-    
+
     finalizeMutation.mutate(
       {
         submissionId,
         data: {
           action,
+          expectedRevision: submissionQuery.data.submission.revision,
           note: note.trim() || undefined,
         },
       },
       {
         onSuccess: () => {
-          toast.success(action === 'APPROVE' ? 'อนุมัติแบบฟอร์มเรียบร้อย' : 'ส่งกลับให้แก้ไขเรียบร้อย');
+          toast.success(
+            action === 'APPROVE'
+              ? 'อนุมัติแบบฟอร์มเรียบร้อย'
+              : 'ส่งกลับให้แก้ไขเรียบร้อย',
+          );
           router.push('/company/forms/reviews');
         },
         onError: (err) => {
-          toast.error(getErrorMessage(err, 'เกิดข้อผิดพลาดในการบันทึกผลการตรวจ'));
+          toast.error(
+            getErrorMessage(err, 'เกิดข้อผิดพลาดในการบันทึกผลการตรวจ'),
+          );
         },
-      }
+      },
     );
   };
 
-  const isPageLoading = isCompanyLoading || !activeCompanyId || submissionQuery.isLoading;
+  const isPageLoading =
+    isCompanyLoading || !activeCompanyId || submissionQuery.isLoading;
   const detail = submissionQuery.data;
 
   return (
@@ -62,7 +78,11 @@ export default function FormReviewView({ submissionId }: { submissionId: string 
       isLoading={isPageLoading}
       actions={
         <Link href="/company/forms/reviews">
-          <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground"
+          >
             <ArrowLeft className="size-4" />
             กลับคิวตรวจ
           </Button>
@@ -79,59 +99,91 @@ export default function FormReviewView({ submissionId }: { submissionId: string 
             </div>
           </div>
         </div>
-        
+
         <div className="md:col-span-2 space-y-6">
           {detail?.sections?.map((section) => (
             <div key={section.id} className="p-5 border rounded-xl bg-card">
               <h4 className="font-semibold mb-4">{section.title}</h4>
               <div className="space-y-4">
-                {detail.fields?.filter(f => f.formSectionId === section.id).map(field => {
-                  const answer = detail.answers?.find(a => a.fieldId === field.id);
-                  return (
-                    <div key={field.id} className="p-3 border rounded bg-muted/30">
-                      <p className="text-sm font-medium">{field.label}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{String(answer?.value ?? '-')}</p>
-                    </div>
-                  );
-                })}
+                {detail.fields
+                  ?.filter((f) => f.formSectionId === section.id)
+                  .map((field) => {
+                    const answer = detail.answers?.find(
+                      (a) => a.fieldId === field.id,
+                    );
+                    return (
+                      <div
+                        key={field.id}
+                        className="p-3 border rounded bg-muted/30"
+                      >
+                        <p className="text-sm font-medium">{field.label}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {String(answer?.value ?? '-')}
+                        </p>
+                        {detail.attachments
+                          .filter(
+                            (attachment) => attachment.answerId === answer?.id,
+                          )
+                          .map((attachment) => (
+                            <a
+                              key={attachment.id}
+                              className="block text-sm underline"
+                              href={`/api/forms/attachments/${attachment.id}`}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {attachment.originalName}
+                            </a>
+                          ))}
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           ))}
         </div>
-        
+
         <div className="md:col-span-1">
           <div className="sticky top-20 p-4 border rounded-xl bg-card space-y-4">
             <h3 className="font-medium flex items-center gap-2">
               <FileCheck className="size-4 text-primary" />
               การตัดสินใจ
             </h3>
-            
+
             <div className="space-y-3 pt-2">
               <div className="space-y-2">
-                <label className="text-xs font-medium">หมายเหตุ (จำเป็นเมื่อส่งกลับแก้ไข)</label>
-                <Textarea 
-                  placeholder="ระบุสิ่งที่ต้องแก้ไข..." 
+                <label className="text-xs font-medium">
+                  หมายเหตุ (จำเป็นเมื่อส่งกลับแก้ไข)
+                </label>
+                <Textarea
+                  placeholder="ระบุสิ่งที่ต้องแก้ไข..."
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   className="min-h-[100px] text-sm"
                 />
               </div>
-              
-              <ButtonLoading 
-                className="w-full gap-2" 
+
+              <ButtonLoading
+                className="w-full gap-2"
                 variant="default"
                 onPress={() => handleFinalize('APPROVE')}
-                isLoading={finalizeMutation.isPending && finalizeMutation.variables?.data.action === 'APPROVE'}
+                isLoading={
+                  finalizeMutation.isPending &&
+                  finalizeMutation.variables?.data.action === 'APPROVE'
+                }
               >
                 <CheckCircle2 className="size-4" />
                 อนุมัติผ่าน
               </ButtonLoading>
-              
-              <ButtonLoading 
-                className="w-full gap-2" 
+
+              <ButtonLoading
+                className="w-full gap-2"
                 variant="destructive"
                 onPress={() => handleFinalize('RETURN')}
-                isLoading={finalizeMutation.isPending && finalizeMutation.variables?.data.action === 'RETURN'}
+                isLoading={
+                  finalizeMutation.isPending &&
+                  finalizeMutation.variables?.data.action === 'RETURN'
+                }
               >
                 <AlertCircle className="size-4" />
                 ส่งกลับให้แก้ไข

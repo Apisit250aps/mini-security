@@ -1,4 +1,8 @@
-export type DerivedSubmissionStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+export type DerivedSubmissionStatus =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'APPROVED'
+  | 'REJECTED';
 
 export function getFormSubmissionStatus(
   submission?: { submittedAt?: Date | string | null } | null,
@@ -10,7 +14,7 @@ export function getFormSubmissionStatus(
   if (review?.action === 'APPROVE') {
     return 'APPROVED';
   }
-  if (review?.action === 'REJECT') {
+  if (review?.action === 'RETURN' || review?.action === 'REJECT') {
     return 'REJECTED';
   }
   return 'SUBMITTED';

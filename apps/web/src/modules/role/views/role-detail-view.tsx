@@ -33,6 +33,7 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
 
   const { activeCompanyId } = useActiveCompany();
   const { isSuperAdmin } = usePermission();
+  const basePath = activeCompanyId ? '/company/role' : '/admin/role';
 
   const roleQuery = useRoleDetailQueries(roleId);
   const permissionsQuery = useRolePermissionsQueries(roleId);
@@ -55,7 +56,7 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
     return (
       <DetailPageLayout
         title="กำลังโหลดข้อมูลบทบาท..."
-        backHref="/company/role"
+        backHref={basePath}
         isLoading
       >
         <div />
@@ -67,14 +68,14 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
     return (
       <DetailPageLayout
         title="ไม่พบบทบาท"
-        backHref="/company/role"
+        backHref={basePath}
       >
         <EmptyState
           icon={Shield}
           title="ไม่พบบทบาทที่ระบุ"
           description="บทบาทนี้อาจถูกลบหรือไม่มีสิทธิ์เข้าถึง"
           action={
-            <Button onPress={() => router.push('/company/role')}>
+            <Button onPress={() => router.push(basePath)}>
               กลับสู่หน้ารายการบทบาท
             </Button>
           }
@@ -87,7 +88,7 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
     <DetailPageLayout
       title={role.name}
       description={role.description || 'จัดการรายละเอียดบทบาท สิทธิ์การเข้าถึงระดับโมดูล และฟีเจอร์ที่มอบหมาย'}
-      backHref="/company/role"
+      backHref={basePath}
       backLabel="กลับสู่หน้ารายชื่อบทบาท"
       badges={
         <div className="flex flex-wrap items-center gap-2">
@@ -134,12 +135,17 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
           onSelectionChange={(key) => setActiveTab(key as string)}
           className="w-full"
         >
-          <TabsList className="mb-4">
-            <TabsTrigger id="general">ข้อมูลทั่วไป (General)</TabsTrigger>
-            <TabsTrigger id="permissions">
+          <TabsList className="grid w-full grid-cols-3 max-w-xl mb-4">
+            <TabsTrigger id="general" className="gap-2">
+              <Info className="size-4" />
+              ข้อมูลทั่วไป
+            </TabsTrigger>
+            <TabsTrigger id="permissions" className="gap-2">
+              <KeyRound className="size-4" />
               สิทธิ์การเข้าถึง ({permissionsCount})
             </TabsTrigger>
-            <TabsTrigger id="features">
+            <TabsTrigger id="features" className="gap-2">
+              <Layers className="size-4" />
               ฟีเจอร์ที่ดูแล ({featuresCount})
             </TabsTrigger>
           </TabsList>
@@ -219,7 +225,7 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
                 <RoleFeatureManager
                   role={role}
                   companyId={role.companyId || activeCompanyId || ''}
-                  readOnly={isReadOnly}
+                  readOnly={!activeCompanyId && !isSuperAdmin}
                 />
               </CardContent>
             </Card>

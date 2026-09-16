@@ -6,6 +6,9 @@ import {
   formServicesListMyAssignments,
   formServicesListReviewQueue,
   formServicesGetReviewDetail,
+  formServicesListPlans,
+  formServicesGetPlan,
+  formServicesListOccurrences,
 } from '@repo/client';
 import { useQuery } from '@tanstack/react-query';
 import { formKeys } from '@/shared/utils';
@@ -116,3 +119,55 @@ export function useReviewDetailQueries(submissionId: string) {
     enabled: Boolean(submissionId),
   });
 }
+
+export function useFormPlansQueries(companyId: string, templateId?: string) {
+  return useQuery({
+    queryKey: formKeys.plans(companyId, templateId),
+    queryFn: async ({ signal }) => {
+      const response = await formServicesListPlans({
+        signal,
+        query: { companyId },
+      });
+      const allPlans = response.data?.data || [];
+      if (templateId) {
+        return allPlans.filter((p) => p.formTemplateId === templateId);
+      }
+      return allPlans;
+    },
+    enabled: Boolean(companyId),
+  });
+}
+
+export function useFormPlanDetailQueries(planId: string) {
+  return useQuery({
+    queryKey: formKeys.plan(planId),
+    queryFn: async ({ signal }) => {
+      const response = await formServicesGetPlan({
+        signal,
+        path: { id: planId },
+      });
+      return response.data?.data || null;
+    },
+    enabled: Boolean(planId),
+  });
+}
+
+export function useFormOccurrencesQueries(filters: {
+  companyId: string;
+  formTemplateId?: string;
+  planId?: string;
+}) {
+  return useQuery({
+    queryKey: formKeys.occurrences(filters.companyId, filters.formTemplateId),
+    queryFn: async ({ signal }) => {
+      const response = await formServicesListOccurrences({
+        signal,
+        query: filters,
+      });
+      return response.data?.data || [];
+    },
+    enabled: Boolean(filters.companyId),
+  });
+}
+
+

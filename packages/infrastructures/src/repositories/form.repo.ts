@@ -459,11 +459,18 @@ export class FormOccurrenceRepository implements IFormOccurrenceRepository {
     return new FormOccurrence(result as unknown as FormOccurrence);
   }
 
-  async list(companyId: string): Promise<FormOccurrence[]> {
+  async list(companyId: string, formTemplateId?: string, planId?: string): Promise<FormOccurrence[]> {
+    const conditions = [eq(formOccurrence.companyId, companyId)];
+    if (formTemplateId) {
+      conditions.push(eq(formOccurrence.formTemplateId, formTemplateId));
+    }
+    if (planId) {
+      conditions.push(eq(formOccurrence.planId, planId));
+    }
     const results = await this.db
       .select()
       .from(formOccurrence)
-      .where(eq(formOccurrence.companyId, companyId))
+      .where(and(...conditions))
       .orderBy(desc(formOccurrence.opensAt));
     return results.map((r) => new FormOccurrence(r as unknown as FormOccurrence));
   }
@@ -625,8 +632,7 @@ export class FormSubmissionRepository
         and(
           eq(formSubmission.assignmentId, assignmentId),
           eq(formSubmission.companyId, companyId),
-          isNull(formSubmission.submittedAt),
-          isNull(formSubmission.supersedesSubmissionId)
+          isNull(formSubmission.submittedAt)
         )
       )
       .orderBy(desc(formSubmission.createdAt))

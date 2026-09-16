@@ -129,6 +129,15 @@ interface FormServices {
   previewSchedule(@path id: string): ApiOkResponse<utcDateTime[]> | ApiNotFoundResponse | ApiUnauthorizedResponse;
 
   // ─── Occurrences ─────────────────────────────────────────────────────────
+  @get
+  @route("/occurrences")
+  @summary("List form occurrences")
+  listOccurrences(
+    @query companyId: string,
+    @query formTemplateId?: string,
+    @query planId?: string
+  ): ApiOkResponse<Domain.Entity.FormOccurrence[]> | ApiUnauthorizedResponse;
+
   @post
   @route("/occurrences/open")
   @summary("Open due occurrences")
@@ -143,7 +152,7 @@ interface FormServices {
   @get
   @route("/assignments")
   @summary("List my assignments")
-  listMyAssignments(@query companyId: string, @query memberId: string): ApiOkResponse<Domain.Entity.FormAssignment[]> | ApiUnauthorizedResponse;
+  listMyAssignments(@query companyId: string, @query memberId: string): ApiOkResponse<FormAssignmentItem[]> | ApiUnauthorizedResponse;
 
   @get
   @route("/assignments/{id}")
@@ -159,6 +168,18 @@ interface FormServices {
   @route("/assignments/{id}/replace")
   @summary("Replace assignment")
   replaceAssignment(@path id: string, @body body: ReplaceAssignmentRequest): ApiOkResponse<Domain.Entity.FormAssignment> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @post
+  @route("/submissions/{id}/fields/{fieldId}/attachments")
+  uploadAttachment(@path id: string, @path fieldId: string, @header contentType: "multipart/form-data", @multipartBody body: { file: HttpPart<File>; expectedRevision: HttpPart<int32>; }): ApiCreatedResponse<FormAnswerAttachment> | ApiBadRequestResponse | ApiUnauthorizedResponse;
+
+  @get
+  @route("/attachments/{attachmentId}")
+  downloadAttachment(@path attachmentId: string): { @header contentType: string; @body body: bytes; } | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
+  @delete
+  @route("/attachments/{attachmentId}")
+  deleteAttachment(@path attachmentId: string, @body body: SubmitFormSubmissionRequest): ApiOkBasicResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
 
   // ─── Submissions ──────────────────────────────────────────────────────────
   @post
@@ -218,7 +239,7 @@ interface FormServices {
   @get
   @route("/reviews")
   @summary("List review queue")
-  listReviewQueue(@query companyId: string): ApiOkResponse<FormSubmission[]> | ApiUnauthorizedResponse;
+  listReviewQueue(@query companyId: string): ApiOkResponse<ReviewQueueItem[]> | ApiUnauthorizedResponse;
 
   @get
   @route("/submissions/{id}/review-entries")

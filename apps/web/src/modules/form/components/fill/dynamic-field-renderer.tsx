@@ -5,13 +5,14 @@ import type { FormField } from '@repo/domains/entities';
 import { Input } from '@repo/ui/components/input';
 import { Textarea } from '@repo/ui/components/textarea';
 import { Switch } from '@repo/ui/components/switch';
-import { FileUpload, type FileMetadata } from '@repo/ui/components/shared/form';
+import { renderFormAttachmentField } from './form-attachment-field';
 
 interface DynamicFieldRendererProps {
   field: FormField;
   value: unknown;
   onChange: (value: unknown) => void;
   disabled?: boolean;
+  submissionId?: string;
 }
 
 export default function DynamicFieldRenderer({
@@ -19,6 +20,7 @@ export default function DynamicFieldRenderer({
   value,
   onChange,
   disabled = false,
+  submissionId,
 }: DynamicFieldRendererProps) {
   const isRequired = field.isRequired;
 
@@ -97,74 +99,20 @@ export default function DynamicFieldRenderer({
           />
         );
 
-      case 'IMAGE': {
-        const imageFiles: FileMetadata[] = [];
-        if (typeof value === 'string' && value) {
-          imageFiles.push({
-            id: 'init-img',
-            name: value.split('/').pop() || 'image.jpg',
-            size: 0,
-            type: 'image/jpeg',
-            url: value,
-            preview: value,
-          });
-        } else if (Array.isArray(value)) {
-          imageFiles.push(...(value as FileMetadata[]));
-        }
-
-        return (
-          <FileUpload
-            accept="image/*"
-            maxSizeMB={5}
-            multiple={false}
-            disabled={disabled}
-            placeholder="ลากรูปภาพมาวางที่นี่ หรือคลิกเพื่อเลือกรูป"
-            description="รองรับไฟล์รูปภาพ JPG, PNG, WebP (สูงสุด 5MB)"
-            value={imageFiles}
-            onChange={(files: FileMetadata[]) => {
-              if (files.length === 0) {
-                onChange('');
-              } else {
-                onChange(files[0]?.preview || files[0]?.url || files[0]?.name || '');
-              }
-            }}
-          />
+      case 'IMAGE':
+      case 'FILE':
+        return submissionId ? (
+          renderFormAttachmentField({
+            submissionId,
+            fieldId: field.id,
+            image: field.type === 'IMAGE',
+            disabled,
+          })
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            แนบไฟล์ได้เมื่อเปิดกรอกแบบฟอร์ม
+          </p>
         );
-      }
-
-      case 'FILE': {
-        const docFiles: FileMetadata[] = [];
-        if (typeof value === 'string' && value) {
-          docFiles.push({
-            id: 'init-file',
-            name: value.split('/').pop() || 'attachment',
-            size: 0,
-            type: 'application/octet-stream',
-            url: value,
-          });
-        } else if (Array.isArray(value)) {
-          docFiles.push(...(value as FileMetadata[]));
-        }
-
-        return (
-          <FileUpload
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.png,.jpg"
-            maxSizeMB={10}
-            multiple={false}
-            disabled={disabled}
-            placeholder="ลากไฟล์เอกสารมาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์แนบ"
-            description="รองรับไฟล์เอกสาร PDF, Office, ภาพถ่าย (สูงสุด 10MB)"
-            value={docFiles}
-            onChange={(files: FileMetadata[]) => {
-              if (files.length === 0) {
-                onChange('');
-              } else {
-                onChange(files[0]?.preview || files[0]?.url || files[0]?.name || '');
-              }
-            }}
-          />
-        );
-      }
 
       default:
         return (

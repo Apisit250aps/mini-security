@@ -505,6 +505,20 @@ export type DomainEntityFormRoleDistribution = 'SHARED' | 'PER_MEMBER';
 
 export type DomainEntityFormScheduleKind = 'RECURRING' | 'EXPLICIT';
 
+export type DomainEntityFormSubmission = {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    companyId: string;
+    assignmentId: string;
+    formVersionId: string;
+    startedBy: string;
+    submittedBy?: string | null;
+    revision: number;
+    supersedesSubmissionId?: string | null;
+    submittedAt?: Date | null;
+};
+
 export type DomainEntityFormVersionStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
 export type DomainEntityLeaveRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
@@ -543,6 +557,7 @@ export type FeatureAccessResponse = {
 };
 
 export type FinalizeReviewRequest = {
+    expectedRevision: number;
     action: DomainEntityFormReviewAction;
     note?: string;
 };
@@ -571,6 +586,14 @@ export type FormAnswerAttachment = {
     sizeBytes: number;
     sortOrder: number;
     uploadedBy: string;
+};
+
+export type FormAssignmentItem = DomainEntityFormAssignment & {
+    templateName?: string;
+    templateDescription?: string;
+    opensAt?: Date;
+    dueAt?: Date;
+    roleName?: string;
 };
 
 export type FormField = {
@@ -635,6 +658,7 @@ export type FormSubmissionDetail = {
     sections: Array<FormSection>;
     fields: Array<FormField>;
     answers: Array<FormAnswer>;
+    attachments: Array<FormAnswerAttachment>;
     contributors: Array<FormSubmissionContributor>;
 };
 
@@ -754,6 +778,7 @@ export type PublishFormVersionRequest = {
 };
 
 export type RecordReviewRequest = {
+    expectedRevision: number;
     action: DomainEntityFormReviewAction;
     note?: string;
     supersedesEntryId?: string;
@@ -773,6 +798,11 @@ export type ReplaceAssignmentRequest = {
 export type ReviewLeaveRequestRequest = {
     action: 'approved' | 'rejected';
     reviewNote?: string;
+};
+
+export type ReviewQueueItem = DomainEntityFormSubmission & {
+    templateName?: string;
+    submitterName?: string;
 };
 
 export type Role = {
@@ -2573,7 +2603,7 @@ export type FormServicesListMyAssignmentsResponses = {
     200: {
         success: boolean;
         message: string;
-        data?: Array<DomainEntityFormAssignment>;
+        data?: Array<FormAssignmentItem>;
     };
 };
 
@@ -2692,6 +2722,66 @@ export type FormServicesReplaceAssignmentResponses = {
 
 export type FormServicesReplaceAssignmentResponse = FormServicesReplaceAssignmentResponses[keyof FormServicesReplaceAssignmentResponses];
 
+export type FormServicesDeleteAttachmentData = {
+    body: SubmitFormSubmissionRequest;
+    path: {
+        attachmentId: string;
+    };
+    query?: never;
+    url: '/forms/attachments/{attachmentId}';
+};
+
+export type FormServicesDeleteAttachmentErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesDeleteAttachmentError = FormServicesDeleteAttachmentErrors[keyof FormServicesDeleteAttachmentErrors];
+
+export type FormServicesDeleteAttachmentResponses = {
+    /**
+     * 200 OK without data
+     */
+    200: BasicResponse;
+};
+
+export type FormServicesDeleteAttachmentResponse = FormServicesDeleteAttachmentResponses[keyof FormServicesDeleteAttachmentResponses];
+
+export type FormServicesDownloadAttachmentData = {
+    body?: never;
+    path: {
+        attachmentId: string;
+    };
+    query?: never;
+    url: '/forms/attachments/{attachmentId}';
+};
+
+export type FormServicesDownloadAttachmentErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesDownloadAttachmentError = FormServicesDownloadAttachmentErrors[keyof FormServicesDownloadAttachmentErrors];
+
+export type FormServicesDownloadAttachmentResponses = {
+    /**
+     * The request has succeeded.
+     */
+    200: unknown;
+};
+
 export type FormServicesListTemplatesByCompanyData = {
     body?: never;
     path: {
@@ -2722,6 +2812,39 @@ export type FormServicesListTemplatesByCompanyResponses = {
 };
 
 export type FormServicesListTemplatesByCompanyResponse = FormServicesListTemplatesByCompanyResponses[keyof FormServicesListTemplatesByCompanyResponses];
+
+export type FormServicesListOccurrencesData = {
+    body?: never;
+    path?: never;
+    query: {
+        companyId: string;
+        formTemplateId?: string;
+        planId?: string;
+    };
+    url: '/forms/occurrences';
+};
+
+export type FormServicesListOccurrencesErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesListOccurrencesError = FormServicesListOccurrencesErrors[keyof FormServicesListOccurrencesErrors];
+
+export type FormServicesListOccurrencesResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<DomainEntityFormOccurrence>;
+    };
+};
+
+export type FormServicesListOccurrencesResponse = FormServicesListOccurrencesResponses[keyof FormServicesListOccurrencesResponses];
 
 export type FormServicesOpenOccurrencesData = {
     body: OpenOccurrencesRequest;
@@ -3032,7 +3155,7 @@ export type FormServicesListReviewQueueResponses = {
     200: {
         success: boolean;
         message: string;
-        data?: Array<FormSubmission>;
+        data?: Array<ReviewQueueItem>;
     };
 };
 
@@ -3255,6 +3378,45 @@ export type FormServicesSaveDraftResponses = {
 };
 
 export type FormServicesSaveDraftResponse = FormServicesSaveDraftResponses[keyof FormServicesSaveDraftResponses];
+
+export type FormServicesUploadAttachmentData = {
+    body: {
+        file: unknown;
+        expectedRevision: number;
+    };
+    path: {
+        id: string;
+        fieldId: string;
+    };
+    query?: never;
+    url: '/forms/submissions/{id}/fields/{fieldId}/attachments';
+};
+
+export type FormServicesUploadAttachmentErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesUploadAttachmentError = FormServicesUploadAttachmentErrors[keyof FormServicesUploadAttachmentErrors];
+
+export type FormServicesUploadAttachmentResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    201: {
+        success: boolean;
+        message: string;
+        data?: FormAnswerAttachment;
+    };
+};
+
+export type FormServicesUploadAttachmentResponse = FormServicesUploadAttachmentResponses[keyof FormServicesUploadAttachmentResponses];
 
 export type FormServicesFinalizeReviewData = {
     body: FinalizeReviewRequest;

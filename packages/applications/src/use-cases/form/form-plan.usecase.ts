@@ -20,8 +20,16 @@ import type {
   IFormTemplateRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
-import { createFormPlanSchema } from '@repo/domains/schema/form';
-import { BadRequestError, NotFoundError, ValidationError } from '../../lib/error';
+import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import {
+  createFormPlanSchema,
+  formScheduleConfigSchema,
+} from '@repo/domains/schema/form';
+import {
+  BadRequestError,
+  NotFoundError,
+  ValidationError,
+} from '../../lib/error';
 
 export class CreateFormPlanUseCase implements ICreateFormPlanUseCase {
   constructor(
@@ -31,6 +39,7 @@ export class CreateFormPlanUseCase implements ICreateFormPlanUseCase {
     private readonly periodRepo: IFormPlanPeriodRepository,
     private readonly templateRepo: IFormTemplateRepository,
     private readonly versionRepo: IFormVersionRepository,
+    private readonly memberRepo?: ICompanyMemberRepository,
   ) {}
 
   @RequirePermission('form_plan:manage')
@@ -38,19 +47,59 @@ export class CreateFormPlanUseCase implements ICreateFormPlanUseCase {
     const companyId = context.companyId ?? context.activeCompanyId;
     if (!companyId) throw new BadRequestError('companyId is required');
     return this.unitOfWork.transaction(async () => {
-      const parsed = await createFormPlanSchema.safeParseAsync(context.data);
+      if (!context.memberId || !this.memberRepo)
+        throw new BadRequestError('Active company membership is required');
+      const member = await this.memberRepo.findById(context.memberId);
+      if (
+        !member?.isActive ||
+        member.companyId !== companyId ||
+        member.userId !== context.user?.id
+      )
+        throw new BadRequestError('Active company membership is required');
+      const createdBy = member.id;
+
+      const parsed = await createFormPlanSchema.safeParseAsync({
+        ...context.data,
+        companyId,
+        createdBy,
+      });
       if (!parsed.success) {
         throw new ValidationError('Invalid form plan data', parsed.error);
       }
 
-      const template = await this.templateRepo.findByIdAndCompany(parsed.data.formTemplateId!, companyId);
+      const template = await this.templateRepo.findByIdAndCompany(
+        parsed.data.formTemplateId!,
+        companyId,
+      );
       if (!template) {
-        throw new NotFoundError('Form template not found or does not belong to company');
+        throw new NotFoundError(
+          'Form template not found or does not belong to company',
+        );
       }
 
+      const validTimezone = await Promise.resolve()
+        .then(
+          () =>
+            new Intl.DateTimeFormat('en', { timeZone: parsed.data.timezone }),
+        )
+        .then(
+          () => true,
+          () => false,
+        );
+      if (!validTimezone) throw new ValidationError('Invalid IANA timezone');
       if (parsed.data.scheduleKind === 'RECURRING') {
+        const schedule = await formScheduleConfigSchema.safeParseAsync(
+          parsed.data.scheduleConfig,
+        );
+        if (!schedule.success)
+          throw new ValidationError(
+            'Invalid recurring schedule',
+            schedule.error,
+          );
         if (!parsed.data.scheduleConfig) {
-          throw new BadRequestError('scheduleConfig is required for RECURRING plans');
+          throw new BadRequestError(
+            'scheduleConfig is required for RECURRING plans',
+          );
         }
       } else if (parsed.data.scheduleKind === 'EXPLICIT') {
         if (!context.periods || context.periods.length === 0) {
@@ -58,15 +107,21 @@ export class CreateFormPlanUseCase implements ICreateFormPlanUseCase {
         }
         for (const p of context.periods) {
           if (new Date(p.dueAt) <= new Date(p.opensAt)) {
-            throw new BadRequestError('dueAt must be strictly greater than opensAt');
+            throw new BadRequestError(
+              'dueAt must be strictly greater than opensAt',
+            );
           }
         }
       }
 
       if (parsed.data.fixedVersionId) {
-        const fixedVersion = await this.versionRepo.findById(parsed.data.fixedVersionId);
+        const fixedVersion = await this.versionRepo.findById(
+          parsed.data.fixedVersionId,
+        );
         if (!fixedVersion || fixedVersion.formTemplateId !== template.id) {
-          throw new BadRequestError('fixedVersionId must belong to the same form template');
+          throw new BadRequestError(
+            'fixedVersionId must belong to the same form template',
+          );
         }
       }
 
@@ -148,9 +203,13 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
         throw new BadRequestError('Plan is already active');
       }
 
-      const publishedVersion = await this.versionRepo.findPublishedByTemplateId(plan.formTemplateId);
+      const publishedVersion = await this.versionRepo.findPublishedByTemplateId(
+        plan.formTemplateId,
+      );
       if (!publishedVersion) {
-        throw new BadRequestError('Template must have a published version to activate plan');
+        throw new BadRequestError(
+          'Template must have a published version to activate plan',
+        );
       }
 
       const targets = await this.targetRepo.findByPlanId(plan.id);
@@ -161,12 +220,16 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
       if (plan.scheduleKind === 'EXPLICIT') {
         const periods = await this.periodRepo.findByPlanId(plan.id);
         if (periods.length === 0) {
-          throw new BadRequestError('EXPLICIT plan must have at least one period');
+          throw new BadRequestError(
+            'EXPLICIT plan must have at least one period',
+          );
         }
       }
 
       return this.planRepo.update(plan.id, {
         effectiveFrom: new Date(),
+        effectiveUntil: null,
+        closedBy: null,
         revision: plan.revision + 1,
       });
     });

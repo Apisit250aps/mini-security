@@ -1,5 +1,7 @@
 'use client';
 
+import { useIsMutating } from '@tanstack/react-query';
+
 import React, { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -32,7 +34,10 @@ import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-c
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
-import { useFormSubmissionQueries, useReviewDetailQueries } from '../hooks/form-queries';
+import {
+  useFormSubmissionQueries,
+  useReviewDetailQueries,
+} from '../hooks/form-queries';
 import {
   useFormSubmissionSaveDraft,
   useFormSubmissionSubmit,
@@ -104,7 +109,17 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     submissionId,
     activeCompanyId || '',
   );
-  const correctionMutation = useFormSubmissionCreateCorrection(submissionId, activeCompanyId || '');
+  const correctionMutation = useFormSubmissionCreateCorrection(
+    submissionId,
+    activeCompanyId || '',
+  );
+
+  const attachmentPending =
+    useIsMutating({ mutationKey: ['FORM', 'ATTACHMENT', submissionId] }) > 0;
+  const busy =
+    attachmentPending ||
+    saveDraftMutation.isPending ||
+    submitMutation.isPending;
 
   const [edits, setEdits] = useState<Record<string, unknown>>({});
 
@@ -115,7 +130,6 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   const memberId = currentMember?.id || session?.user.id || '';
 
   const roles = rolesQuery.data || [];
-  
 
   // Derive current answers from query + user edits without setState in effect
   const answers = useMemo(() => {
@@ -132,10 +146,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     setEdits((prev) => ({ ...prev, [fieldId]: val }));
   }, []);
 
-  const detailStatus = getFormSubmissionStatus(
-    detail?.submission,
-    undefined,
-  );
+  const detailStatus = getFormSubmissionStatus(detail?.submission, undefined);
   const isReadOnly = detailStatus !== 'DRAFT';
 
   // Group fields by section
@@ -152,19 +163,19 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
   const handleSaveDraft = useCallback(() => {
     if (!detail) return;
-    const answerEntries = Object.entries(answers).map(([fieldId, value]) => ({
+    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
       fieldId,
       value,
     }));
 
     saveDraftMutation.mutate(
       {
-        
         expectedRevision: detail.submission.revision,
         answers: answerEntries,
       },
       {
         onSuccess: () => {
+          setEdits({});
           toast.success('บันทึกฉบับร่างเรียบร้อยแล้ว');
         },
         onError: (err) => {
@@ -172,7 +183,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         },
       },
     );
-  }, [detail, answers,  saveDraftMutation]);
+  }, [detail, edits, saveDraftMutation]);
 
   const handleSubmit = useCallback(() => {
     if (!detail) return;
@@ -180,6 +191,14 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     // Validate required fields
     const missingFields = detail.fields.filter((field) => {
       if (!field.isRequired) return false;
+      if (field.type === 'IMAGE' || field.type === 'FILE') {
+        const answer = detail.answers.find(
+          (answer) => answer.fieldId === field.id,
+        );
+        return !detail.attachments.some(
+          (attachment) => attachment.answerId === answer?.id,
+        );
+      }
       const val = answers[field.id];
       if (val === undefined || val === null || val === '') return true;
       return false;
@@ -192,22 +211,21 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
       return;
     }
 
-    const answerEntries = Object.entries(answers).map(([fieldId, value]) => ({
+    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
       fieldId,
       value,
     }));
 
     saveDraftMutation.mutate(
       {
-        
         expectedRevision: detail.submission.revision,
         answers: answerEntries,
       },
       {
         onSuccess: (updatedSub) => {
+          setEdits({});
           submitMutation.mutate(
             {
-              
               expectedRevision:
                 updatedSub?.data?.revision ?? detail.submission.revision + 1,
             },
@@ -229,7 +247,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         },
       },
     );
-  }, [detail, answers,  saveDraftMutation, submitMutation, router]);
+  }, [detail, answers, edits, saveDraftMutation, submitMutation, router]);
 
   const handleClone = useCallback(() => {
     if (!detail || !activeCompanyId || !currentMember) return;
@@ -239,22 +257,19 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         'ระบบจะคัดลอกคำตอบทั้งหมดจากฉบับเดิมที่ถูกปฏิเสธ มาสร้างเป็นฉบับร่างใหม่ (Draft) เพื่อให้แก้ไขและส่งใหม่',
       confirmVariant: 'default',
       onConfirm: () => {
-        correctionMutation.mutate(
-          undefined,
-          {
-            onSuccess: (res) => {
-              ui.alert.close();
-              const newSub = res?.data;
-              if (newSub?.id) {
-                toast.success('สร้างฉบับแก้ไขใหม่เรียบร้อยแล้ว');
-                router.push(`/company/forms/submissions/${newSub.id}`);
-              }
-            },
-            onError: (err) => {
-              toast.error(getErrorMessage(err, 'ไม่สามารถคัดลอกแบบฟอร์มได้'));
-            },
+        correctionMutation.mutate(undefined, {
+          onSuccess: (res) => {
+            ui.alert.close();
+            const newSub = res?.data;
+            if (newSub?.id) {
+              toast.success('สร้างฉบับแก้ไขใหม่เรียบร้อยแล้ว');
+              router.push(`/company/forms/submissions/${newSub.id}`);
+            }
           },
-        );
+          onError: (err) => {
+            toast.error(getErrorMessage(err, 'ไม่สามารถคัดลอกแบบฟอร์มได้'));
+          },
+        });
       },
     });
   }, [
@@ -350,6 +365,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 size="sm"
                 className="gap-1.5"
                 onPress={handleSaveDraft}
+                isDisabled={busy}
                 isLoading={saveDraftMutation.isPending}
               >
                 <Save className="size-4" />
@@ -361,7 +377,9 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 className="gap-1.5"
                 onPress={handleSubmit}
                 isLoading={
-                  submitMutation.isPending || saveDraftMutation.isPending
+                  submitMutation.isPending ||
+                  saveDraftMutation.isPending ||
+                  attachmentPending
                 }
               >
                 <Send className="size-4" />
@@ -438,9 +456,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 <Shield className="size-3.5 text-primary" />
                 <span>
                   บทบาทที่รับผิดชอบ:{' '}
-                  <strong className="text-foreground">
-                    {'สมาชิกทั่วไป'}
-                  </strong>
+                  <strong className="text-foreground">{'สมาชิกทั่วไป'}</strong>
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -598,11 +614,12 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                       <div className="grid grid-cols-1 gap-4">
                         {sectionFields.map((field) => (
                           <DynamicFieldRenderer
+                            submissionId={submissionId}
                             key={field.id}
                             field={field}
                             value={answers[field.id]}
                             onChange={(val) => handleFieldChange(field.id, val)}
-                            disabled={isReadOnly}
+                            disabled={isReadOnly || busy}
                           />
                         ))}
                       </div>
@@ -635,6 +652,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 variant="outline"
                 size="sm"
                 onPress={handleSaveDraft}
+                isDisabled={busy}
                 isLoading={saveDraftMutation.isPending}
                 className="gap-1.5"
               >
@@ -646,7 +664,9 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                 size="sm"
                 onPress={handleSubmit}
                 isLoading={
-                  submitMutation.isPending || saveDraftMutation.isPending
+                  submitMutation.isPending ||
+                  saveDraftMutation.isPending ||
+                  attachmentPending
                 }
                 className="gap-1.5"
               >

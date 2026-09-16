@@ -35,6 +35,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8000
+ENV FORM_UPLOAD_DIR=/app/data/form-attachments
 ENV HOSTNAME="0.0.0.0"
 
 RUN addgroup --system --gid 1001 nodejs
@@ -42,6 +43,8 @@ RUN adduser --system --uid 1001 apiuser
 
 # Copy workspace source and built artifacts
 COPY --from=builder --chown=apiuser:nodejs /app ./
+
+RUN mkdir -p /app/data/form-attachments && chown -R apiuser:nodejs /app/data
 
 USER apiuser
 

@@ -4,20 +4,28 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import FormPageLayout from '@/shared/components/layouts/form-page-layout';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import RoleCreateForm from '../components/form/role-create-form';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui/components/card';
 import { ShieldCheck, Info, CheckCircle2 } from 'lucide-react';
 
 export default function RoleCreateView() {
   const router = useRouter();
-  const { activeCompanyId, isLoading } = useActiveCompany();
+  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { isSuperAdmin } = usePermission();
+  const basePath = activeCompanyId ? '/company/role' : '/admin/role';
+  const isPageLoading = isCompanyLoading && !isSuperAdmin;
 
   return (
     <FormPageLayout
       title="เพิ่มบทบาทใหม่"
-      description="กำหนดบทบาทและตำแหน่งพนักงานสำหรับองค์กรนี้ พร้อมระบุประเภทสิทธิ์เริ่มต้น"
-      backHref="/company/role"
-      isLoading={isLoading || !activeCompanyId}
+      description={
+        activeCompanyId
+          ? 'กำหนดบทบาทและตำแหน่งพนักงานสำหรับองค์กรนี้ พร้อมระบุประเภทสิทธิ์เริ่มต้น'
+          : 'สร้างบทบาทใหม่ในระบบ กำหนดระดับสิทธิ์และขอบเขตการใช้งาน'
+      }
+      backHref={basePath}
+      isLoading={isPageLoading}
       maxWidth="3xl"
       sidebar={
         <div className="flex flex-col gap-4">
@@ -70,8 +78,8 @@ export default function RoleCreateView() {
       <Card>
         <CardContent className="p-6">
           <RoleCreateForm
-            companyId={activeCompanyId}
-            onSuccess={() => router.push('/company/role')}
+            companyId={activeCompanyId || undefined}
+            onSuccess={() => router.push(basePath)}
           />
         </CardContent>
       </Card>

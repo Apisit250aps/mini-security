@@ -50,3 +50,4 @@ yarn-error.log*
 dbml-error.log
 
 .plans
+.data/

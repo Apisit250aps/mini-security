@@ -3,9 +3,11 @@ import {
   MapPinIcon,
   CalendarCheckIcon,
   CalendarDaysIcon,
+  ClipboardCheckIcon,
   ClipboardListIcon,
   ClockIcon,
   FileCheck2Icon,
+  FileSearchIcon,
   FileTextIcon,
   LayoutDashboardIcon,
   ShieldCheckIcon,
@@ -62,10 +64,22 @@ export const companySidebarConfig: NavItem[] = [
   ]),
   sidebarGroupBuilder('forms', 'ระบบแบบฟอร์ม', [
     {
+      id: 'companyFormTasks',
+      icon: <ClipboardCheckIcon />,
+      featureCode: 'FORM_MANAGEMENT',
+      requiredPermissions: 'form_submission:read',
+    },
+    {
       id: 'companyFormTemplates',
       icon: <ClipboardListIcon />,
       featureCode: 'FORM_MANAGEMENT',
       requiredPermissions: 'form_template:read',
+    },
+    {
+      id: 'companyFormReviewQueue',
+      icon: <FileSearchIcon />,
+      featureCode: 'FORM_MANAGEMENT',
+      requiredPermissions: 'form_review:read',
     },
     {
       id: 'companyFormSubmissions',
