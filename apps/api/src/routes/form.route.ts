@@ -10,10 +10,12 @@ import {
   createFormFieldUseCase,
   editFormFieldUseCase,
   deleteFormFieldUseCase,
+  deleteFormSectionUseCase,
   publishFormVersionUseCase,
   reorderFormSectionUseCase,
   reorderFormFieldUseCase,
   createFormPlanUseCase,
+  updateFormPlanUseCase,
   getFormPlanUseCase,
   listFormPlansUseCase,
   activateFormPlanUseCase,
@@ -51,10 +53,12 @@ const formController = new FormController(
   createFormFieldUseCase,
   editFormFieldUseCase,
   deleteFormFieldUseCase,
+  deleteFormSectionUseCase,
   publishFormVersionUseCase,
   reorderFormSectionUseCase,
   reorderFormFieldUseCase,
   createFormPlanUseCase,
+  updateFormPlanUseCase,
   getFormPlanUseCase,
   listFormPlansUseCase,
   activateFormPlanUseCase,
@@ -93,6 +97,10 @@ formRoutes.get(
   formController.listTemplatesByCompany,
 );
 formRoutes.post('/templates/:id/sections', formController.createSection);
+formRoutes.delete(
+  '/templates/:id/sections/:sectionId',
+  formController.deleteSection,
+);
 formRoutes.post('/templates/:id/fields', formController.createField);
 formRoutes.put('/templates/:id/fields/:fieldId', formController.editField);
 formRoutes.delete('/templates/:id/fields/:fieldId', formController.deleteField);
@@ -107,6 +115,8 @@ formRoutes.patch('/templates/:id/fields/reorder', formController.reorderFields);
 formRoutes.post('/plans', formController.createPlan);
 formRoutes.get('/plans', formController.listPlans);
 formRoutes.get('/plans/:id', formController.getPlan);
+formRoutes.put('/plans/:id', formController.updatePlan);
+formRoutes.patch('/plans/:id', formController.updatePlan);
 formRoutes.post('/plans/:id/activate', formController.activatePlan);
 formRoutes.post('/plans/:id/pause', formController.pausePlan);
 formRoutes.get('/plans/:id/schedule-preview', formController.previewSchedule);

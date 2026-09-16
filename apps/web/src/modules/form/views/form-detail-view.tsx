@@ -7,23 +7,19 @@ import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-c
 import {
   useFormTemplateQueries,
   useFormPlansQueries,
-  useFormOccurrencesQueries,
 } from '../hooks/form-queries';
 import {
   useFormTemplateUpdate,
   useFormPlanActivate,
   useFormPlanPause,
-  useFormOccurrencesOpen,
-  useFormOccurrenceCancel,
 } from '../hooks/form-mutations';
-import type { FormPlan, FormOccurrence } from '@repo/domains/entities';
+import type { FormPlan } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui/components/tabs';
 import {
   FileText,
   Layers,
   Calendar,
-  CalendarDays,
   Settings2,
   ArrowLeft,
   Eye,
@@ -35,8 +31,6 @@ import {
   Plus,
   Play,
   Pause,
-  Zap,
-  XCircle,
 } from 'lucide-react';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
@@ -57,7 +51,6 @@ import FormTemplatePreviewDialog from '../components/template/form-template-prev
 import FormTemplateForm, {
   type FormTemplateFormValues,
 } from '../components/template/form-template-form';
-import FormPlanCreateDialog from '../components/plan/form-plan-create-dialog';
 
 interface FormDetailViewProps {
   templateId: string;
@@ -70,9 +63,9 @@ function PlanItemCard({
   plan: FormPlan;
   companyId: string;
 }) {
+  const router = useRouter();
   const activateMutation = useFormPlanActivate(companyId, plan.id);
   const pauseMutation = useFormPlanPause(companyId, plan.id);
-  const openOccurrencesMutation = useFormOccurrencesOpen(companyId);
 
   const isActive = Boolean(plan.effectiveFrom && !plan.effectiveUntil);
   const isPaused = Boolean(plan.effectiveUntil);
@@ -108,6 +101,16 @@ function PlanItemCard({
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => router.push(`/company/forms/plans/${plan.id}`)}
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            ดูรายละเอียดและการตั้งค่าแผน
+          </Button>
+
           {isActive ? (
             <Button
               variant="outline"
@@ -129,19 +132,6 @@ function PlanItemCard({
             >
               <Play className="w-3.5 h-3.5" />
               เปิดใช้งาน (Activate)
-            </Button>
-          )}
-
-          {isActive && (
-            <Button
-              variant="secondary"
-              size="sm"
-              className="gap-1 text-primary"
-              onClick={() => openOccurrencesMutation.mutate({ companyId })}
-              isDisabled={openOccurrencesMutation.isPending}
-            >
-              <Zap className="w-3.5 h-3.5" />
-              เปิดรอบงานทันที (Trigger)
             </Button>
           )}
         </div>
@@ -167,143 +157,6 @@ function PlanItemCard({
   );
 }
 
-function OccurrenceItemCard({
-  occurrence,
-  companyId,
-}: {
-  occurrence: FormOccurrence;
-  companyId: string;
-}) {
-  const cancelMutation = useFormOccurrenceCancel(companyId);
-  const [isCancelling, setIsCancelling] = React.useState(false);
-  const [cancelReason, setCancelReason] = React.useState('');
-
-  const [now] = React.useState(() => Date.now());
-  const isCancelled = Boolean(occurrence.cancelledAt);
-  const isExpired = !isCancelled && new Date(occurrence.dueAt).getTime() < now;
-
-  const handleConfirmCancel = () => {
-    if (!cancelReason.trim()) {
-      toast.error('กรุณาระบุเหตุผลในการยกเลิก');
-      return;
-    }
-    cancelMutation.mutate(
-      {
-        id: occurrence.id,
-        data: {
-          cancelReason: cancelReason.trim(),
-          expectedRevision: occurrence.revision,
-        },
-      },
-      {
-        onSuccess: () => {
-          setIsCancelling(false);
-          setCancelReason('');
-        },
-      }
-    );
-  };
-
-  return (
-    <div className="p-4 border rounded-xl bg-card space-y-3">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2.5">
-        <div className="flex items-center gap-2 flex-wrap">
-          <CalendarDays className="w-4 h-4 text-primary" />
-          <span className="font-semibold text-sm">
-            รอบงาน: #{occurrence.id.slice(0, 8)}
-          </span>
-          {isCancelled ? (
-            <Badge variant="destructive" className="text-xs">
-              ยกเลิกแล้ว
-            </Badge>
-          ) : isExpired ? (
-            <Badge variant="secondary" className="text-xs">
-              หมดเวลารอบงาน
-            </Badge>
-          ) : (
-            <Badge variant="default" className="text-xs bg-emerald-600 hover:bg-emerald-700">
-              กำลังเปิดรับ
-            </Badge>
-          )}
-          <Badge variant="outline" className="text-xs">
-            Rev {occurrence.revision}
-          </Badge>
-        </div>
-
-        {!isCancelled && (
-          <div>
-            {isCancelling ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="ระบุเหตุผลที่ยกเลิก..."
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                  className="h-8 text-xs px-2.5 border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <ButtonLoading
-                  size="sm"
-                  variant="destructive"
-                  onPress={handleConfirmCancel}
-                  isLoading={cancelMutation.isPending}
-                >
-                  ยืนยันยกเลิก
-                </ButtonLoading>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setIsCancelling(false);
-                    setCancelReason('');
-                  }}
-                >
-                  ยกเลิก
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10 text-xs h-8"
-                onClick={() => setIsCancelling(true)}
-              >
-                <XCircle className="w-3.5 h-3.5" />
-                ยกเลิกงานรอบนี้
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs text-muted-foreground pt-1">
-        <div>
-          <span className="text-foreground font-medium">เวลาเริ่มเปิดรับ:</span>{' '}
-          {formatDateTime(occurrence.opensAt)}
-        </div>
-        <div>
-          <span className="text-foreground font-medium">กำหนดส่งภายใน:</span>{' '}
-          {formatDateTime(occurrence.dueAt)}
-        </div>
-        <div>
-          <span className="text-foreground font-medium">Occurrence Key:</span>{' '}
-          <span className="font-mono">{occurrence.occurrenceKey}</span>
-        </div>
-      </div>
-
-      {isCancelled && occurrence.cancelReason && (
-        <div className="text-xs bg-destructive/10 text-destructive p-2.5 rounded-lg">
-          <span className="font-medium">เหตุผลการยกเลิก:</span> {occurrence.cancelReason}
-          {occurrence.cancelledAt && (
-            <span className="ml-2 text-destructive/80">
-              ({formatDateTime(occurrence.cancelledAt)})
-            </span>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function FormDetailView({ templateId }: FormDetailViewProps) {
   const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
   const searchParams = useSearchParams();
@@ -315,10 +168,6 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
 
   const templateQuery = useFormTemplateQueries(templateId);
   const plansQuery = useFormPlansQueries(activeCompanyId || '', templateId);
-  const occurrencesQuery = useFormOccurrencesQueries({
-    companyId: activeCompanyId || '',
-    formTemplateId: templateId,
-  });
   const detail = templateQuery.data;
   const template = detail?.template;
   const draftVersion = detail?.draftVersion;
@@ -326,13 +175,11 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
   const sections = detail?.sections || [];
   const fields = detail?.fields || [];
   const plans = plansQuery.data || [];
-  const occurrences = occurrencesQuery.data || [];
 
   const updateMutation = useFormTemplateUpdate(
     activeCompanyId || '',
     templateId,
   );
-  const openOccurrencesMutation = useFormOccurrencesOpen(activeCompanyId || '');
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -342,19 +189,8 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
 
   const handleCreatePlan = useCallback(() => {
     if (!template) return;
-    ui.dialog.open({
-      title: 'สร้างแผนงานและมอบหมายผู้รับผิดชอบ',
-      description: `แบบฟอร์ม: ${template.name}`,
-      size: 'lg',
-      children: (
-        <FormPlanCreateDialog
-          companyId={activeCompanyId || ''}
-          templateId={templateId}
-          onClose={() => ui.dialog.close()}
-        />
-      ),
-    });
-  }, [ui.dialog, activeCompanyId, templateId, template]);
+    router.push(`/company/forms/plans/new?templateId=${template.id}`);
+  }, [router, template]);
 
   const handlePreview = useCallback(() => {
     if (!template) return;
@@ -492,26 +328,22 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
             onSelectionChange={(key) => handleTabChange(String(key))}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-5 max-w-2xl">
+            <TabsList className="grid w-full grid-cols-4 max-w-xl">
               <TabsTrigger id="overview" className="gap-2">
                 <FileText className="size-4" />
                 ภาพรวม
               </TabsTrigger>
               <TabsTrigger id="builder" className="gap-2">
                 <Layers className="size-4" />
-                คำถาม
+                คำถาม ({fields.length})
               </TabsTrigger>
               <TabsTrigger id="plans" className="gap-2">
                 <Calendar className="size-4" />
-                แผนงาน
+                แผนการตรวจ ({plans.length})
               </TabsTrigger>
-              <TabsTrigger id="occurrences" className="gap-2">
-                <CalendarDays className="size-4" />
-                รอบงาน
-              </TabsTrigger>
-              <TabsTrigger id="settings" className="gap-2">
-                <Settings2 className="size-4" />
-                ตั้งค่า
+              <TabsTrigger id="info" className="gap-2">
+                <Edit3 className="size-4" />
+                ข้อมูลแม่แบบ
               </TabsTrigger>
             </TabsList>
 
@@ -656,10 +488,10 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
                   <div>
                     <h3 className="font-semibold text-base">
-                      แผนงานและผู้รับผิดชอบ (Plans & Assignments)
+                      แผนการตรวจที่ใช้แม่แบบนี้ ({plans.length} แผน)
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      กำหนดรอบเวลาการเปิดให้บันทึกแบบฟอร์ม และมอบหมายหน้าที่ให้ Role หรือพนักงาน
+                      การตั้งค่ารอบเวลาตรวจ ผู้รับผิดชอบ และนโยบายการตรวจรับ ถูกกำหนดในแผนการตรวจ
                     </p>
                   </div>
                   <Button
@@ -669,7 +501,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                     onClick={handleCreatePlan}
                   >
                     <Plus className="w-4 h-4" />
-                    สร้างแผนงานและมอบหมาย
+                    สร้างและตั้งค่าแผนการตรวจใหม่
                   </Button>
                 </div>
 
@@ -677,9 +509,9 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                   <div className="py-12 text-center border rounded-xl border-dashed bg-muted/10 space-y-3">
                     <Calendar className="w-10 h-10 text-muted-foreground mx-auto" />
                     <div>
-                      <h4 className="font-medium text-sm">ยังไม่มีแผนงานที่มอบหมายสำหรับแบบฟอร์มนี้</h4>
+                      <h4 className="font-medium text-sm">ยังไม่มีแผนการตรวจที่ใช้แบบฟอร์มนี้</h4>
                       <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-                        สร้างแผนงานเพื่อกำหนดว่าใครจะเป็นผู้รับผิดชอบกรอกฟอร์มนี้ (Role หรือรายบุคคล) พร้อมระบุรอบเวลาการทำงาน
+                        สร้างแผนการตรวจเพื่อกำหนดว่าใครจะเป็นผู้รับผิดชอบกรอกฟอร์มนี้ พร้อมระบุรอบเวลาการทำงานและโหมดตรวจรับ
                       </p>
                     </div>
                     <Button
@@ -689,7 +521,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                       onClick={handleCreatePlan}
                     >
                       <Plus className="w-4 h-4" />
-                      เริ่มต้นสร้างแผนงานและมอบหมาย
+                      สร้างและตั้งค่าแผนการตรวจใหม่
                     </Button>
                   </div>
                 ) : (
@@ -705,92 +537,14 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                 )}
               </TabsContent>
 
-              {/* Tab 4: Occurrences */}
-              <TabsContent id="occurrences" className="mt-0 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
-                  <div>
-                    <h3 className="font-semibold text-base">
-                      รอบงานที่เปิดแล้ว (Form Occurrences)
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      ประวัติรอบการเปิดงานและรายการงาน (Assignments) ที่ถูกสร้างขึ้นจริงตามแผนงานสำหรับผู้ปฏิบัติงาน
-                    </p>
-                  </div>
-                  <ButtonLoading
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onPress={() => {
-                      if (!activeCompanyId) return;
-                      openOccurrencesMutation.mutate(
-                        { companyId: activeCompanyId },
-                        {
-                          onSuccess: (res) => {
-                            const count = res?.data?.length || 0;
-                            toast.success(`ตรวจสอบและเปิดรอบงานเรียบร้อย (${count} รอบ)`);
-                          },
-                        }
-                      );
-                    }}
-                    isLoading={openOccurrencesMutation.isPending}
-                  >
-                    <Zap className="w-4 h-4 text-amber-500" />
-                    เปิดรอบงานทันที
-                  </ButtonLoading>
-                </div>
-
-                {occurrences.length === 0 ? (
-                  <div className="py-12 text-center border rounded-xl border-dashed bg-muted/10 space-y-3">
-                    <CalendarDays className="w-10 h-10 text-muted-foreground mx-auto" />
-                    <div>
-                      <h4 className="font-medium text-sm">ยังไม่มีรอบงานที่เปิดสำหรับแบบฟอร์มนี้</h4>
-                      <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-                        เมื่อเปิดใช้งานแผนงานในแท็บ &quot;แผนงาน&quot; ระบบจะสร้างรอบงานโดยอัตโนมัติ หรือคุณสามารถกด &quot;เปิดรอบงานทันที&quot; ด้านบนเพื่อทดสอบ
-                      </p>
-                    </div>
-                    <ButtonLoading
-                      variant="default"
-                      size="sm"
-                      className="gap-1.5"
-                      onPress={() => {
-                        if (!activeCompanyId) return;
-                        openOccurrencesMutation.mutate(
-                          { companyId: activeCompanyId },
-                          {
-                            onSuccess: (res) => {
-                              const count = res?.data?.length || 0;
-                              toast.success(`ตรวจสอบและเปิดรอบงานเรียบร้อย (${count} รอบ)`);
-                            },
-                          }
-                        );
-                      }}
-                      isLoading={openOccurrencesMutation.isPending}
-                    >
-                      <Zap className="w-4 h-4" />
-                      เปิดรอบงานทันที
-                    </ButtonLoading>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {occurrences.map((occ) => (
-                      <OccurrenceItemCard
-                        key={occ.id}
-                        occurrence={occ}
-                        companyId={activeCompanyId || ''}
-                      />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Tab 5: Settings */}
-              <TabsContent id="settings" className="mt-0">
+              {/* Tab 4: Template Info */}
+              <TabsContent id="info" className="mt-0">
                 <div className="border rounded-xl p-6 bg-card max-w-2xl">
                   <h3 className="font-semibold text-base mb-1">
-                    ตั้งค่าแบบฟอร์ม
+                    ข้อมูลแม่แบบฟอร์ม
                   </h3>
                   <p className="text-sm text-muted-foreground mb-5">
-                    ปรับปรุงชื่อ คำอธิบาย และสถานะการเปิดใช้งานแบบฟอร์ม
+                    ปรับปรุงชื่อและคำอธิบายแม่แบบฟอร์ม (สำหรับการตั้งค่ารอบเวลาตรวจและผู้รับผิดชอบ ให้ไปที่แท็บ &quot;แผนการตรวจ&quot;)
                   </p>
                   <FormTemplateForm
                     defaultValues={{
@@ -800,7 +554,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                     }}
                     onSubmit={handleSettingsSubmit}
                     isLoading={updateMutation.isPending}
-                    submitLabel="บันทึกการตั้งค่า"
+                    submitLabel="บันทึกข้อมูลแม่แบบ"
                   />
                 </div>
               </TabsContent>

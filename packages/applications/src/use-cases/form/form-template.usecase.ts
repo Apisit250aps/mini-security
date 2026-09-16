@@ -30,6 +30,7 @@ import type {
   IFormTemplateRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
+import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
 import {
   createFormFieldSchema,
   createFormSectionSchema,
@@ -51,14 +52,66 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
     private readonly unitOfWork: IUnitOfWork,
     private readonly templateRepo: IFormTemplateRepository,
     private readonly versionRepo: IFormVersionRepository,
+    private readonly memberRepo?: ICompanyMemberRepository,
   ) {}
 
   @RequirePermission('form_template:create')
   async execute(context: ICreateFormTemplateContext): Promise<FormTemplate> {
+    const companyId =
+      context.companyId ?? context.activeCompanyId ?? context.data.companyId;
+    if (!companyId) throw new BadRequestError('companyId is required');
+
     return this.unitOfWork.transaction(async () => {
-      const parsed = await createFormTemplateSchema.safeParseAsync(
-        context.data,
-      );
+      let createdBy: string | null = null;
+
+      if (this.memberRepo) {
+        let member = context.memberId
+          ? await this.memberRepo.findById(context.memberId)
+          : null;
+        if (
+          (!member || !member.isActive || member.companyId !== companyId) &&
+          context.user?.id
+        ) {
+          member = await this.memberRepo.findByCompanyAndUser(
+            companyId,
+            context.user.id,
+          );
+        }
+        if (
+          (!member || !member.isActive || member.companyId !== companyId) &&
+          context.data?.createdBy
+        ) {
+          const maybeMember = await this.memberRepo.findById(context.data.createdBy);
+          if (maybeMember && maybeMember.isActive && maybeMember.companyId === companyId) {
+            member = maybeMember;
+          } else {
+            const maybeUserMember = await this.memberRepo.findByCompanyAndUser(
+              companyId,
+              context.data.createdBy,
+            );
+            if (maybeUserMember && maybeUserMember.isActive && maybeUserMember.companyId === companyId) {
+              member = maybeUserMember;
+            }
+          }
+        }
+        if (member && member.isActive && member.companyId === companyId) {
+          createdBy = member.id;
+        }
+      } else {
+        createdBy = context.memberId ?? context.data.createdBy;
+      }
+
+      if (!createdBy) {
+        throw new BadRequestError(
+          'Active company membership is required to create a template',
+        );
+      }
+
+      const parsed = await createFormTemplateSchema.safeParseAsync({
+        ...context.data,
+        companyId,
+        createdBy,
+      });
       if (!parsed.success) {
         throw new ValidationError('Invalid form template data', parsed.error);
       }
@@ -253,6 +306,7 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
     private readonly versionRepo: IFormVersionRepository,
     private readonly sectionRepo: IFormSectionRepository,
     private readonly fieldRepo: IFormFieldRepository,
+    private readonly memberRepo?: ICompanyMemberRepository,
   ) {}
 
   @RequirePermission('form_template:publish')
@@ -290,10 +344,40 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
         });
       }
 
+      const companyId =
+        context.companyId ?? context.activeCompanyId ?? draft.companyId;
+      let publishedBy: string | null = null;
+
+      if (this.memberRepo) {
+        let member = context.memberId
+          ? await this.memberRepo.findById(context.memberId)
+          : null;
+        if (
+          (!member || !member.isActive || member.companyId !== companyId) &&
+          context.user?.id
+        ) {
+          member = await this.memberRepo.findByCompanyAndUser(
+            companyId,
+            context.user.id,
+          );
+        }
+        if (member && member.isActive && member.companyId === companyId) {
+          publishedBy = member.id;
+        }
+      } else {
+        publishedBy = context.memberId;
+      }
+
+      if (!publishedBy) {
+        throw new BadRequestError(
+          'Active company membership is required to publish a form version',
+        );
+      }
+
       // Mark draft as PUBLISHED
       return this.versionRepo.update(draft.id, {
         status: 'PUBLISHED',
-        publishedBy: context.memberId,
+        publishedBy,
         publishedAt: new Date(),
       });
     });

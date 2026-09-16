@@ -3,6 +3,7 @@ export * from './form-assignment.usecase';
 export * from './form-submission.usecase';
 export * from './form-review-entry.usecase';
 export * from './reorder-form-section.usecase';
+export * from './form-section.usecase';
 export * from './reorder-form-field.usecase';
 
 export * from './form-field.usecase';

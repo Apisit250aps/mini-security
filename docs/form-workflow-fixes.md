@@ -1,5 +1,7 @@
 # Form workflow corrections — 2026-09-16
 
+UI integration reference: [Form API documentation](../.plans/form-api.md) and [manual request collection](../.plans/form-api.http).
+
 These are runtime code changes, not a claim that a database migration or deployment has run. Existing source-only tables remain unchanged.
 
 - Mutating a submission or its attachments checks current active membership, authenticated user identity, assignment target, opening time, and assignment/occurrence cancellation. Contributors remain audit records and never grant access.

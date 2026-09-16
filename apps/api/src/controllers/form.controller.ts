@@ -10,10 +10,12 @@ import {
   CreateFormFieldUseCase,
   EditFormFieldUseCase,
   DeleteFormFieldUseCase,
+  DeleteFormSectionUseCase,
   PublishFormVersionUseCase,
   ReorderFormSectionUseCase,
   ReorderFormFieldUseCase,
   CreateFormPlanUseCase,
+  UpdateFormPlanUseCase,
   GetFormPlanUseCase,
   ListFormPlansUseCase,
   ActivateFormPlanUseCase,
@@ -64,11 +66,12 @@ const listSubmissionsQuerySchema = z.object({
   assignmentId: z.string().uuid().optional(),
 });
 
-// --- Templates & Builder Schemas ---
 const createFormTemplateSchema = z.object({
-  companyId: z.string().uuid(),
+  companyId: z.string().uuid().optional(),
   name: z.string().min(1).max(255),
-  description: z.string().optional(),
+  description: z.string().nullish(),
+  isActive: z.boolean().optional(),
+  createdBy: z.string().uuid().optional(),
 });
 const updateFormTemplateSchema = z.object({
   name: z.string().min(1).max(255).optional(),
@@ -136,7 +139,7 @@ const editFormFieldSchema = z
     path: ['formSectionId'],
   });
 const publishBodySchema = z.object({
-  memberId: z.string().uuid().optional(),
+  memberId: z.string().uuid().nullish().or(z.literal('')),
 });
 const reorderFormItemsSchema = z.object({
   formVersionId: z.string().uuid(),
@@ -173,6 +176,49 @@ const createPlanBodySchema = z.object({
       }),
     )
     .min(1),
+  periods: z
+    .array(
+      z.object({
+        opensAt: z
+          .union([z.string(), z.date()])
+          .transform((v) =>
+            v instanceof Date ? v.toISOString() : new Date(v).toISOString(),
+          ),
+        dueAt: z
+          .union([z.string(), z.date()])
+          .transform((v) =>
+            v instanceof Date ? v.toISOString() : new Date(v).toISOString(),
+          ),
+      }),
+    )
+    .optional(),
+});
+
+const updatePlanBodySchema = z.object({
+  expectedRevision: z.number().int(),
+  data: z
+    .object({
+      name: z.string().min(1).max(255).optional(),
+      scheduleKind: z.enum(['RECURRING', 'EXPLICIT']).optional(),
+      scheduleConfig: z.record(z.string(), z.unknown()).nullish(),
+      timezone: z.string().min(1).optional(),
+      fixedVersionId: z.string().uuid().nullish(),
+      reviewMode: z
+        .enum(['NONE', 'OVERALL', 'ALL_SECTIONS', 'ALL_ANSWERS'])
+        .optional(),
+      latePolicy: z.enum(['ALLOW', 'DENY']).optional(),
+      missedPolicy: z.enum(['SKIP', 'CATCH_UP']).optional(),
+    })
+    .default({}),
+  targets: z
+    .array(
+      z.object({
+        roleId: z.string().uuid().nullish(),
+        companyMemberId: z.string().uuid().nullish(),
+        roleDistribution: z.enum(['SHARED', 'PER_MEMBER']).nullish(),
+      }),
+    )
+    .optional(),
   periods: z
     .array(
       z.object({
@@ -260,11 +306,13 @@ export class FormController extends Controller {
     private readonly createFormFieldUseCase: CreateFormFieldUseCase,
     private readonly editFormFieldUseCase: EditFormFieldUseCase,
     private readonly deleteFormFieldUseCase: DeleteFormFieldUseCase,
+    private readonly deleteFormSectionUseCase: DeleteFormSectionUseCase,
     private readonly publishFormVersionUseCase: PublishFormVersionUseCase,
     private readonly reorderFormSectionUseCase: ReorderFormSectionUseCase,
     private readonly reorderFormFieldUseCase: ReorderFormFieldUseCase,
 
     private readonly createFormPlanUseCase: CreateFormPlanUseCase,
+    private readonly updateFormPlanUseCase: UpdateFormPlanUseCase,
     private readonly getFormPlanUseCase: GetFormPlanUseCase,
     private readonly listFormPlansUseCase: ListFormPlansUseCase,
     private readonly activateFormPlanUseCase: ActivateFormPlanUseCase,
@@ -364,12 +412,20 @@ export class FormController extends Controller {
     { body: createFormTemplateSchema },
     async (c) => {
       const body = c.get('body');
+      const sec = this.securityContext(c);
+      const companyId = sec.activeCompanyId ?? body.companyId;
+      if (!companyId) {
+        throw new ValidationError('Company ID is required');
+      }
       const template = await this.createFormTemplateUseCase.execute({
-        ...this.securityContext(c),
+        ...sec,
+        companyId,
         data: {
-          ...body,
-          isActive: true,
-          createdBy: this.securityContext(c).userId!,
+          name: body.name,
+          description: body.description ?? null,
+          companyId,
+          isActive: body.isActive ?? true,
+          createdBy: sec.memberId ?? body.createdBy ?? '',
         },
       });
       return this.created(c, 'Form template created successfully', template);
@@ -502,14 +558,31 @@ export class FormController extends Controller {
     },
   );
 
+  public deleteSection = this.validator(
+    { params: sectionParamSchema },
+    async (c) => {
+      const { id, sectionId } = c.get('params');
+      await this.deleteFormSectionUseCase.execute({
+        ...this.securityContext(c),
+        formTemplateId: id,
+        sectionId,
+      });
+      return this.success(c, 'Form section deleted successfully', null);
+    },
+  );
+
   public publishVersion = this.validator(
     { params: idParamSchema, body: publishBodySchema.optional() },
     async (c) => {
       const { id } = c.get('params');
       const body = c.get('body') as { memberId?: string } | undefined;
-      const memberId = body?.memberId ?? this.securityContext(c).memberId!;
+      const sec = this.securityContext(c);
+      const memberId =
+        body?.memberId && body.memberId !== ''
+          ? body.memberId
+          : (sec.memberId ?? '');
       const version = await this.publishFormVersionUseCase.execute({
-        ...this.securityContext(c),
+        ...sec,
         formTemplateId: id,
         memberId,
       });
@@ -596,6 +669,35 @@ export class FormController extends Controller {
     });
     return this.success(c, 'Form plan retrieved successfully', plan);
   });
+
+  public updatePlan = this.validator(
+    { params: idParamSchema, body: updatePlanBodySchema },
+    async (c) => {
+      const { id } = c.get('params');
+      const { expectedRevision, data, targets, periods } = c.get('body');
+      const sec = this.securityContext(c);
+      const companyId = sec.activeCompanyId;
+      if (!companyId) {
+        throw new ValidationError('Company ID is required');
+      }
+      const plan = await this.updateFormPlanUseCase.execute({
+        ...sec,
+        id,
+        expectedRevision,
+        companyId,
+        data: {
+          ...data,
+          companyId,
+        },
+        targets: targets?.map((t) => ({
+          ...t,
+          roleDistribution: t.roleDistribution ?? null,
+        })),
+        periods,
+      });
+      return this.success(c, 'Form plan updated successfully', plan);
+    },
+  );
 
   public activatePlan = this.validator(
     { params: idParamSchema, body: activatePlanBodySchema },

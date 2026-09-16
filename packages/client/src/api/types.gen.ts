@@ -483,6 +483,25 @@ export type DomainEntityFormPlan = {
     revision: number;
 };
 
+export type DomainEntityFormPlanPeriod = {
+    id: string;
+    createdAt: Date;
+    companyId: string;
+    planId: string;
+    opensAt: Date;
+    dueAt: Date;
+};
+
+export type DomainEntityFormPlanTarget = {
+    id: string;
+    createdAt: Date;
+    companyId: string;
+    planId: string;
+    roleId: string | null;
+    companyMemberId: string | null;
+    roleDistribution: DomainEntityFormRoleDistribution | null;
+};
+
 export type DomainEntityFormReviewAction = 'PASS' | 'NEEDS_CHANGES' | 'APPROVE' | 'RETURN';
 
 export type DomainEntityFormReviewEntry = {
@@ -611,6 +630,12 @@ export type FormField = {
     config: {
         [key: string]: unknown;
     };
+};
+
+export type FormPlanDetail = {
+    plan: DomainEntityFormPlan;
+    targets: Array<DomainEntityFormPlanTarget>;
+    periods: Array<DomainEntityFormPlanPeriod>;
 };
 
 export type FormReorderItem = {
@@ -966,6 +991,27 @@ export type UpdateFeature = {
     description?: string | null;
     category?: string;
     isActive?: boolean;
+};
+
+export type UpdateFormPlanRequest = {
+    expectedRevision: number;
+    /**
+     * The template for adding optional properties.
+     */
+    data: {
+        name?: string;
+        scheduleKind?: DomainEntityFormScheduleKind;
+        scheduleConfig?: {
+            [key: string]: unknown;
+        } | null;
+        timezone?: string;
+        fixedVersionId?: string | null;
+        reviewMode?: DomainEntityFormReviewMode;
+        latePolicy?: DomainEntityFormLatePolicy;
+        missedPolicy?: DomainEntityFormMissedPolicy;
+    };
+    targets?: Array<CreateFormPlanTarget>;
+    periods?: Array<CreateFormPlanPeriod>;
 };
 
 /**
@@ -3011,11 +3057,50 @@ export type FormServicesGetPlanResponses = {
     200: {
         success: boolean;
         message: string;
-        data?: DomainEntityFormPlan;
+        data?: FormPlanDetail;
     };
 };
 
 export type FormServicesGetPlanResponse = FormServicesGetPlanResponses[keyof FormServicesGetPlanResponses];
+
+export type FormServicesUpdatePlanData = {
+    body: UpdateFormPlanRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/plans/{id}';
+};
+
+export type FormServicesUpdatePlanErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesUpdatePlanError = FormServicesUpdatePlanErrors[keyof FormServicesUpdatePlanErrors];
+
+export type FormServicesUpdatePlanResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: DomainEntityFormPlan;
+    };
+};
+
+export type FormServicesUpdatePlanResponse = FormServicesUpdatePlanResponses[keyof FormServicesUpdatePlanResponses];
 
 export type FormServicesActivatePlanData = {
     body: ActivatePlanRequest;
@@ -3968,6 +4053,50 @@ export type FormServicesReorderSectionsResponses = {
 };
 
 export type FormServicesReorderSectionsResponse = FormServicesReorderSectionsResponses[keyof FormServicesReorderSectionsResponses];
+
+export type FormServicesDeleteSectionData = {
+    body?: never;
+    path: {
+        id: string;
+        sectionId: string;
+    };
+    query?: never;
+    url: '/forms/templates/{id}/sections/{sectionId}';
+};
+
+export type FormServicesDeleteSectionErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 403 Forbidden — FORBIDDEN
+     */
+    403: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesDeleteSectionError = FormServicesDeleteSectionErrors[keyof FormServicesDeleteSectionErrors];
+
+export type FormServicesDeleteSectionResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: null;
+    };
+};
+
+export type FormServicesDeleteSectionResponse = FormServicesDeleteSectionResponses[keyof FormServicesDeleteSectionResponses];
 
 export type LeaveServicesGetCompanyRequestsData = {
     body?: never;

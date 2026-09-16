@@ -117,6 +117,12 @@ export type ICreateFormPlanPeriodInput = {
   opensAt: Date | string;
   dueAt: Date | string;
 };
+export type FormPlanDetail = {
+  plan: FormPlan;
+  targets: FormPlanTarget[];
+  periods: FormPlanPeriod[];
+};
+
 export type ICreateFormPlanContext = ISecurityContext & {
   data: CreateFormPlan;
   targets: ICreateFormPlanTargetInput[];
@@ -126,8 +132,22 @@ export type ICreateFormPlanUseCase = BaseUseCase<
   ICreateFormPlanContext,
   FormPlan
 >;
+export type IUpdateFormPlanContext = ISecurityContext & {
+  id: string;
+  expectedRevision: number;
+  data: Partial<CreateFormPlan>;
+  targets?: ICreateFormPlanTargetInput[];
+  periods?: ICreateFormPlanPeriodInput[];
+};
+export type IUpdateFormPlanUseCase = BaseUseCase<
+  IUpdateFormPlanContext,
+  FormPlan
+>;
 export type IGetFormPlanContext = ISecurityContext & { id: string };
-export type IGetFormPlanUseCase = BaseUseCase<IGetFormPlanContext, FormPlan>;
+export type IGetFormPlanUseCase = BaseUseCase<
+  IGetFormPlanContext,
+  FormPlanDetail
+>;
 export type IListFormPlansContext = ISecurityContext & { companyId: string };
 export type IListFormPlansUseCase = BaseUseCase<
   IListFormPlansContext,
@@ -351,5 +371,13 @@ export type IEditFormFieldUseCase = BaseUseCase<
 >;
 export type IDeleteFormFieldUseCase = BaseUseCase<
   IDeleteFormFieldContext,
+  void
+>;
+export type IDeleteFormSectionContext = ISecurityContext & {
+  formTemplateId: string;
+  sectionId: string;
+};
+export type IDeleteFormSectionUseCase = BaseUseCase<
+  IDeleteFormSectionContext,
   void
 >;

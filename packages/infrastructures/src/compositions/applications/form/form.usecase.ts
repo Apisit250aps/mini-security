@@ -14,7 +14,9 @@ import {
   ReorderFormFieldUseCase,
   EditFormFieldUseCase,
   DeleteFormFieldUseCase,
+  DeleteFormSectionUseCase,
   CreateFormPlanUseCase,
+  UpdateFormPlanUseCase,
   GetFormPlanUseCase,
   ListFormPlansUseCase,
   ActivateFormPlanUseCase,
@@ -66,6 +68,7 @@ export const createFormTemplateUseCase = new CreateFormTemplateUseCase(
   unitOfWork,
   formTemplateRepository,
   formVersionRepository,
+  companyMemberRepository,
 );
 
 export const updateFormTemplateUseCase = new UpdateFormTemplateUseCase(
@@ -100,6 +103,7 @@ export const publishFormVersionUseCase = new PublishFormVersionUseCase(
   formVersionRepository,
   formSectionRepository,
   formFieldRepository,
+  companyMemberRepository,
 );
 
 export const reorderFormSectionUseCase = new ReorderFormSectionUseCase(
@@ -127,6 +131,13 @@ export const deleteFormFieldUseCase = new DeleteFormFieldUseCase(
   formFieldRepository,
 );
 
+export const deleteFormSectionUseCase = new DeleteFormSectionUseCase(
+  unitOfWork,
+  formVersionRepository,
+  formSectionRepository,
+  formFieldRepository,
+);
+
 // ==========================================
 // Plan Use Cases
 // ==========================================
@@ -141,7 +152,21 @@ export const createFormPlanUseCase = new CreateFormPlanUseCase(
   companyMemberRepository,
 );
 
-export const getFormPlanUseCase = new GetFormPlanUseCase(formPlanRepository);
+export const getFormPlanUseCase = new GetFormPlanUseCase(
+  formPlanRepository,
+  formPlanTargetRepository,
+  formPlanPeriodRepository,
+);
+
+export const updateFormPlanUseCase = new UpdateFormPlanUseCase(
+  unitOfWork,
+  formPlanRepository,
+  formPlanTargetRepository,
+  formPlanPeriodRepository,
+  formTemplateRepository,
+  formVersionRepository,
+  companyMemberRepository,
+);
 
 export const listFormPlansUseCase = new ListFormPlansUseCase(
   formPlanRepository,
@@ -159,6 +184,7 @@ export const activateFormPlanUseCase = new ActivateFormPlanUseCase(
 export const pauseFormPlanUseCase = new PauseFormPlanUseCase(
   unitOfWork,
   formPlanRepository,
+  companyMemberRepository,
 );
 
 export const previewScheduleUseCase = new PreviewScheduleUseCase(

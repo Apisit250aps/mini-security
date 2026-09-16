@@ -6,6 +6,7 @@ import {
   formServicesCreateTemplate,
   formServicesUpdateTemplate,
   formServicesCreateSection,
+  formServicesDeleteSection,
   formServicesReorderSections,
   formServicesCreateField,
   formServicesEditField,
@@ -13,6 +14,7 @@ import {
   formServicesReorderFields,
   formServicesPublishVersion,
   formServicesCreatePlan,
+  formServicesUpdatePlan,
   formServicesActivatePlan,
   formServicesPausePlan,
   formServicesOpenOccurrences,
@@ -38,6 +40,7 @@ import type {
   FormTemplateDetail,
   PublishFormVersionRequest,
   CreateFormPlanRequest,
+  UpdateFormPlanRequest,
   OpenOccurrencesRequest,
   CancelOccurrenceRequest,
   CancelAssignmentRequest,
@@ -98,7 +101,7 @@ export function useFormTemplateUpdate(companyId: string, templateId: string) {
   });
 }
 
-export function useFormSectionCreate(templateId: string, companyId: string) {
+export function useFormSectionCreate(companyId: string, templateId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateFormSection) => {
@@ -265,7 +268,27 @@ export function useFormFieldDelete(templateId: string) {
   });
 }
 
-export function useFormVersionPublish(templateId: string, companyId: string) {
+export function useFormSectionDelete(templateId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (sectionId: string) => {
+      const res = await formServicesDeleteSection({
+        path: { id: templateId, sectionId },
+        throwOnError: true,
+      });
+      return res.data;
+    },
+    onSuccess: async () => {
+      toast.success('ลบหมวดหมู่สำเร็จ');
+      await queryClient.invalidateQueries({
+        queryKey: formKeys.template(templateId),
+      });
+    },
+    onError: (error) => toast.error(getErrorMessage(error, 'ลบหมวดหมู่ไม่สำเร็จ')),
+  });
+}
+
+export function useFormVersionPublish(companyId: string, templateId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: PublishFormVersionRequest) => {
@@ -313,6 +336,33 @@ export function useFormPlanCreate(companyId: string) {
     },
     onError: (error) =>
       toast.error(getErrorMessage(error, 'สร้างแผนการทำงานไม่สำเร็จ')),
+  });
+}
+
+export function useFormPlanUpdate(companyId: string, planId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: UpdateFormPlanRequest) => {
+      const res = await formServicesUpdatePlan({
+        path: { id: planId },
+        body: data,
+        throwOnError: true,
+      });
+      return res.data;
+    },
+    onSuccess: async (result) => {
+      toast.success('บันทึกการตั้งค่าแผนการตรวจสำเร็จ');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: formKeys.plan(planId) }),
+        queryClient.invalidateQueries({ queryKey: formKeys.plans(companyId) }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.schedulePreview(planId),
+        }),
+      ]);
+      return result;
+    },
+    onError: (error) =>
+      toast.error(getErrorMessage(error, 'บันทึกการตั้งค่าแผนการตรวจไม่สำเร็จ')),
   });
 }
 

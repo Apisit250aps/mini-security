@@ -12,13 +12,14 @@ import {
   Hash,
   HelpCircle,
   Image as ImageIcon,
+  Edit3,
   Layers,
   ListOrdered,
   Plus,
-  Settings2,
   Shield,
   Sparkles,
   ToggleLeft,
+  Trash2,
 } from 'lucide-react';
 import {
   Card,
@@ -37,6 +38,7 @@ import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
 import { useFormTemplateQueries } from '../hooks/form-queries';
 import {
+  useFormSectionDelete,
   useFormSectionReorder,
   useFormFieldDelete,
   useFormFieldReorder,
@@ -73,6 +75,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
   );
 
   const deleteField = useFormFieldDelete(templateId);
+  const deleteSection = useFormSectionDelete(templateId);
   const sectionReorder = useFormSectionReorder(
     activeCompanyId || '',
     templateId,
@@ -102,6 +105,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
   const reorderDisabled =
     !draftVersion ||
     deleteField.isPending ||
+    deleteSection.isPending ||
     publishMutation.isPending ||
     sectionReorder.isPending ||
     fieldReorder.isPending;
@@ -132,6 +136,23 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
       confirmVariant: 'destructive',
       onConfirm: () =>
         deleteField.mutate(field.id, { onSuccess: () => ui.alert.close() }),
+    });
+  };
+
+  const handleDeleteSection = (
+    section: (typeof sections)[number],
+    fieldCount: number,
+  ) => {
+    if (!draftVersion) return;
+    ui.alert.open({
+      title: 'ลบหมวดหมู่',
+      description:
+        fieldCount > 0
+          ? `ต้องการลบหมวดหมู่ “${section.title}” พร้อมคำถามทั้งหมดในหมวดหมู่นี้จำนวน ${fieldCount} คำถาม ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้`
+          : `ต้องการลบหมวดหมู่ “${section.title}” ใช่หรือไม่?`,
+      confirmVariant: 'destructive',
+      onConfirm: () =>
+        deleteSection.mutate(section.id, { onSuccess: () => ui.alert.close() }),
     });
   };
 
@@ -370,6 +391,15 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
                   <h2 className="text-xl font-semibold tracking-tight">
                     {template.name}
                   </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="size-7 p-0 text-muted-foreground hover:text-foreground"
+                    onPress={handleEditInfo}
+                    aria-label="แก้ไขชื่อและคำอธิบายแบบฟอร์ม"
+                  >
+                    <Edit3 className="size-3.5" />
+                  </Button>
                   {draftVersion ? (
                     <Badge
                       variant="outline"
@@ -420,24 +450,6 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
           {/* TAB 1: FORM BUILDER CANVAS */}
           {activeTab === 'builder' && (
             <div className="flex flex-col gap-6">
-              {/* Form Settings & Roles Strip */}
-              <Card className="border-border/60 shadow-xs">
-                <CardHeader className="py-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 self-end sm:self-auto">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 text-xs"
-                        onPress={handleEditInfo}
-                      >
-                        <Settings2 className="size-3.5" />
-                        แก้ไขข้อมูลแบบฟอร์ม
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
 
               {/* Sections & Fields List */}
               {sections.length === 0 ? (
@@ -515,15 +527,37 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
                                   )}
                                 </div>
 
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="gap-1.5 text-xs self-start sm:self-auto"
-                                  onPress={() => handleAddField(section.id)}
-                                >
-                                  <Plus className="size-3.5" />
-                                  เพิ่มคำถามในหมวดนี้
-                                </Button>
+                                <div className="flex items-center gap-2 self-start sm:self-auto">
+                                  {draftVersion && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-1.5 text-xs"
+                                      onPress={() => handleAddField(section.id)}
+                                      isDisabled={reorderDisabled}
+                                    >
+                                      <Plus className="size-3.5" />
+                                      เพิ่มคำถามในหมวดนี้
+                                    </Button>
+                                  )}
+                                  {draftVersion && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      isDisabled={reorderDisabled}
+                                      onPress={() =>
+                                        handleDeleteSection(
+                                          section,
+                                          sectionFields.length,
+                                        )
+                                      }
+                                      aria-label="ลบหมวดหมู่"
+                                    >
+                                      <Trash2 className="size-4" />
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
                             </CardHeader>
 

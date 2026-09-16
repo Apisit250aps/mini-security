@@ -79,6 +79,24 @@ export const companyPageConfigs: PageConfigs = {
   },
 
   // Form Management Module
+  companyFormPlans: {
+    name: 'แผนการตรวจ',
+    title: 'แผนการตรวจและรอบงาน',
+    description: 'กำหนดตารางเวลา มอบหมายผู้ตรวจ และบริหารจัดการรอบการตรวจประเมิน',
+    url: '/company/forms/plans',
+  },
+  companyFormPlanCreate: {
+    name: 'สร้างแผนการตรวจ',
+    title: 'สร้างแผนการตรวจใหม่',
+    description: 'ตั้งค่ากำหนดการ มอบหมายงาน และกำหนดนโยบายการตรวจรับ',
+    url: '/company/forms/plans/new',
+  },
+  companyFormPlanDetail: {
+    name: 'รายละเอียดแผนการตรวจ',
+    title: 'รายละเอียดแผนการตรวจ',
+    description: 'ภาพรวมแผนงาน กำหนดการ และประวัติรอบงานที่เปิด',
+    url: '/company/forms/plans',
+  },
   companyFormTasks: {
     name: 'งานของฉัน',
     title: 'งานของฉัน',

@@ -90,6 +90,11 @@ interface FormServices {
     | ApiForbiddenResponse
     | ApiUnauthorizedResponse;
 
+  @delete
+  @route("/templates/{id}/sections/{sectionId}")
+  @summary("Delete form section")
+  deleteSection(@path id: string, @path sectionId: string): ApiOkResponse<null> | ApiBadRequestResponse | ApiNotFoundResponse | ApiForbiddenResponse | ApiUnauthorizedResponse;
+
   @put
   @route("/templates/{id}/fields/{fieldId}")
   editField(@path id: string, @path fieldId: string, @body body: EditFormField): ApiOkResponse<FormField> | ApiBadRequestResponse | ApiNotFoundResponse | ApiForbiddenResponse | ApiUnauthorizedResponse;
@@ -111,7 +116,12 @@ interface FormServices {
   @get
   @route("/plans/{id}")
   @summary("Get form plan")
-  getPlan(@path id: string): ApiOkResponse<Domain.Entity.FormPlan> | ApiNotFoundResponse | ApiUnauthorizedResponse;
+  getPlan(@path id: string): ApiOkResponse<FormPlanDetail> | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
+  @put
+  @route("/plans/{id}")
+  @summary("Update form plan")
+  updatePlan(@path id: string, @body body: UpdateFormPlanRequest): ApiOkResponse<Domain.Entity.FormPlan> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
 
   @post
   @route("/plans/{id}/activate")

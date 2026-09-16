@@ -9,6 +9,7 @@ import {
   formServicesListPlans,
   formServicesGetPlan,
   formServicesListOccurrences,
+  formServicesPreviewSchedule,
 } from '@repo/client';
 import { useQuery } from '@tanstack/react-query';
 import { formKeys } from '@/shared/utils';
@@ -169,5 +170,20 @@ export function useFormOccurrencesQueries(filters: {
     enabled: Boolean(filters.companyId),
   });
 }
+
+export function useFormSchedulePreviewQueries(planId: string) {
+  return useQuery({
+    queryKey: formKeys.schedulePreview(planId),
+    queryFn: async ({ signal }) => {
+      const response = await formServicesPreviewSchedule({
+        signal,
+        path: { id: planId },
+      });
+      return response.data?.data || [];
+    },
+    enabled: Boolean(planId),
+  });
+}
+
 
 

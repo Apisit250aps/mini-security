@@ -362,6 +362,10 @@ export class FormPlanTargetRepository implements IFormPlanTargetRepository {
   async delete(id: string): Promise<void> {
     await this.db.delete(formPlanTarget).where(eq(formPlanTarget.id, id));
   }
+
+  async deleteByPlanId(planId: string): Promise<void> {
+    await this.db.delete(formPlanTarget).where(eq(formPlanTarget.planId, planId));
+  }
 }
 
 // ==========================================
@@ -391,6 +395,10 @@ export class FormPlanPeriodRepository implements IFormPlanPeriodRepository {
       .values(period)
       .returning();
     return new FormPlanPeriod(result as unknown as FormPlanPeriod);
+  }
+
+  async deleteByPlanId(planId: string): Promise<void> {
+    await this.db.delete(formPlanPeriod).where(eq(formPlanPeriod.planId, planId));
   }
 }
 

@@ -62,6 +62,13 @@ model CreateFormPlanRequest {
   periods?: CreateFormPlanPeriod[];
 }
 
+model UpdateFormPlanRequest {
+  expectedRevision: int32;
+  data: OptionalProperties<PickProperties<Domain.Entity.FormPlan, "name" | "scheduleKind" | "scheduleConfig" | "timezone" | "fixedVersionId" | "reviewMode" | "latePolicy" | "missedPolicy">>;
+  targets?: CreateFormPlanTarget[];
+  periods?: CreateFormPlanPeriod[];
+}
+
 model CreateFormPlanTarget {
   roleId?: string;
   companyMemberId?: string;
@@ -117,6 +124,12 @@ model FinalizeReviewRequest {
 }
 
 // ─── Details Models ───────────────────────────────────────────────────────────
+model FormPlanDetail {
+  plan: Domain.Entity.FormPlan;
+  targets: Domain.Entity.FormPlanTarget[];
+  periods: Domain.Entity.FormPlanPeriod[];
+}
+
 model FormTemplateDetail {
   template: FormTemplate;
   activeVersion: FormVersion | null;

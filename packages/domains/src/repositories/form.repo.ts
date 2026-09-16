@@ -92,11 +92,13 @@ export interface IFormPlanTargetRepository {
   findByPlanId(planId: string): Promise<FormPlanTarget[]>;
   create(target: CreateFormPlanTarget): Promise<FormPlanTarget>;
   delete(id: string): Promise<void>;
+  deleteByPlanId(planId: string): Promise<void>;
 }
 
 export interface IFormPlanPeriodRepository {
   findByPlanId(planId: string): Promise<FormPlanPeriod[]>;
   create(period: CreateFormPlanPeriod): Promise<FormPlanPeriod>;
+  deleteByPlanId(planId: string): Promise<void>;
 }
 
 export interface IFormOccurrenceRepository {

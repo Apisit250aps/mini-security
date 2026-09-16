@@ -171,6 +171,10 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
           onAction: () =>
             router.push(`/company/forms/templates/${template.id}`),
         },
+        'สร้างแผนจากแม่แบบนี้': {
+          onAction: () =>
+            router.push(`/company/forms/plans/new?templateId=${template.id}`),
+        },
         ดูตัวอย่างแบบฟอร์ม: {
           onAction: actionPreview,
         },

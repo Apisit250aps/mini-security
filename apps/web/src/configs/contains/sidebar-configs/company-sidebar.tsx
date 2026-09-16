@@ -2,6 +2,7 @@ import {
   Building2Icon,
   MapPinIcon,
   CalendarCheckIcon,
+  CalendarClockIcon,
   CalendarDaysIcon,
   ClipboardCheckIcon,
   ClipboardListIcon,
@@ -63,6 +64,12 @@ export const companySidebarConfig: NavItem[] = [
     },
   ]),
   sidebarGroupBuilder('forms', 'ระบบแบบฟอร์ม', [
+    {
+      id: 'companyFormPlans',
+      icon: <CalendarClockIcon />,
+      featureCode: 'FORM_MANAGEMENT',
+      requiredPermissions: 'form_plan:read',
+    },
     {
       id: 'companyFormTasks',
       icon: <ClipboardCheckIcon />,
