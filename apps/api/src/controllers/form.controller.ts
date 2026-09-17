@@ -25,6 +25,7 @@ import {
   CancelOccurrenceUseCase,
   ListOccurrencesUseCase,
   ListMyAssignmentsUseCase,
+  ListOccurrenceAssignmentsUseCase,
   GetAssignmentUseCase,
   CancelAssignmentUseCase,
   ReplaceAssignmentUseCase,
@@ -57,13 +58,20 @@ const sectionParamSchema = z.object({
   id: z.string().uuid(),
   sectionId: z.string().uuid(),
 });
+const optionalQueryUuid = z.preprocess(
+  (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+  z.string().uuid().optional(),
+);
+const companyIdQuerySchema = z.object({
+  companyId: optionalQueryUuid,
+});
 const assignmentListSchema = z.object({
-  companyId: z.string().uuid(),
-  memberId: z.string().uuid(),
+  companyId: optionalQueryUuid,
+  memberId: optionalQueryUuid,
 });
 const listSubmissionsQuerySchema = z.object({
-  companyId: z.string().uuid().optional(),
-  assignmentId: z.string().uuid().optional(),
+  companyId: optionalQueryUuid,
+  assignmentId: optionalQueryUuid,
 });
 
 const createFormTemplateSchema = z.object({
@@ -246,9 +254,9 @@ const cancelOccurrenceBodySchema = z.object({
   expectedRevision: z.number().int(),
 });
 const listOccurrencesQuerySchema = z.object({
-  companyId: z.string().uuid(),
-  formTemplateId: z.string().uuid().optional(),
-  planId: z.string().uuid().optional(),
+  companyId: optionalQueryUuid,
+  formTemplateId: optionalQueryUuid,
+  planId: optionalQueryUuid,
 });
 const openOccurrencesBodySchema = z.object({
   companyId: z.string().uuid(),
@@ -324,6 +332,7 @@ export class FormController extends Controller {
     private readonly listOccurrencesUseCase: ListOccurrencesUseCase,
 
     private readonly listMyAssignmentsUseCase: ListMyAssignmentsUseCase,
+    private readonly listOccurrenceAssignmentsUseCase: ListOccurrenceAssignmentsUseCase,
     private readonly getAssignmentUseCase: GetAssignmentUseCase,
     private readonly cancelAssignmentUseCase: CancelAssignmentUseCase,
     private readonly replaceAssignmentUseCase: ReplaceAssignmentUseCase,
@@ -650,12 +659,15 @@ export class FormController extends Controller {
   );
 
   public listPlans = this.validator(
-    { query: companyIdParamSchema },
+    { query: companyIdQuerySchema },
     async (c) => {
       const { companyId } = c.get('query');
+      const ctx = this.securityContext(c);
+      const activeCompanyId = companyId ?? ctx.activeCompanyId ?? ctx.companyId;
+      if (!activeCompanyId) throw new ValidationError('companyId is required');
       const plans = await this.listFormPlansUseCase.execute({
-        ...this.securityContext(c),
-        companyId,
+        ...ctx,
+        companyId: activeCompanyId,
       });
       return this.success(c, 'Form plans retrieved successfully', plans);
     },
@@ -751,9 +763,12 @@ export class FormController extends Controller {
     { query: listOccurrencesQuerySchema },
     async (c) => {
       const query = c.get('query');
+      const ctx = this.securityContext(c);
+      const companyId = query.companyId ?? ctx.activeCompanyId ?? ctx.companyId;
+      if (!companyId) throw new ValidationError('companyId is required');
       const occurrences = await this.listOccurrencesUseCase.execute({
-        ...this.securityContext(c),
-        companyId: query.companyId,
+        ...ctx,
+        companyId,
         formTemplateId: query.formTemplateId,
         planId: query.planId,
       });
@@ -804,13 +819,37 @@ export class FormController extends Controller {
   public listMyAssignments = this.validator(
     { query: assignmentListSchema },
     async (c) => {
-      const { companyId, memberId } = c.get('query');
+      const query = c.get('query');
+      const ctx = this.securityContext(c);
+      const companyId = query.companyId ?? ctx.activeCompanyId;
+      const memberId = query.memberId ?? ctx.memberId;
+      if (!companyId) throw new ValidationError('companyId is required');
+      if (!memberId) throw new ValidationError('memberId is required');
       const assignments = await this.listMyAssignmentsUseCase.execute({
-        ...this.securityContext(c),
+        ...ctx,
         companyId,
-        memberId: this.securityContext(c).memberId ?? '',
+        memberId,
       });
       return this.success(c, 'Assignments retrieved successfully', assignments);
+    },
+  );
+
+  public listOccurrenceAssignments = this.validator(
+    { params: idParamSchema },
+    async (c) => {
+      const { id } = c.get('params');
+      const ctx = this.securityContext(c);
+      const assignments = await this.listOccurrenceAssignmentsUseCase.execute({
+        ...ctx,
+        occurrenceId: id,
+        companyId: ctx.activeCompanyId ?? undefined,
+        memberId: ctx.memberId,
+      });
+      return this.success(
+        c,
+        'Occurrence assignments retrieved successfully',
+        assignments,
+      );
     },
   );
 
@@ -946,9 +985,12 @@ export class FormController extends Controller {
     { query: listSubmissionsQuerySchema },
     async (c) => {
       const query = c.get('query');
+      const ctx = this.securityContext(c);
+      const companyId = query.companyId ?? ctx.activeCompanyId ?? ctx.companyId;
       const submissions = await this.listFormSubmissionsUseCase.execute({
-        ...this.securityContext(c),
+        ...ctx,
         ...query,
+        ...(companyId ? { companyId } : {}),
       });
       return this.success(
         c,
@@ -963,12 +1005,15 @@ export class FormController extends Controller {
   // ==========================================
 
   public listReviewQueue = this.validator(
-    { query: companyIdParamSchema },
+    { query: companyIdQuerySchema },
     async (c) => {
       const { companyId } = c.get('query');
+      const ctx = this.securityContext(c);
+      const activeCompanyId = companyId ?? ctx.activeCompanyId ?? ctx.companyId;
+      if (!activeCompanyId) throw new ValidationError('companyId is required');
       const submissions = await this.listReviewQueueUseCase.execute({
-        ...this.securityContext(c),
-        companyId,
+        ...ctx,
+        companyId: activeCompanyId,
       });
       return this.success(
         c,

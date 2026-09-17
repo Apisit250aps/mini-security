@@ -26,6 +26,7 @@ import {
   CancelOccurrenceUseCase,
   ListOccurrencesUseCase,
   ListMyAssignmentsUseCase,
+  ListOccurrenceAssignmentsUseCase,
   GetAssignmentUseCase,
   CancelAssignmentUseCase,
   ReplaceAssignmentUseCase,
@@ -44,6 +45,7 @@ import {
 import {
   companyMemberRepository,
   roleRepository,
+  userRepository,
   formTemplateRepository,
   formVersionRepository,
   formSectionRepository,
@@ -225,7 +227,22 @@ export const listMyAssignmentsUseCase = new ListMyAssignmentsUseCase(
   formOccurrenceRepository,
   formTemplateRepository,
   roleRepository,
+  formPlanRepository,
+  formSubmissionRepository,
+  formReviewEntryRepository,
 );
+
+export const listOccurrenceAssignmentsUseCase =
+  new ListOccurrenceAssignmentsUseCase(
+    formAssignmentRepository,
+    formOccurrenceRepository,
+    formPlanRepository,
+    companyMemberRepository,
+    roleRepository,
+    formSubmissionRepository,
+    formReviewEntryRepository,
+    userRepository,
+  );
 
 export const getAssignmentUseCase = new GetAssignmentUseCase(
   formAssignmentRepository,
@@ -254,6 +271,7 @@ export const startFormSubmissionUseCase = new StartFormSubmissionUseCase(
   formSubmissionRepository,
   formSubmissionContributorRepository,
   companyMemberRepository,
+  formPlanRepository,
 );
 
 export const saveFormSubmissionDraftUseCase =
@@ -266,6 +284,7 @@ export const saveFormSubmissionDraftUseCase =
     companyMemberRepository,
     formOccurrenceRepository,
     formFieldRepository,
+    formPlanRepository,
   );
 
 export const submitFormSubmissionUseCase = new SubmitFormSubmissionUseCase(
@@ -291,6 +310,7 @@ export const createCorrectionUseCase = new CreateCorrectionUseCase(
   formAssignmentRepository,
   formOccurrenceRepository,
   companyMemberRepository,
+  formPlanRepository,
 );
 
 export const getFormSubmissionUseCase = new GetFormSubmissionUseCase(
@@ -311,6 +331,12 @@ export const listFormSubmissionsUseCase = new ListFormSubmissionsUseCase(
   formSubmissionRepository,
   formAssignmentRepository,
   companyMemberRepository,
+  formOccurrenceRepository,
+  formPlanRepository,
+  formTemplateRepository,
+  formReviewEntryRepository,
+  roleRepository,
+  userRepository,
 );
 
 // ==========================================

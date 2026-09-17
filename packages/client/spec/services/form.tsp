@@ -158,11 +158,16 @@ interface FormServices {
   @summary("Cancel occurrence")
   cancelOccurrence(@path id: string, @body body: CancelOccurrenceRequest): ApiOkResponse<Domain.Entity.FormOccurrence> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
 
+  @get
+  @route("/occurrences/{id}/assignments")
+  @summary("List occurrence assignments")
+  listOccurrenceAssignments(@path id: string): ApiOkResponse<OccurrenceAssignmentItem[]> | ApiNotFoundResponse | ApiUnauthorizedResponse;
+
   // ─── Assignments ──────────────────────────────────────────────────────────
   @get
   @route("/assignments")
   @summary("List my assignments")
-  listMyAssignments(@query companyId: string, @query memberId: string): ApiOkResponse<FormAssignmentItem[]> | ApiUnauthorizedResponse;
+  listMyAssignments(@query companyId?: string, @query memberId?: string): ApiOkResponse<FormAssignmentItem[]> | ApiUnauthorizedResponse;
 
   @get
   @route("/assignments/{id}")
@@ -242,7 +247,7 @@ interface FormServices {
     @query companyId?: string,
     @query assignmentId?: string,
   ):
-    | ApiOkResponse<FormSubmission[]>
+    | ApiOkResponse<FormSubmissionItem[]>
     | ApiUnauthorizedResponse;
 
   // ─── Reviews ─────────────────────────────────────────────────────────────

@@ -608,11 +608,25 @@ export type FormAnswerAttachment = {
 };
 
 export type FormAssignmentItem = DomainEntityFormAssignment & {
+    planId?: string;
+    planName?: string;
+    formTemplateId?: string;
     templateName?: string;
     templateDescription?: string;
     opensAt?: Date;
     dueAt?: Date;
+    timezone?: string;
+    latePolicy?: DomainEntityFormLatePolicy;
+    reviewMode?: DomainEntityFormReviewMode;
+    assignmentType?: string;
+    recipientLabel?: string;
     roleName?: string;
+    memberName?: string;
+    latestSubmissionId?: string;
+    latestSubmissionRevision?: number;
+    workflowStatus?: FormTaskWorkflowStatus;
+    isOverdue?: boolean;
+    availableActions?: FormTaskAvailableActions;
 };
 
 export type FormField = {
@@ -686,6 +700,35 @@ export type FormSubmissionDetail = {
     attachments: Array<FormAnswerAttachment>;
     contributors: Array<FormSubmissionContributor>;
 };
+
+export type FormSubmissionItem = DomainEntityFormSubmission & {
+    planId?: string;
+    planName?: string;
+    formTemplateId?: string;
+    templateName?: string;
+    occurrenceOpensAt?: Date;
+    occurrenceDueAt?: Date;
+    occurrenceKey?: string;
+    recipientLabel?: string;
+    startedByName?: string;
+    submittedByName?: string;
+    finalReviewAction?: DomainEntityFormReviewAction;
+    finalReviewNote?: string;
+    finalReviewAt?: Date;
+    reviewerName?: string;
+    submissionSequence?: number;
+    isLatest?: boolean;
+};
+
+export type FormTaskAvailableActions = {
+    canStart: boolean;
+    canContinue: boolean;
+    canCreateCorrection: boolean;
+    canView: boolean;
+    disabledReason?: string;
+};
+
+export type FormTaskWorkflowStatus = 'NOT_STARTED' | 'DRAFT' | 'IN_REVIEW' | 'RETURNED' | 'CORRECTION_DRAFT' | 'APPROVED' | 'COMPLETED' | 'CANCELLED';
 
 export type FormTemplate = {
     id: string;
@@ -778,6 +821,29 @@ export type Location = {
     radiusMeters: number;
     isPrimary: boolean;
     isActive: boolean;
+};
+
+export type OccurrenceAssignmentItem = {
+    id: string;
+    assignmentId: string;
+    occurrenceId: string;
+    companyId: string;
+    formVersionId: string;
+    roleId?: string;
+    companyMemberId?: string;
+    roleName?: string;
+    memberName?: string;
+    assignmentType: string;
+    recipientLabel: string;
+    workflowStatus: FormTaskWorkflowStatus;
+    latestSubmissionId?: string;
+    latestSubmissionRevision?: number;
+    isOverdue: boolean;
+    canStart: boolean;
+    canContinue: boolean;
+    canCreateCorrection: boolean;
+    canView: boolean;
+    createdAt: Date;
 };
 
 export type OpenOccurrencesRequest = {
@@ -2626,9 +2692,9 @@ export type FeatureServicesToggleFeatureResponse = FeatureServicesToggleFeatureR
 export type FormServicesListMyAssignmentsData = {
     body?: never;
     path?: never;
-    query: {
-        companyId: string;
-        memberId: string;
+    query?: {
+        companyId?: string;
+        memberId?: string;
     };
     url: '/forms/assignments';
 };
@@ -2924,6 +2990,41 @@ export type FormServicesOpenOccurrencesResponses = {
 };
 
 export type FormServicesOpenOccurrencesResponse = FormServicesOpenOccurrencesResponses[keyof FormServicesOpenOccurrencesResponses];
+
+export type FormServicesListOccurrenceAssignmentsData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/forms/occurrences/{id}/assignments';
+};
+
+export type FormServicesListOccurrenceAssignmentsErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type FormServicesListOccurrenceAssignmentsError = FormServicesListOccurrenceAssignmentsErrors[keyof FormServicesListOccurrenceAssignmentsErrors];
+
+export type FormServicesListOccurrenceAssignmentsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<OccurrenceAssignmentItem>;
+    };
+};
+
+export type FormServicesListOccurrenceAssignmentsResponse = FormServicesListOccurrenceAssignmentsResponses[keyof FormServicesListOccurrenceAssignmentsResponses];
 
 export type FormServicesCancelOccurrenceData = {
     body: CancelOccurrenceRequest;
@@ -3272,7 +3373,7 @@ export type FormServicesListSubmissionsResponses = {
     200: {
         success: boolean;
         message: string;
-        data?: Array<FormSubmission>;
+        data?: Array<FormSubmissionItem>;
     };
 };
 

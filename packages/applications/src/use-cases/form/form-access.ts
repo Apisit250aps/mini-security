@@ -4,6 +4,7 @@ import type { ICompanyMemberRepository } from '@repo/domains/repositories/compan
 import type {
   IFormAssignmentRepository,
   IFormOccurrenceRepository,
+  IFormPlanRepository,
 } from '@repo/domains/repositories/form';
 import {
   BadRequestError,
@@ -60,6 +61,7 @@ export async function requireWritableAssignment(
   assignmentRepo: IFormAssignmentRepository,
   occurrenceRepo: IFormOccurrenceRepository,
   memberRepo: ICompanyMemberRepository,
+  planRepo?: IFormPlanRepository,
 ) {
   const assignment = await assignmentRepo.findById(assignmentId);
   if (!assignment) throw new NotFoundError('Assignment not found');
@@ -75,5 +77,13 @@ export async function requireWritableAssignment(
     throw new BadRequestError('Assignment or occurrence is cancelled');
   if (occurrence.opensAt.getTime() > Date.now())
     throw new BadRequestError('Occurrence is not open yet');
+  if (planRepo && occurrence.dueAt.getTime() < Date.now()) {
+    const plan = await planRepo.findById(occurrence.planId);
+    if (plan && plan.latePolicy === 'DENY') {
+      throw new BadRequestError(
+        'Submission is past due according to plan policy',
+      );
+    }
+  }
   return { assignment, occurrence, memberId };
 }

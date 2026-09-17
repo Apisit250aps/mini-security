@@ -1935,13 +1935,13 @@ paths:
       parameters:
         - name: companyId
           in: query
-          required: true
+          required: false
           schema:
             type: string
           explode: false
         - name: memberId
           in: query
-          required: true
+          required: false
           schema:
             type: string
           explode: false
@@ -2322,6 +2322,50 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OpenOccurrencesRequest'
+  /forms/occurrences/{id}/assignments:
+    get:
+      operationId: FormServices_listOccurrenceAssignments
+      summary: List occurrence assignments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OccurrenceAssignmentItem'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
   /forms/occurrences/{id}/cancel:
     post:
       operationId: FormServices_cancelOccurrence
@@ -2821,7 +2865,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/FormSubmission'
+                      $ref: '#/components/schemas/FormSubmissionItem'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -7130,6 +7174,12 @@ components:
     FormAssignmentItem:
       type: object
       properties:
+        planId:
+          type: string
+        planName:
+          type: string
+        formTemplateId:
+          type: string
         templateName:
           type: string
         templateDescription:
@@ -7140,8 +7190,31 @@ components:
         dueAt:
           type: string
           format: date-time
+        timezone:
+          type: string
+        latePolicy:
+          $ref: '#/components/schemas/Domain.Entity.FormLatePolicy'
+        reviewMode:
+          $ref: '#/components/schemas/Domain.Entity.FormReviewMode'
+        assignmentType:
+          type: string
+        recipientLabel:
+          type: string
         roleName:
           type: string
+        memberName:
+          type: string
+        latestSubmissionId:
+          type: string
+        latestSubmissionRevision:
+          type: integer
+          format: int32
+        workflowStatus:
+          $ref: '#/components/schemas/FormTaskWorkflowStatus'
+        isOverdue:
+          type: boolean
+        availableActions:
+          $ref: '#/components/schemas/FormTaskAvailableActions'
       allOf:
         - $ref: '#/components/schemas/Domain.Entity.FormAssignment'
     FormField:
@@ -7356,6 +7429,76 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FormSubmissionContributor'
+    FormSubmissionItem:
+      type: object
+      properties:
+        planId:
+          type: string
+        planName:
+          type: string
+        formTemplateId:
+          type: string
+        templateName:
+          type: string
+        occurrenceOpensAt:
+          type: string
+          format: date-time
+        occurrenceDueAt:
+          type: string
+          format: date-time
+        occurrenceKey:
+          type: string
+        recipientLabel:
+          type: string
+        startedByName:
+          type: string
+        submittedByName:
+          type: string
+        finalReviewAction:
+          $ref: '#/components/schemas/Domain.Entity.FormReviewAction'
+        finalReviewNote:
+          type: string
+        finalReviewAt:
+          type: string
+          format: date-time
+        reviewerName:
+          type: string
+        submissionSequence:
+          type: integer
+          format: int32
+        isLatest:
+          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Domain.Entity.FormSubmission'
+    FormTaskAvailableActions:
+      type: object
+      required:
+        - canStart
+        - canContinue
+        - canCreateCorrection
+        - canView
+      properties:
+        canStart:
+          type: boolean
+        canContinue:
+          type: boolean
+        canCreateCorrection:
+          type: boolean
+        canView:
+          type: boolean
+        disabledReason:
+          type: string
+    FormTaskWorkflowStatus:
+      type: string
+      enum:
+        - NOT_STARTED
+        - DRAFT
+        - IN_REVIEW
+        - RETURNED
+        - CORRECTION_DRAFT
+        - APPROVED
+        - COMPLETED
+        - CANCELLED
     FormTemplate:
       type: object
       required:
@@ -7643,6 +7786,66 @@ components:
           type: boolean
         isActive:
           type: boolean
+    OccurrenceAssignmentItem:
+      type: object
+      required:
+        - id
+        - assignmentId
+        - occurrenceId
+        - companyId
+        - formVersionId
+        - assignmentType
+        - recipientLabel
+        - workflowStatus
+        - isOverdue
+        - canStart
+        - canContinue
+        - canCreateCorrection
+        - canView
+        - createdAt
+      properties:
+        id:
+          type: string
+        assignmentId:
+          type: string
+        occurrenceId:
+          type: string
+        companyId:
+          type: string
+        formVersionId:
+          type: string
+        roleId:
+          type: string
+        companyMemberId:
+          type: string
+        roleName:
+          type: string
+        memberName:
+          type: string
+        assignmentType:
+          type: string
+        recipientLabel:
+          type: string
+        workflowStatus:
+          $ref: '#/components/schemas/FormTaskWorkflowStatus'
+        latestSubmissionId:
+          type: string
+        latestSubmissionRevision:
+          type: integer
+          format: int32
+        isOverdue:
+          type: boolean
+        canStart:
+          type: boolean
+        canContinue:
+          type: boolean
+        canCreateCorrection:
+          type: boolean
+        canView:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
     OpenOccurrencesRequest:
       type: object
       required:

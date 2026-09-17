@@ -632,6 +632,23 @@ export class FormSubmissionRepository
     );
   }
 
+  async findByAssignmentIds(assignmentIds: string[], companyId: string): Promise<FormSubmission[]> {
+    if (assignmentIds.length === 0) return [];
+    const results = await this.db
+      .select()
+      .from(formSubmission)
+      .where(
+        and(
+          inArray(formSubmission.assignmentId, assignmentIds),
+          eq(formSubmission.companyId, companyId)
+        )
+      )
+      .orderBy(desc(formSubmission.createdAt));
+    return results.map(
+      (r) => new FormSubmission(r as unknown as FormSubmission),
+    );
+  }
+
   async findDraftByAssignmentId(assignmentId: string, companyId: string): Promise<FormSubmission | null> {
     const [result] = await this.db
       .select()
@@ -917,6 +934,21 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
       .limit(1);
 
     return result ? new FormReviewEntry(result as unknown as FormReviewEntry) : null;
+  }
+
+  async findHeadFinalBySubmissionIds(submissionIds: string[]): Promise<FormReviewEntry[]> {
+    if (submissionIds.length === 0) return [];
+    const results = await this.db
+      .select()
+      .from(formReviewEntry)
+      .where(
+        and(
+          inArray(formReviewEntry.submissionId, submissionIds),
+          isNull(formReviewEntry.answerId),
+          isNull(formReviewEntry.sectionId)
+        )
+      );
+    return results.map((r) => new FormReviewEntry(r as unknown as FormReviewEntry));
   }
 
   async create(entry: CreateFormReviewEntry): Promise<FormReviewEntry> {

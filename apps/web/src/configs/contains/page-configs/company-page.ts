@@ -98,9 +98,9 @@ export const companyPageConfigs: PageConfigs = {
     url: '/company/forms/plans',
   },
   companyFormTasks: {
-    name: 'งานของฉัน',
-    title: 'งานของฉัน',
-    description: 'รายการแบบฟอร์มที่ต้องบันทึกข้อมูลตามรอบงาน',
+    name: 'งานตรวจของฉัน',
+    title: 'งานตรวจของฉัน',
+    description: 'รายการงานตรวจที่ได้รับมอบหมายตามรอบการตรวจที่เปิดอยู่',
     url: '/company/forms/tasks',
   },
   companyFormTemplates: {
@@ -134,9 +134,9 @@ export const companyPageConfigs: PageConfigs = {
     url: '/company/forms/templates',
   },
   companyFormSubmissions: {
-    name: 'รายการตรวจและคำตอบ',
-    title: 'รายการตรวจและผลคำตอบ',
-    description: 'ชุดคำตอบแบบฟอร์มตามบทบาทและการอนุมัติ',
+    name: 'ประวัติและผลการตรวจ',
+    title: 'ประวัติและผลการตรวจ',
+    description: 'ประวัติผลการตรวจที่เคยส่งแล้วและการพิจารณาอนุมัติ',
     url: '/company/forms/submissions',
   },
   companyFormSubmissionDetail: {

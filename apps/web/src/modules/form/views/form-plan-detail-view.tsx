@@ -13,12 +13,14 @@ import {
   useFormTemplateQueries,
   useFormSchedulePreviewQueries,
   useFormOccurrencesQueries,
+  useOccurrenceAssignmentsQueries,
 } from '../hooks/form-queries';
 import {
   useFormPlanActivate,
   useFormPlanPause,
   useFormOccurrencesOpen,
   useFormOccurrenceCancel,
+  useFormSubmissionStart,
 } from '../hooks/form-mutations';
 import {
   Card,
@@ -47,6 +49,7 @@ import {
   Layers,
   Pause,
   Play,
+  ArrowRight,
   Settings2,
   Trash2,
   Users,
@@ -55,6 +58,200 @@ import {
 
 interface FormPlanDetailViewProps {
   planId: string;
+}
+
+function OccurrenceAssignmentsList({
+  occurrenceId,
+  companyId,
+}: {
+  occurrenceId: string;
+  companyId: string;
+}) {
+  const router = useRouter();
+  const assignmentsQuery = useOccurrenceAssignmentsQueries(occurrenceId);
+  const assignments = assignmentsQuery.data || [];
+  const startMutation = useFormSubmissionStart(companyId);
+
+  if (assignmentsQuery.isLoading) {
+    return (
+      <div className="py-2 text-xs text-muted-foreground">
+        กำลังโหลดรายการผู้รับมอบหมาย...
+      </div>
+    );
+  }
+
+  if (assignments.length === 0) {
+    return (
+      <div className="py-1 text-xs text-muted-foreground italic">
+        ไม่มีรายการงานที่มอบหมายในรอบนี้
+      </div>
+    );
+  }
+
+  const renderStatusBadge = (status: string) => {
+    switch (status) {
+      case 'NOT_STARTED':
+        return (
+          <Badge
+            variant="outline"
+            className="text-[10px] border-amber-400 text-amber-600"
+          >
+            ยังไม่เริ่ม
+          </Badge>
+        );
+      case 'DRAFT':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-[10px] bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+          >
+            ฉบับร่าง
+          </Badge>
+        );
+      case 'IN_REVIEW':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-[10px] bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300"
+          >
+            รอตรวจรับ
+          </Badge>
+        );
+      case 'RETURNED':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-[10px] bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950 dark:text-rose-300"
+          >
+            ส่งกลับแก้ไข
+          </Badge>
+        );
+      case 'CORRECTION_DRAFT':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-[10px] bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+          >
+            กำลังแก้ไข
+          </Badge>
+        );
+      case 'APPROVED':
+      case 'COMPLETED':
+        return (
+          <Badge variant="default" className="text-[10px] bg-emerald-600">
+            เสร็จสิ้น
+          </Badge>
+        );
+      case 'CANCELLED':
+        return (
+          <Badge variant="destructive" className="text-[10px]">
+            ยกเลิก
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="text-[10px]">
+            {status}
+          </Badge>
+        );
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-border/60">
+      <span className="text-xs font-medium text-foreground">
+        ผู้รับผิดชอบและสถานะงาน ({assignments.length}):
+      </span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {assignments.map((item) => (
+          <div
+            key={item.assignmentId}
+            className="flex items-center justify-between p-2.5 rounded-lg border bg-muted/20 text-xs gap-2"
+          >
+            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-medium text-foreground truncate">
+                  {item.recipientLabel}
+                </span>
+                {renderStatusBadge(item.workflowStatus)}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              {item.canStart && (
+                <ButtonLoading
+                  size="sm"
+                  className="h-7 text-xs px-2.5"
+                  onPress={() =>
+                    startMutation.mutate(
+                      { assignmentId: item.assignmentId },
+                      {
+                        onSuccess: (res) => {
+                          const sub = res?.data;
+                          if (sub?.id) {
+                            router.push(
+                              `/company/forms/submissions/${sub.id}`,
+                            );
+                          }
+                        },
+                        onError: (err) => {
+                          toast.error(
+                            getErrorMessage(
+                              err,
+                              'ไม่สามารถเปิดแบบฟอร์มได้',
+                            ),
+                          );
+                        },
+                      },
+                    )
+                  }
+                  isLoading={
+                    startMutation.isPending &&
+                    startMutation.variables?.assignmentId ===
+                      item.assignmentId
+                  }
+                >
+                  <Play className="size-3 mr-1" />
+                  เริ่มตรวจ
+                </ButtonLoading>
+              )}
+
+              {item.canContinue && item.latestSubmissionId && (
+                <Button
+                  size="sm"
+                  className="h-7 text-xs px-2.5"
+                  onClick={() =>
+                    router.push(
+                      `/company/forms/submissions/${item.latestSubmissionId}`,
+                    )
+                  }
+                >
+                  <ArrowRight className="size-3 mr-1" />
+                  บันทึกต่อ
+                </Button>
+              )}
+
+              {item.canView && item.latestSubmissionId && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs px-2.5"
+                  onClick={() =>
+                    router.push(
+                      `/company/forms/submissions/${item.latestSubmissionId}`,
+                    )
+                  }
+                >
+                  <ExternalLink className="size-3 mr-1" />
+                  ดูผล
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) {
@@ -625,8 +822,17 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                                 ยกเลิกแล้ว
                               </Badge>
                             ) : isExpired ? (
-                              <Badge variant="secondary" className="text-xs">
-                                หมดเวลากรอก
+                              <Badge
+                                variant={
+                                  plan?.latePolicy === 'DENY'
+                                    ? 'destructive'
+                                    : 'secondary'
+                                }
+                                className="text-xs"
+                              >
+                                {plan?.latePolicy === 'DENY'
+                                  ? 'หมดเวลากรอก (ปิดรับ)'
+                                  : 'เลยกำหนดส่ง (อนุญาตส่งช้า)'}
                               </Badge>
                             ) : (
                               <Badge
@@ -679,6 +885,11 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                             {formatDate(occ.createdAt)}
                           </div>
                         </div>
+
+                        <OccurrenceAssignmentsList
+                          occurrenceId={occ.id}
+                          companyId={activeCompanyId || ''}
+                        />
 
                         {occ.cancelReason && (
                           <div className="p-2.5 rounded-lg bg-destructive/10 text-destructive text-xs">

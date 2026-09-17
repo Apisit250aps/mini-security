@@ -25,6 +25,7 @@ import {
   cancelOccurrenceUseCase,
   listOccurrencesUseCase,
   listMyAssignmentsUseCase,
+  listOccurrenceAssignmentsUseCase,
   getAssignmentUseCase,
   cancelAssignmentUseCase,
   replaceAssignmentUseCase,
@@ -68,6 +69,7 @@ const formController = new FormController(
   cancelOccurrenceUseCase,
   listOccurrencesUseCase,
   listMyAssignmentsUseCase,
+  listOccurrenceAssignmentsUseCase,
   getAssignmentUseCase,
   cancelAssignmentUseCase,
   replaceAssignmentUseCase,
@@ -123,6 +125,10 @@ formRoutes.get('/plans/:id/schedule-preview', formController.previewSchedule);
 
 // --- Occurrences ---
 formRoutes.get('/occurrences', formController.listOccurrences);
+formRoutes.get(
+  '/occurrences/:id/assignments',
+  formController.listOccurrenceAssignments,
+);
 formRoutes.post('/occurrences/open', formController.openOccurrences);
 formRoutes.post('/occurrences/:id/cancel', formController.cancelOccurrence);
 

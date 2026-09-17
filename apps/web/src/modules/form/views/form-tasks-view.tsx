@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   FileText,
   ClipboardList,
@@ -9,160 +10,120 @@ import {
   AlertTriangle,
   Play,
   ArrowRight,
-  CheckCircle2,
-  FileSearch,
   RotateCcw,
+  FileSearch,
+  Search,
+  RefreshCw,
+  CalendarCheck2,
 } from 'lucide-react';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Button } from '@repo/ui/components/button';
 import { Badge } from '@repo/ui/components/badge';
+import { Input } from '@repo/ui/components/input';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
 import { useSession } from '@/modules/auth/hooks/session-provider';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useMyAssignmentsQueries } from '../hooks/form-queries';
 import {
-  useMyAssignmentsQueries,
-  useFormSubmissionsQueries,
-  useReviewQueueQueries,
-} from '../hooks/form-queries';
-import { useFormSubmissionStart } from '../hooks/form-mutations';
+  useFormSubmissionStart,
+  useFormSubmissionCreateCorrectionMutation,
+} from '../hooks/form-mutations';
 import { getErrorMessage } from '@/shared/utils';
-import { formatDate, formatDateTime } from '@/shared/utils/date';
-import type { FormAssignmentItem, FormSubmission } from '@repo/client';
+import { formatDateTime } from '@/shared/utils/date';
+import type { FormAssignmentItem, FormTaskWorkflowStatus } from '@repo/client';
 
 export default function FormTasksView() {
   const router = useRouter();
   const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
   const { data: sessionData } = useSession();
+  const { hasPermission, isSuperAdmin } = usePermission();
+
   const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
   const members = membersQuery.data || [];
   const currentMember = members.find((m) => m.userId === sessionData?.user?.id);
 
   const assignmentsQuery = useMyAssignmentsQueries({
     companyId: activeCompanyId || '',
-    memberId: currentMember?.id || '',
-  });
-
-  const submissionsQuery = useFormSubmissionsQueries({
-    companyId: activeCompanyId || '',
-  });
-
-  const reviewQueueQuery = useReviewQueueQueries({
-    companyId: activeCompanyId || '',
+    memberId: currentMember?.id,
   });
 
   const startMutation = useFormSubmissionStart(activeCompanyId || '');
-  const [filterTab, setFilterTab] = useState<'PENDING' | 'COMPLETED' | 'ALL'>('PENDING');
-  const [now] = useState(() => Date.now());
+  const correctionMutation = useFormSubmissionCreateCorrectionMutation(
+    activeCompanyId || '',
+  );
 
-  const assignments = useMemo(
+  const [filterTab, setFilterTab] = useState<'PENDING' | 'COMPLETED' | 'ALL'>(
+    'PENDING',
+  );
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const assignments: FormAssignmentItem[] = useMemo(
     () => assignmentsQuery.data || [],
     [assignmentsQuery.data],
   );
 
-  const submissions = useMemo(
-    () => submissionsQuery.data || [],
-    [submissionsQuery.data],
-  );
+  // Filter tasks based on tabs and search query
+  const filteredTasks = useMemo(() => {
+    return assignments.filter((item) => {
+      const status: FormTaskWorkflowStatus =
+        item.workflowStatus || 'NOT_STARTED';
 
-  const reviewQueue = useMemo(
-    () => reviewQueueQuery.data || [],
-    [reviewQueueQuery.data],
-  );
-
-  // Map each assignment to its latest submission in lineage
-  const assignmentMap = useMemo(() => {
-    const subByAssignment = new Map<string, FormSubmission[]>();
-    for (const sub of submissions) {
-      const list = subByAssignment.get(sub.assignmentId) || [];
-      list.push(sub);
-      subByAssignment.set(sub.assignmentId, list);
-    }
-
-    const map = new Map<
-      string,
-      {
-        assignment: FormAssignmentItem;
-        latestSubmission: FormSubmission | null;
-        status:
-          | 'NOT_STARTED'
-          | 'DRAFT'
-          | 'CORRECTION_DRAFT'
-          | 'IN_REVIEW'
-          | 'COMPLETED'
-          | 'CANCELLED';
-        isOverdue: boolean;
+      // Tab matching
+      if (filterTab === 'PENDING') {
+        const isPending =
+          status === 'NOT_STARTED' ||
+          status === 'DRAFT' ||
+          status === 'RETURNED' ||
+          status === 'CORRECTION_DRAFT';
+        if (!isPending) return false;
+      } else if (filterTab === 'COMPLETED') {
+        const isCompleted =
+          status === 'IN_REVIEW' ||
+          status === 'APPROVED' ||
+          status === 'COMPLETED';
+        if (!isCompleted) return false;
       }
-    >();
 
-    for (const assign of assignments) {
-      const isCancelled = Boolean(assign.cancelledAt);
-      const isOverdue =
-        !isCancelled &&
-        Boolean(assign.dueAt && new Date(assign.dueAt).getTime() < now);
-
-      const relatedSubs = subByAssignment.get(assign.id) || [];
-      // Find latest submission: sort by createdAt desc
-      relatedSubs.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-      const latestSub = relatedSubs[0] || null;
-
-      let status:
-        | 'NOT_STARTED'
-        | 'DRAFT'
-        | 'CORRECTION_DRAFT'
-        | 'IN_REVIEW'
-        | 'COMPLETED'
-        | 'CANCELLED' = 'NOT_STARTED';
-
-      if (isCancelled) {
-        status = 'CANCELLED';
-      } else if (!latestSub) {
-        status = 'NOT_STARTED';
-      } else if (!latestSub.submittedAt) {
-        status = latestSub.supersedesSubmissionId
-          ? 'CORRECTION_DRAFT'
-          : 'DRAFT';
-      } else {
-        const inQueue = reviewQueue.some((q) => q.id === latestSub.id);
-        if (inQueue) {
-          status = 'IN_REVIEW';
-        } else {
-          status = 'COMPLETED';
+      // Search matching
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        const planName = (item.planName || '').toLowerCase();
+        const templateName = (item.templateName || '').toLowerCase();
+        const recipient = (item.recipientLabel || '').toLowerCase();
+        if (
+          !planName.includes(query) &&
+          !templateName.includes(query) &&
+          !recipient.includes(query)
+        ) {
+          return false;
         }
       }
 
-      map.set(assign.id, {
-        assignment: assign,
-        latestSubmission: latestSub,
-        status,
-        isOverdue: isOverdue && (!latestSub || !latestSub.submittedAt),
-      });
-    }
+      return true;
+    });
+  }, [assignments, filterTab, searchQuery]);
 
-    return map;
-  }, [assignments, submissions, reviewQueue, now]);
+  const pendingCount = useMemo(() => {
+    return assignments.filter((item) => {
+      const s = item.workflowStatus || 'NOT_STARTED';
+      return (
+        s === 'NOT_STARTED' ||
+        s === 'DRAFT' ||
+        s === 'RETURNED' ||
+        s === 'CORRECTION_DRAFT'
+      );
+    }).length;
+  }, [assignments]);
 
-  const filteredTasks = useMemo(() => {
-    const list = Array.from(assignmentMap.values());
-    if (filterTab === 'PENDING') {
-      return list.filter(
-        (item) =>
-          item.status === 'NOT_STARTED' ||
-          item.status === 'DRAFT' ||
-          item.status === 'CORRECTION_DRAFT',
-      );
-    }
-    if (filterTab === 'COMPLETED') {
-      return list.filter(
-        (item) => item.status === 'IN_REVIEW' || item.status === 'COMPLETED',
-      );
-    }
-    return list;
-  }, [assignmentMap, filterTab]);
+  const completedCount = useMemo(() => {
+    return assignments.filter((item) => {
+      const s = item.workflowStatus || 'NOT_STARTED';
+      return s === 'IN_REVIEW' || s === 'APPROVED' || s === 'COMPLETED';
+    }).length;
+  }, [assignments]);
 
   const handleStart = (assignmentId: string) => {
     startMutation.mutate(
@@ -181,21 +142,136 @@ export default function FormTasksView() {
     );
   };
 
+  const handleCreateCorrection = (submissionId: string) => {
+    correctionMutation.mutate(submissionId, {
+      onSuccess: (res) => {
+        const sub = res?.data;
+        if (sub?.id) {
+          router.push(`/company/forms/submissions/${sub.id}`);
+        }
+      },
+      onError: (err) => {
+        toast.error(getErrorMessage(err, 'ไม่สามารถสร้างฉบับแก้ไขได้'));
+      },
+    });
+  };
+
+  const renderWorkflowStatusBadge = (status?: FormTaskWorkflowStatus) => {
+    switch (status) {
+      case 'NOT_STARTED':
+        return (
+          <Badge
+            variant="outline"
+            className="text-xs border-amber-400 text-amber-600 bg-amber-50/50 dark:bg-amber-950/20"
+          >
+            ยังไม่เริ่ม
+          </Badge>
+        );
+      case 'DRAFT':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-xs bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+          >
+            กำลังบันทึก (ฉบับร่าง)
+          </Badge>
+        );
+      case 'IN_REVIEW':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-xs bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300"
+          >
+            รอตรวจรับ
+          </Badge>
+        );
+      case 'RETURNED':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-xs bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300"
+          >
+            ส่งกลับแก้ไข
+          </Badge>
+        );
+      case 'CORRECTION_DRAFT':
+        return (
+          <Badge
+            variant="secondary"
+            className="text-xs bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+          >
+            กำลังแก้ไขฉบับใหม่
+          </Badge>
+        );
+      case 'APPROVED':
+        return (
+          <Badge
+            variant="default"
+            className="text-xs bg-emerald-600 hover:bg-emerald-600"
+          >
+            อนุมัติแล้ว
+          </Badge>
+        );
+      case 'COMPLETED':
+        return (
+          <Badge
+            variant="default"
+            className="text-xs bg-emerald-600 hover:bg-emerald-600"
+          >
+            เสร็จสมบูรณ์
+          </Badge>
+        );
+      case 'CANCELLED':
+        return (
+          <Badge variant="destructive" className="text-xs">
+            ยกเลิกแล้ว
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="text-xs">
+            ยังไม่เริ่ม
+          </Badge>
+        );
+    }
+  };
+
   const isPageLoading =
-    isCompanyLoading ||
-    !activeCompanyId ||
-    assignmentsQuery.isLoading ||
-    submissionsQuery.isLoading;
+    isCompanyLoading || !activeCompanyId || assignmentsQuery.isLoading;
+
+  const canManagePlans = isSuperAdmin || hasPermission('form_plan:manage');
 
   return (
     <PageLayout
       pageId="companyFormTasks"
-      title="งานของฉัน"
-      description="รายการแบบฟอร์มการตรวจประเมินที่ต้องบันทึกข้อมูลตามรอบงานที่ได้รับมอบหมาย"
+      title="งานตรวจของฉัน"
+      description="รายการงานตรวจที่ได้รับมอบหมายตามรอบการตรวจที่เปิดอยู่"
       isLoading={isPageLoading}
     >
       <div className="flex flex-col gap-5">
-        {/* Filter Navigation */}
+        {/* Error Notification */}
+        {assignmentsQuery.isError && (
+          <div className="flex items-center justify-between p-4 border border-destructive/30 rounded-xl bg-destructive/10 text-destructive text-sm">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="size-5 shrink-0" />
+              <span>
+                เกิดข้อผิดพลาดในการโหลดงานตรวจ:{' '}
+                {getErrorMessage(assignmentsQuery.error)}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => assignmentsQuery.refetch()}
+              className="shrink-0 gap-1.5"
+            >
+              <RefreshCw className="size-3.5" />
+              ลองใหม่อีกครั้ง
+            </Button>
+          </div>
+        )}
+
+        {/* Toolbar: Search and Filter Tabs */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b pb-3">
           <div className="flex rounded-lg border p-1 bg-muted/20 text-xs w-fit">
             <button
@@ -207,16 +283,7 @@ export default function FormTasksView() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              ต้องดำเนินการ (
-              {
-                Array.from(assignmentMap.values()).filter(
-                  (i) =>
-                    i.status === 'NOT_STARTED' ||
-                    i.status === 'DRAFT' ||
-                    i.status === 'CORRECTION_DRAFT',
-                ).length
-              }
-              )
+              ต้องดำเนินการ ({pendingCount})
             </button>
             <button
               type="button"
@@ -227,14 +294,7 @@ export default function FormTasksView() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              ส่งแล้ว / ตรวจรับ (
-              {
-                Array.from(assignmentMap.values()).filter(
-                  (i) =>
-                    i.status === 'IN_REVIEW' || i.status === 'COMPLETED',
-                ).length
-              }
-              )
+              ส่งแล้ว / รอผล ({completedCount})
             </button>
             <button
               type="button"
@@ -248,178 +308,218 @@ export default function FormTasksView() {
               ทั้งหมด ({assignments.length})
             </button>
           </div>
+
+          <div className="relative max-w-xs w-full">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="ค้นหาแผนงาน หรือแบบฟอร์ม..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 text-xs h-9"
+            />
+          </div>
         </div>
 
         {/* Task Cards List */}
         {filteredTasks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center border rounded-xl border-dashed bg-card/40">
+          <div className="flex flex-col items-center justify-center py-16 text-center border rounded-xl border-dashed bg-card/40">
             <ClipboardList className="size-12 text-muted-foreground/60 mb-3" />
-            <h3 className="text-base font-semibold">ไม่มีรายการงานในหมวดนี้</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              คุณไม่มีแบบฟอร์มที่ต้องดำเนินการในขณะนี้
+            <h3 className="text-base font-semibold text-foreground">
+              {searchQuery.trim()
+                ? 'ไม่พบรายการงานตรวจที่ตรงกับคำค้นหา'
+                : 'ไม่มีรายการงานตรวจในหมวดนี้'}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+              {searchQuery.trim()
+                ? 'ลองเปลี่ยนคำค้นหา หรือสลับแท็บเพื่อดูรายการงานตรวจอื่น'
+                : 'คุณไม่มีแบบฟอร์มที่ต้องดำเนินการในขณะนี้'}
             </p>
+            {canManagePlans && !searchQuery.trim() && (
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/company/forms/plans')}
+                >
+                  <CalendarCheck2 data-icon="inline-start" />
+                  ไปยังแผนการตรวจ
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid gap-3">
-            {filteredTasks.map(({ assignment, latestSubmission, status, isOverdue }) => (
-              <div
-                key={assignment.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-xl bg-card gap-4 shadow-xs hover:border-primary/40 transition-colors"
-              >
-                <div className="flex items-start gap-3.5">
-                  <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0 mt-0.5">
-                    <FileText className="size-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-semibold text-sm sm:text-base text-foreground">
-                        {assignment.templateName || 'แบบฟอร์มตรวจสอบ'}
-                      </h4>
+            {filteredTasks.map((assignment) => {
+              const actions = assignment.availableActions;
+              const isDeniedLate =
+                assignment.isOverdue && assignment.latePolicy === 'DENY';
+              const isAllowedLate =
+                assignment.isOverdue && assignment.latePolicy === 'ALLOW';
 
-                      {/* Status Badges */}
-                      {status === 'NOT_STARTED' && (
-                        <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
-                          ยังไม่เริ่ม
-                        </Badge>
-                      )}
-                      {status === 'DRAFT' && (
-                        <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                          กำลังกรอก (ฉบับร่าง)
-                        </Badge>
-                      )}
-                      {status === 'CORRECTION_DRAFT' && (
-                        <Badge variant="secondary" className="text-xs bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                          กำลังแก้ไข
-                        </Badge>
-                      )}
-                      {status === 'IN_REVIEW' && (
-                        <Badge variant="secondary" className="text-xs bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
-                          รอตรวจรับ
-                        </Badge>
-                      )}
-                      {status === 'COMPLETED' && (
-                        <Badge variant="default" className="text-xs bg-emerald-600">
-                          ส่งแล้ว / เสร็จสิ้น
-                        </Badge>
-                      )}
-                      {status === 'CANCELLED' && (
-                        <Badge variant="destructive" className="text-xs">
-                          ยกเลิกแล้ว
-                        </Badge>
-                      )}
-
-                      {/* Overdue Badge */}
-                      {isOverdue && (
-                        <Badge variant="destructive" className="text-xs gap-1">
-                          <AlertTriangle className="size-3" />
-                          เลยกำหนดส่ง
-                        </Badge>
-                      )}
+              return (
+                <div
+                  key={assignment.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-xl bg-card gap-4 shadow-xs hover:border-primary/40 transition-colors"
+                >
+                  <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                    <div className="p-2.5 rounded-lg bg-primary/10 text-primary shrink-0 mt-0.5">
+                      <FileText className="size-5" />
                     </div>
+                    <div className="min-w-0 flex-1">
+                      {/* Header Hierarchy: Plan Name Primary, Template Name Secondary */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-semibold text-sm sm:text-base text-foreground truncate">
+                          {assignment.planName || 'แบบฟอร์มตรวจสอบ'}
+                        </h4>
 
-                    {assignment.templateDescription && (
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                        {assignment.templateDescription}
-                      </p>
+                        {/* Workflow Status Badge */}
+                        {renderWorkflowStatusBadge(assignment.workflowStatus)}
+
+                        {/* Overdue Badge */}
+                        {isDeniedLate && (
+                          <Badge
+                            variant="destructive"
+                            className="text-xs gap-1"
+                          >
+                            <AlertTriangle className="size-3" />
+                            หมดเวลากรอก (ไม่อนุญาตส่งช้า)
+                          </Badge>
+                        )}
+                        {isAllowedLate && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs gap-1 border-amber-500 text-amber-600 bg-amber-50/50 dark:bg-amber-950/20"
+                          >
+                            <AlertTriangle className="size-3" />
+                            เลยกำหนดส่ง (อนุญาตส่งช้า)
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Secondary Template Name */}
+                      {assignment.templateName && (
+                        <p className="text-xs font-medium text-muted-foreground mt-0.5">
+                          แบบฟอร์ม: {assignment.templateName}
+                        </p>
+                      )}
+
+                      {assignment.templateDescription && (
+                        <p className="text-xs text-muted-foreground/80 mt-1 line-clamp-1">
+                          {assignment.templateDescription}
+                        </p>
+                      )}
+
+                      <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2 mt-2">
+                        {assignment.dueAt ? (
+                          <span className="flex items-center gap-1 text-foreground font-medium">
+                            <Clock className="size-3.5 text-muted-foreground" />
+                            กำหนดส่ง: {formatDateTime(assignment.dueAt)}
+                          </span>
+                        ) : assignment.opensAt ? (
+                          <span className="flex items-center gap-1">
+                            <Clock className="size-3.5 text-muted-foreground" />
+                            เปิดตรวจ: {formatDateTime(assignment.opensAt)}
+                          </span>
+                        ) : null}
+
+                        <span>•</span>
+
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] font-normal"
+                        >
+                          {assignment.recipientLabel ||
+                            (assignment.companyMemberId
+                              ? 'งานส่วนตัว'
+                              : assignment.roleName
+                                ? `ตำแหน่ง: ${assignment.roleName}`
+                                : 'งานของตำแหน่ง')}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Primary Capability Action Button */}
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                    {actions?.canStart && (
+                      <ButtonLoading
+                        size="sm"
+                        onPress={() => handleStart(assignment.id)}
+                        isLoading={
+                          startMutation.isPending &&
+                          startMutation.variables?.assignmentId ===
+                            assignment.id
+                        }
+                      >
+                        <Play data-icon="inline-start" />
+                        เริ่มตรวจ
+                      </ButtonLoading>
                     )}
 
-                    <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2 mt-2">
-                      {assignment.dueAt ? (
-                        <span className="flex items-center gap-1 text-foreground font-medium">
-                          <Clock className="size-3.5 text-muted-foreground" />
-                          กำหนดส่ง: {formatDateTime(assignment.dueAt)}
-                        </span>
-                      ) : (
-                        <span>
-                          สร้างเมื่อ: {assignment.createdAt ? formatDate(assignment.createdAt) : '-'}
-                        </span>
-                      )}
-
-                      <span>•</span>
-
-                      <Badge variant="outline" className="text-[10px]">
-                        {assignment.companyMemberId
-                          ? 'มอบหมายส่วนตัว'
-                          : assignment.roleName
-                            ? `ตำแหน่ง: ${assignment.roleName}`
-                            : 'งานของตำแหน่ง'}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2 self-end sm:self-center">
-                  {status === 'NOT_STARTED' && (
-                    <ButtonLoading
-                      size="sm"
-                      onPress={() => handleStart(assignment.id)}
-                      isLoading={
-                        startMutation.isPending &&
-                        startMutation.variables?.assignmentId === assignment.id
-                      }
-                    >
-                      <Play data-icon="inline-start" />
-                      เริ่มกรอก
-                    </ButtonLoading>
-                  )}
-
-                  {(status === 'DRAFT' || status === 'CORRECTION_DRAFT') &&
-                    latestSubmission && (
+                    {actions?.canContinue && assignment.latestSubmissionId && (
                       <Button
                         size="sm"
                         onClick={() =>
                           router.push(
-                            `/company/forms/submissions/${latestSubmission.id}`,
+                            `/company/forms/submissions/${assignment.latestSubmissionId}`,
                           )
                         }
                       >
-                        {status === 'CORRECTION_DRAFT' ? (
-                          <>
-                            <RotateCcw data-icon="inline-start" />
-                            แก้ไขต่อ
-                          </>
-                        ) : (
-                          <>
-                            <ArrowRight data-icon="inline-end" />
-                            ทำต่อ
-                          </>
-                        )}
+                        <ArrowRight data-icon="inline-end" />
+                        บันทึกต่อ
                       </Button>
                     )}
 
-                  {status === 'IN_REVIEW' && latestSubmission && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        router.push(
-                          `/company/forms/submissions/${latestSubmission.id}`,
-                        )
-                      }
-                    >
-                      <FileSearch data-icon="inline-start" />
-                      ดูคำตอบที่ส่ง
-                    </Button>
-                  )}
+                    {actions?.canCreateCorrection &&
+                      assignment.latestSubmissionId && (
+                        <ButtonLoading
+                          size="sm"
+                          variant="default"
+                          className="bg-amber-600 hover:bg-amber-700"
+                          onPress={() =>
+                            handleCreateCorrection(
+                              assignment.latestSubmissionId!,
+                            )
+                          }
+                          isLoading={
+                            correctionMutation.isPending &&
+                            correctionMutation.variables ===
+                              assignment.latestSubmissionId
+                          }
+                        >
+                          <RotateCcw data-icon="inline-start" />
+                          สร้างฉบับแก้ไข
+                        </ButtonLoading>
+                      )}
 
-                  {status === 'COMPLETED' && latestSubmission && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        router.push(
-                          `/company/forms/submissions/${latestSubmission.id}`,
-                        )
-                      }
-                    >
-                      <CheckCircle2 data-icon="inline-start" className="text-emerald-600" />
-                      ดูรายละเอียด
-                    </Button>
-                  )}
+                    {actions?.canView && assignment.latestSubmissionId && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          router.push(
+                            `/company/forms/submissions/${assignment.latestSubmissionId}`,
+                          )
+                        }
+                      >
+                        <FileSearch data-icon="inline-start" />
+                        ดูผลการตรวจ
+                      </Button>
+                    )}
+
+                    {!actions?.canStart &&
+                      !actions?.canContinue &&
+                      !actions?.canCreateCorrection &&
+                      !actions?.canView && (
+                        <span className="text-xs text-muted-foreground italic">
+                          {actions?.disabledReason ||
+                            'ไม่สามารถดำเนินการได้ในขณะนี้'}
+                        </span>
+                      )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

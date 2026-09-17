@@ -552,7 +552,13 @@ export function useFormSubmissionStart(companyId: string) {
           queryKey: formKeys.assignment(variables.assignmentId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.myAssignments(companyId),
+          queryKey: ['FORM', 'ASSIGNMENTS'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'OCCURRENCE'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.submissions(companyId),
         }),
       ]);
     },
@@ -580,6 +586,12 @@ export function useFormSubmissionSaveDraft(
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: formKeys.submission(submissionId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'ASSIGNMENTS'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'OCCURRENCE'],
         }),
         ...(companyId
           ? [
@@ -619,6 +631,12 @@ export function useFormSubmissionSubmit(
           queryKey: formKeys.submissions(companyId),
         }),
         queryClient.invalidateQueries({
+          queryKey: ['FORM', 'ASSIGNMENTS'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'OCCURRENCE'],
+        }),
+        queryClient.invalidateQueries({
           queryKey: formKeys.reviewQueue(companyId),
         }),
       ]);
@@ -649,6 +667,44 @@ export function useFormSubmissionCreateCorrection(
         }),
         queryClient.invalidateQueries({
           queryKey: formKeys.submissions(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'ASSIGNMENTS'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'OCCURRENCE'],
+        }),
+      ]);
+    },
+    onError: (error) =>
+      toast.error(getErrorMessage(error, 'สร้างฉบับแก้ไขไม่สำเร็จ')),
+  });
+}
+
+export function useFormSubmissionCreateCorrectionMutation(companyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (submissionId: string) => {
+      const res = await formServicesCreateCorrection({
+        path: { id: submissionId },
+        throwOnError: true,
+      });
+      return res.data;
+    },
+    onSuccess: async (_data, submissionId) => {
+      toast.success('สร้างฉบับแก้ไขสำเร็จ');
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: formKeys.submission(submissionId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.submissions(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'ASSIGNMENTS'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'OCCURRENCE'],
         }),
       ]);
     },
@@ -759,6 +815,15 @@ export function useFormReviewFinalize(companyId: string) {
         }),
         queryClient.invalidateQueries({
           queryKey: formKeys.reviewQueue(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.submissions(companyId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'ASSIGNMENTS'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['FORM', 'OCCURRENCE'],
         }),
       ]);
     },

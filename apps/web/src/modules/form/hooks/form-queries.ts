@@ -4,6 +4,7 @@ import {
   formServicesListSubmissions,
   formServicesListTemplatesByCompany,
   formServicesListMyAssignments,
+  formServicesListOccurrenceAssignments,
   formServicesListReviewQueue,
   formServicesGetReviewDetail,
   formServicesListPlans,
@@ -47,15 +48,22 @@ export function useFormSubmissionsQueries(filters?: {
   companyId?: string;
   assignmentId?: string;
 }) {
+  const cleanFilters = filters
+    ? Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== undefined && v !== ''),
+      )
+    : undefined;
+
   return useQuery({
     queryKey: formKeys.submissions(filters?.companyId, filters),
     queryFn: async ({ signal }) => {
       const response = await formServicesListSubmissions({
         signal,
-        query: filters,
+        query: cleanFilters,
       });
       return response.data?.data || [];
     },
+    enabled: filters?.companyId === undefined || Boolean(filters.companyId),
   });
 }
 
@@ -74,9 +82,9 @@ export function useFormSubmissionQueries(id?: string) {
   });
 }
 
-export function useMyAssignmentsQueries(filters: { companyId: string, memberId: string }) {
+export function useMyAssignmentsQueries(filters: { companyId: string; memberId?: string }) {
   return useQuery({
-    queryKey: ['FORM', 'MY_ASSIGNMENTS', filters.companyId, filters],
+    queryKey: formKeys.myAssignments(filters.companyId, filters.memberId),
     queryFn: async ({ signal }) => {
       const response = await formServicesListMyAssignments({
         signal,
@@ -87,7 +95,24 @@ export function useMyAssignmentsQueries(filters: { companyId: string, memberId: 
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(filters.companyId && filters.memberId),
+    enabled: Boolean(filters.companyId),
+  });
+}
+
+export function useOccurrenceAssignmentsQueries(occurrenceId?: string) {
+  return useQuery({
+    queryKey: occurrenceId
+      ? formKeys.occurrenceAssignments(occurrenceId)
+      : ['FORM', 'OCCURRENCE', 'NONE', 'ASSIGNMENTS'],
+    queryFn: async ({ signal }) => {
+      if (!occurrenceId) return [];
+      const response = await formServicesListOccurrenceAssignments({
+        signal,
+        path: { id: occurrenceId },
+      });
+      return response.data?.data || [];
+    },
+    enabled: Boolean(occurrenceId),
   });
 }
 

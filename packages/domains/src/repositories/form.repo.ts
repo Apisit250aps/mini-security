@@ -148,6 +148,10 @@ export interface IFormSubmissionRepository
     assignmentId: string,
     companyId: string,
   ): Promise<FormSubmission[]>;
+  findByAssignmentIds(
+    assignmentIds: string[],
+    companyId: string,
+  ): Promise<FormSubmission[]>;
   findDraftByAssignmentId(
     assignmentId: string,
     companyId: string,
@@ -191,6 +195,9 @@ export interface IFormReviewEntryRepository {
     targetType: 'answer' | 'section' | 'final',
     targetId?: string,
   ): Promise<FormReviewEntry | null>;
+  findHeadFinalBySubmissionIds(
+    submissionIds: string[],
+  ): Promise<FormReviewEntry[]>;
   create(entry: CreateFormReviewEntry): Promise<FormReviewEntry>;
   list(companyId: string): Promise<FormReviewEntry[]>;
 }

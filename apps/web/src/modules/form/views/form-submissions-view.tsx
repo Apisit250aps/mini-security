@@ -1,260 +1,113 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useMemo } from 'react';
 import {
-  ClipboardCheck,
-  Shield,
-  Clock,
   CheckCircle2,
+  Clock,
+  RotateCcw,
   FileText,
+  FileCheck2,
 } from 'lucide-react';
-import { Button } from '@repo/ui/components/button';
-import { Badge } from '@repo/ui/components/badge';
-import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
 import {
   MetricCard,
   DashboardStatsGrid,
 } from '@repo/ui/components/shared/dashboard';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
-import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
-import {
-  useFormSubmissionsQueries,
-  useMyAssignmentsQueries,
-} from '../hooks/form-queries';
-import { useFormSubmissionStart } from '../hooks/form-mutations';
-import { getErrorMessage } from '@/shared/utils';
-import type { FormSubmission } from '@repo/domains/entities';
-
+import { useFormSubmissionsQueries } from '../hooks/form-queries';
 import FormSubmissionDataTable from '../components/submission/form-submission-data-table';
-import ActiveFormTable from '../components/submission/active-form-table';
+import type { FormSubmissionItem } from '@repo/client';
 
 export default function FormSubmissionsView() {
-  const router = useRouter();
   const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
-  const { data: session } = useSession();
 
-  const [activeTab, setActiveTab] = useState<'forms' | 'history'>('forms');
-
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
-  const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
-
-  const currentMember = membersQuery.data?.find(
-    (m) => m.userId === session?.user.id && m.isActive,
+  const submissionsQuery = useFormSubmissionsQueries(
+    activeCompanyId ? { companyId: activeCompanyId } : undefined,
   );
-  const currentRoleId = currentMember?.roleId;
-  const roles = rolesQuery.data || [];
-  const currentRole = roles.find((r) => r.id === currentRoleId);
 
-  const assignmentsQuery = useMyAssignmentsQueries({
-    companyId: activeCompanyId || '',
-    memberId: currentMember?.id || '',
-  });
-  const myAssignments = assignmentsQuery.data || [];
-
-  const submissionsQuery = useFormSubmissionsQueries({
-    companyId: activeCompanyId || '',
-  });
-
-  const startMutation = useFormSubmissionStart(activeCompanyId || '');
-
-  const submissions = useMemo(
-    () => submissionsQuery.data || [],
+  const submissions: FormSubmissionItem[] = useMemo(
+    () => (submissionsQuery.data || []) as FormSubmissionItem[],
     [submissionsQuery.data],
   );
-  const submittedCount = useMemo(
-    () => submissions.filter((s) => Boolean(s.submittedAt)).length,
+
+  const approvedCount = useMemo(
+    () => submissions.filter((s) => s.finalReviewAction === 'APPROVE').length,
     [submissions],
   );
+
+  const returnedCount = useMemo(
+    () => submissions.filter((s) => s.finalReviewAction === 'RETURN').length,
+    [submissions],
+  );
+
+  const inReviewCount = useMemo(
+    () =>
+      submissions.filter(
+        (s) => Boolean(s.submittedAt) && !s.finalReviewAction,
+      ).length,
+    [submissions],
+  );
+
   const draftCount = useMemo(
     () => submissions.filter((s) => !s.submittedAt).length,
     [submissions],
   );
 
-  // Find active shared drafts per assignment
-  const activeDraftsByAssignment = useMemo(() => {
-    const map = new Map<string, FormSubmission>();
-    if (!submissionsQuery.data) return map;
-
-    for (const sub of submissionsQuery.data) {
-      if (!sub.submittedAt && sub.assignmentId) {
-        map.set(sub.assignmentId, sub);
-      }
-    }
-    return map;
-  }, [submissionsQuery.data]);
-
-  const handleStartOrJoin = useCallback(
-    (assignmentId: string) => {
-      if (!currentMember || !activeCompanyId) {
-        toast.error('ไม่พบข้อมูลสมาชิกองค์กรของคุณ');
-        return;
-      }
-
-      startMutation.mutate(
-        {
-          assignmentId,
-        },
-        {
-          onSuccess: (res) => {
-            const sub = res?.data;
-            if (sub?.id) {
-              router.push(`/company/forms/submissions/${sub.id}`);
-            }
-          },
-          onError: (err) => {
-            toast.error(
-              getErrorMessage(
-                err,
-                'ไม่สามารถเปิดหรือสร้างแบบฟอร์มสำหรับงานนี้ได้',
-              ),
-            );
-          },
-        },
-      );
-    },
-    [currentMember, activeCompanyId, startMutation, router],
-  );
-
   const isPageLoading =
-    isCompanyLoading ||
-    !activeCompanyId ||
-    membersQuery.isLoading ||
-    assignmentsQuery.isLoading;
+    isCompanyLoading || !activeCompanyId || submissionsQuery.isLoading;
 
   return (
     <PageLayout
       pageId="companyFormSubmissions"
+      title="ประวัติและผลการตรวจ"
+      description="ประวัติผลการตรวจที่เคยส่งแล้วและการพิจารณาอนุมัติ"
       isLoading={isPageLoading}
-      loadingText="กำลังโหลดรายการแบบฟอร์มและผลการตรวจ..."
+      loadingText="กำลังโหลดประวัติผลการตรวจ..."
     >
       <div className="flex flex-col gap-6">
         {/* Metric Cards Grid */}
         <DashboardStatsGrid columns={4}>
           <MetricCard
-            title="แบบฟอร์มที่ต้องตรวจ"
-            value={`${myAssignments.length} งาน`}
-            icon={ClipboardCheck}
-            description="แบบฟอร์มที่ได้รับมอบหมายตามรอบงาน"
+            title="ตรวจอนุมัติแล้ว"
+            value={`${approvedCount} ฉบับ`}
+            icon={CheckCircle2}
+            description="ผลการตรวจผ่านเกณฑ์เรียบร้อย"
           />
           <MetricCard
-            title="ส่งผลตรวจแล้ว"
-            value={`${submittedCount} ฉบับ`}
-            icon={CheckCircle2}
-            trend={{
-              value: `${submittedCount}`,
-              isPositive: true,
-              label: 'เสร็จสมบูรณ์',
-            }}
-            description="รายการที่บันทึกข้อมูลเรียบร้อย"
+            title="รอตรวจรับ"
+            value={`${inReviewCount} ฉบับ`}
+            icon={FileCheck2}
+            description="รอหัวหน้างานหรือผู้ตรวจอนุมัติ"
+          />
+          <MetricCard
+            title="ส่งกลับแก้ไข"
+            value={`${returnedCount} ฉบับ`}
+            icon={RotateCcw}
+            description="จำเป็นต้องแก้ไขคำตอบและส่งใหม่"
           />
           <MetricCard
             title="ฉบับร่างค้างส่ง"
             value={`${draftCount} ฉบับ`}
             icon={Clock}
-            description="ฟอร์มที่กำลังตรวจหรือบันทึกค้างไว้"
-          />
-          <MetricCard
-            title="ประวัติทั้งหมด"
-            value={`${submissions.length} รายการ`}
-            icon={FileText}
-            description="ประวัติการตรวจในองค์กรทั้งหมด"
+            description="แบบฟอร์มที่อยู่ระหว่างการบันทึก"
           />
         </DashboardStatsGrid>
-        {/* Role Context Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border/70 bg-muted/20">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-              <Shield className="size-5" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">
-                  บทบาทของคุณในการตรวจ:
-                </span>
-                <Badge variant="secondary" className="font-semibold text-xs">
-                  {currentRole?.name || 'สมาชิกทั่วไป'}
-                </Badge>
-              </div>
+
+        {/* History Table */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold tracking-tight text-foreground">
+                ตารางประวัติการตรวจและผลคำตอบทั้งหมด
+              </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                รายการแบบฟอร์มที่ได้รับมอบหมายตามรอบงานของบทบาทหรือตัวคุณ
-                สามารถเลือกงานเพื่อเริ่มหรือบันทึกข้อมูลต่อได้ทันที
+                ตรวจสอบสถานะแบบฟอร์มที่ส่งแล้ว การอนุมัติ และลำดับฉบับย้อนหลัง
               </p>
             </div>
           </div>
 
-          {/* View Tab Switcher */}
-          <div className="flex items-center rounded-lg border border-border/60 bg-muted/40 p-1 shrink-0 self-start sm:self-auto">
-            <Button
-              variant={activeTab === 'forms' ? 'default' : 'ghost'}
-              size="sm"
-              className="gap-1.5 text-xs h-8"
-              onPress={() => setActiveTab('forms')}
-            >
-              <ClipboardCheck className="size-3.5" />
-              แบบฟอร์มที่ต้องตรวจ ({myAssignments.length})
-            </Button>
-            <Button
-              variant={activeTab === 'history' ? 'default' : 'ghost'}
-              size="sm"
-              className="gap-1.5 text-xs h-8"
-              onPress={() => setActiveTab('history')}
-            >
-              <Clock className="size-3.5" />
-              ประวัติและผลการตรวจทั้งหมด
-            </Button>
-          </div>
+          <FormSubmissionDataTable companyId={activeCompanyId || ''} />
         </div>
-
-        {/* TAB 1: ACTIVE FORMS TABLE */}
-        {activeTab === 'forms' && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ClipboardCheck className="size-5 text-primary" />
-                <h2 className="text-base font-semibold tracking-tight">
-                  ตารางรายการแบบฟอร์มที่พร้อมใช้งาน
-                </h2>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                เลือกแบบฟอร์มที่ได้รับมอบหมายเพื่อเริ่มหรือบันทึกข้อมูลต่อ
-              </span>
-            </div>
-
-            <ActiveFormTable
-              assignments={myAssignments}
-              activeDraftsByAssignment={activeDraftsByAssignment}
-              onStartOrJoin={handleStartOrJoin}
-              pendingAssignmentId={
-                startMutation.isPending
-                  ? startMutation.variables?.assignmentId
-                  : undefined
-              }
-              isLoading={assignmentsQuery.isLoading}
-            />
-          </div>
-        )}
-
-        {/* TAB 2: SUBMISSIONS HISTORY & RESULTS TABLE */}
-        {activeTab === 'history' && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-semibold tracking-tight">
-                  ตารางประวัติการตรวจและผลคำตอบทั้งหมด
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  ตรวจสอบสถานะแบบฟอร์มที่ส่งแล้ว การอนุมัติ และฉบับร่างย้อนหลัง
-                </p>
-              </div>
-            </div>
-
-            <FormSubmissionDataTable companyId={activeCompanyId} />
-          </div>
-        )}
       </div>
     </PageLayout>
   );

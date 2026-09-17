@@ -162,12 +162,87 @@ model FormReorderItem {
 
 model EditFormField is PickProperties<FormField, "formSectionId" | "type" | "label" | "description" | "isRequired" | "config">;
 
+enum FormTaskWorkflowStatus {
+  NOT_STARTED: "NOT_STARTED",
+  DRAFT: "DRAFT",
+  IN_REVIEW: "IN_REVIEW",
+  RETURNED: "RETURNED",
+  CORRECTION_DRAFT: "CORRECTION_DRAFT",
+  APPROVED: "APPROVED",
+  COMPLETED: "COMPLETED",
+  CANCELLED: "CANCELLED",
+}
+
+model FormTaskAvailableActions {
+  canStart: boolean;
+  canContinue: boolean;
+  canCreateCorrection: boolean;
+  canView: boolean;
+  disabledReason?: string;
+}
+
 model FormAssignmentItem extends Domain.Entity.FormAssignment {
+  planId?: string;
+  planName?: string;
+  formTemplateId?: string;
   templateName?: string;
   templateDescription?: string;
   opensAt?: utcDateTime;
   dueAt?: utcDateTime;
+  timezone?: string;
+  latePolicy?: Domain.Entity.FormLatePolicy;
+  reviewMode?: Domain.Entity.FormReviewMode;
+  assignmentType?: string;
+  recipientLabel?: string;
   roleName?: string;
+  memberName?: string;
+  latestSubmissionId?: string;
+  latestSubmissionRevision?: int32;
+  workflowStatus?: FormTaskWorkflowStatus;
+  isOverdue?: boolean;
+  availableActions?: FormTaskAvailableActions;
+}
+
+model OccurrenceAssignmentItem {
+  id: string;
+  assignmentId: string;
+  occurrenceId: string;
+  companyId: string;
+  formVersionId: string;
+  roleId?: string;
+  companyMemberId?: string;
+  roleName?: string;
+  memberName?: string;
+  assignmentType: string;
+  recipientLabel: string;
+  workflowStatus: FormTaskWorkflowStatus;
+  latestSubmissionId?: string;
+  latestSubmissionRevision?: int32;
+  isOverdue: boolean;
+  canStart: boolean;
+  canContinue: boolean;
+  canCreateCorrection: boolean;
+  canView: boolean;
+  createdAt: utcDateTime;
+}
+
+model FormSubmissionItem extends Domain.Entity.FormSubmission {
+  planId?: string;
+  planName?: string;
+  formTemplateId?: string;
+  templateName?: string;
+  occurrenceOpensAt?: utcDateTime;
+  occurrenceDueAt?: utcDateTime;
+  occurrenceKey?: string;
+  recipientLabel?: string;
+  startedByName?: string;
+  submittedByName?: string;
+  finalReviewAction?: Domain.Entity.FormReviewAction;
+  finalReviewNote?: string;
+  finalReviewAt?: utcDateTime;
+  reviewerName?: string;
+  submissionSequence?: int32;
+  isLatest?: boolean;
 }
 
 model ReviewQueueItem extends Domain.Entity.FormSubmission {

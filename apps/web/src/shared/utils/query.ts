@@ -104,6 +104,7 @@ export const formKeys = {
   schedulePreview: (planId: string) => ['FORM', 'PLAN', planId, 'PREVIEW'] as const,
   occurrences: (companyId: string, templateId?: string) => ['FORM', 'OCCURRENCES', companyId, templateId ?? 'ALL'] as const,
   occurrence: (occurrenceId: string) => ['FORM', 'OCCURRENCE', occurrenceId] as const,
+  occurrenceAssignments: (occurrenceId: string) => ['FORM', 'OCCURRENCE', occurrenceId, 'ASSIGNMENTS'] as const,
   myAssignments: (companyId: string, memberId?: string) => ['FORM', 'ASSIGNMENTS', companyId, memberId ?? 'ME'] as const,
   assignment: (assignmentId: string) => ['FORM', 'ASSIGNMENT', assignmentId] as const,
   reviewQueue: (companyId: string) => ['FORM', 'REVIEWS', 'QUEUE', companyId] as const,

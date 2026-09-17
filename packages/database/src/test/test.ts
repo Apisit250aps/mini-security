@@ -1,7 +1,7 @@
 import db from '../db';
 
 import { eq, and } from 'drizzle-orm';
-import { userPermissionsView } from '../views';
+import { userPermissionsView } from '../schema/views';
 
 async function getUserPermissionActions(userId: string, companyId: string) {
   const result = await db

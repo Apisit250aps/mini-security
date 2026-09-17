@@ -27,6 +27,8 @@ import type {
   CreateFormAssignment,
   FormReviewAction,
   FormRoleDistribution,
+  FormLatePolicy,
+  FormReviewMode,
 } from '#schema/form';
 
 export type ICreateFormTemplateContext = ISecurityContext & {
@@ -203,12 +205,44 @@ export type IListOccurrencesUseCase = BaseUseCase<
   FormOccurrence[]
 >;
 
+export type FormTaskWorkflowStatus =
+  | 'NOT_STARTED'
+  | 'DRAFT'
+  | 'IN_REVIEW'
+  | 'RETURNED'
+  | 'CORRECTION_DRAFT'
+  | 'APPROVED'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export type FormTaskAvailableActions = {
+  canStart: boolean;
+  canContinue: boolean;
+  canCreateCorrection: boolean;
+  canView: boolean;
+  disabledReason?: string | null;
+};
+
 export type MyAssignmentItem = FormAssignment & {
+  planId?: string;
+  planName?: string;
+  formTemplateId?: string;
   templateName?: string;
   templateDescription?: string | null;
   opensAt?: Date;
   dueAt?: Date;
+  timezone?: string;
+  latePolicy?: FormLatePolicy;
+  reviewMode?: FormReviewMode;
+  assignmentType?: 'PERSONAL' | 'ROLE';
+  recipientLabel?: string;
   roleName?: string | null;
+  memberName?: string | null;
+  latestSubmissionId?: string | null;
+  latestSubmissionRevision?: number | null;
+  workflowStatus?: FormTaskWorkflowStatus;
+  isOverdue?: boolean;
+  availableActions?: FormTaskAvailableActions;
 };
 export type IListMyAssignmentsContext = ISecurityContext & {
   companyId: string;
@@ -248,6 +282,39 @@ export type IReplaceAssignmentUseCase = BaseUseCase<
   FormAssignment
 >;
 
+export type OccurrenceAssignmentItem = {
+  id: string;
+  assignmentId: string;
+  occurrenceId: string;
+  companyId: string;
+  formVersionId: string;
+  roleId?: string | null;
+  companyMemberId?: string | null;
+  roleName?: string | null;
+  memberName?: string | null;
+  assignmentType: 'PERSONAL' | 'ROLE';
+  recipientLabel: string;
+  workflowStatus: FormTaskWorkflowStatus;
+  latestSubmissionId?: string | null;
+  latestSubmissionRevision?: number | null;
+  isOverdue: boolean;
+  canStart: boolean;
+  canContinue: boolean;
+  canCreateCorrection: boolean;
+  canView: boolean;
+  createdAt: Date;
+};
+
+export type IListOccurrenceAssignmentsContext = ISecurityContext & {
+  occurrenceId: string;
+  companyId?: string;
+};
+
+export type IListOccurrenceAssignmentsUseCase = BaseUseCase<
+  IListOccurrenceAssignmentsContext,
+  OccurrenceAssignmentItem[]
+>;
+
 // Submission
 export type IStartAssignmentSubmissionContext = ISecurityContext & {
   assignmentId: string;
@@ -281,6 +348,25 @@ export type IListFormSubmissionsContext = ISecurityContext & {
   assignmentId?: string;
 };
 
+export type FormSubmissionItem = FormSubmission & {
+  planId?: string;
+  planName?: string;
+  formTemplateId?: string;
+  templateName?: string;
+  occurrenceOpensAt?: Date | null;
+  occurrenceDueAt?: Date | null;
+  occurrenceKey?: string | null;
+  recipientLabel?: string | null;
+  startedByName?: string | null;
+  submittedByName?: string | null;
+  finalReviewAction?: FormReviewAction | null;
+  finalReviewNote?: string | null;
+  finalReviewAt?: Date | null;
+  reviewerName?: string | null;
+  submissionSequence?: number;
+  isLatest?: boolean;
+};
+
 export type FormSubmissionDetail = {
   submission: FormSubmission;
   template: FormTemplate | null;
@@ -310,7 +396,7 @@ export type IGetFormSubmissionUseCase = BaseUseCase<
 >;
 export type IListFormSubmissionsUseCase = BaseUseCase<
   IListFormSubmissionsContext,
-  FormSubmission[]
+  FormSubmissionItem[]
 >;
 
 // Review

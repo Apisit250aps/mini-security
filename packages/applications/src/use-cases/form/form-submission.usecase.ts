@@ -8,7 +8,7 @@ import {
 import { validateFormAnswer } from './form-answer-validation';
 import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import type { FormSubmission } from '@repo/domains/entities/form';
+import type { FormSubmission, FormReviewEntry } from '@repo/domains/entities/form';
 import type {
   ICreateCorrectionContext,
   ICreateCorrectionUseCase,
@@ -23,6 +23,7 @@ import type {
   ISubmitFormSubmissionContext,
   ISubmitFormSubmissionUseCase,
   FormSubmissionDetail,
+  FormSubmissionItem,
 } from '@repo/domains/applications/form';
 import type {
   IFormAnswerAttachmentRepository,
@@ -39,6 +40,8 @@ import type {
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
 import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IUserRepository } from '@repo/domains/repositories/user';
+import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import {
   BadRequestError,
   DuplicateError,
@@ -59,6 +62,7 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
     private readonly submissionRepo: IFormSubmissionRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
     private readonly memberRepo: ICompanyMemberRepository,
+    private readonly planRepo?: IFormPlanRepository,
   ) {}
 
   @RequirePermission('form_submission:create')
@@ -77,6 +81,7 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
         this.assignmentRepo,
         this.occurrenceRepo,
         this.memberRepo,
+        this.planRepo,
       );
 
       const draft = await this.submissionRepo.findDraftByAssignmentId(
@@ -147,6 +152,7 @@ export class SaveFormSubmissionDraftUseCase
     private readonly memberRepo: ICompanyMemberRepository,
     private readonly occurrenceRepo: IFormOccurrenceRepository,
     private readonly fieldRepo: IFormFieldRepository,
+    private readonly planRepo?: IFormPlanRepository,
   ) {}
 
   @RequirePermission('form_submission:update')
@@ -180,6 +186,7 @@ export class SaveFormSubmissionDraftUseCase
         this.assignmentRepo,
         this.occurrenceRepo,
         this.memberRepo,
+        this.planRepo,
       );
       const fields = await this.fieldRepo.findByVersionId(
         submission.formVersionId,
@@ -365,9 +372,15 @@ export class SubmitFormSubmissionUseCase
         });
       }
 
+      const now = new Date();
+      const submittedAt =
+        submission.createdAt && submission.createdAt.getTime() > now.getTime()
+          ? new Date(submission.createdAt.getTime() + 1000)
+          : now;
+
       return this.submissionRepo.update(submission.id, {
         submittedBy: memberId,
-        submittedAt: new Date(),
+        submittedAt,
         revision: submission.revision + 1,
       });
     });
@@ -389,6 +402,7 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly occurrenceRepo: IFormOccurrenceRepository,
     private readonly memberRepo: ICompanyMemberRepository,
+    private readonly planRepo?: IFormPlanRepository,
   ) {}
 
   @RequirePermission('form_submission:create')
@@ -414,6 +428,7 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
         this.assignmentRepo,
         this.occurrenceRepo,
         this.memberRepo,
+        this.planRepo,
       );
       const review = await this.reviewEntryRepo.findHeadByTarget(
         original.id,
@@ -572,12 +587,18 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
     private readonly submissionRepo: IFormSubmissionRepository,
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly memberRepo: ICompanyMemberRepository,
+    private readonly occurrenceRepo?: IFormOccurrenceRepository,
+    private readonly planRepo?: IFormPlanRepository,
+    private readonly templateRepo?: IFormTemplateRepository,
+    private readonly reviewEntryRepo?: IFormReviewEntryRepository,
+    private readonly roleRepo?: IRoleRepository,
+    private readonly userRepo?: IUserRepository,
   ) {}
 
   @RequirePermission('form_submission:read')
   async execute(
     context: IListFormSubmissionsContext,
-  ): Promise<FormSubmission[]> {
+  ): Promise<FormSubmissionItem[]> {
     const companyId = context.companyId ?? context.activeCompanyId;
     if (!companyId) throw new BadRequestError('Company is required');
     PermissionGuard.requireCompanyScope(context, companyId);
@@ -587,32 +608,268 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
           companyId,
         )
       : await this.submissionRepo.findByCompanyId(companyId);
+
+    let allowed: FormSubmission[] = [];
     if (
       hasFormPermission(context, 'form_review:read') ||
       hasFormPermission(context, 'form_plan:manage')
-    )
-      return submissions;
-    const member = context.memberId
-      ? await this.memberRepo.findById(context.memberId)
-      : null;
-    if (
-      !member?.isActive ||
-      member.companyId !== companyId ||
-      member.userId !== context.user?.id
-    )
-      throw new ForbiddenError('Active company membership is required');
-    const allowed: FormSubmission[] = [];
-    for (const submission of submissions) {
-      const assignment = await this.assignmentRepo.findById(
-        submission.assignmentId,
-      );
+    ) {
+      allowed = submissions;
+    } else {
+      const member = context.memberId
+        ? await this.memberRepo.findById(context.memberId)
+        : null;
       if (
-        assignment &&
-        (assignment.companyMemberId === member.id ||
-          (assignment.roleId && assignment.roleId === member.roleId))
+        !member?.isActive ||
+        member.companyId !== companyId ||
+        member.userId !== context.user?.id
       )
-        allowed.push(submission);
+        throw new ForbiddenError('Active company membership is required');
+      for (const submission of submissions) {
+        const assignment = await this.assignmentRepo.findById(
+          submission.assignmentId,
+        );
+        if (
+          assignment &&
+          (assignment.companyMemberId === member.id ||
+            (assignment.roleId && assignment.roleId === member.roleId))
+        )
+          allowed.push(submission);
+      }
     }
-    return allowed;
+
+    if (allowed.length === 0) return [];
+
+    // Calculate lineage sequence and isLatest per assignment
+    const submissionsByAssignment = new Map<string, FormSubmission[]>();
+    for (const sub of allowed) {
+      const list = submissionsByAssignment.get(sub.assignmentId) ?? [];
+      list.push(sub);
+      submissionsByAssignment.set(sub.assignmentId, list);
+    }
+
+    const sequenceMap = new Map<string, number>();
+    const latestSet = new Set<string>();
+
+    for (const [, assignSubs] of submissionsByAssignment.entries()) {
+      const supersededSet = new Set(
+        assignSubs
+          .map((s) => s.supersedesSubmissionId)
+          .filter((id): id is string => Boolean(id)),
+      );
+      const leaves = assignSubs.filter((s) => !supersededSet.has(s.id));
+      leaves.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      if (leaves[0]) {
+        latestSet.add(leaves[0].id);
+      }
+
+      const root = assignSubs.find((s) => !s.supersedesSubmissionId);
+      if (root) {
+        sequenceMap.set(root.id, 1);
+        let curr = root;
+        let seq = 1;
+        while (curr) {
+          const next = assignSubs.find(
+            (s) => s.supersedesSubmissionId === curr.id,
+          );
+          if (next) {
+            seq++;
+            sequenceMap.set(next.id, seq);
+            curr = next;
+          } else {
+            break;
+          }
+        }
+      }
+      let fallbackSeq = 1;
+      const sortedByCreated = [...assignSubs].sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+      );
+      for (const sub of sortedByCreated) {
+        if (!sequenceMap.has(sub.id)) {
+          sequenceMap.set(sub.id, fallbackSeq);
+        }
+        fallbackSeq++;
+      }
+    }
+
+    // Batch fetch assignments
+    const assignmentIds = [
+      ...new Set(allowed.map((s) => s.assignmentId)),
+    ];
+    const assignments = await Promise.all(
+      assignmentIds.map((id) => this.assignmentRepo.findById(id)),
+    );
+    const assignmentMap = new Map(
+      assignments
+        .filter((a): a is NonNullable<typeof a> => a != null)
+        .map((a) => [a.id, a]),
+    );
+
+    // Batch fetch occurrences
+    const occurrenceIds = [
+      ...new Set(
+        Array.from(assignmentMap.values()).map((a) => a.occurrenceId),
+      ),
+    ];
+    const occurrences = this.occurrenceRepo
+      ? await Promise.all(
+          occurrenceIds.map((id) => this.occurrenceRepo!.findById(id)),
+        )
+      : [];
+    const occurrenceMap = new Map(
+      occurrences
+        .filter((o): o is NonNullable<typeof o> => o != null)
+        .map((o) => [o.id, o]),
+    );
+
+    // Batch fetch plans
+    const planIds = [
+      ...new Set(
+        Array.from(occurrenceMap.values()).map((o) => o.planId),
+      ),
+    ];
+    const plans = this.planRepo
+      ? await Promise.all(planIds.map((id) => this.planRepo!.findById(id)))
+      : [];
+    const planMap = new Map(
+      plans
+        .filter((p): p is NonNullable<typeof p> => p != null)
+        .map((p) => [p.id, p]),
+    );
+
+    // Batch fetch templates
+    const templateIds = [
+      ...new Set(
+        Array.from(occurrenceMap.values()).map((o) => o.formTemplateId),
+      ),
+    ];
+    const templates = this.templateRepo
+      ? await Promise.all(
+          templateIds.map((id) => this.templateRepo!.findById(id)),
+        )
+      : [];
+    const templateMap = new Map(
+      templates
+        .filter((t): t is NonNullable<typeof t> => t != null)
+        .map((t) => [t.id, t]),
+    );
+
+    // Batch fetch final reviews
+    const finalReviews = this.reviewEntryRepo
+      ? await this.reviewEntryRepo.findHeadFinalBySubmissionIds(
+          allowed.map((s) => s.id),
+        )
+      : [];
+    const finalReviewMap = new Map<string, FormReviewEntry>(
+      finalReviews.map((r) => [r.submissionId, r]),
+    );
+
+    // Collect all member IDs to resolve user names
+    const memberIds = new Set<string>();
+    for (const sub of allowed) {
+      if (sub.startedBy) memberIds.add(sub.startedBy);
+      if (sub.submittedBy) memberIds.add(sub.submittedBy);
+    }
+    for (const r of finalReviews) {
+      if (r.reviewedBy) memberIds.add(r.reviewedBy);
+    }
+    for (const a of assignmentMap.values()) {
+      if (a.companyMemberId) memberIds.add(a.companyMemberId);
+    }
+
+    const members = await Promise.all(
+      Array.from(memberIds).map((id) => this.memberRepo.findById(id)),
+    );
+    const memberMap = new Map(
+      members
+        .filter((m): m is NonNullable<typeof m> => m != null)
+        .map((m) => [m.id, m]),
+    );
+
+    // Batch fetch users
+    const userIds = [
+      ...new Set(
+        Array.from(memberMap.values()).map((m) => m.userId),
+      ),
+    ];
+    const users = this.userRepo
+      ? await Promise.all(userIds.map((id) => this.userRepo!.findById(id)))
+      : [];
+    const userMap = new Map(
+      users
+        .filter((u): u is NonNullable<typeof u> => u != null)
+        .map((u) => [u.id, u]),
+    );
+
+    // Batch fetch roles
+    const roleIds = [
+      ...new Set(
+        Array.from(assignmentMap.values())
+          .map((a) => a.roleId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    const roles = this.roleRepo
+      ? await Promise.all(roleIds.map((id) => this.roleRepo!.findById(id)))
+      : [];
+    const roleMap = new Map(
+      roles
+        .filter((r): r is NonNullable<typeof r> => r != null)
+        .map((r) => [r.id, r]),
+    );
+
+    const resolveMemberUserName = (mId: string | null | undefined) => {
+      if (!mId) return null;
+      const mem = memberMap.get(mId);
+      if (!mem) return null;
+      const user = userMap.get(mem.userId);
+      return user?.name ?? user?.email ?? null;
+    };
+
+    return allowed.map((sub) => {
+      const assignment = assignmentMap.get(sub.assignmentId);
+      const occurrence = assignment
+        ? occurrenceMap.get(assignment.occurrenceId)
+        : null;
+      const plan = occurrence ? planMap.get(occurrence.planId) : null;
+      const template = occurrence
+        ? templateMap.get(occurrence.formTemplateId)
+        : null;
+      const role = assignment?.roleId ? roleMap.get(assignment.roleId) : null;
+      const assignMember = assignment?.companyMemberId
+        ? memberMap.get(assignment.companyMemberId)
+        : null;
+      const assignUser = assignMember ? userMap.get(assignMember.userId) : null;
+
+      const finalReview = finalReviewMap.get(sub.id);
+
+      const isPersonal = Boolean(assignment?.companyMemberId);
+      const recipientLabel = isPersonal
+        ? `งานส่วนตัว (${assignUser?.name ?? 'สมาชิก'})`
+        : role?.name
+          ? `ทีม ${role.name}`
+          : 'งานกลุ่ม';
+
+      return {
+        ...sub,
+        planId: plan?.id,
+        planName: plan?.name ?? template?.name ?? 'แบบฟอร์มตรวจสอบ',
+        formTemplateId: template?.id ?? occurrence?.formTemplateId,
+        templateName: template?.name,
+        occurrenceOpensAt: occurrence?.opensAt ?? null,
+        occurrenceDueAt: occurrence?.dueAt ?? null,
+        occurrenceKey: occurrence?.occurrenceKey ?? null,
+        recipientLabel,
+        startedByName: resolveMemberUserName(sub.startedBy),
+        submittedByName: resolveMemberUserName(sub.submittedBy),
+        finalReviewAction: finalReview?.action ?? null,
+        finalReviewNote: finalReview?.note ?? null,
+        finalReviewAt: finalReview?.createdAt ?? null,
+        reviewerName: resolveMemberUserName(finalReview?.reviewedBy),
+        submissionSequence: sequenceMap.get(sub.id) ?? 1,
+        isLatest: latestSet.has(sub.id),
+      } as FormSubmissionItem;
+    });
   }
 }

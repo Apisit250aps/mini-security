@@ -72,7 +72,7 @@ function fixture() {
     findById: async () => null,
   };
 
-  let plans: FormPlan[] = [];
+  const plans: FormPlan[] = [];
   let targets: FormPlanTarget[] = [];
   let periods: FormPlanPeriod[] = [];
 

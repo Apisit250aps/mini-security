@@ -1,94 +1,146 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { Search } from 'lucide-react';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
-import {
-  useCompanyFormTemplatesQueries,
-  useFormSubmissionsQueries,
-} from '../../hooks/form-queries';
-import { useUserListQueries } from '@/modules/user/hooks/user-queries';
+import { Input } from '@repo/ui/components/input';
+import { useFormSubmissionsQueries } from '../../hooks/form-queries';
 import formSubmissionDataColumns from './form-submission-data-columns';
+import type { FormSubmissionItem } from '@repo/client';
 
 interface FormSubmissionDataTableProps {
-  companyId: string;
+  companyId?: string;
 }
 
 const STATUS_FILTERS = [
   { value: 'ALL', label: 'ทั้งหมด' },
-  { value: 'DRAFT', label: 'ฉบับร่าง (Draft)' },
-  { value: 'SUBMITTED', label: 'รอพิจารณา (Submitted)' },
-  { value: 'APPROVED', label: 'อนุมัติแล้ว (Approved)' },
-  { value: 'REJECTED', label: 'ไม่อนุมัติ (Rejected)' },
+  { value: 'APPROVED', label: 'อนุมัติแล้ว' },
+  { value: 'IN_REVIEW', label: 'รอตรวจรับ' },
+  { value: 'RETURNED', label: 'ส่งกลับแก้ไข' },
+  { value: 'DRAFT', label: 'ฉบับร่าง' },
 ];
 
 export default function FormSubmissionDataTable({
   companyId,
 }: FormSubmissionDataTableProps) {
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [onlyLatest, setOnlyLatest] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const submissionsQuery = useFormSubmissionsQueries({ companyId });
-  const templatesQuery = useCompanyFormTemplatesQueries(companyId);
-  const usersQuery = useUserListQueries();
-
-  const templatesMap = useMemo(() => {
-    return new Map((templatesQuery.data || []).map((t) => [t.id, t]));
-  }, [templatesQuery.data]);
-
-  const usersMap = useMemo(() => {
-    return new Map((usersQuery.data || []).map((u) => [u.id, u]));
-  }, [usersQuery.data]);
+  const submissionsQuery = useFormSubmissionsQueries(
+    companyId ? { companyId } : undefined,
+  );
 
   const columns = useMemo(
-    () => formSubmissionDataColumns({ companyId, templatesMap, usersMap }),
-    [companyId, templatesMap, usersMap],
+    () => formSubmissionDataColumns({ companyId: companyId ?? '' }),
+    [companyId],
+  );
+
+  const rawData: FormSubmissionItem[] = useMemo(
+    () => (submissionsQuery.data || []) as FormSubmissionItem[],
+    [submissionsQuery.data],
   );
 
   const filteredData = useMemo(() => {
-    const list = submissionsQuery.data || [];
-    if (selectedStatus === 'ALL') return list;
-    if (selectedStatus === 'DRAFT') return list.filter((s) => !s.submittedAt);
-    return list.filter((s) => Boolean(s.submittedAt));
-  }, [submissionsQuery.data, selectedStatus]);
+    return rawData.filter((item) => {
+      // 1. Filter only latest revision
+      if (onlyLatest && !item.isLatest) {
+        return false;
+      }
 
-  const isLoading =
-    submissionsQuery.isLoading ||
-    templatesQuery.isLoading ||
-    usersQuery.isLoading;
+      // 2. Filter status
+      if (selectedStatus === 'DRAFT') {
+        if (item.submittedAt) return false;
+      } else if (selectedStatus === 'APPROVED') {
+        if (item.finalReviewAction !== 'APPROVE') return false;
+      } else if (selectedStatus === 'RETURNED') {
+        if (item.finalReviewAction !== 'RETURN') return false;
+      } else if (selectedStatus === 'IN_REVIEW') {
+        if (!item.submittedAt || item.finalReviewAction) return false;
+      }
+
+      // 3. Search query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const plan = (item.planName || '').toLowerCase();
+        const template = (item.templateName || '').toLowerCase();
+        const submitter = (
+          item.submittedByName ||
+          item.startedByName ||
+          ''
+        ).toLowerCase();
+        if (!plan.includes(q) && !template.includes(q) && !submitter.includes(q)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [rawData, onlyLatest, selectedStatus, searchQuery]);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-muted/30 p-3 rounded-lg border">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-muted-foreground">
-            กรองตามสถานะ:
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {STATUS_FILTERS.map((f) => {
-              const isSelected = selectedStatus === f.value;
-              return (
-                <button
-                  key={f.value}
-                  type="button"
-                  onClick={() => setSelectedStatus(f.value)}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                    isSelected
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'bg-background hover:bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
-          </div>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card/60 p-3 rounded-xl border">
+        {/* Status Pills */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {STATUS_FILTERS.map((f) => {
+            const isSelected = selectedStatus === f.value;
+            return (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => setSelectedStatus(f.value)}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  isSelected
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="text-xs text-muted-foreground">
-          ทั้งหมด {filteredData.length} รายการ
+        {/* Right side: Lineage Toggle & Search */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Latest only toggle */}
+          <button
+            type="button"
+            onClick={() => setOnlyLatest(!onlyLatest)}
+            className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+              onlyLatest
+                ? 'bg-background border-primary/50 text-primary'
+                : 'bg-muted/30 border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {onlyLatest ? '✓ เฉพาะฉบับล่าสุด' : 'แสดงทุกฉบับที่เคยส่ง'}
+          </button>
+
+          {/* Search box */}
+          <div className="relative w-full sm:w-48">
+            <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
+            <Input
+              placeholder="ค้นหา..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 text-xs h-8"
+            />
+          </div>
         </div>
       </div>
 
-      <DataTable data={filteredData} columns={columns} isLoading={isLoading} />
+      <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+        <span>
+          แสดงผล {filteredData.length} จากทั้งหมด {rawData.length} ฉบับ
+        </span>
+      </div>
+
+      <DataTable
+        data={filteredData}
+        columns={columns}
+        isLoading={submissionsQuery.isLoading}
+      />
     </div>
   );
 }
