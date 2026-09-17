@@ -1,5 +1,6 @@
 import { hasFormPermission, requireAssignmentMember } from './form-access';
 import { PermissionGuard } from '../../lib/guard';
+import { requireRevisionMatch } from '../../lib/concurrency';
 import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
@@ -241,8 +242,11 @@ export class RecordAnswerReviewUseCase implements IRecordAnswerReviewUseCase {
         throw new ForbiddenError('Company mismatch');
       if (!submission.submittedAt)
         throw new BadRequestError('Submission is not submitted');
-      if (submission.revision !== context.expectedRevision)
-        throw new DuplicateError('Review changed. Refresh and retry.');
+      requireRevisionMatch(
+        submission.revision,
+        context.expectedRevision,
+        () => new DuplicateError('Review changed. Refresh and retry.'),
+      );
 
       const finalEntry = await this.reviewEntryRepo.findHeadByTarget(
         submission.id,
@@ -333,8 +337,11 @@ export class RecordSectionReviewUseCase implements IRecordSectionReviewUseCase {
         throw new ForbiddenError('Company mismatch');
       if (!submission.submittedAt)
         throw new BadRequestError('Submission is not submitted');
-      if (submission.revision !== context.expectedRevision)
-        throw new DuplicateError('Review changed. Refresh and retry.');
+      requireRevisionMatch(
+        submission.revision,
+        context.expectedRevision,
+        () => new DuplicateError('Review changed. Refresh and retry.'),
+      );
 
       const finalEntry = await this.reviewEntryRepo.findHeadByTarget(
         submission.id,
@@ -430,8 +437,11 @@ export class FinalizeSubmissionReviewUseCase
         throw new ForbiddenError('Company mismatch');
       if (!submission.submittedAt)
         throw new BadRequestError('Submission is not submitted');
-      if (submission.revision !== context.expectedRevision)
-        throw new DuplicateError('Review changed. Refresh and retry.');
+      requireRevisionMatch(
+        submission.revision,
+        context.expectedRevision,
+        () => new DuplicateError('Review changed. Refresh and retry.'),
+      );
 
       const existingFinal = await this.reviewEntryRepo.findHeadByTarget(
         submission.id,

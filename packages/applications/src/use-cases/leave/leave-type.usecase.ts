@@ -13,36 +13,32 @@ import {
   createLeaveTypeSchema,
   updateLeaveTypeSchema,
 } from '@repo/domains/schema/leave';
-import {
-  DuplicateError,
-  NotFoundError,
-  ValidationError,
-} from '../../lib/error';
+import { DuplicateError } from '../../lib/error';
+import { requireEntityExists } from '../../lib/guards';
+import { parseSchemaOrThrow } from '../../lib/validation';
 
 export class CreateLeaveTypeUseCase implements ICreateLeaveTypeUseCase {
   constructor(private readonly leaveTypeRepository: ILeaveTypeRepository) {}
 
   @RequirePermission('leave_type:manage')
   async execute(context: ICreateLeaveTypeContext): Promise<LeaveType> {
-    const parsed = await createLeaveTypeSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid leave type data',
-        parsed.error.format(),
-      );
-    }
+    const data = await parseSchemaOrThrow(
+      createLeaveTypeSchema,
+      context.data,
+      'Invalid leave type data',
+    );
 
     const existing = await this.leaveTypeRepository.findByNameAndCompany(
-      parsed.data.companyId,
-      parsed.data.name,
+      data.companyId,
+      data.name,
     );
     if (existing) {
       throw new DuplicateError(
-        `Leave type with name "${parsed.data.name}" already exists for this company`,
+        `Leave type with name "${data.name}" already exists for this company`,
       );
     }
 
-    return this.leaveTypeRepository.create(parsed.data);
+    return this.leaveTypeRepository.create(data);
   }
 }
 
@@ -51,32 +47,30 @@ export class UpdateLeaveTypeUseCase implements IUpdateLeaveTypeUseCase {
 
   @RequirePermission('leave_type:manage')
   async execute(context: IUpdateLeaveTypeContext): Promise<LeaveType> {
-    const existing = await this.leaveTypeRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Leave type with id "${context.id}" not found`);
-    }
+    const existing = await requireEntityExists(
+      () => this.leaveTypeRepository.findById(context.id),
+      `Leave type with id "${context.id}" not found`,
+    );
 
-    const parsed = await updateLeaveTypeSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid update leave type data',
-        parsed.error.format(),
-      );
-    }
+    const data = await parseSchemaOrThrow(
+      updateLeaveTypeSchema,
+      context.data,
+      'Invalid update leave type data',
+    );
 
-    if (parsed.data.name && parsed.data.name !== existing.name) {
+    if (data.name && data.name !== existing.name) {
       const duplicate = await this.leaveTypeRepository.findByNameAndCompany(
         existing.companyId,
-        parsed.data.name,
+        data.name,
       );
       if (duplicate) {
         throw new DuplicateError(
-          `Leave type with name "${parsed.data.name}" already exists for this company`,
+          `Leave type with name "${data.name}" already exists for this company`,
         );
       }
     }
 
-    return this.leaveTypeRepository.update(context.id, parsed.data);
+    return this.leaveTypeRepository.update(context.id, data);
   }
 }
 

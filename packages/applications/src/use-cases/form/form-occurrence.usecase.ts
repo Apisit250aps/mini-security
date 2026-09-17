@@ -25,6 +25,7 @@ import {
   generateOccurrenceKey,
   ScheduleConfig,
 } from './form-schedule.usecase';
+import { requireRevisionMatch } from '#lib/index';
 
 export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
   constructor(
@@ -207,12 +208,11 @@ export class CancelOccurrenceUseCase implements ICancelOccurrenceUseCase {
       throw new NotFoundError('Occurrence not found');
     }
 
-    if (
-      context.expectedRevision != null &&
-      occurrence.revision !== context.expectedRevision
-    ) {
-      throw new BadRequestError('Optimistic concurrency check failed');
-    }
+    requireRevisionMatch( occurrence.revision,
+      context.expectedRevision,
+      () => new BadRequestError('Optimistic concurrency check failed'),
+      { optional: true },
+    );
 
     if (occurrence.cancelledAt !== null) {
       throw new BadRequestError('Occurrence is already cancelled');

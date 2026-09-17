@@ -15,33 +15,27 @@ import {
   updatePermissionSchema,
 } from '@repo/domains/schema/permission';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import {
-  DuplicateError,
-  NotFoundError,
-  ValidationError,
-} from '../../lib/error';
+import { DuplicateError } from '../../lib/error';
+import { requireEntityExists } from '../../lib/guards';
+import { parseSchemaOrThrow } from '../../lib/validation';
 
 export class CreatePermissionUseCase implements ICreatePermissionUseCase {
   constructor(private readonly permissionRepository: IPermissionRepository) {}
 
   @RequirePermission('permission:create')
   async execute(context: ICreatePermissionContext): Promise<Permission> {
-    const parsed = await createPermissionSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid permission data',
-        parsed.error.format(),
-      );
-    }
-
-    const existing = await this.permissionRepository.findByAction(
-      parsed.data.action,
+    const data = await parseSchemaOrThrow(
+      createPermissionSchema,
+      context.data,
+      'Invalid permission data',
     );
+
+    const existing = await this.permissionRepository.findByAction(data.action);
     if (existing) {
       throw new DuplicateError('Permission with this action already exists');
     }
 
-    return this.permissionRepository.create(parsed.data);
+    return this.permissionRepository.create(data);
   }
 }
 
@@ -50,20 +44,18 @@ export class UpdatePermissionUseCase implements IUpdatePermissionUseCase {
 
   @RequirePermission('permission:update')
   async execute(context: IUpdatePermissionContext): Promise<Permission> {
-    const existing = await this.permissionRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Permission with id ${context.id} not found`);
-    }
+    await requireEntityExists(
+      () => this.permissionRepository.findById(context.id),
+      `Permission with id ${context.id} not found`,
+    );
 
-    const parsed = await updatePermissionSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid update permission data',
-        parsed.error.format(),
-      );
-    }
+    const data = await parseSchemaOrThrow(
+      updatePermissionSchema,
+      context.data,
+      'Invalid update permission data',
+    );
 
-    return this.permissionRepository.update(context.id, parsed.data);
+    return this.permissionRepository.update(context.id, data);
   }
 }
 
@@ -72,10 +64,10 @@ export class DeletePermissionUseCase implements IDeletePermissionUseCase {
 
   @RequirePermission('permission:delete')
   async execute(context: IDeletePermissionContext): Promise<void> {
-    const existing = await this.permissionRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Permission with id ${context.id} not found`);
-    }
+    await requireEntityExists(
+      () => this.permissionRepository.findById(context.id),
+      `Permission with id ${context.id} not found`,
+    );
 
     await this.permissionRepository.delete(context.id);
   }

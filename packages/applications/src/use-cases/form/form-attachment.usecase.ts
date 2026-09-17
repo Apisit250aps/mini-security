@@ -13,6 +13,7 @@ import type {
 } from '@repo/domains/repositories/form';
 import { RequirePermission } from '../../decorators/permission.decorator';
 import { PermissionGuard } from '../../lib/guard';
+import { requireRevisionMatch } from '../../lib/concurrency';
 import {
   BadRequestError,
   DuplicateError,
@@ -89,8 +90,11 @@ export class FormAttachmentUseCase {
         );
         if (submission.submittedAt)
           throw new BadRequestError('Submitted attachments are immutable');
-        if (submission.revision !== context.expectedRevision)
-          throw new DuplicateError('Submission changed. Refresh and retry.');
+        requireRevisionMatch(
+          submission.revision,
+          context.expectedRevision,
+          () => new DuplicateError('Submission changed. Refresh and retry.'),
+        );
         const field = await this.fieldRepo.findById(context.fieldId);
         if (
           !field ||
@@ -185,8 +189,11 @@ export class FormAttachmentUseCase {
       );
       if (submission.submittedAt)
         throw new BadRequestError('Submitted attachments are immutable');
-      if (submission.revision !== context.expectedRevision)
-        throw new DuplicateError('Submission changed. Refresh and retry.');
+      requireRevisionMatch(
+        submission.revision,
+        context.expectedRevision,
+        () => new DuplicateError('Submission changed. Refresh and retry.'),
+      );
       await this.attachmentRepo.delete(attachment.id);
       if (!(await this.contributorRepo.isContributor(submission.id, memberId)))
         await this.contributorRepo.create({

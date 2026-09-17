@@ -32,6 +32,7 @@ import {
   createFormPlanSchema,
   formScheduleConfigSchema,
 } from '@repo/domains/schema/form';
+import { requireRevisionMatch } from '../../lib/concurrency';
 import {
   BadRequestError,
   NotFoundError,
@@ -195,9 +196,11 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
         throw new NotFoundError('Form plan not found');
       }
 
-      if (plan.revision !== context.expectedRevision) {
-        throw new BadRequestError('Optimistic concurrency check failed');
-      }
+      requireRevisionMatch(
+        plan.revision,
+        context.expectedRevision,
+        () => new BadRequestError('Optimistic concurrency check failed'),
+      );
 
       let member =
         context.memberId && this.memberRepo
@@ -474,9 +477,11 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
         throw new NotFoundError('Form plan not found');
       }
 
-      if (plan.revision !== context.expectedRevision) {
-        throw new BadRequestError('Optimistic concurrency check failed');
-      }
+      requireRevisionMatch(
+        plan.revision,
+        context.expectedRevision,
+        () => new BadRequestError('Optimistic concurrency check failed'),
+      );
 
       if (plan.effectiveFrom !== null && plan.effectiveUntil === null) {
         throw new BadRequestError('Plan is already active');
@@ -531,9 +536,11 @@ export class PauseFormPlanUseCase implements IPauseFormPlanUseCase {
         throw new NotFoundError('Form plan not found');
       }
 
-      if (plan.revision !== context.expectedRevision) {
-        throw new BadRequestError('Optimistic concurrency check failed');
-      }
+      requireRevisionMatch(
+        plan.revision,
+        context.expectedRevision,
+        () => new BadRequestError('Optimistic concurrency check failed'),
+      );
 
       if (plan.effectiveFrom === null || plan.effectiveUntil !== null) {
         throw new BadRequestError('Plan is not currently active');
@@ -545,7 +552,9 @@ export class PauseFormPlanUseCase implements IPauseFormPlanUseCase {
           ? await this.memberRepo.findById(context.memberId)
           : null;
         if (
-          (!member || !member.isActive || member.companyId !== plan.companyId) &&
+          (!member ||
+            !member.isActive ||
+            member.companyId !== plan.companyId) &&
           context.user?.id
         ) {
           member = await this.memberRepo.findByCompanyAndUser(

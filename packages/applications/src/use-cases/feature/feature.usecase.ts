@@ -17,30 +17,29 @@ import {
   createFeatureSchema,
   updateFeatureSchema,
 } from '@repo/domains/schema/feature';
-import {
-  DuplicateError,
-  NotFoundError,
-  ValidationError,
-} from '../../lib/error';
+import { DuplicateError } from '../../lib/error';
+import { requireEntityExists } from '../../lib/guards';
+import { parseSchemaOrThrow } from '../../lib/validation';
 
 export class CreateFeatureUseCase implements ICreateFeatureUseCase {
   constructor(private readonly featureRepository: IFeatureRepository) {}
 
   @RequirePermission('feature:create')
   async execute(context: ICreateFeatureContext): Promise<Feature> {
-    const parsed = await createFeatureSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError('Invalid feature data', parsed.error.format());
-    }
+    const data = await parseSchemaOrThrow(
+      createFeatureSchema,
+      context.data,
+      'Invalid feature data',
+    );
 
-    const existing = await this.featureRepository.findByCode(parsed.data.code);
+    const existing = await this.featureRepository.findByCode(data.code);
     if (existing) {
       throw new DuplicateError(
-        `Feature with code "${parsed.data.code}" already exists`,
+        `Feature with code "${data.code}" already exists`,
       );
     }
 
-    return this.featureRepository.create(parsed.data);
+    return this.featureRepository.create(data);
   }
 }
 
@@ -49,31 +48,27 @@ export class UpdateFeatureUseCase implements IUpdateFeatureUseCase {
 
   @RequirePermission('feature:update')
   async execute(context: IUpdateFeatureContext): Promise<Feature> {
-    const existing = await this.featureRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Feature with id "${context.id}" not found`);
-    }
+    const existing = await requireEntityExists(
+      () => this.featureRepository.findById(context.id),
+      `Feature with id "${context.id}" not found`,
+    );
 
-    const parsed = await updateFeatureSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid update feature data',
-        parsed.error.format(),
-      );
-    }
+    const data = await parseSchemaOrThrow(
+      updateFeatureSchema,
+      context.data,
+      'Invalid update feature data',
+    );
 
-    if (parsed.data.code && parsed.data.code !== existing.code) {
-      const duplicate = await this.featureRepository.findByCode(
-        parsed.data.code,
-      );
+    if (data.code && data.code !== existing.code) {
+      const duplicate = await this.featureRepository.findByCode(data.code);
       if (duplicate) {
         throw new DuplicateError(
-          `Feature with code "${parsed.data.code}" already exists`,
+          `Feature with code "${data.code}" already exists`,
         );
       }
     }
 
-    return this.featureRepository.update(context.id, parsed.data);
+    return this.featureRepository.update(context.id, data);
   }
 }
 
@@ -82,10 +77,10 @@ export class ToggleFeatureUseCase implements IToggleFeatureUseCase {
 
   @RequirePermission('feature:toggle')
   async execute(context: IToggleFeatureContext): Promise<Feature> {
-    const existing = await this.featureRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Feature with id "${context.id}" not found`);
-    }
+    await requireEntityExists(
+      () => this.featureRepository.findById(context.id),
+      `Feature with id "${context.id}" not found`,
+    );
 
     return this.featureRepository.update(context.id, {
       isActive: context.isActive,

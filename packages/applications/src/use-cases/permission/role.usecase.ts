@@ -20,11 +20,8 @@ import {
   updateRoleSchema,
 } from '@repo/domains/schema/permission';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import {
-  DuplicateError,
-  NotFoundError,
-  ValidationError,
-} from '../../lib/error';
+import { DuplicateError, ValidationError } from '../../lib/error';
+import { requireEntityExists } from '../../lib/guards';
 
 export class CreateRoleUseCase implements ICreateRoleUseCase {
   constructor(
@@ -81,10 +78,10 @@ export class UpdateRoleUseCase implements IUpdateRoleUseCase {
 
   @RequirePermission('role:update')
   async execute(context: IUpdateRoleContext): Promise<Role> {
-    const existing = await this.roleRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Role with id ${context.id} not found`);
-    }
+    const existing = await requireEntityExists(
+      () => this.roleRepository.findById(context.id),
+      `Role with id ${context.id} not found`,
+    );
 
     const isAdmin = context.user?.isAdmin === true;
 
@@ -127,10 +124,10 @@ export class DeleteRoleUseCase implements IDeleteRoleUseCase {
 
   @RequirePermission('role:delete')
   async execute(context: IDeleteRoleContext): Promise<void> {
-    const existing = await this.roleRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Role with id ${context.id} not found`);
-    }
+    const existing = await requireEntityExists(
+      () => this.roleRepository.findById(context.id),
+      `Role with id ${context.id} not found`,
+    );
 
     const isAdmin = context.user?.isAdmin === true;
 
@@ -149,11 +146,10 @@ export class GetRoleUseCase implements IGetRoleUseCase {
 
   @RequirePermission('role:read')
   async execute(context: IGetRoleContext): Promise<Role | null> {
-    const role = await this.roleRepository.findById(context.id);
-    if (!role) {
-      throw new NotFoundError(`Role with id ${context.id} not found`);
-    }
-    return role;
+    return requireEntityExists(
+      () => this.roleRepository.findById(context.id),
+      `Role with id ${context.id} not found`,
+    );
   }
 }
 

@@ -13,31 +13,21 @@ import type {
 } from '@repo/domains/repositories/form';
 import { editFormFieldSchema } from '@repo/domains/schema/form';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import { PermissionGuard } from '../../lib/guard';
-import {
-  BadRequestError,
-  NotFoundError,
-  ValidationError,
-} from '../../lib/error';
+import { BadRequestError, ValidationError } from '../../lib/error';
+import { loadDraftFormEntity } from './form-guards';
 
 async function loadDraftField(
   ctx: IDeleteFormFieldContext,
   fields: IFormFieldRepository,
   versions: IFormVersionRepository,
 ) {
-  const field = await fields.findById(ctx.fieldId);
-  if (!field) throw new NotFoundError('Form field not found');
-  PermissionGuard.requireCompanyScope(ctx, field.companyId);
-  const version = await versions.findById(field.formVersionId);
-  if (
-    !version ||
-    version.formTemplateId !== ctx.formTemplateId ||
-    version.companyId !== field.companyId
-  )
-    throw new NotFoundError('Form field not found for this template');
-  if (version.status !== 'DRAFT')
-    throw new BadRequestError('Only draft fields can be edited or deleted');
-  return field;
+  return loadDraftFormEntity(
+    ctx,
+    ctx.fieldId,
+    (id) => fields.findById(id),
+    versions,
+    'field',
+  );
 }
 
 export class EditFormFieldUseCase implements IEditFormFieldUseCase {

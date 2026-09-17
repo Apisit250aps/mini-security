@@ -1,4 +1,5 @@
 import { PermissionGuard } from '../../lib/guard';
+import { requireRevisionMatch } from '../../lib/concurrency';
 import {
   hasFormPermission,
   requireAssignmentMember,
@@ -199,11 +200,14 @@ export class SaveFormSubmissionDraftUseCase
         await validateFormAnswer(field, answer.value);
       }
 
-      if (submission.revision !== context.expectedRevision) {
-        throw new DuplicateError(
-          'Optimistic lock conflict: form submission has been modified. Please refresh and retry.',
-        );
-      }
+      requireRevisionMatch(
+        submission.revision,
+        context.expectedRevision,
+        () =>
+          new DuplicateError(
+            'Optimistic lock conflict: form submission has been modified. Please refresh and retry.',
+          ),
+      );
 
       for (const ans of context.answers) {
         await this.answerRepo.upsertAnswer({
@@ -284,11 +288,14 @@ export class SubmitFormSubmissionUseCase
         this.memberRepo,
       );
 
-      if (submission.revision !== context.expectedRevision) {
-        throw new DuplicateError(
-          'Optimistic lock conflict: form submission has been modified.',
-        );
-      }
+      requireRevisionMatch(
+        submission.revision,
+        context.expectedRevision,
+        () =>
+          new DuplicateError(
+            'Optimistic lock conflict: form submission has been modified.',
+          ),
+      );
 
       const plan = await this.planRepo.findById(occurrence.planId);
       if (!plan) throw new NotFoundError('Plan not found');

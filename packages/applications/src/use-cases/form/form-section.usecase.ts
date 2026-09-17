@@ -9,27 +9,21 @@ import type {
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import { PermissionGuard } from '../../lib/guard';
-import { BadRequestError, NotFoundError } from '../../lib/error';
+import { loadDraftFormEntity } from './form-guards';
 
 async function loadDraftSection(
   ctx: IDeleteFormSectionContext,
   sections: IFormSectionRepository,
   versions: IFormVersionRepository,
 ) {
-  const section = await sections.findById(ctx.sectionId);
-  if (!section) throw new NotFoundError('Form section not found');
-  PermissionGuard.requireCompanyScope(ctx, section.companyId);
-  const version = await versions.findById(section.formVersionId);
-  if (
-    !version ||
-    version.formTemplateId !== ctx.formTemplateId ||
-    version.companyId !== section.companyId
-  )
-    throw new NotFoundError('Form section not found for this template');
-  if (version.status !== 'DRAFT')
-    throw new BadRequestError('Only draft sections can be deleted');
-  return section;
+  return loadDraftFormEntity(
+    ctx,
+    ctx.sectionId,
+    (id) => sections.findById(id),
+    versions,
+    'section',
+    'Only draft sections can be deleted',
+  );
 }
 
 export class DeleteFormSectionUseCase implements IDeleteFormSectionUseCase {

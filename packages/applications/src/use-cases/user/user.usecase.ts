@@ -18,11 +18,8 @@ import type { IAccountRepository } from '@repo/domains/repositories/auth';
 import type { IUserRepository } from '@repo/domains/repositories/user';
 import { createUserSchema, updateUserSchema } from '@repo/domains/schema/user';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import {
-  DuplicateError,
-  NotFoundError,
-  ValidationError,
-} from '../../lib/error';
+import { DuplicateError, ValidationError } from '../../lib/error';
+import { requireEntityExists } from '../../lib/guards';
 
 export class CreateUserUseCase implements ICreateUserUseCase {
   constructor(
@@ -77,10 +74,10 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
 
   @RequirePermission('user:update')
   async execute(context: IUpdateUserContext): Promise<User> {
-    const existing = await this.userRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`User with id ${context.id} not found`);
-    }
+    const existing = await requireEntityExists(
+      () => this.userRepository.findById(context.id),
+      `User with id ${context.id} not found`,
+    );
 
     const parsed = await updateUserSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -108,10 +105,10 @@ export class DeleteUserUseCase implements IDeleteUserUseCase {
 
   @RequirePermission('user:delete')
   async execute(context: IDeleteUserContext): Promise<void> {
-    const existing = await this.userRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`User with id ${context.id} not found`);
-    }
+    await requireEntityExists(
+      () => this.userRepository.findById(context.id),
+      `User with id ${context.id} not found`,
+    );
 
     await this.userRepository.delete(context.id);
   }
@@ -122,11 +119,10 @@ export class GetUserUseCase implements IGetUserUseCase {
 
   @RequirePermission('user:read')
   async execute(context: IGetUserContext): Promise<User | null> {
-    const user = await this.userRepository.findById(context.id);
-    if (!user) {
-      throw new NotFoundError(`User with id ${context.id} not found`);
-    }
-    return user;
+    return requireEntityExists(
+      () => this.userRepository.findById(context.id),
+      `User with id ${context.id} not found`,
+    );
   }
 }
 
@@ -135,11 +131,10 @@ export class GetUserByEmailUseCase implements IGetUserByEmailUseCase {
 
   @RequirePermission('user:read')
   async execute(context: IGetUserByEmailContext): Promise<User | null> {
-    const user = await this.userRepository.findByEmail(context.email);
-    if (!user) {
-      throw new NotFoundError(`User with email ${context.email} not found`);
-    }
-    return user;
+    return requireEntityExists(
+      () => this.userRepository.findByEmail(context.email),
+      `User with email ${context.email} not found`,
+    );
   }
 }
 

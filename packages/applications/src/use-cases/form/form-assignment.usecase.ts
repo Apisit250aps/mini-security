@@ -24,6 +24,7 @@ import {
   DuplicateError,
   BadRequestError,
 } from '../../lib/error';
+import { requireRevisionMatch } from '#lib/index';
 
 export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
   constructor(
@@ -199,12 +200,12 @@ export class CancelAssignmentUseCase implements ICancelAssignmentUseCase {
         );
       }
 
-      if (
-        context.expectedRevision !== undefined &&
-        assignment.revision !== context.expectedRevision
-      ) {
-        throw new DuplicateError('Optimistic lock conflict');
-      }
+      requireRevisionMatch(
+        assignment.revision,
+        context.expectedRevision,
+        () => new DuplicateError('Optimistic lock conflict'),
+        { optional: true },
+      );
 
       return this.assignmentRepo.cancel(assignment.id, {
         cancelledAt: new Date(),

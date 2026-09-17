@@ -13,37 +13,33 @@ import {
   createLeaveQuotaSchema,
   updateLeaveQuotaSchema,
 } from '@repo/domains/schema/leave';
-import {
-  DuplicateError,
-  NotFoundError,
-  ValidationError,
-} from '../../lib/error';
+import { DuplicateError } from '../../lib/error';
+import { requireEntityExists } from '../../lib/guards';
+import { parseSchemaOrThrow } from '../../lib/validation';
 
 export class CreateLeaveQuotaUseCase implements ICreateLeaveQuotaUseCase {
   constructor(private readonly leaveQuotaRepository: ILeaveQuotaRepository) {}
 
   @RequirePermission('leave_quota:manage')
   async execute(context: ICreateLeaveQuotaContext): Promise<LeaveQuota> {
-    const parsed = await createLeaveQuotaSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid leave quota data',
-        parsed.error.format(),
-      );
-    }
+    const data = await parseSchemaOrThrow(
+      createLeaveQuotaSchema,
+      context.data,
+      'Invalid leave quota data',
+    );
 
     const existing = await this.leaveQuotaRepository.findByMemberTypeAndYear(
-      parsed.data.companyMemberId,
-      parsed.data.leaveTypeId,
-      parsed.data.year,
+      data.companyMemberId,
+      data.leaveTypeId,
+      data.year,
     );
     if (existing) {
       throw new DuplicateError(
-        `Leave quota already exists for member and leave type in year ${parsed.data.year}`,
+        `Leave quota already exists for member and leave type in year ${data.year}`,
       );
     }
 
-    return this.leaveQuotaRepository.create(parsed.data);
+    return this.leaveQuotaRepository.create(data);
   }
 }
 
@@ -52,20 +48,18 @@ export class UpdateLeaveQuotaUseCase implements IUpdateLeaveQuotaUseCase {
 
   @RequirePermission('leave_quota:manage')
   async execute(context: IUpdateLeaveQuotaContext): Promise<LeaveQuota> {
-    const existing = await this.leaveQuotaRepository.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError(`Leave quota with id "${context.id}" not found`);
-    }
+    await requireEntityExists(
+      () => this.leaveQuotaRepository.findById(context.id),
+      `Leave quota with id "${context.id}" not found`,
+    );
 
-    const parsed = await updateLeaveQuotaSchema.safeParseAsync(context.data);
-    if (!parsed.success) {
-      throw new ValidationError(
-        'Invalid update leave quota data',
-        parsed.error.format(),
-      );
-    }
+    const data = await parseSchemaOrThrow(
+      updateLeaveQuotaSchema,
+      context.data,
+      'Invalid update leave quota data',
+    );
 
-    return this.leaveQuotaRepository.update(context.id, parsed.data);
+    return this.leaveQuotaRepository.update(context.id, data);
   }
 }
 

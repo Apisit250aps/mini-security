@@ -39,6 +39,7 @@ import {
 } from '@repo/domains/schema/location';
 import type { IScheduleSlotRepository } from '@repo/domains/repositories/attendance';
 import { NotFoundError, ValidationError } from '../../lib/error';
+import { requireEntityExists } from '../../lib/guards';
 
 export class CreateLocationUseCase implements ICreateLocationUseCase {
   constructor(private readonly locationRepo: ILocationRepository) {}
@@ -78,10 +79,10 @@ export class UpdateLocationUseCase implements IUpdateLocationUseCase {
 
   @RequirePermission('location:manage')
   async execute(context: IUpdateLocationContext): Promise<Location> {
-    const existing = await this.locationRepo.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError('Location not found');
-    }
+    const existing = await requireEntityExists(
+      () => this.locationRepo.findById(context.id),
+      'Location not found',
+    );
     PermissionGuard.requireCompanyScope(context, existing.companyId);
 
     const parsed = await updateLocationSchema.safeParseAsync(context.data);
@@ -108,10 +109,10 @@ export class DeleteLocationUseCase implements IDeleteLocationUseCase {
   async execute(context: IDeleteLocationContext): Promise<void> {
     PermissionGuard.requireCompanyScope(context, context.companyId);
 
-    const existing = await this.locationRepo.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError('Location not found');
-    }
+    await requireEntityExists(
+      () => this.locationRepo.findById(context.id),
+      'Location not found',
+    );
 
     await this.locationRepo.delete(context.id);
   }
@@ -227,10 +228,10 @@ export class UpdateSlotLocationUseCase implements IUpdateSlotLocationUseCase {
   async execute(
     context: IUpdateSlotLocationContext,
   ): Promise<ScheduleSlotLocation> {
-    const existing = await this.slotLocationRepo.findById(context.id);
-    if (!existing) {
-      throw new NotFoundError('Slot location not found');
-    }
+    const existing = await requireEntityExists(
+      () => this.slotLocationRepo.findById(context.id),
+      'Slot location not found',
+    );
     PermissionGuard.requireCompanyScope(context, existing.companyId);
 
     const parsed = await updateScheduleSlotLocationSchema.safeParseAsync(
