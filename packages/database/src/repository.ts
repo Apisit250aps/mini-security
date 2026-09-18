@@ -8,8 +8,8 @@ export type TableWithId = PgTable & { id: PgColumn };
 
 export abstract class Repository<
   T,
-  C extends Record<string, unknown>,
-  U extends Record<string, unknown>,
+  C extends object,
+  U extends object,
 > extends BaseRepository<T, C, U> {
   constructor(
     private readonly database: Database,

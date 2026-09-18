@@ -5,7 +5,7 @@ export default [
   ...config,
   {
     rules: {
-      '@typescript-eslint/no-restricted-types': 'off',
+      '@typescript-eslint/no-restricted-types': 'error',
     },
   },
 ];

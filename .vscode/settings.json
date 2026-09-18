@@ -1,0 +1,19 @@
+{
+  "explorer.compactFolders": false,
+  "files.exclude": {
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.turbo": true
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.*.ts",
+    "*.tsx": "${capture}.*.tsx",
+    "*.js": "${capture}.*.js",
+    "*.jsx": "${capture}.*.jsx",
+    "*.json": "${capture}.*.json",
+    "*.css": "${capture}.*.css"
+  }
+}
