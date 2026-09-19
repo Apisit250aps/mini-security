@@ -11,6 +11,7 @@ import {
 import {
   createdAtTimestamp,
   deletedAtTimestamp,
+  encryptedText,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -45,7 +46,7 @@ export const companyBranch = pgTable(
       .notNull()
       .references(() => company.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
-    address: text('address'),
+    address: encryptedText('address'),
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),

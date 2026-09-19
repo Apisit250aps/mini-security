@@ -3,14 +3,15 @@ import {
   boolean,
   index,
   pgTable,
-  text,
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
   deletedAtTimestamp,
+  encryptedText,
   primaryKeyUuid7,
+  searchableEncryptedText,
   updatedAtTimestamp,
 } from '#lib/utils';
 
@@ -18,10 +19,10 @@ export const user = pgTable(
   'user',
   {
     id: primaryKeyUuid7('id'),
-    name: text('name').notNull(),
-    email: text('email').notNull(),
+    name: encryptedText('name').notNull(),
+    email: searchableEncryptedText('email').notNull(),
     emailVerified: boolean('email_verified').default(false).notNull(),
-    image: text('image'),
+    image: encryptedText('image'),
     isAdmin: boolean('is_admin').default(false).notNull(),
     isActive: boolean('is_active').default(true).notNull(),
     lastLogin: timestamp('last_login'),

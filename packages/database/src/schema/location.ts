@@ -12,7 +12,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { deletedAtTimestamp, primaryKeyUuid7 } from '#lib/utils';
+import { deletedAtTimestamp, encryptedNumber, encryptedText, primaryKeyUuid7 } from '#lib/utils';
 import { company, companyBranch } from './company';
 
 export const locations = pgTable(
@@ -26,9 +26,9 @@ export const locations = pgTable(
     isPrimary: boolean('is_primary').default(false).notNull(),
     isActive: boolean('is_active').default(true).notNull(),
     name: text('name').notNull(),
-    address: text('address').notNull(),
-    latitude: doublePrecision('latitude').notNull(),
-    longitude: doublePrecision('longitude').notNull(),
+    address: encryptedText('address').notNull(),
+    latitude: encryptedNumber('latitude').notNull(),
+    longitude: encryptedNumber('longitude').notNull(),
     radiusMeters: doublePrecision('radius_meters').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
@@ -53,8 +53,6 @@ export const locations = pgTable(
       columns: [table.companyBranchId, table.companyId],
       foreignColumns: [companyBranch.id, companyBranch.companyId],
     }).onDelete('restrict'),
-    check('location_latitude_check', sql`latitude BETWEEN -90 AND 90`),
-    check('location_longitude_check', sql`longitude BETWEEN -180 AND 180`),
     check(
       'location_radius_meters_check',
       sql`radius_meters > 0 AND radius_meters < 'Infinity'::float8`,

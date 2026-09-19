@@ -23,6 +23,14 @@ export class Config extends BaseConfig {
     secret: this.load('BETTER_AUTH_SECRET', ''),
     url: this.load('BETTER_AUTH_URL', 'http://localhost:8000'),
   };
+  /**
+   * Field encryption configuration
+   */
+  encryption = {
+    fieldKey: this.load('FIELD_ENCRYPTION_KEY', ''),
+    lookupKey: this.load('FIELD_LOOKUP_KEY', ''),
+    version: this.loadNumber('FIELD_ENCRYPTION_CURRENT_VERSION', '1'),
+  };
 }
 
 export const config = new Config();

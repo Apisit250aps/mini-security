@@ -19,6 +19,7 @@ import {
 import {
   createdAtTimestamp,
   deletedAtTimestamp,
+  encryptedNumber,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -193,11 +194,11 @@ export const attendanceLogs = pgTable(
       onDelete: 'set null',
     }),
     locationId: uuid('location_id'),
-    checkedInLatitude: doublePrecision('checked_in_latitude'),
-    checkedInLongitude: doublePrecision('checked_in_longitude'),
+    checkedInLatitude: encryptedNumber('checked_in_latitude'),
+    checkedInLongitude: encryptedNumber('checked_in_longitude'),
     locationNameSnapshot: text('location_name_snapshot'),
-    locationLatitudeSnapshot: doublePrecision('location_latitude_snapshot'),
-    locationLongitudeSnapshot: doublePrecision('location_longitude_snapshot'),
+    locationLatitudeSnapshot: encryptedNumber('location_latitude_snapshot'),
+    locationLongitudeSnapshot: encryptedNumber('location_longitude_snapshot'),
     radiusMetersSnapshot: doublePrecision('radius_meters_snapshot'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
@@ -227,22 +228,6 @@ export const attendanceLogs = pgTable(
         scheduleSlotLocation.companyId,
       ],
     }).onDelete('restrict'),
-    check(
-      'attendance_log_latitude_check',
-      sql`checked_in_latitude BETWEEN -90 AND 90`,
-    ),
-    check(
-      'attendance_log_longitude_check',
-      sql`checked_in_longitude BETWEEN -180 AND 180`,
-    ),
-    check(
-      'attendance_log_loc_latitude_check',
-      sql`location_latitude_snapshot BETWEEN -90 AND 90`,
-    ),
-    check(
-      'attendance_log_loc_longitude_check',
-      sql`location_longitude_snapshot BETWEEN -180 AND 180`,
-    ),
     check(
       'attendance_log_radius_meters_check',
       sql`radius_meters_snapshot > 0 AND radius_meters_snapshot < 'Infinity'::float8`,

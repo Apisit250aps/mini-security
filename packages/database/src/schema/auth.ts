@@ -1,6 +1,7 @@
 import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
+  encryptedText,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -15,8 +16,8 @@ export const session = pgTable(
       .references(() => user.id, { onDelete: 'cascade' }),
     token: text('token').notNull().unique(),
     expiresAt: timestamp('expires_at').notNull(),
-    ipAddress: text('ip_address'),
-    userAgent: text('user_agent'),
+    ipAddress: encryptedText('ip_address'),
+    userAgent: encryptedText('user_agent'),
     activeCompanyId: uuid('active_company_id'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
@@ -37,9 +38,9 @@ export const account = pgTable(
     accountId: text('account_id').notNull(),
     providerId: text('provider_id').notNull(),
     issuer: text('issuer'),
-    accessToken: text('access_token'),
-    refreshToken: text('refresh_token'),
-    idToken: text('id_token'),
+    accessToken: encryptedText('access_token'),
+    refreshToken: encryptedText('refresh_token'),
+    idToken: encryptedText('id_token'),
     accessTokenExpiresAt: timestamp('access_token_expires_at'),
     refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
     scope: text('scope'),
@@ -69,7 +70,7 @@ export const verification = pgTable(
 export const jwks = pgTable('jwks', {
   id: primaryKeyUuid7('id'),
   publicKey: text('public_key').notNull(),
-  privateKey: text('private_key').notNull(),
+  privateKey: encryptedText('private_key').notNull(),
   createdAt: createdAtTimestamp('created_at'),
   expiresAt: timestamp('expires_at'),
   alg: text('alg'),
