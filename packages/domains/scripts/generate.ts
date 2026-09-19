@@ -68,7 +68,7 @@ function buildModelBlock(
   lines.push(`  model ${name} {`);
 
   // Base fields that are replaced by ...BaseEntity; spread
-  const BASE_FIELDS = ['id', 'createdAt', 'updatedAt', 'deletedAt'];
+  const BASE_FIELDS = ['id', 'createdAt', 'updatedAt'];
 
   const hasBaseFields = props.some((p) => BASE_FIELDS.includes(p.name));
   const domainProps = props.filter((p) => !BASE_FIELDS.includes(p.name));

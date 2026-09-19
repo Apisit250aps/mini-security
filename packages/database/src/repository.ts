@@ -5,6 +5,7 @@ import { PgTable, type PgColumn } from 'drizzle-orm/pg-core';
 import { eq, type SQL, type SQLWrapper } from 'drizzle-orm';
 import {
   notDeleted,
+  withoutDeletedAt,
   whereNotDeleted,
   type SoftDeletableTarget,
 } from './lib/utils';
@@ -69,7 +70,7 @@ export abstract class Repository<
       .insert(this.table)
       .values(entity)
       .returning();
-    return result as T;
+    return withoutDeletedAt(result as object) as T;
   }
 
   async delete(id: string): Promise<void> {
@@ -80,13 +81,13 @@ export abstract class Repository<
     const where = this.whereActive();
     const query = this.db.select().from(this.table);
     const results = where ? await query.where(where) : await query;
-    return results as T[];
+    return results.map(withoutDeletedAt) as T[];
   }
 
   async findById(id: string): Promise<T | null> {
     const where = this.whereActive(eq(this.table.id, id));
     const [result] = await this.db.select().from(this.table).where(where!);
-    return (result as T) || null;
+    return result ? (withoutDeletedAt(result) as T) : null;
   }
 
   async update(id: string, entity: U): Promise<T> {
@@ -96,6 +97,6 @@ export abstract class Repository<
       .set(entity)
       .where(where!)
       .returning();
-    return result as T;
+    return withoutDeletedAt(result as object) as T;
   }
 }
