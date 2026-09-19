@@ -1,6 +1,7 @@
-import { and, desc, eq, gte, lte, or } from 'drizzle-orm';
+import { and, desc, eq, gte, lte } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
+import { notDeleted } from '@repo/database';
 import {
   companyMember,
   leaveQuotas,
@@ -38,7 +39,7 @@ export class LeaveTypeRepository
     const results = await this.db
       .select()
       .from(leaveTypes)
-      .where(eq(leaveTypes.companyId, companyId));
+      .where(this.whereActive(eq(leaveTypes.companyId, companyId)));
     return results.map((r) => new LeaveType(r as unknown as LeaveType));
   }
 
@@ -47,7 +48,10 @@ export class LeaveTypeRepository
       .select()
       .from(leaveTypes)
       .where(
-        and(eq(leaveTypes.companyId, companyId), eq(leaveTypes.isActive, true)),
+        this.whereActive(
+          eq(leaveTypes.companyId, companyId),
+          eq(leaveTypes.isActive, true),
+        ),
       );
     return results.map((r) => new LeaveType(r as unknown as LeaveType));
   }
@@ -60,7 +64,10 @@ export class LeaveTypeRepository
       .select()
       .from(leaveTypes)
       .where(
-        and(eq(leaveTypes.companyId, companyId), eq(leaveTypes.name, name)),
+        this.whereActive(
+          eq(leaveTypes.companyId, companyId),
+          eq(leaveTypes.name, name),
+        ),
       );
     return result ? new LeaveType(result as unknown as LeaveType) : null;
   }
@@ -82,7 +89,7 @@ export class LeaveQuotaRepository
       .select()
       .from(leaveQuotas)
       .where(
-        and(
+        this.whereActive(
           eq(leaveQuotas.companyMemberId, memberId),
           eq(leaveQuotas.year, year),
         ),
@@ -99,7 +106,7 @@ export class LeaveQuotaRepository
       .select()
       .from(leaveQuotas)
       .where(
-        and(
+        this.whereActive(
           eq(leaveQuotas.companyMemberId, memberId),
           eq(leaveQuotas.leaveTypeId, leaveTypeId),
           eq(leaveQuotas.year, year),
@@ -117,7 +124,7 @@ export class LeaveQuotaRepository
       .select()
       .from(leaveQuotas)
       .where(
-        and(
+        this.whereActive(
           eq(leaveQuotas.companyMemberId, memberId),
           eq(leaveQuotas.leaveTypeId, leaveTypeId),
           eq(leaveQuotas.year, year),
@@ -140,7 +147,7 @@ export class LeaveRequestRepository
     const results = await this.db
       .select()
       .from(leaveRequests)
-      .where(eq(leaveRequests.companyMemberId, memberId))
+      .where(this.whereActive(eq(leaveRequests.companyMemberId, memberId)))
       .orderBy(desc(leaveRequests.createdAt));
     return results.map((r) => new LeaveRequest(r as unknown as LeaveRequest));
   }
@@ -149,13 +156,6 @@ export class LeaveRequestRepository
     companyId: string,
     status?: string,
   ): Promise<LeaveRequest[]> {
-    const conditions = [eq(companyMember.companyId, companyId)];
-    if (status) {
-      conditions.push(
-        eq(leaveRequests.status, status as LeaveRequest['status']),
-      );
-    }
-
     const results = await this.db
       .select({
         id: leaveRequests.id,
@@ -181,7 +181,15 @@ export class LeaveRequestRepository
         companyMember,
         eq(leaveRequests.companyMemberId, companyMember.id),
       )
-      .where(and(...conditions))
+      .where(
+        this.whereActive(
+          eq(companyMember.companyId, companyId),
+          status
+            ? eq(leaveRequests.status, status as LeaveRequest['status'])
+            : undefined,
+          notDeleted(companyMember),
+        ),
+      )
       .orderBy(desc(leaveRequests.createdAt));
 
     return results.map((r) => new LeaveRequest(r as unknown as LeaveRequest));
@@ -196,13 +204,11 @@ export class LeaveRequestRepository
       .select()
       .from(leaveRequests)
       .where(
-        and(
+        this.whereActive(
           eq(leaveRequests.companyMemberId, memberId),
-          or(
-            and(
-              eq(leaveRequests.startDate, startDate),
-              eq(leaveRequests.endDate, endDate),
-            ),
+          and(
+            eq(leaveRequests.startDate, startDate),
+            eq(leaveRequests.endDate, endDate),
           ),
         ),
       );
@@ -220,7 +226,7 @@ export class LeaveRequestRepository
       .select()
       .from(leaveRequests)
       .where(
-        and(
+        this.whereActive(
           eq(leaveRequests.companyMemberId, memberId),
           eq(leaveRequests.leaveTypeId, leaveTypeId),
           eq(leaveRequests.status, 'approved'),

@@ -11,6 +11,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
+  deletedAtTimestamp,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -38,11 +39,13 @@ export const role = pgTable(
     isSystemDefault: boolean('is_system_default').default(false).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('role_company_id_idx').on(table.companyId),
     index('role_is_system_default_idx').on(table.isSystemDefault),
     index('role_role_type_idx').on(table.roleType),
+    index('role_deleted_at_idx').on(table.deletedAt),
     uniqueIndex('role_system_default_unique')
       .on(table.roleType)
       .where(sql`company_id IS NULL AND is_system_default = true`),
@@ -61,11 +64,13 @@ export const permission = pgTable(
     description: text('description'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('permission_action_idx').on(table.action),
     index('permission_module_idx').on(table.module),
     index('permission_feature_id_idx').on(table.featureId),
+    index('permission_deleted_at_idx').on(table.deletedAt),
   ],
 );
 
@@ -81,10 +86,12 @@ export const rolePermission = pgTable(
       .references(() => permission.id, { onDelete: 'cascade' }),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('role_permission_role_id_idx').on(table.roleId),
     index('role_permission_permission_id_idx').on(table.permissionId),
+    index('role_permission_deleted_at_idx').on(table.deletedAt),
     unique('role_permission_unique_idx').on(table.roleId, table.permissionId),
   ],
 );

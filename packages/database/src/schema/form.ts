@@ -17,6 +17,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
+  deletedAtTimestamp,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -77,6 +78,7 @@ export const formTemplate = pgTable(
     createdBy: uuid('created_by').notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('form_template_id_company_id_unique').on(table.id, table.companyId),
@@ -84,6 +86,7 @@ export const formTemplate = pgTable(
       table.companyId,
       table.isActive,
     ),
+    index('form_template_deleted_at_idx').on(table.deletedAt),
     foreignKey({
       columns: [table.createdBy, table.companyId],
       foreignColumns: [companyMember.id, companyMember.companyId],
@@ -109,9 +112,11 @@ export const formVersion = pgTable(
     publishedAt: timestamp('published_at', { withTimezone: true }),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('form_version_id_company_id_unique').on(table.id, table.companyId),
+    index('form_version_deleted_at_idx').on(table.deletedAt),
     unique('form_version_id_company_template_unique').on(
       table.id,
       table.companyId,
@@ -163,6 +168,7 @@ export const formSection = pgTable(
     sortOrder: integer('sort_order').default(0).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('form_section_id_company_version_unique').on(
@@ -174,6 +180,7 @@ export const formSection = pgTable(
       table.formVersionId,
       table.sortOrder,
     ),
+    index('form_section_deleted_at_idx').on(table.deletedAt),
     check('form_section_sort_order_check', sql`sort_order >= 0`),
     foreignKey({
       columns: [table.formVersionId, table.companyId],
@@ -203,6 +210,7 @@ export const formField = pgTable(
       .notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('form_field_id_company_version_unique').on(
@@ -214,6 +222,7 @@ export const formField = pgTable(
       table.formSectionId,
       table.sortOrder,
     ),
+    index('form_field_deleted_at_idx').on(table.deletedAt),
     check('form_field_sort_order_check', sql`sort_order >= 0`),
     foreignKey({
       columns: [table.formSectionId, table.companyId, table.formVersionId],
@@ -253,9 +262,11 @@ export const formPlan = pgTable(
     revision: integer('revision').default(1).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('form_plan_id_company_unique').on(table.id, table.companyId),
+    index('form_plan_deleted_at_idx').on(table.deletedAt),
     unique('form_plan_id_company_template_unique').on(
       table.id,
       table.companyId,
@@ -575,6 +586,7 @@ export const formSubmission = pgTable(
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('form_submission_id_company_version_unique').on(
@@ -582,6 +594,7 @@ export const formSubmission = pgTable(
       table.companyId,
       table.formVersionId,
     ),
+    index('form_submission_deleted_at_idx').on(table.deletedAt),
     unique('form_submission_id_company_version_assignment_unique').on(
       table.id,
       table.companyId,
@@ -766,6 +779,7 @@ export const formAnswerAttachment = pgTable(
     uploadedBy: uuid('uploaded_by').notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('form_answer_attachment_answer_key_unique').on(
@@ -780,6 +794,7 @@ export const formAnswerAttachment = pgTable(
       table.companyId,
       table.storageKey,
     ),
+    index('form_answer_attachment_deleted_at_idx').on(table.deletedAt),
     check('form_answer_attachment_size_check', sql`size_bytes > 0`),
     check('form_answer_attachment_sort_order_check', sql`sort_order >= 0`),
     foreignKey({

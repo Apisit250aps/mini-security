@@ -28,7 +28,7 @@ export default class UserRepository
     const [result] = await this.db
       .select()
       .from(this.table)
-      .where(eq(user.email, email.toLowerCase().trim()));
+      .where(this.whereActive(eq(user.email, email.toLowerCase().trim())));
     return result ? new User(result as unknown as User) : null;
   }
 
@@ -36,7 +36,7 @@ export default class UserRepository
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(user.isAdmin, true));
+      .where(this.whereActive(eq(user.isAdmin, true)));
     return results.map((r) => new User(r as unknown as User));
   }
 
@@ -44,7 +44,7 @@ export default class UserRepository
     const [result] = await this.db
       .update(this.table)
       .set({ lastLogin })
-      .where(eq(user.id, id))
+      .where(this.whereActive(eq(user.id, id)))
       .returning();
     if (!result) {
       throw new Error(`User with id ${id} not found`);

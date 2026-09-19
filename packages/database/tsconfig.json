@@ -4,6 +4,6 @@
     "strictNullChecks": true,
     "customConditions": ["source"]
   },
-  "include": ["src/**/*", "scripts/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "src/test"]
 }

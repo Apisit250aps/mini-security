@@ -1,13 +1,16 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   index,
   pgTable,
   text,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
+  deletedAtTimestamp,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -18,13 +21,20 @@ export const company = pgTable(
   {
     id: primaryKeyUuid7('id'),
     name: text('name').notNull(),
-    slug: text('slug').notNull().unique(),
+    slug: text('slug').notNull(),
     logo: text('logo'),
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
-  (table) => [index('company_slug_idx').on(table.slug)],
+  (table) => [
+    uniqueIndex('company_slug_unique')
+      .on(table.slug)
+      .where(sql`${table.deletedAt} IS NULL`),
+    index('company_slug_idx').on(table.slug),
+    index('company_deleted_at_idx').on(table.deletedAt),
+  ],
 );
 
 export const companyBranch = pgTable(
@@ -39,9 +49,11 @@ export const companyBranch = pgTable(
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('company_branch_company_id_idx').on(table.companyId),
+    index('company_branch_deleted_at_idx').on(table.deletedAt),
     unique('company_branch_id_company_id_unique').on(table.id, table.companyId),
   ],
 );
@@ -63,6 +75,7 @@ export const companyMember = pgTable(
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('company_member_company_branch_id_idx').on(table.companyBranchId),
@@ -70,6 +83,7 @@ export const companyMember = pgTable(
     index('company_member_user_id_idx').on(table.userId),
     index('company_member_role_id_idx').on(table.roleId),
     index('company_member_company_user_idx').on(table.companyId, table.userId),
+    index('company_member_deleted_at_idx').on(table.deletedAt),
     unique('company_member_id_company_unique').on(table.id, table.companyId),
   ],
 );

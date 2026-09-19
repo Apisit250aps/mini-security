@@ -12,10 +12,12 @@ import {
   time,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
+  deletedAtTimestamp,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -55,10 +57,14 @@ export const leaveTypes = pgTable(
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('leave_type_company_id_idx').on(table.companyId),
-    unique('leave_type_company_name_unique').on(table.companyId, table.name),
+    index('leave_type_deleted_at_idx').on(table.deletedAt),
+    uniqueIndex('leave_type_company_name_unique')
+      .on(table.companyId, table.name)
+      .where(sql`${table.deletedAt} IS NULL`),
   ],
 );
 
@@ -80,15 +86,15 @@ export const leaveQuotas = pgTable(
     totalDays: numeric('total_days', { precision: 5, scale: 2 }).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('leave_quota_member_id_idx').on(table.companyMemberId),
     index('leave_quota_type_id_idx').on(table.leaveTypeId),
-    unique('leave_quota_member_type_year_unique').on(
-      table.companyMemberId,
-      table.leaveTypeId,
-      table.year,
-    ),
+    index('leave_quota_deleted_at_idx').on(table.deletedAt),
+    uniqueIndex('leave_quota_member_type_year_unique')
+      .on(table.companyMemberId, table.leaveTypeId, table.year)
+      .where(sql`${table.deletedAt} IS NULL`),
     check('leave_quota_total_days_check', sql`total_days >= 0`),
   ],
 );
@@ -123,11 +129,13 @@ export const leaveRequests = pgTable(
     reviewNote: text('review_note'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('leave_request_member_id_idx').on(table.companyMemberId),
     index('leave_request_type_id_idx').on(table.leaveTypeId),
     index('leave_request_status_idx').on(table.status),
+    index('leave_request_deleted_at_idx').on(table.deletedAt),
     index('leave_request_member_date_idx').on(
       table.companyMemberId,
       table.startDate,

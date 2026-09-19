@@ -27,4 +27,6 @@ export class Config extends BaseConfig {
 
 export const config = new Config();
 
+export * from './logger';
+
 export default config;

@@ -6,6 +6,7 @@ import {
   AppError,
   ValidationError,
 } from '@repo/applications';
+import { logger } from '@repo/configs/logger';
 import { Session } from '@repo/infrastructures/types/auth';
 
 export type RequestSchema = {
@@ -139,6 +140,12 @@ export function onApiError(err: unknown, ctx: Context): Response {
   const isDev = process.env.NODE_ENV !== 'production';
   const errorMessage =
     err instanceof Error ? err.message : 'Internal Server Error';
+
+  logger.error(
+    `API Exception on ${ctx.req.method} ${ctx.req.path}`,
+    err instanceof Error ? err : String(err),
+    'API',
+  );
 
   return ctx.json<ApiResponse>(
     {

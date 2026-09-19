@@ -12,7 +12,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { primaryKeyUuid7 } from '#lib/utils';
+import { deletedAtTimestamp, primaryKeyUuid7 } from '#lib/utils';
 import { company, companyBranch } from './company';
 
 export const locations = pgTable(
@@ -36,6 +36,7 @@ export const locations = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .$onUpdate(() => new Date())
       .notNull(),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('locations_id_company_id_unique').on(table.id, table.companyId),
@@ -44,6 +45,7 @@ export const locations = pgTable(
       table.companyId,
     ),
     index('locations_company_active_idx').on(table.companyId, table.isActive),
+    index('locations_deleted_at_idx').on(table.deletedAt),
     uniqueIndex('locations_one_primary_per_branch')
       .on(table.companyBranchId)
       .where(sql`is_primary = true`),

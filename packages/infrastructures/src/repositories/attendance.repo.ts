@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
+import { notDeleted } from '@repo/database';
 import {
   attendanceLogs,
   checkInSchedules,
@@ -63,7 +64,7 @@ export class CheckInScheduleRepository
           eq(checkInScheduleRoles.isActive, true),
         ),
       )
-      .where(where)
+      .where(this.whereActive(where))
       .orderBy(
         asc(checkInSchedules.name),
         asc(checkInSchedules.id),
@@ -123,6 +124,7 @@ export class CheckInScheduleRepository
         .where(eq(checkInSchedules.id, id))
         .returning();
       if (!schedule) throw new Error('Schedule no longer exists');
+
       if (roleIds !== undefined) {
         await tx
           .update(checkInScheduleRoles)
@@ -147,6 +149,7 @@ export class CheckInScheduleRepository
             });
         }
       }
+
       const assignments = await tx
         .select({ roleId: checkInScheduleRoles.roleId })
         .from(checkInScheduleRoles)
@@ -156,6 +159,7 @@ export class CheckInScheduleRepository
             eq(checkInScheduleRoles.isActive, true),
           ),
         );
+
       return new CheckInSchedule({
         ...schedule,
         roleIds: assignments.map((assignment) => assignment.roleId),
@@ -209,7 +213,7 @@ export class ScheduleSlotRepository
     const results = await this.db
       .select()
       .from(scheduleSlots)
-      .where(eq(scheduleSlots.checkInScheduleId, scheduleId))
+      .where(this.whereActive(eq(scheduleSlots.checkInScheduleId, scheduleId)))
       .orderBy(asc(scheduleSlots.slotOrder));
     return results.map((r) => new ScheduleSlot(r as unknown as ScheduleSlot));
   }
@@ -222,7 +226,7 @@ export class ScheduleSlotRepository
       .select()
       .from(scheduleSlots)
       .where(
-        and(
+        this.whereActive(
           eq(scheduleSlots.checkInScheduleId, scheduleId),
           eq(scheduleSlots.slotOrder, slotOrder),
         ),
@@ -231,9 +235,7 @@ export class ScheduleSlotRepository
   }
 
   async deleteByScheduleId(scheduleId: string): Promise<void> {
-    await this.db
-      .delete(scheduleSlots)
-      .where(eq(scheduleSlots.checkInScheduleId, scheduleId));
+    await this.softDelete(eq(scheduleSlots.checkInScheduleId, scheduleId));
   }
 }
 
@@ -253,7 +255,7 @@ export class AttendanceLogRepository
       .select()
       .from(attendanceLogs)
       .where(
-        and(
+        this.whereActive(
           eq(attendanceLogs.companyMemberId, memberId),
           eq(attendanceLogs.workDate, workDate),
         ),
@@ -270,7 +272,7 @@ export class AttendanceLogRepository
       .select()
       .from(attendanceLogs)
       .where(
-        and(
+        this.whereActive(
           eq(attendanceLogs.companyMemberId, memberId),
           eq(attendanceLogs.scheduleSlotId, slotId),
           eq(attendanceLogs.workDate, workDate),
@@ -313,9 +315,10 @@ export class AttendanceLogRepository
         eq(attendanceLogs.companyMemberId, companyMember.id),
       )
       .where(
-        and(
+        this.whereActive(
           eq(companyMember.companyId, companyId),
           between(attendanceLogs.workDate, startDate, endDate),
+          notDeleted(companyMember),
         ),
       );
 
@@ -331,7 +334,7 @@ export class AttendanceLogRepository
       .select()
       .from(attendanceLogs)
       .where(
-        and(
+        this.whereActive(
           eq(attendanceLogs.companyMemberId, memberId),
           between(attendanceLogs.workDate, startDate, endDate),
         ),

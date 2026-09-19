@@ -13,10 +13,12 @@ import {
   time,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
+  deletedAtTimestamp,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -51,10 +53,12 @@ export const checkInSchedules = pgTable(
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     unique('check_in_schedule_id_company_unique').on(table.id, table.companyId),
     index('check_in_schedule_company_id_idx').on(table.companyId),
+    index('check_in_schedule_deleted_at_idx').on(table.deletedAt),
   ],
 );
 
@@ -104,9 +108,11 @@ export const scheduleSlots = pgTable(
     isRequired: boolean('is_required').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('schedule_slot_schedule_id_idx').on(table.checkInScheduleId),
+    index('schedule_slot_deleted_at_idx').on(table.deletedAt),
     unique('schedule_slots_id_company_unique').on(table.id, table.companyId),
     unique('schedule_slot_order_unique').on(
       table.checkInScheduleId,
@@ -195,16 +201,16 @@ export const attendanceLogs = pgTable(
     radiusMetersSnapshot: doublePrecision('radius_meters_snapshot'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('attendance_log_member_id_idx').on(table.companyMemberId),
     index('attendance_log_slot_id_idx').on(table.scheduleSlotId),
     index('attendance_log_work_date_idx').on(table.workDate),
-    unique('attendance_log_unique_per_slot_per_day').on(
-      table.companyMemberId,
-      table.scheduleSlotId,
-      table.workDate,
-    ),
+    index('attendance_log_deleted_at_idx').on(table.deletedAt),
+    uniqueIndex('attendance_log_unique_per_slot_per_day')
+      .on(table.companyMemberId, table.scheduleSlotId, table.workDate)
+      .where(sql`${table.deletedAt} IS NULL`),
     foreignKey({
       columns: [table.companyMemberId, table.companyId],
       foreignColumns: [companyMember.id, companyMember.companyId],

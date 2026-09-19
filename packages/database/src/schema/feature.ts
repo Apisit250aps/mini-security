@@ -9,6 +9,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
+  deletedAtTimestamp,
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
@@ -27,11 +28,13 @@ export const feature = pgTable(
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('feature_code_idx').on(table.code),
     index('feature_category_idx').on(table.category),
     index('feature_is_active_idx').on(table.isActive),
+    index('feature_deleted_at_idx').on(table.deletedAt),
   ],
 );
 
@@ -52,11 +55,13 @@ export const companyFeature = pgTable(
     expiresAt: timestamp('expires_at'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('company_feature_company_id_idx').on(table.companyId),
     index('company_feature_feature_id_idx').on(table.featureId),
     index('company_feature_is_enabled_idx').on(table.isEnabled),
+    index('company_feature_deleted_at_idx').on(table.deletedAt),
     unique('company_feature_company_feature_unique').on(
       table.companyId,
       table.featureId,
@@ -80,11 +85,13 @@ export const roleFeature = pgTable(
     isEnabled: boolean('is_enabled').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
     index('role_feature_company_id_idx').on(table.companyId),
     index('role_feature_role_id_idx').on(table.roleId),
     index('role_feature_feature_id_idx').on(table.featureId),
+    index('role_feature_deleted_at_idx').on(table.deletedAt),
     unique('role_feature_role_feature_unique').on(
       table.roleId,
       table.featureId,

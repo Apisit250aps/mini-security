@@ -29,7 +29,7 @@ export class CompanyRepository
     const [result] = await this.db
       .select()
       .from(this.table)
-      .where(eq(company.slug, slug));
+      .where(this.whereActive(eq(company.slug, slug)));
     return result ? new Company(result as unknown as Company) : null;
   }
 
@@ -37,7 +37,7 @@ export class CompanyRepository
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(company.isActive, true));
+      .where(this.whereActive(eq(company.isActive, true)));
     return results.map((r) => new Company(r as unknown as Company));
   }
 }
@@ -54,7 +54,7 @@ export class CompanyBranchRepository
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(companyBranch.companyId, companyId));
+      .where(this.whereActive(eq(companyBranch.companyId, companyId)));
     return results.map((r) => new CompanyBranch(r as unknown as CompanyBranch));
   }
 
@@ -65,7 +65,7 @@ export class CompanyBranchRepository
       .select()
       .from(this.table)
       .where(
-        and(
+        this.whereActive(
           eq(companyBranch.companyId, companyId),
           eq(companyBranch.isActive, true),
         ),
@@ -84,7 +84,7 @@ export class CompanyBranchRepository
       .select()
       .from(this.table)
       .where(
-        and(
+        this.whereActive(
           eq(companyBranch.companyId, companyId),
           eq(companyBranch.name, name),
         ),
@@ -107,7 +107,7 @@ export class CompanyMemberRepository
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(companyMember.companyId, companyId));
+      .where(this.whereActive(eq(companyMember.companyId, companyId)));
     return results.map((r) => new CompanyMember(r as unknown as CompanyMember));
   }
 
@@ -115,7 +115,7 @@ export class CompanyMemberRepository
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(companyMember.userId, userId));
+      .where(this.whereActive(eq(companyMember.userId, userId)));
     return results.map((r) => new CompanyMember(r as unknown as CompanyMember));
   }
 
@@ -123,7 +123,7 @@ export class CompanyMemberRepository
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(companyMember.companyBranchId, branchId));
+      .where(this.whereActive(eq(companyMember.companyBranchId, branchId)));
     return results.map((r) => new CompanyMember(r as unknown as CompanyMember));
   }
 
@@ -135,7 +135,7 @@ export class CompanyMemberRepository
       .select()
       .from(this.table)
       .where(
-        and(
+        this.whereActive(
           eq(companyMember.companyId, companyId),
           eq(companyMember.userId, userId),
         ),
@@ -149,13 +149,11 @@ export class CompanyMemberRepository
     companyId: string,
     userId: string,
   ): Promise<void> {
-    await this.db
-      .delete(this.table)
-      .where(
-        and(
-          eq(companyMember.companyId, companyId),
-          eq(companyMember.userId, userId),
-        ),
-      );
+    await this.softDelete(
+      and(
+        eq(companyMember.companyId, companyId),
+        eq(companyMember.userId, userId),
+      ),
+    );
   }
 }

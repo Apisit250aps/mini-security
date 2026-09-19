@@ -2,8 +2,8 @@ import {
   PERMISSION_ACTIONS,
   type SystemPermissionAction,
 } from './system-permissions';
-import type { RoleType } from '../schema/permission';
-import type { CreateRole } from '../schema/permission';
+import type { RoleType, CreateRole } from '../schema/permission';
+export type { RoleType };
 
 /** Global role catalog; tenant assignments are managed separately. */
 export const SYSTEM_DEFAULT_ROLES = [

@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
+import { notDeleted } from '@repo/database';
 import {
   locations,
   scheduleSlotLocation,
@@ -33,7 +34,7 @@ export class LocationRepository
     const results = await this.db
       .select()
       .from(locations)
-      .where(eq(locations.companyId, companyId));
+      .where(this.whereActive(eq(locations.companyId, companyId)));
     return results.map((r) => new Location(r as unknown as Location));
   }
 
@@ -41,7 +42,7 @@ export class LocationRepository
     const results = await this.db
       .select()
       .from(locations)
-      .where(eq(locations.companyBranchId, branchId));
+      .where(this.whereActive(eq(locations.companyBranchId, branchId)));
     return results.map((r) => new Location(r as unknown as Location));
   }
 
@@ -50,7 +51,7 @@ export class LocationRepository
       .select()
       .from(locations)
       .where(
-        and(
+        this.whereActive(
           eq(locations.companyBranchId, branchId),
           eq(locations.isActive, true),
         ),
@@ -63,7 +64,7 @@ export class LocationRepository
       .select()
       .from(locations)
       .where(
-        and(
+        this.whereActive(
           eq(locations.companyBranchId, branchId),
           eq(locations.isPrimary, true),
         ),
@@ -198,6 +199,8 @@ export class ScheduleSlotLocationRepository
           eq(scheduleSlotLocation.isActive, true),
           eq(companyBranch.isActive, true),
           eq(locations.isActive, true),
+          notDeleted(locations),
+          notDeleted(companyBranch),
         ),
       );
     return results.map((r) => new Location(r as unknown as Location));

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
+import { createHonoLogger } from '@repo/configs/logger';
 import auth from '@repo/infrastructures/auth';
 import { config } from './configs';
 import { onApiError, onNotFound, success } from './lib/response';
@@ -15,8 +15,8 @@ const app = new Hono<{
   };
 }>();
 
-// Request Logger
-app.use(logger());
+// Request Logger (Chalk formatted, emoji-free)
+app.use(createHonoLogger());
 
 // CORS Configuration
 app.use(
