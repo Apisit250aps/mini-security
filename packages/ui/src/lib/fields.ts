@@ -5,7 +5,7 @@ export const parseOnChange = <T extends FieldValues>(
   field: ControllerRenderProps<T, Path<T> & (string | undefined)>,
 ) => {
   if (e.target.type === 'number') {
-    field.onChange(e.target.valueAsNumber);
+    field.onChange(e.target.value === '' ? null : e.target.valueAsNumber);
   } else {
     field.onChange(e);
   }

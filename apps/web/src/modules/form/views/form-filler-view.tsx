@@ -2,7 +2,8 @@
 
 import { useIsMutating } from '@tanstack/react-query';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -48,7 +49,7 @@ import { getErrorMessage } from '@/shared/utils';
 import { formatDate, formatDateTime } from '@/shared/utils/date';
 import type { FormField } from '@repo/domains/entities';
 
-import DynamicFieldRenderer from '../components/fill/dynamic-field-renderer';
+import DynamicFormField from '../components/fill/dynamic-form-field';
 import FormSubmissionReviewDialog from '../components/submission/form-submission-review-dialog';
 
 interface FormFillerViewProps {
@@ -121,30 +122,21 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
     saveDraftMutation.isPending ||
     submitMutation.isPending;
 
-  const [edits, setEdits] = useState<Record<string, unknown>>({});
-
   const detail = submissionQuery.data;
+  const answerValues = useMemo(
+    () =>
+      Object.fromEntries(
+        (detail?.answers ?? []).map((answer) => [answer.fieldId, answer.value]),
+      ),
+    [detail],
+  );
+  const form = useForm<Record<string, unknown>>({ values: answerValues });
   const currentMember = membersQuery.data?.find(
     (m) => m.userId === session?.user.id && m.isActive,
   );
   const memberId = currentMember?.id || session?.user.id || '';
 
   const roles = rolesQuery.data || [];
-
-  // Derive current answers from query + user edits without setState in effect
-  const answers = useMemo(() => {
-    const result: Record<string, unknown> = {};
-    if (detail?.answers) {
-      for (const ans of detail.answers) {
-        result[ans.fieldId] = ans.value;
-      }
-    }
-    return { ...result, ...edits };
-  }, [detail, edits]);
-
-  const handleFieldChange = useCallback((fieldId: string, val: unknown) => {
-    setEdits((prev) => ({ ...prev, [fieldId]: val }));
-  }, []);
 
   const detailStatus = getFormSubmissionStatus(detail?.submission, undefined);
   const isReadOnly = detailStatus !== 'DRAFT';
@@ -163,10 +155,12 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
   const handleSaveDraft = useCallback(() => {
     if (!detail) return;
-    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
-      fieldId,
-      value,
-    }));
+    const answerEntries = Object.entries(form.getValues()).map(
+      ([fieldId, value]) => ({
+        fieldId,
+        value,
+      }),
+    );
 
     saveDraftMutation.mutate(
       {
@@ -175,7 +169,6 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
       },
       {
         onSuccess: () => {
-          setEdits({});
           toast.success('บันทึกฉบับร่างเรียบร้อยแล้ว');
         },
         onError: (err) => {
@@ -183,7 +176,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         },
       },
     );
-  }, [detail, edits, saveDraftMutation]);
+  }, [detail, form, saveDraftMutation]);
 
   const handleSubmit = useCallback(() => {
     if (!detail) return;
@@ -199,7 +192,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
           (attachment) => attachment.answerId === answer?.id,
         );
       }
-      const val = answers[field.id];
+      const val = form.getValues(field.id);
       if (val === undefined || val === null || val === '') return true;
       return false;
     });
@@ -211,10 +204,12 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
       return;
     }
 
-    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
-      fieldId,
-      value,
-    }));
+    const answerEntries = Object.entries(form.getValues()).map(
+      ([fieldId, value]) => ({
+        fieldId,
+        value,
+      }),
+    );
 
     saveDraftMutation.mutate(
       {
@@ -223,7 +218,6 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
       },
       {
         onSuccess: (updatedSub) => {
-          setEdits({});
           submitMutation.mutate(
             {
               expectedRevision:
@@ -247,7 +241,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
         },
       },
     );
-  }, [detail, answers, edits, saveDraftMutation, submitMutation, router]);
+  }, [detail, form, saveDraftMutation, submitMutation, router]);
 
   const handleClone = useCallback(() => {
     if (!detail || !activeCompanyId || !currentMember) return;
@@ -613,12 +607,11 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
                     ) : (
                       <div className="grid grid-cols-1 gap-4">
                         {sectionFields.map((field) => (
-                          <DynamicFieldRenderer
+                          <DynamicFormField
                             submissionId={submissionId}
                             key={field.id}
                             field={field}
-                            value={answers[field.id]}
-                            onChange={(val) => handleFieldChange(field.id, val)}
+                            control={form.control}
                             disabled={isReadOnly || busy}
                           />
                         ))}

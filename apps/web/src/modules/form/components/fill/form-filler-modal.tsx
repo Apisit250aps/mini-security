@@ -2,7 +2,8 @@
 
 import { useIsMutating } from '@tanstack/react-query';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
@@ -14,7 +15,7 @@ import {
   useFormSubmissionSubmit,
 } from '../../hooks/form-mutations';
 import type { FormField } from '@repo/domains/entities';
-import DynamicFieldRenderer from './dynamic-field-renderer';
+import DynamicFormField from './dynamic-form-field';
 import { getFormSubmissionStatus } from '../../lib/submission-status';
 
 interface FormFillerModalProps {
@@ -55,22 +56,14 @@ export default function FormFillerModal({
     saveDraftMutation.isPending ||
     submitMutation.isPending;
 
-  const [edits, setEdits] = useState<Record<string, unknown>>({});
-
-  // Derive current answers from query + user edits without setState in effect
-  const answers = useMemo(() => {
-    const result: Record<string, unknown> = {};
-    if (detail?.answers) {
-      for (const ans of detail.answers) {
-        result[ans.fieldId] = ans.value;
-      }
-    }
-    return { ...result, ...edits };
-  }, [detail, edits]);
-
-  const handleFieldChange = useCallback((fieldId: string, val: unknown) => {
-    setEdits((prev) => ({ ...prev, [fieldId]: val }));
-  }, []);
+  const answerValues = useMemo(
+    () =>
+      Object.fromEntries(
+        (detail?.answers ?? []).map((answer) => [answer.fieldId, answer.value]),
+      ),
+    [detail],
+  );
+  const form = useForm<Record<string, unknown>>({ values: answerValues });
 
   const status = getFormSubmissionStatus(detail?.submission);
   const isReadOnly = status !== 'DRAFT';
@@ -89,19 +82,21 @@ export default function FormFillerModal({
 
   const handleSaveDraft = useCallback(() => {
     if (!detail) return;
-    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
-      fieldId,
-      value,
-    }));
+    const answerEntries = Object.entries(form.getValues()).map(
+      ([fieldId, value]) => ({
+        fieldId,
+        value,
+      }),
+    );
 
     saveDraftMutation.mutate(
       {
         expectedRevision: detail.submission.revision,
         answers: answerEntries,
       },
-      { onSuccess: () => setEdits({}) },
+      { onSuccess: () => undefined },
     );
-  }, [detail, edits, saveDraftMutation]);
+  }, [detail, form, saveDraftMutation]);
 
   const handleSubmit = useCallback(() => {
     if (!detail) return;
@@ -117,7 +112,7 @@ export default function FormFillerModal({
           (attachment) => attachment.answerId === answer?.id,
         );
       }
-      const val = answers[field.id];
+      const val = form.getValues(field.id);
       if (val === undefined || val === null || val === '') return true;
       return false;
     });
@@ -130,10 +125,12 @@ export default function FormFillerModal({
     }
 
     // First save draft with current answers, then submit
-    const answerEntries = Object.entries(edits).map(([fieldId, value]) => ({
-      fieldId,
-      value,
-    }));
+    const answerEntries = Object.entries(form.getValues()).map(
+      ([fieldId, value]) => ({
+        fieldId,
+        value,
+      }),
+    );
 
     saveDraftMutation.mutate(
       {
@@ -142,7 +139,7 @@ export default function FormFillerModal({
       },
       {
         onSuccess: (updatedSub) => {
-          setEdits({});
+          form.reset(form.getValues());
           submitMutation.mutate(
             {
               expectedRevision:
@@ -157,7 +154,7 @@ export default function FormFillerModal({
         },
       },
     );
-  }, [detail, answers, edits, saveDraftMutation, submitMutation, onClose]);
+  }, [detail, form, saveDraftMutation, submitMutation, onClose]);
 
   if (isLoading) {
     return (
@@ -254,12 +251,11 @@ export default function FormFillerModal({
 
               <div className="grid grid-cols-1 gap-3">
                 {sectionFields.map((field) => (
-                  <DynamicFieldRenderer
+                  <DynamicFormField
                     submissionId={submissionId}
                     key={field.id}
                     field={field}
-                    value={answers[field.id]}
-                    onChange={(val) => handleFieldChange(field.id, val)}
+                    control={form.control}
                     disabled={isReadOnly || busy}
                   />
                 ))}

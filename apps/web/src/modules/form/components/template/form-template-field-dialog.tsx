@@ -144,6 +144,16 @@ export default function FormTemplateFieldDialog({
       const sectionFieldCount = fields.filter(
         (f) => f.formSectionId === values.formSectionId,
       ).length;
+      const isNumber = values.type === 'NUMBER';
+      const supportsLength = ['TEXT', 'TEXTAREA', 'EMAIL'].includes(
+        values.type,
+      );
+      const constraints = {
+        min: isNumber ? (values.min ?? null) : null,
+        max: isNumber ? (values.max ?? null) : null,
+        minLength: supportsLength ? (values.minLength ?? null) : null,
+        maxLength: supportsLength ? (values.maxLength ?? null) : null,
+      };
 
       if (
         ['SELECT', 'RADIO', 'CHECKBOX_GROUP'].includes(values.type) &&
@@ -166,10 +176,7 @@ export default function FormTemplateFieldDialog({
               description: values.description || null,
               placeholder: values.placeholder || null,
               isRequired: values.isRequired,
-              min: values.min ?? null,
-              max: values.max ?? null,
-              minLength: values.minLength ?? null,
-              maxLength: values.maxLength ?? null,
+              ...constraints,
               options,
             },
           },
@@ -189,10 +196,7 @@ export default function FormTemplateFieldDialog({
           placeholder: values.placeholder || null,
           isRequired: values.isRequired,
           sortOrder: sectionFieldCount,
-          min: values.min ?? null,
-          max: values.max ?? null,
-          minLength: values.minLength ?? null,
-          maxLength: values.maxLength ?? null,
+          ...constraints,
           options,
         },
         {
@@ -262,19 +266,33 @@ export default function FormTemplateFieldDialog({
           control={methods.control}
         />
 
-        {(selectedType === 'NUMBER' ||
-          selectedType === 'TEXT' ||
-          selectedType === 'TEXTAREA' ||
-          selectedType === 'EMAIL') && (
+        {selectedType === 'NUMBER' && (
           <div className="grid grid-cols-2 gap-3">
             <InputField
               name="min"
-              label="ค่าต่ำสุด / ความยาวขั้นต่ำ"
+              label="ค่าต่ำสุด"
               control={methods.control}
             />
             <InputField
               name="max"
-              label="ค่าสูงสุด / ความยาวสูงสุด"
+              label="ค่าสูงสุด"
+              control={methods.control}
+            />
+          </div>
+        )}
+
+        {(selectedType === 'TEXT' ||
+          selectedType === 'TEXTAREA' ||
+          selectedType === 'EMAIL') && (
+          <div className="grid grid-cols-2 gap-3">
+            <InputField
+              name="minLength"
+              label="ความยาวขั้นต่ำ"
+              control={methods.control}
+            />
+            <InputField
+              name="maxLength"
+              label="ความยาวสูงสุด"
               control={methods.control}
             />
           </div>

@@ -5,6 +5,17 @@ import type { FormField } from '@repo/domains/entities';
 import { Input } from '@repo/ui/components/input';
 import { Textarea } from '@repo/ui/components/textarea';
 import { Switch } from '@repo/ui/components/switch';
+import {
+  ControlledCheckboxGroup,
+  RadioGroup,
+} from '@repo/ui/components/choice-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@repo/ui/components/select';
 import { renderFormAttachmentField } from './form-attachment-field';
 
 interface DynamicFieldRendererProps {
@@ -27,6 +38,17 @@ export default function DynamicFieldRenderer({
   const renderControl = () => {
     switch (field.type) {
       case 'TEXT':
+        return (
+          <Input
+            value={typeof value === 'string' ? value : ''}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            placeholder={field.placeholder || 'ระบุข้อความคำตอบ...'}
+            minLength={field.minLength ?? undefined}
+            maxLength={field.maxLength ?? undefined}
+          />
+        );
+
       case 'TEXTAREA':
         return (
           <Textarea
@@ -61,68 +83,49 @@ export default function DynamicFieldRenderer({
         const options = field.options || [];
         if (field.type === 'RADIO')
           return (
-            <div className="flex flex-col gap-2">
-              {options.map((option) => (
-                <label
-                  key={option.id}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <input
-                    type="radio"
-                    name={field.id}
-                    value={option.value}
-                    checked={value === option.value}
-                    onChange={() => onChange(option.value)}
-                    disabled={disabled}
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
+            <RadioGroup
+              name={field.id}
+              options={options}
+              value={typeof value === 'string' ? value : null}
+              onChange={onChange}
+              disabled={disabled}
+            />
           );
         return (
-          <select
-            value={typeof value === 'string' ? value : ''}
-            onChange={(e) => onChange(e.target.value)}
-            disabled={disabled}
-            aria-label={field.placeholder || field.label}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          <Select
+            selectedKey={typeof value === 'string' ? value : null}
+            onSelectionChange={(key) => onChange(String(key))}
+            isDisabled={disabled}
           >
-            <option value="">-- กรุณาเลือก --</option>
-            {options.map((opt) => (
-              <option key={opt.id} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger aria-label={field.placeholder || field.label}>
+              <SelectValue>
+                {field.placeholder || '-- กรุณาเลือก --'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((option) => (
+                <SelectItem key={option.id} id={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
       }
 
       case 'CHECKBOX_GROUP': {
         const selected = Array.isArray(value) ? value : [];
         return (
-          <div className="flex flex-col gap-2">
-            {(field.options || []).map((option) => (
-              <label
-                key={option.id}
-                className="flex items-center gap-2 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  checked={selected.includes(option.value)}
-                  onChange={(e) =>
-                    onChange(
-                      e.target.checked
-                        ? [...selected, option.value]
-                        : selected.filter((item) => item !== option.value),
-                    )
-                  }
-                  disabled={disabled}
-                />
-                {option.label}
-              </label>
-            ))}
-          </div>
+          <ControlledCheckboxGroup
+            name={field.id}
+            options={(field.options || []).map(({ label, value }) => ({
+              label,
+              value,
+            }))}
+            value={selected.map(String)}
+            onChange={onChange}
+            disabled={disabled}
+          />
         );
       }
 

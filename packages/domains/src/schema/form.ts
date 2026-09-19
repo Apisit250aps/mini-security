@@ -603,7 +603,10 @@ export function buildDynamicFormFieldValidation(
       break;
     }
     case 'EMAIL': {
-      const email = z.string().email('Invalid email address');
+      let email = z.string();
+      if (field.minLength != null) email = email.min(field.minLength);
+      if (field.maxLength != null) email = email.max(field.maxLength);
+      email = email.email('Invalid email address');
       if (field.isRequired) {
         schema = email;
       } else {

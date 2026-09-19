@@ -617,8 +617,12 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
                                                   </p>
                                                 )}
 
-                                                {/* Select Options Pill Badges */}
-                                                {field.type === 'SELECT' &&
+                                                {/* Choice options pill badges */}
+                                                {[
+                                                  'SELECT',
+                                                  'RADIO',
+                                                  'CHECKBOX_GROUP',
+                                                ].includes(field.type) &&
                                                   options.length > 0 && (
                                                     <div className="flex flex-wrap items-center gap-1 mt-1.5">
                                                       <span className="text-[11px] text-muted-foreground">

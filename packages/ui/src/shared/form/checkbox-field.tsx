@@ -22,6 +22,7 @@ export function CheckboxGroup<T extends FieldValues>({
   control,
   name,
   label,
+  disabled,
   options,
   className,
   containerClassName,
@@ -63,6 +64,7 @@ export function CheckboxGroup<T extends FieldValues>({
                     <Checkbox
                       id={domId}
                       isSelected={isChecked}
+                      isDisabled={disabled}
                       onChange={(checked) => {
                         if (checked) {
                           field.onChange([...valueArray, optionId]);

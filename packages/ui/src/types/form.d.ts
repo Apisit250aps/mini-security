@@ -17,6 +17,7 @@ export type CheckboxGroupProps<T extends FieldValues> = {
   control: Control<T>;
   name: Path<T>;
   label?: string;
+  disabled?: boolean;
   options: Option[];
   className?: string;
   containerClassName?: string;
