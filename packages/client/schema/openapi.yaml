@@ -5759,13 +5759,13 @@ components:
             - type: 'null'
         checkedInLatitude:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         checkedInLongitude:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         locationNameSnapshot:
           anyOf:
@@ -5773,18 +5773,18 @@ components:
             - type: 'null'
         locationLatitudeSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         locationLongitudeSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         radiusMetersSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
     BasicResponse:
       type: object
@@ -6036,13 +6036,13 @@ components:
             - type: 'null'
         checkedInLatitude:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         checkedInLongitude:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         locationNameSnapshot:
           anyOf:
@@ -6050,18 +6050,18 @@ components:
             - type: 'null'
         locationLatitudeSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         locationLongitudeSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         radiusMetersSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
       description: The template for omitting properties.
     CreateCheckInSchedule:
@@ -6186,39 +6186,69 @@ components:
       description: The template for omitting properties.
     CreateFormField:
       type: object
-      required:
-        - companyId
-        - formVersionId
-        - formSectionId
-        - type
-        - label
-        - isRequired
-        - sortOrder
-        - config
       properties:
-        companyId:
-          type: string
-        formVersionId:
-          type: string
-        formSectionId:
-          type: string
-        type:
-          $ref: '#/components/schemas/Domain.Entity.FormFieldType'
-        label:
-          type: string
-        description:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isRequired:
-          type: boolean
-        sortOrder:
-          type: integer
-          format: int32
-        config:
-          type: object
-          unevaluatedProperties: {}
-      description: The template for omitting properties.
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormFieldOptionInput'
+      allOf:
+        - type: object
+          required:
+            - companyId
+            - formVersionId
+            - formSectionId
+            - name
+            - type
+            - label
+            - isRequired
+            - sortOrder
+          properties:
+            companyId:
+              type: string
+            formVersionId:
+              type: string
+            formSectionId:
+              type: string
+            name:
+              type: string
+            type:
+              $ref: '#/components/schemas/Domain.Entity.FormFieldType'
+            label:
+              type: string
+            description:
+              anyOf:
+                - type: string
+                - type: 'null'
+            placeholder:
+              anyOf:
+                - type: string
+                - type: 'null'
+            isRequired:
+              type: boolean
+            min:
+              anyOf:
+                - type: number
+                  format: double
+                - type: 'null'
+            max:
+              anyOf:
+                - type: number
+                  format: double
+                - type: 'null'
+            minLength:
+              anyOf:
+                - type: integer
+                  format: int32
+                - type: 'null'
+            maxLength:
+              anyOf:
+                - type: integer
+                  format: int32
+                - type: 'null'
+            sortOrder:
+              type: integer
+              format: int32
+          description: The template for omitting properties.
     CreateFormPlanPeriod:
       type: object
       required:
@@ -6246,7 +6276,6 @@ components:
             - scheduleKind
             - scheduleConfig
             - timezone
-            - fixedVersionId
             - reviewMode
             - latePolicy
             - missedPolicy
@@ -6353,8 +6382,8 @@ components:
           type: integer
           format: int32
         totalDays:
-          type: number
-          format: double
+          type: integer
+          format: int32
       description: The template for omitting properties.
     CreateLeaveRequest:
       type: object
@@ -6374,6 +6403,8 @@ components:
           type: string
         endDate:
           type: string
+        unit:
+          $ref: '#/components/schemas/Domain.Entity.LeaveUnit'
         startTime:
           anyOf:
             - type: string
@@ -6387,8 +6418,6 @@ components:
             - type: integer
               format: int32
             - type: 'null'
-        unit:
-          $ref: '#/components/schemas/Domain.Entity.LeaveUnit'
         reason:
           type: string
         proofUrl:
@@ -6433,35 +6462,35 @@ components:
       required:
         - companyId
         - companyBranchId
+        - isPrimary
+        - isActive
         - name
         - address
         - latitude
         - longitude
         - radiusMeters
-        - isPrimary
-        - isActive
       properties:
         companyId:
           type: string
         companyBranchId:
           type: string
+        isPrimary:
+          type: boolean
+        isActive:
+          type: boolean
         name:
           type: string
         address:
           type: string
         latitude:
-          type: number
-          format: double
+          type: integer
+          format: int32
         longitude:
-          type: number
-          format: double
+          type: integer
+          format: int32
         radiusMeters:
-          type: number
-          format: double
-        isPrimary:
-          type: boolean
-        isActive:
-          type: boolean
+          type: integer
+          format: int32
       description: The template for omitting properties.
     CreatePermission:
       type: object
@@ -6612,21 +6641,18 @@ components:
       required:
         - id
         - createdAt
+        - updatedAt
         - companyId
         - occurrenceId
         - formVersionId
-        - roleId
-        - companyMemberId
-        - replacesAssignmentId
-        - assignedBy
-        - cancelledAt
-        - cancelledBy
-        - cancelReason
         - revision
       properties:
         id:
           type: string
         createdAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -6667,14 +6693,52 @@ components:
         revision:
           type: integer
           format: int32
+    Domain.Entity.FormFieldOption:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - formVersionId
+        - fieldId
+        - label
+        - value
+        - sortOrder
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        formVersionId:
+          type: string
+        fieldId:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+        sortOrder:
+          type: integer
+          format: int32
     Domain.Entity.FormFieldType:
       type: string
       enum:
         - TEXT
+        - TEXTAREA
         - NUMBER
         - SELECT
+        - RADIO
+        - CHECKBOX_GROUP
         - BOOLEAN
         - DATE
+        - EMAIL
         - IMAGE
         - FILE
     Domain.Entity.FormLatePolicy:
@@ -6692,22 +6756,22 @@ components:
       required:
         - id
         - createdAt
+        - updatedAt
         - companyId
         - planId
         - formTemplateId
         - formVersionId
-        - periodId
         - occurrenceKey
         - opensAt
         - dueAt
-        - cancelledAt
-        - cancelledBy
-        - cancelReason
         - revision
       properties:
         id:
           type: string
         createdAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -6754,19 +6818,14 @@ components:
         - updatedAt
         - companyId
         - formTemplateId
-        - supersedesPlanId
         - name
         - scheduleKind
         - scheduleConfig
         - timezone
-        - fixedVersionId
         - reviewMode
         - latePolicy
         - missedPolicy
-        - effectiveFrom
-        - effectiveUntil
         - createdBy
-        - closedBy
         - revision
       properties:
         id:
@@ -6830,6 +6889,7 @@ components:
       required:
         - id
         - createdAt
+        - updatedAt
         - companyId
         - planId
         - opensAt
@@ -6838,6 +6898,9 @@ components:
         id:
           type: string
         createdAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -6855,15 +6918,16 @@ components:
       required:
         - id
         - createdAt
+        - updatedAt
         - companyId
         - planId
-        - roleId
-        - companyMemberId
-        - roleDistribution
       properties:
         id:
           type: string
         createdAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -6894,19 +6958,19 @@ components:
       required:
         - id
         - createdAt
+        - updatedAt
         - companyId
         - submissionId
         - formVersionId
-        - answerId
-        - sectionId
         - action
-        - note
         - reviewedBy
-        - supersedesEntryId
       properties:
         id:
           type: string
         createdAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -7025,29 +7089,59 @@ components:
         - VIEWER
     EditFormField:
       type: object
-      required:
-        - formSectionId
-        - type
-        - label
-        - isRequired
-        - config
       properties:
-        formSectionId:
-          type: string
-        type:
-          $ref: '#/components/schemas/Domain.Entity.FormFieldType'
-        label:
-          type: string
-        description:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isRequired:
-          type: boolean
-        config:
-          type: object
-          unevaluatedProperties: {}
-      description: The template for picking properties.
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormFieldOptionInput'
+      allOf:
+        - type: object
+          required:
+            - formSectionId
+            - name
+            - type
+            - label
+            - isRequired
+          properties:
+            formSectionId:
+              type: string
+            name:
+              type: string
+            type:
+              $ref: '#/components/schemas/Domain.Entity.FormFieldType'
+            label:
+              type: string
+            description:
+              anyOf:
+                - type: string
+                - type: 'null'
+            placeholder:
+              anyOf:
+                - type: string
+                - type: 'null'
+            isRequired:
+              type: boolean
+            min:
+              anyOf:
+                - type: number
+                  format: double
+                - type: 'null'
+            max:
+              anyOf:
+                - type: number
+                  format: double
+                - type: 'null'
+            minLength:
+              anyOf:
+                - type: integer
+                  format: int32
+                - type: 'null'
+            maxLength:
+              anyOf:
+                - type: integer
+                  format: int32
+                - type: 'null'
+          description: The template for picking properties.
     Feature:
       type: object
       required:
@@ -7226,11 +7320,11 @@ components:
         - companyId
         - formVersionId
         - formSectionId
+        - name
         - type
         - label
         - isRequired
         - sortOrder
-        - config
       properties:
         id:
           type: string
@@ -7246,6 +7340,8 @@ components:
           type: string
         formSectionId:
           type: string
+        name:
+          type: string
         type:
           $ref: '#/components/schemas/Domain.Entity.FormFieldType'
         label:
@@ -7254,14 +7350,86 @@ components:
           anyOf:
             - type: string
             - type: 'null'
+        placeholder:
+          anyOf:
+            - type: string
+            - type: 'null'
         isRequired:
           type: boolean
+        min:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        max:
+          anyOf:
+            - type: number
+              format: double
+            - type: 'null'
+        minLength:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
+        maxLength:
+          anyOf:
+            - type: integer
+              format: int32
+            - type: 'null'
         sortOrder:
           type: integer
           format: int32
-        config:
-          type: object
-          unevaluatedProperties: {}
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Domain.Entity.FormFieldOption'
+    FormFieldOption:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - companyId
+        - formVersionId
+        - fieldId
+        - label
+        - value
+        - sortOrder
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        companyId:
+          type: string
+        formVersionId:
+          type: string
+        fieldId:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+        sortOrder:
+          type: integer
+          format: int32
+    FormFieldOptionInput:
+      type: object
+      required:
+        - label
+        - value
+      properties:
+        label:
+          type: string
+        value:
+          type: string
+        sortOrder:
+          type: integer
+          format: int32
     FormPlanDetail:
       type: object
       required:
@@ -7372,6 +7540,7 @@ components:
       required:
         - id
         - createdAt
+        - updatedAt
         - companyId
         - submissionId
         - memberId
@@ -7379,6 +7548,9 @@ components:
         id:
           type: string
         createdAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
         companyId:
@@ -7631,8 +7803,8 @@ components:
           type: integer
           format: int32
         totalDays:
-          type: number
-          format: double
+          type: integer
+          format: int32
     LeaveRequest:
       type: object
       required:
@@ -7663,6 +7835,8 @@ components:
           type: string
         endDate:
           type: string
+        unit:
+          $ref: '#/components/schemas/Domain.Entity.LeaveUnit'
         startTime:
           anyOf:
             - type: string
@@ -7676,8 +7850,6 @@ components:
             - type: integer
               format: int32
             - type: 'null'
-        unit:
-          $ref: '#/components/schemas/Domain.Entity.LeaveUnit'
         reason:
           type: string
         proofUrl:
@@ -7749,13 +7921,13 @@ components:
         - updatedAt
         - companyId
         - companyBranchId
+        - isPrimary
+        - isActive
         - name
         - address
         - latitude
         - longitude
         - radiusMeters
-        - isPrimary
-        - isActive
       properties:
         id:
           type: string
@@ -7769,23 +7941,23 @@ components:
           type: string
         companyBranchId:
           type: string
+        isPrimary:
+          type: boolean
+        isActive:
+          type: boolean
         name:
           type: string
         address:
           type: string
         latitude:
-          type: number
-          format: double
+          type: integer
+          format: int32
         longitude:
-          type: number
-          format: double
+          type: integer
+          format: int32
         radiusMeters:
-          type: number
-          format: double
-        isPrimary:
-          type: boolean
-        isActive:
-          type: boolean
+          type: integer
+          format: int32
     OccurrenceAssignmentItem:
       type: object
       required:
@@ -8203,13 +8375,13 @@ components:
             - type: 'null'
         checkedInLatitude:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         checkedInLongitude:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         locationNameSnapshot:
           anyOf:
@@ -8217,18 +8389,18 @@ components:
             - type: 'null'
         locationLatitudeSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         locationLongitudeSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
         radiusMetersSnapshot:
           anyOf:
-            - type: number
-              format: double
+            - type: integer
+              format: int32
             - type: 'null'
       description: The template for adding optional properties.
     UpdateCheckInSchedule:
@@ -8370,8 +8542,8 @@ components:
           type: integer
           format: int32
         totalDays:
-          type: number
-          format: double
+          type: integer
+          format: int32
       description: The template for adding optional properties.
     UpdateLeaveType:
       type: object
@@ -8401,23 +8573,23 @@ components:
     UpdateLocation:
       type: object
       properties:
+        isPrimary:
+          type: boolean
+        isActive:
+          type: boolean
         name:
           type: string
         address:
           type: string
         latitude:
-          type: number
-          format: double
+          type: integer
+          format: int32
         longitude:
-          type: number
-          format: double
+          type: integer
+          format: int32
         radiusMeters:
-          type: number
-          format: double
-        isPrimary:
-          type: boolean
-        isActive:
-          type: boolean
+          type: integer
+          format: int32
       description: The template for adding optional properties.
     UpdatePermission:
       type: object

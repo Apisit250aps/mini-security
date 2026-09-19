@@ -3,11 +3,16 @@ namespace MiniSecurity;
 // ─── FormTemplate ─────────────────────────────────────────────────────────────
 model FormTemplate is Domain.Entity.FormTemplate;
 
-model CreateFormTemplate
-  is OmitProperties<FormTemplate, "id" | "createdAt" | "updatedAt">;
+model CreateFormTemplate is OmitProperties<
+  FormTemplate,
+  "id" | "createdAt" | "updatedAt"
+>;
 
 model UpdateFormTemplate
-  is OptionalProperties<OmitProperties<FormTemplate, "id" | "createdAt" | "updatedAt">>;
+  is OptionalProperties<OmitProperties<
+    FormTemplate,
+    "id" | "createdAt" | "updatedAt"
+  >>;
 
 // ─── FormVersion ──────────────────────────────────────────────────────────────
 model FormVersion is Domain.Entity.FormVersion;
@@ -19,14 +24,28 @@ model PublishFormVersionRequest {
 // ─── FormSection ──────────────────────────────────────────────────────────────
 model FormSection is Domain.Entity.FormSection;
 
-model CreateFormSection
-  is OmitProperties<FormSection, "id" | "createdAt" | "updatedAt">;
+model CreateFormSection is OmitProperties<
+  FormSection,
+  "id" | "createdAt" | "updatedAt"
+>;
 
 // ─── FormField ────────────────────────────────────────────────────────────────
 model FormField is Domain.Entity.FormField;
 
-model CreateFormField
-  is OmitProperties<FormField, "id" | "createdAt" | "updatedAt">;
+model FormFieldOption is Domain.Entity.FormFieldOption;
+
+model FormFieldOptionInput {
+  label: string;
+  value: string;
+  sortOrder?: int32;
+}
+
+model CreateFormField extends OmitProperties<
+  FormField,
+  "id" | "createdAt" | "updatedAt" | "options"
+> {
+  options?: FormFieldOptionInput[];
+}
 
 // ─── FormAnswer & Attachment ──────────────────────────────────────────────────
 model FormAnswer is Domain.Entity.FormAnswer;
@@ -57,14 +76,36 @@ model SubmitFormSubmissionRequest {
 // ─── Form Plans & Occurrences ──────────────────────────────────────────────────
 
 model CreateFormPlanRequest {
-  data: PickProperties<Domain.Entity.FormPlan, "companyId" | "formTemplateId" | "name" | "scheduleKind" | "scheduleConfig" | "timezone" | "fixedVersionId" | "reviewMode" | "latePolicy" | "missedPolicy">;
+  data: PickProperties<
+    Domain.Entity.FormPlan,
+    | "companyId"
+    | "formTemplateId"
+    | "name"
+    | "scheduleKind"
+    | "scheduleConfig"
+    | "timezone"
+    | "fixedVersionId"
+    | "reviewMode"
+    | "latePolicy"
+    | "missedPolicy"
+  >;
   targets: CreateFormPlanTarget[];
   periods?: CreateFormPlanPeriod[];
 }
 
 model UpdateFormPlanRequest {
   expectedRevision: int32;
-  data: OptionalProperties<PickProperties<Domain.Entity.FormPlan, "name" | "scheduleKind" | "scheduleConfig" | "timezone" | "fixedVersionId" | "reviewMode" | "latePolicy" | "missedPolicy">>;
+  data: OptionalProperties<PickProperties<
+    Domain.Entity.FormPlan,
+    | "name"
+    | "scheduleKind"
+    | "scheduleConfig"
+    | "timezone"
+    | "fixedVersionId"
+    | "reviewMode"
+    | "latePolicy"
+    | "missedPolicy"
+  >>;
   targets?: CreateFormPlanTarget[];
   periods?: CreateFormPlanPeriod[];
 }
@@ -151,16 +192,33 @@ model FormSubmissionDetail {
 
 model ReorderFormItemsRequest {
   formVersionId: string;
+
   @minItems(1)
   items: FormReorderItem[];
 }
 model FormReorderItem {
   id: string;
+
   @minValue(0)
   sortOrder: int32;
 }
 
-model EditFormField is PickProperties<FormField, "formSectionId" | "type" | "label" | "description" | "isRequired" | "config">;
+model EditFormField extends PickProperties<
+  FormField,
+  | "formSectionId"
+  | "name"
+  | "type"
+  | "label"
+  | "description"
+  | "placeholder"
+  | "isRequired"
+  | "min"
+  | "max"
+  | "minLength"
+  | "maxLength"
+> {
+  options?: FormFieldOptionInput[];
+}
 
 enum FormTaskWorkflowStatus {
   NOT_STARTED: "NOT_STARTED",

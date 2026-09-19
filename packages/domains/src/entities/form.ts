@@ -3,6 +3,7 @@ import type {
   FormAnswerEntity,
   FormAssignmentEntity,
   FormFieldEntity,
+  FormFieldOptionEntity,
   FormFieldType,
   FormOccurrenceEntity,
   FormPlanEntity,
@@ -99,25 +100,60 @@ export class FormField implements FormFieldEntity {
   companyId: string;
   formVersionId: string;
   formSectionId: string;
+  name: string;
   type: FormFieldType;
   label: string;
   description?: string | null;
+  placeholder?: string | null;
   isRequired: boolean;
+  min?: number | null;
+  max?: number | null;
+  minLength?: number | null;
+  maxLength?: number | null;
   sortOrder: number;
-  config: Record<string, unknown>;
+  options?: FormFieldOptionEntity[];
   createdAt: Date;
   updatedAt: Date;
-  constructor(data: FormFieldEntity) {
+  constructor(data: FormFieldEntity & { options?: FormFieldOptionEntity[] }) {
     this.id = data.id;
     this.companyId = data.companyId;
     this.formVersionId = data.formVersionId;
     this.formSectionId = data.formSectionId;
+    this.name = data.name;
     this.type = data.type;
     this.label = data.label;
     this.description = data.description;
+    this.placeholder = data.placeholder;
     this.isRequired = data.isRequired;
+    this.min = data.min;
+    this.max = data.max;
+    this.minLength = data.minLength;
+    this.maxLength = data.maxLength;
     this.sortOrder = data.sortOrder;
-    this.config = data.config ?? {};
+    this.options = data.options;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
+  }
+}
+
+export class FormFieldOption implements FormFieldOptionEntity {
+  id: string;
+  companyId: string;
+  formVersionId: string;
+  fieldId: string;
+  label: string;
+  value: string;
+  sortOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+  constructor(data: FormFieldOptionEntity) {
+    this.id = data.id;
+    this.companyId = data.companyId;
+    this.formVersionId = data.formVersionId;
+    this.fieldId = data.fieldId;
+    this.label = data.label;
+    this.value = data.value;
+    this.sortOrder = data.sortOrder;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }

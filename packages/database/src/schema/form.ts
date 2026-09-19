@@ -3,6 +3,7 @@ import {
   bigint,
   boolean,
   check,
+  doublePrecision,
   foreignKey,
   index,
   integer,
@@ -32,10 +33,14 @@ export const formVersionStatusEnum = pgEnum('form_version_status', [
 ]);
 export const formFieldTypeEnum = pgEnum('form_field_type', [
   'TEXT',
+  'TEXTAREA',
   'NUMBER',
   'SELECT',
+  'RADIO',
+  'CHECKBOX_GROUP',
   'BOOLEAN',
   'DATE',
+  'EMAIL',
   'IMAGE',
   'FILE',
 ]);
@@ -199,15 +204,17 @@ export const formField = pgTable(
       .references(() => company.id, { onDelete: 'restrict' }),
     formVersionId: uuid('form_version_id').notNull(),
     formSectionId: uuid('form_section_id').notNull(),
+    name: text('name').notNull().default(''),
     type: formFieldTypeEnum('type').notNull(),
     label: text('label').notNull(),
     description: text('description'),
+    placeholder: text('placeholder'),
     isRequired: boolean('is_required').default(false).notNull(),
+    min: doublePrecision('min'),
+    max: doublePrecision('max'),
+    minLength: integer('min_length'),
+    maxLength: integer('max_length'),
     sortOrder: integer('sort_order').default(0).notNull(),
-    config: jsonb('config')
-      .$type<Record<string, unknown>>()
-      .default({})
-      .notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
     deletedAt: deletedAtTimestamp('deleted_at'),
@@ -232,7 +239,47 @@ export const formField = pgTable(
         formSection.formVersionId,
       ],
       name: 'form_field_form_section_fk',
-    }).onDelete('restrict'),
+    }).onDelete('cascade'),
+  ],
+);
+
+export const formFieldOption = pgTable(
+  'form_field_option',
+  {
+    id: primaryKeyUuid7('id'),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => company.id, { onDelete: 'restrict' }),
+    formVersionId: uuid('form_version_id').notNull(),
+    fieldId: uuid('field_id').notNull(),
+    label: text('label').notNull(),
+    value: text('value').notNull(),
+    sortOrder: integer('sort_order').default(0).notNull(),
+    createdAt: createdAtTimestamp('created_at'),
+    updatedAt: updatedAtTimestamp('updated_at'),
+    deletedAt: deletedAtTimestamp('deleted_at'),
+  },
+  (table) => [
+    unique('form_field_option_id_company_version_unique').on(
+      table.id,
+      table.companyId,
+      table.formVersionId,
+    ),
+    index('form_field_option_field_sort_idx').on(
+      table.fieldId,
+      table.sortOrder,
+    ),
+    index('form_field_option_deleted_at_idx').on(table.deletedAt),
+    check('form_field_option_sort_order_check', sql`sort_order >= 0`),
+    foreignKey({
+      columns: [table.fieldId, table.companyId, table.formVersionId],
+      foreignColumns: [
+        formField.id,
+        formField.companyId,
+        formField.formVersionId,
+      ],
+      name: 'form_field_option_form_field_fk',
+    }).onDelete('cascade'),
   ],
 );
 

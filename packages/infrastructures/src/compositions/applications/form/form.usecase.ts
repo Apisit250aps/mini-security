@@ -50,6 +50,7 @@ import {
   formVersionRepository,
   formSectionRepository,
   formFieldRepository,
+  formFieldOptionRepository,
   formPlanRepository,
   formPlanTargetRepository,
   formPlanPeriodRepository,
@@ -98,6 +99,7 @@ export const createFormFieldUseCase = new CreateFormFieldUseCase(
   unitOfWork,
   formVersionRepository,
   formFieldRepository,
+  formFieldOptionRepository,
 );
 
 export const publishFormVersionUseCase = new PublishFormVersionUseCase(
@@ -125,6 +127,7 @@ export const editFormFieldUseCase = new EditFormFieldUseCase(
   formVersionRepository,
   formFieldRepository,
   formSectionRepository,
+  formFieldOptionRepository,
 );
 
 export const deleteFormFieldUseCase = new DeleteFormFieldUseCase(

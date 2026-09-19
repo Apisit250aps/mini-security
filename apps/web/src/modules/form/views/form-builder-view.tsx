@@ -579,17 +579,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
                                     }}
                                   >
                                     {sectionFields.map((field, fIdx) => {
-                                      const selectConfig = field.config as {
-                                        options?: Array<{
-                                          label: string;
-                                          value: string;
-                                        }>;
-                                      };
-                                      const options = Array.isArray(
-                                        selectConfig?.options,
-                                      )
-                                        ? selectConfig.options
-                                        : [];
+                                      const options = field.options || [];
 
                                       return (
                                         <FormBuilderSortableItem

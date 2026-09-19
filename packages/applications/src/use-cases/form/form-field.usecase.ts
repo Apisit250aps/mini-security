@@ -6,8 +6,10 @@ import type {
   IEditFormFieldContext,
   IEditFormFieldUseCase,
 } from '@repo/domains/applications/form';
+import { FormField, type FormFieldOption } from '@repo/domains/entities/form';
 import type {
   IFormFieldRepository,
+  IFormFieldOptionRepository,
   IFormVersionRepository,
   IFormSectionRepository,
 } from '@repo/domains/repositories/form';
@@ -36,18 +38,18 @@ export class EditFormFieldUseCase implements IEditFormFieldUseCase {
     private readonly versionRepo: IFormVersionRepository,
     private readonly fieldRepo: IFormFieldRepository,
     private readonly sectionRepo: IFormSectionRepository,
+    private readonly optionRepo?: IFormFieldOptionRepository,
   ) {}
 
   @RequirePermission('form_template:update')
-  async execute(ctx: IEditFormFieldContext) {
+  async execute(ctx: IEditFormFieldContext): Promise<FormField> {
     const parsed = await editFormFieldSchema.safeParseAsync(ctx.data);
     if (!parsed.success)
       throw new ValidationError('Invalid form field', parsed.error);
     return this.unitOfWork.transaction(async () => {
       const field = await loadDraftField(ctx, this.fieldRepo, this.versionRepo);
-      const section = await this.sectionRepo.findById(
-        parsed.data.formSectionId,
-      );
+      const targetSectionId = parsed.data.formSectionId ?? field.formSectionId;
+      const section = await this.sectionRepo.findById(targetSectionId);
       if (
         !section ||
         section.formVersionId !== field.formVersionId ||
@@ -58,7 +60,7 @@ export class EditFormFieldUseCase implements IEditFormFieldUseCase {
         );
       await validateFormFieldConfig(parsed.data);
       let sortOrder = field.sortOrder;
-      if (field.formSectionId !== section.id) {
+      if (field.formSectionId !== targetSectionId) {
         const fields = await this.fieldRepo.findByVersionId(
           field.formVersionId,
         );
@@ -73,14 +75,39 @@ export class EditFormFieldUseCase implements IEditFormFieldUseCase {
           remaining.map((item, index) => ({ id: item.id, sortOrder: index })),
         );
         const destination = fields
-          .filter((item) => item.formSectionId === section.id)
+          .filter((item) => item.formSectionId === targetSectionId)
           .sort((a, b) => a.sortOrder - b.sortOrder);
         await this.fieldRepo.reorderItems(
           destination.map((item, index) => ({ id: item.id, sortOrder: index })),
         );
         sortOrder = destination.length;
       }
-      return this.fieldRepo.update(field.id, { ...parsed.data, sortOrder });
+
+      const { options, ...fieldUpdates } = parsed.data;
+      const updated = await this.fieldRepo.update(field.id, {
+        ...fieldUpdates,
+        formSectionId: targetSectionId,
+        sortOrder,
+      });
+
+      let savedOptions: FormFieldOption[] = [];
+      if (this.optionRepo) {
+        if (options !== undefined) {
+          savedOptions = await this.optionRepo.replaceOptions(
+            field.id,
+            field.companyId,
+            field.formVersionId,
+            options,
+          );
+        } else {
+          savedOptions = await this.optionRepo.findByFieldId(field.id);
+        }
+      }
+
+      return new FormField({
+        ...updated,
+        options: savedOptions,
+      });
     });
   }
 }

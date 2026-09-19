@@ -21,22 +21,31 @@ import type { FormField, FormSection } from '@repo/domains/entities';
 
 const FIELD_TYPE_OPTIONS = [
   { value: 'TEXT', label: 'ข้อความสั้น / ยาว (Text)' },
+  { value: 'TEXTAREA', label: 'ข้อความหลายบรรทัด (Textarea)' },
   { value: 'NUMBER', label: 'ตัวเลข (Number)' },
   { value: 'SELECT', label: 'ตัวเลือก (Select / Dropdown)' },
+  { value: 'RADIO', label: 'ตัวเลือกเดียว (Radio)' },
+  { value: 'CHECKBOX_GROUP', label: 'หลายตัวเลือก (Checkbox)' },
   { value: 'BOOLEAN', label: 'ใช่ / ไม่ใช่ (Yes / No)' },
   { value: 'DATE', label: 'วันที่ (Date)' },
+  { value: 'EMAIL', label: 'อีเมล (Email)' },
   { value: 'IMAGE', label: 'รูปถ่าย (Image / Photo)' },
   { value: 'FILE', label: 'ไฟล์เอกสารแนบ (File / Document)' },
 ];
 
 const formFieldSchema = z.object({
   formSectionId: z.string().min(1, 'กรุณาเลือกหมวดหมู่คำถาม'),
+  name: z.string().min(1).max(100),
   type: z.enum([
     'TEXT',
+    'TEXTAREA',
     'NUMBER',
     'SELECT',
+    'RADIO',
+    'CHECKBOX_GROUP',
     'BOOLEAN',
     'DATE',
+    'EMAIL',
     'IMAGE',
     'FILE',
   ]),
@@ -45,6 +54,11 @@ const formFieldSchema = z.object({
     .min(1, 'กรุณาระบุคำถามหรือชื่อฟิลด์')
     .max(255, 'คำถามยาวได้ไม่เกิน 255 ตัวอักษร'),
   description: z.string().max(1000).optional(),
+  placeholder: z.string().max(255).optional(),
+  min: z.coerce.number().optional(),
+  max: z.coerce.number().optional(),
+  minLength: z.coerce.number().int().nonnegative().optional(),
+  maxLength: z.coerce.number().int().nonnegative().optional(),
   isRequired: z.boolean().default(false),
   selectOptions: z.string().optional(),
 });
@@ -75,10 +89,7 @@ export default function FormTemplateFieldDialog({
   const createFieldMutation = useFormFieldCreate(templateId);
 
   const editFieldMutation = useFormFieldEdit(templateId);
-  const existingOptions = z
-    .array(z.object({ label: z.string(), value: z.string() }))
-    .safeParse(field?.config?.options);
-  const originalOptions = existingOptions.success ? existingOptions.data : [];
+  const originalOptions = field?.options || [];
 
   const sectionOptions = sections.map((s) => ({
     value: s.id,
@@ -91,8 +102,14 @@ export default function FormTemplateFieldDialog({
       formSectionId:
         field?.formSectionId || defaultSectionId || sections[0]?.id || '',
       type: field?.type || 'TEXT',
+      name: field?.name || '',
       label: field?.label || '',
       description: field?.description || '',
+      placeholder: field?.placeholder || '',
+      min: field?.min ?? undefined,
+      max: field?.max ?? undefined,
+      minLength: field?.minLength ?? undefined,
+      maxLength: field?.maxLength ?? undefined,
       isRequired: field?.isRequired ?? false,
       selectOptions: originalOptions.map((option) => option.label).join('\n'),
     },
@@ -106,10 +123,12 @@ export default function FormTemplateFieldDialog({
 
   const handleSubmit = useCallback(
     (values: FormFieldValues) => {
-      let config: Record<string, unknown> =
-        field?.type === values.type ? { ...field.config } : {};
-      if (values.type === 'SELECT' && values.selectOptions) {
-        const parsedOptions = values.selectOptions
+      let options: Array<{ label: string; value: string }> = [];
+      if (
+        ['SELECT', 'RADIO', 'CHECKBOX_GROUP'].includes(values.type) &&
+        values.selectOptions
+      ) {
+        options = values.selectOptions
           .split('\n')
           .map((item) => item.trim())
           .filter(Boolean)
@@ -119,7 +138,6 @@ export default function FormTemplateFieldDialog({
               originalOptions.find((option) => option.label === item)?.value ??
               item,
           }));
-        config = { ...config, options: parsedOptions };
       }
 
       // Auto-compute sortOrder as next index in chosen section
@@ -127,7 +145,10 @@ export default function FormTemplateFieldDialog({
         (f) => f.formSectionId === values.formSectionId,
       ).length;
 
-      if (values.type === 'SELECT' && !values.selectOptions?.trim()) {
+      if (
+        ['SELECT', 'RADIO', 'CHECKBOX_GROUP'].includes(values.type) &&
+        !values.selectOptions?.trim()
+      ) {
         methods.setError('selectOptions', {
           message: 'กรุณาระบุตัวเลือกอย่างน้อย 1 รายการ',
         });
@@ -139,11 +160,17 @@ export default function FormTemplateFieldDialog({
             fieldId: field.id,
             data: {
               formSectionId: values.formSectionId,
+              name: values.name,
               type: values.type,
               label: values.label,
               description: values.description || null,
+              placeholder: values.placeholder || null,
               isRequired: values.isRequired,
-              config,
+              min: values.min ?? null,
+              max: values.max ?? null,
+              minLength: values.minLength ?? null,
+              maxLength: values.maxLength ?? null,
+              options,
             },
           },
           { onSuccess: onClose },
@@ -155,12 +182,18 @@ export default function FormTemplateFieldDialog({
           companyId,
           formVersionId,
           formSectionId: values.formSectionId,
+          name: values.name,
           type: values.type,
           label: values.label,
           description: values.description || null,
+          placeholder: values.placeholder || null,
           isRequired: values.isRequired,
           sortOrder: sectionFieldCount,
-          config,
+          min: values.min ?? null,
+          max: values.max ?? null,
+          minLength: values.minLength ?? null,
+          maxLength: values.maxLength ?? null,
+          options,
         },
         {
           onSuccess: () => {
@@ -207,12 +240,45 @@ export default function FormTemplateFieldDialog({
         />
 
         <InputField
+          name="name"
+          label="ชื่อฟิลด์ (Field name)"
+          placeholder="เช่น role หรือ inspection_note"
+          control={methods.control}
+          required
+        />
+
+        <InputField
           name="label"
           label="ข้อความคำถาม / ป้ายกำกับ (Label)"
           placeholder="เช่น ประตูปิดล็อคเรียบร้อยหรือไม่?, ถ่ายรูปบริเวณจุดตรวจ"
           control={methods.control}
           required
         />
+
+        <InputField
+          name="placeholder"
+          label="ข้อความตัวอย่าง (Placeholder)"
+          placeholder="เช่น เลือกบทบาท หรือกรอกคำตอบ"
+          control={methods.control}
+        />
+
+        {(selectedType === 'NUMBER' ||
+          selectedType === 'TEXT' ||
+          selectedType === 'TEXTAREA' ||
+          selectedType === 'EMAIL') && (
+          <div className="grid grid-cols-2 gap-3">
+            <InputField
+              name="min"
+              label="ค่าต่ำสุด / ความยาวขั้นต่ำ"
+              control={methods.control}
+            />
+            <InputField
+              name="max"
+              label="ค่าสูงสุด / ความยาวสูงสุด"
+              control={methods.control}
+            />
+          </div>
+        )}
 
         <TextareaField
           name="description"
@@ -222,7 +288,7 @@ export default function FormTemplateFieldDialog({
           rows={2}
         />
 
-        {selectedType === 'SELECT' && (
+        {['SELECT', 'RADIO', 'CHECKBOX_GROUP'].includes(selectedType) && (
           <TextareaField
             name="selectOptions"
             label="ตัวเลือก (ใส่บรรทัดละ 1 ตัวเลือก)"

@@ -16,6 +16,7 @@ import {
   formAnswer,
   formAnswerAttachment,
   formField,
+  formFieldOption,
   formSection,
   formSubmission,
   formSubmissionContributor,
@@ -32,6 +33,7 @@ import {
   FormAnswer,
   FormAnswerAttachment,
   FormField,
+  FormFieldOption,
   FormSection,
   FormSubmission,
   FormSubmissionContributor,
@@ -48,6 +50,7 @@ import type {
   IFormAnswerAttachmentRepository,
   IFormAnswerRepository,
   IFormFieldRepository,
+  IFormFieldOptionRepository,
   IFormSectionRepository,
   IFormSubmissionContributorRepository,
   IFormSubmissionRepository,
@@ -64,6 +67,7 @@ import type {
   CreateFormAnswer,
   CreateFormAnswerAttachment,
   CreateFormField,
+  CreateFormFieldOption,
   CreateFormSection,
   CreateFormSubmission,
   CreateFormSubmissionContributor,
@@ -71,6 +75,7 @@ import type {
   CreateFormVersion,
   UpdateFormAnswer,
   UpdateFormField,
+  UpdateFormFieldOption,
   UpdateFormSection,
   UpdateFormSubmission,
   UpdateFormTemplate,
@@ -259,6 +264,37 @@ export class FormFieldRepository
     return results.map((r) => new FormField(r as unknown as FormField));
   }
 
+  async findByVersionIdWithOptions(versionId: string): Promise<FormField[]> {
+    const fields = await this.db
+      .select()
+      .from(formField)
+      .where(eq(formField.formVersionId, versionId))
+      .orderBy(asc(formField.sortOrder), asc(formField.createdAt));
+
+    if (fields.length === 0) return [];
+
+    const options = await this.db
+      .select()
+      .from(formFieldOption)
+      .where(eq(formFieldOption.formVersionId, versionId))
+      .orderBy(asc(formFieldOption.sortOrder), asc(formFieldOption.createdAt));
+
+    const optionsByFieldId = new Map<string, FormFieldOption[]>();
+    for (const opt of options) {
+      const list = optionsByFieldId.get(opt.fieldId) || [];
+      list.push(new FormFieldOption(opt as unknown as FormFieldOption));
+      optionsByFieldId.set(opt.fieldId, list);
+    }
+
+    return fields.map((f) => {
+      const opts = optionsByFieldId.get(f.id) || [];
+      return new FormField({
+        ...(f as unknown as FormField),
+        options: opts,
+      });
+    });
+  }
+
   async findBySectionId(sectionId: string): Promise<FormField[]> {
     const results = await this.db
       .select()
@@ -285,6 +321,77 @@ export class FormFieldRepository
           .where(eq(formField.id, id)),
       ),
     );
+  }
+}
+
+// ==========================================
+// 4.1 Form Field Option Repository
+// ==========================================
+
+export class FormFieldOptionRepository
+  extends Repository<
+    FormFieldOption,
+    CreateFormFieldOption,
+    UpdateFormFieldOption
+  >
+  implements IFormFieldOptionRepository
+{
+  constructor(db: Database) {
+    super(db, formFieldOption);
+  }
+
+  async findByFieldId(fieldId: string): Promise<FormFieldOption[]> {
+    const results = await this.db
+      .select()
+      .from(formFieldOption)
+      .where(eq(formFieldOption.fieldId, fieldId))
+      .orderBy(asc(formFieldOption.sortOrder), asc(formFieldOption.createdAt));
+    return results.map(
+      (r) => new FormFieldOption(r as unknown as FormFieldOption),
+    );
+  }
+
+  async findByVersionId(versionId: string): Promise<FormFieldOption[]> {
+    const results = await this.db
+      .select()
+      .from(formFieldOption)
+      .where(eq(formFieldOption.formVersionId, versionId))
+      .orderBy(asc(formFieldOption.sortOrder), asc(formFieldOption.createdAt));
+    return results.map(
+      (r) => new FormFieldOption(r as unknown as FormFieldOption),
+    );
+  }
+
+  async deleteByFieldId(fieldId: string): Promise<void> {
+    await this.db
+      .delete(formFieldOption)
+      .where(eq(formFieldOption.fieldId, fieldId));
+  }
+
+  async replaceOptions(
+    fieldId: string,
+    companyId: string,
+    formVersionId: string,
+    options: Array<{ label: string; value: string; sortOrder?: number }>,
+  ): Promise<FormFieldOption[]> {
+    await this.deleteByFieldId(fieldId);
+    if (options.length === 0) return [];
+
+    const created: FormFieldOption[] = [];
+    for (let i = 0; i < options.length; i++) {
+      const opt = options[i];
+      if (!opt) continue;
+      const res = await this.create({
+        companyId,
+        formVersionId,
+        fieldId,
+        label: opt.label,
+        value: opt.value,
+        sortOrder: opt.sortOrder ?? i,
+      });
+      created.push(res);
+    }
+    return created;
   }
 }
 

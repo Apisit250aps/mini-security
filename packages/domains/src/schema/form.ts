@@ -23,10 +23,14 @@ export type FormVersionStatus = (typeof FormVersionStatusValues)[number];
 
 export const FormFieldTypeValues = [
   'TEXT',
+  'TEXTAREA',
   'NUMBER',
   'SELECT',
+  'RADIO',
+  'CHECKBOX_GROUP',
   'BOOLEAN',
   'DATE',
+  'EMAIL',
   'IMAGE',
   'FILE',
 ] as const;
@@ -130,31 +134,68 @@ export type FormSectionEntity = z.infer<typeof formSectionSchema>;
 export type CreateFormSection = z.infer<typeof createFormSectionSchema>;
 export type UpdateFormSection = z.infer<typeof updateFormSectionSchema>;
 
-// ==========================================
-// 4. Form Field Schema
-// ==========================================
 export const formFieldSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   formSectionId: UUIDField({ required: true }),
+  name: StringField({ required: true, max: 100 }),
   type: EnumField(FormFieldTypeValues, { required: true }),
   label: StringField({ required: true, max: 255 }),
   description: StringField({ required: false, nullable: true, max: 1000 }),
+  placeholder: StringField({ required: false, nullable: true, max: 255 }),
   isRequired: BooleanField({ default: () => false }),
+  min: NumberField({ required: false, nullable: true }),
+  max: NumberField({ required: false, nullable: true }),
+  minLength: NumberField({ required: false, nullable: true }),
+  maxLength: NumberField({ required: false, nullable: true }),
   sortOrder: NumberField({ default: () => 0 }),
-  config: z.record(z.string(), z.unknown()).default({}),
 });
-export const createFormFieldSchema = formFieldSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createFormFieldSchema = formFieldSchema
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    options: z
+      .array(
+        z.object({
+          label: z.string().trim().min(1),
+          value: z.string().trim().min(1),
+          sortOrder: z.number().int().min(0).optional(),
+        }),
+      )
+      .optional(),
+  });
 export const updateFormFieldSchema = formFieldSchema
   .partial()
   .omit({ id: true, createdAt: true, updatedAt: true });
 export type FormFieldEntity = z.infer<typeof formFieldSchema>;
 export type CreateFormField = z.infer<typeof createFormFieldSchema>;
 export type UpdateFormField = z.infer<typeof updateFormFieldSchema>;
+
+// ==========================================
+// 4.1 Form Field Option Schema
+// ==========================================
+export const formFieldOptionSchema = BaseEntity({
+  companyId: UUIDField({ required: true }),
+  formVersionId: UUIDField({ required: true }),
+  fieldId: UUIDField({ required: true }),
+  label: StringField({ required: true, max: 255 }),
+  value: StringField({ required: true, max: 255 }),
+  sortOrder: NumberField({ default: () => 0 }),
+});
+export const createFormFieldOptionSchema = formFieldOptionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const updateFormFieldOptionSchema = formFieldOptionSchema
+  .partial()
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type FormFieldOptionEntity = z.infer<typeof formFieldOptionSchema>;
+export type CreateFormFieldOption = z.infer<typeof createFormFieldOptionSchema>;
+export type UpdateFormFieldOption = z.infer<typeof updateFormFieldOptionSchema>;
+
+export type FormFieldWithOptions = FormFieldEntity & {
+  options?: FormFieldOptionEntity[];
+};
 
 // ==========================================
 // 5. Form Plan Schema
@@ -511,56 +552,168 @@ export const reorderFormItemsSchema = z.object({
 });
 export type ReorderFormItems = z.infer<typeof reorderFormItemsSchema>;
 
-export const editFormFieldSchema = formFieldSchema
-  .pick({
-    formSectionId: true,
-    type: true,
-    label: true,
-    description: true,
-    isRequired: true,
-    config: true,
+export const editFormFieldSchema = z
+  .object({
+    formSectionId: z.string().uuid().optional(),
+    name: z.string().max(100).optional(),
+    type: z.enum(FormFieldTypeValues),
+    label: z.string().min(1).max(255),
+    description: z.string().nullish(),
+    placeholder: z.string().nullish(),
+    isRequired: z.boolean().default(false),
+    min: z.number().nullish(),
+    max: z.number().nullish(),
+    minLength: z.number().int().nullish(),
+    maxLength: z.number().int().nullish(),
+    options: z
+      .array(
+        z.object({
+          id: z.string().uuid().optional(),
+          label: z.string().trim().min(1),
+          value: z.string().trim().min(1),
+          sortOrder: z.number().int().optional(),
+        }),
+      )
+      .optional(),
   })
   .strict();
 export type EditFormField = z.infer<typeof editFormFieldSchema>;
 
-/** SELECT options belong to the immutable form version. */
-export const formSelectConfigSchema = z.object({
-  options: z
-    .array(
-      z.object({ value: z.string().min(1), label: z.string().trim().min(1) }),
-    )
-    .min(1)
-    .refine(
-      (options) =>
-        new Set(options.map((option) => option.value)).size === options.length,
-      'Option values must be unique',
-    ),
-});
-
-export function formAnswerValueSchema(
-  field: Pick<FormFieldEntity, 'type' | 'config'>,
+export function buildDynamicFormFieldValidation(
+  field: Pick<
+    FormFieldEntity,
+    'type' | 'label' | 'isRequired' | 'min' | 'max' | 'minLength' | 'maxLength'
+  > & {
+    options?: Array<{ label: string; value: string }>;
+  },
 ) {
+  let schema: z.ZodTypeAny;
+
   switch (field.type) {
     case 'TEXT':
-      return z.string();
-    case 'NUMBER':
-      return z.number().finite();
-    case 'BOOLEAN':
-      return z.boolean();
-    case 'DATE':
-      return z.iso.date();
+    case 'TEXTAREA': {
+      let str = z.string();
+      if (field.minLength != null) str = str.min(field.minLength);
+      if (field.maxLength != null) str = str.max(field.maxLength);
+      if (field.isRequired) {
+        schema = str.min(1, `${field.label} is required`);
+      } else {
+        schema = str.optional().nullable().or(z.literal(''));
+      }
+      break;
+    }
+    case 'EMAIL': {
+      const email = z.string().email('Invalid email address');
+      if (field.isRequired) {
+        schema = email;
+      } else {
+        schema = email.optional().nullable().or(z.literal(''));
+      }
+      break;
+    }
+    case 'NUMBER': {
+      let num = z.number();
+      if (field.min != null) num = num.min(field.min);
+      if (field.max != null) num = num.max(field.max);
+      if (field.isRequired) {
+        schema = num;
+      } else {
+        schema = num.optional().nullable();
+      }
+      break;
+    }
+    case 'BOOLEAN': {
+      schema = field.isRequired
+        ? z.boolean()
+        : z.boolean().optional().nullable();
+      break;
+    }
+    case 'DATE': {
+      schema = field.isRequired
+        ? z.iso.date()
+        : z.iso.date().optional().nullable().or(z.literal(''));
+      break;
+    }
     case 'SELECT':
-      return z.string().refine((value) => {
-        const config = formSelectConfigSchema.safeParse(field.config);
-        return (
-          config.success &&
-          config.data.options.some((option) => option.value === value)
+    case 'RADIO': {
+      const allowed = (field.options || []).map((o) => o.value);
+      if (allowed.length > 0) {
+        const sel = z
+          .string()
+          .refine(
+            (val) => allowed.includes(val),
+            `Value must be one of: ${allowed.join(', ')}`,
+          );
+        schema = field.isRequired
+          ? sel
+          : sel.optional().nullable().or(z.literal(''));
+      } else {
+        schema = field.isRequired
+          ? z.string().min(1)
+          : z.string().optional().nullable().or(z.literal(''));
+      }
+      break;
+    }
+    case 'CHECKBOX_GROUP': {
+      const allowed = (field.options || []).map((o) => o.value);
+      let arr = z.array(z.string());
+      if (allowed.length > 0) {
+        arr = arr.refine(
+          (vals) => vals.every((v) => allowed.includes(v)),
+          'Contains invalid option value',
         );
-      }, 'Value must be one of the published options');
+      }
+      schema = field.isRequired
+        ? arr.min(1, `${field.label} requires at least one selection`)
+        : arr.optional().nullable();
+      break;
+    }
     case 'IMAGE':
-    case 'FILE':
-      return z.null();
+    case 'FILE': {
+      schema = z.unknown().optional().nullable();
+      break;
+    }
+    default: {
+      schema = z.unknown().optional().nullable();
+    }
   }
+
+  return schema;
+}
+
+export function buildDynamicFormValidationSchema(
+  fields: Array<
+    Pick<
+      FormFieldEntity,
+      | 'id'
+      | 'name'
+      | 'type'
+      | 'label'
+      | 'isRequired'
+      | 'min'
+      | 'max'
+      | 'minLength'
+      | 'maxLength'
+    > & { options?: Array<{ label: string; value: string }> }
+  >,
+) {
+  const shape: Record<string, z.ZodTypeAny> = {};
+  for (const f of fields) {
+    const key = f.name || f.id;
+    shape[key] = buildDynamicFormFieldValidation(f);
+  }
+  return z.object(shape);
+}
+
+export function formAnswerValueSchema(
+  field: Pick<
+    FormFieldEntity,
+    'type' | 'label' | 'isRequired' | 'min' | 'max' | 'minLength' | 'maxLength'
+  > & {
+    options?: Array<{ label: string; value: string }>;
+  },
+) {
+  return buildDynamicFormFieldValidation(field);
 }
 
 export const formScheduleConfigSchema = z.object({

@@ -67,7 +67,22 @@ export const formRelations = (r: RelationsHelper) => ({
       from: r.formField.formSectionId,
       to: r.formSection.id,
     }),
+    options: r.many.formFieldOption(),
     answers: r.many.formAnswer(),
+  },
+  formFieldOption: {
+    company: r.one.company({
+      from: r.formFieldOption.companyId,
+      to: r.company.id,
+    }),
+    version: r.one.formVersion({
+      from: r.formFieldOption.formVersionId,
+      to: r.formVersion.id,
+    }),
+    field: r.one.formField({
+      from: r.formFieldOption.fieldId,
+      to: r.formField.id,
+    }),
   },
   formPlan: {
     company: r.one.company({ from: r.formPlan.companyId, to: r.company.id }),

@@ -10,6 +10,7 @@ import {
   FeatureRepository,
   FormAnswerAttachmentRepository,
   FormAnswerRepository,
+  FormFieldOptionRepository,
   FormFieldRepository,
   FormSectionRepository,
   FormSubmissionContributorRepository,
@@ -65,6 +66,7 @@ export const formTemplateRepository = new FormTemplateRepository(db);
 export const formVersionRepository = new FormVersionRepository(db);
 export const formSectionRepository = new FormSectionRepository(db);
 export const formFieldRepository = new FormFieldRepository(db);
+export const formFieldOptionRepository = new FormFieldOptionRepository(db);
 export const formPlanRepository = new FormPlanRepository(db);
 export const formPlanTargetRepository = new FormPlanTargetRepository(db);
 export const formPlanPeriodRepository = new FormPlanPeriodRepository(db);

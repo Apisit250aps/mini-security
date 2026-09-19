@@ -3,6 +3,7 @@ import type {
   FormAnswer,
   FormAnswerAttachment,
   FormField,
+  FormFieldOption,
   FormSection,
   FormSubmission,
   FormSubmissionContributor,
@@ -19,6 +20,7 @@ import type {
   CreateFormAnswer,
   CreateFormAnswerAttachment,
   CreateFormField,
+  CreateFormFieldOption,
   CreateFormSection,
   CreateFormSubmission,
   CreateFormSubmissionContributor,
@@ -26,6 +28,7 @@ import type {
   CreateFormVersion,
   UpdateFormAnswer,
   UpdateFormField,
+  UpdateFormFieldOption,
   UpdateFormSection,
   UpdateFormSubmission,
   UpdateFormTemplate,
@@ -72,9 +75,27 @@ export interface IFormSectionRepository
 export interface IFormFieldRepository
   extends BaseRepository<FormField, CreateFormField, UpdateFormField> {
   findByVersionId(versionId: string): Promise<FormField[]>;
+  findByVersionIdWithOptions(versionId: string): Promise<FormField[]>;
   findBySectionId(sectionId: string): Promise<FormField[]>;
   deleteByVersionId(versionId: string): Promise<void>;
   reorderItems(items: Array<{ id: string; sortOrder: number }>): Promise<void>;
+}
+
+export interface IFormFieldOptionRepository
+  extends BaseRepository<
+    FormFieldOption,
+    CreateFormFieldOption,
+    UpdateFormFieldOption
+  > {
+  findByFieldId(fieldId: string): Promise<FormFieldOption[]>;
+  findByVersionId(versionId: string): Promise<FormFieldOption[]>;
+  deleteByFieldId(fieldId: string): Promise<void>;
+  replaceOptions(
+    fieldId: string,
+    companyId: string,
+    formVersionId: string,
+    options: Array<{ label: string; value: string; sortOrder?: number }>,
+  ): Promise<FormFieldOption[]>;
 }
 
 export interface IFormPlanRepository

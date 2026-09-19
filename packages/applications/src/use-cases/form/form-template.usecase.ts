@@ -1,9 +1,10 @@
 import { validateFormFieldConfig } from './form-answer-validation';
 import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import type {
+import {
   FormSection,
   FormField,
+  FormFieldOption,
   FormTemplate,
   FormVersion,
 } from '@repo/domains/entities/form';
@@ -26,6 +27,7 @@ import type {
 } from '@repo/domains/applications/form';
 import type {
   IFormFieldRepository,
+  IFormFieldOptionRepository,
   IFormSectionRepository,
   IFormTemplateRepository,
   IFormVersionRepository,
@@ -201,7 +203,7 @@ export class GetFormTemplateUseCase implements IGetFormTemplateUseCase {
       const [sections, fields] = targetVersion
         ? await Promise.all([
             this.sectionRepo.findByVersionId(targetVersion.id),
-            this.fieldRepo.findByVersionId(targetVersion.id),
+            this.fieldRepo.findByVersionIdWithOptions(targetVersion.id),
           ])
         : [[], []];
 
@@ -278,6 +280,7 @@ export class CreateFormFieldUseCase implements ICreateFormFieldUseCase {
     private readonly unitOfWork: IUnitOfWork,
     private readonly versionRepo: IFormVersionRepository,
     private readonly fieldRepo: IFormFieldRepository,
+    private readonly optionRepo?: IFormFieldOptionRepository,
   ) {}
 
   @RequirePermission('form_template:update')
@@ -301,7 +304,18 @@ export class CreateFormFieldUseCase implements ICreateFormFieldUseCase {
       }
 
       await validateFormFieldConfig(parsed.data);
-      return this.fieldRepo.create(parsed.data);
+      const { options, ...fieldData } = parsed.data;
+      const field = await this.fieldRepo.create(fieldData);
+      const savedOptions =
+        this.optionRepo && options !== undefined
+          ? await this.optionRepo.replaceOptions(
+              field.id,
+              field.companyId,
+              field.formVersionId,
+              options,
+            )
+          : [];
+      return new FormField({ ...field, options: savedOptions });
     });
   }
 }
@@ -332,7 +346,7 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
       // Verify requirements: at least 1 section, 1 field
       const [sections, fields] = await Promise.all([
         this.sectionRepo.findByVersionId(draft.id),
-        this.fieldRepo.findByVersionId(draft.id),
+        this.fieldRepo.findByVersionIdWithOptions(draft.id),
       ]);
 
       if (sections.length === 0) {

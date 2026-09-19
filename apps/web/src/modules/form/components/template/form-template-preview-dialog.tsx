@@ -139,18 +139,12 @@ export default function FormTemplatePreviewDialog({
                           </p>
                         )}
                         {field.type === 'SELECT' &&
-                          Array.isArray(
-                            (field.config as { options?: { label: string }[] })
-                              ?.options,
-                          ) && (
+                          field.options &&
+                          field.options.length > 0 && (
                             <div className="pl-4 pt-1 flex flex-wrap gap-1">
-                              {(
-                                field.config as {
-                                  options: { label: string }[];
-                                }
-                              ).options.map((opt, oIdx) => (
+                              {field.options.map((opt) => (
                                 <span
-                                  key={oIdx}
+                                  key={opt.id}
                                   className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground"
                                 >
                                   {opt.label}

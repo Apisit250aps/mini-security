@@ -800,12 +800,17 @@ Table form_field {
   company_id uuid [not null, note: 'FK -> company.id']
   form_version_id uuid [not null, note: 'FK -> form_version.id ฉบับที่คำถามนี้อยู่']
   form_section_id uuid [not null, note: 'FK -> form_section.id หมวดที่คำถามนี้อยู่']
-  type form_field_type [not null, note: 'ชนิดคำถาม กำหนดรูปแบบ config และการตรวจคำตอบ']
+  name text [not null, note: 'รหัสหรือชื่อตัวแปรของคำถาม']
+  type form_field_type [not null, note: 'ชนิดคำถาม']
   label text [not null, note: 'ข้อความคำถามที่แสดงให้ผู้ตอบเห็น']
   description text [note: 'คำอธิบาย/คำแนะนำเพิ่มเติมของคำถาม']
+  placeholder text [note: 'ข้อความตัวอย่าง']
   is_required boolean [not null, default: false, note: 'บังคับตอบก่อน submit หรือไม่']
+  min double [note: 'ค่าต่ำสุด (ตัวเลข)']
+  max double [note: 'ค่าสูงสุด (ตัวเลข)']
+  min_length integer [note: 'ความยาวต่ำสุด (ตัวอักษร)']
+  max_length integer [note: 'ความยาวสูงสุด (ตัวอักษร)']
   sort_order integer [not null, default: 0, check: `sort_order >= 0`, note: 'ลำดับแสดงผลของคำถามในหมวด']
-  config jsonb [not null, default: `'{}'::jsonb`, check: `jsonb_typeof(config) = 'object'`, note: 'Config ขั้นต้น: TEXT.multiline, NUMBER.unit, SELECT.options [{value,label}]; จำกัดไฟล์ด้วยนโยบายระบบ']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
 
@@ -814,7 +819,26 @@ Table form_field {
     (form_section_id, sort_order)
   }
 
-  Note: 'PROPOSED: MVP 7 ชนิด; ใช้ SELECT สำหรับผลตรวจ และ BOOLEAN สำหรับเช็กลิสต์; ตรวจ config ตาม type ด้วย Zod'
+  Note: 'PROPOSED: Normalized field attributes แทน config JSONB'
+}
+
+Table form_field_option {
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null, note: 'FK -> company.id']
+  form_version_id uuid [not null, note: 'FK -> form_version.id']
+  field_id uuid [not null, note: 'FK -> form_field.id onDelete cascade']
+  label text [not null, note: 'ข้อความตัวเลือก']
+  value text [not null, note: 'ค่าตัวเลือก']
+  sort_order integer [not null, default: 0, check: `sort_order >= 0`, note: 'ลำดับตัวเลือก']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null]
+
+  Indexes {
+    (id, company_id, form_version_id) [unique]
+    (field_id, sort_order)
+  }
+
+  Note: 'PROPOSED: ตัวเลือกคำถามสำหรับ SELECT, RADIO, CHECKBOX_GROUP แยกเป็นตาราง relational'
 }
 
 Table form_plan {

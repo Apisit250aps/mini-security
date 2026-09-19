@@ -46,7 +46,9 @@ export type ICreateFormSectionContext = ISecurityContext & {
   data: CreateFormSection;
 };
 export type ICreateFormFieldContext = ISecurityContext & {
-  data: CreateFormField;
+  data: CreateFormField & {
+    options?: Array<{ label: string; value: string; sortOrder?: number }>;
+  };
 };
 export type IPublishFormVersionContext = ISecurityContext & {
   formTemplateId: string;

@@ -27,12 +27,15 @@ export default function DynamicFieldRenderer({
   const renderControl = () => {
     switch (field.type) {
       case 'TEXT':
+      case 'TEXTAREA':
         return (
           <Textarea
             value={typeof value === 'string' ? value : ''}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
-            placeholder={field.description || 'ระบุข้อความคำตอบ...'}
+            placeholder={field.placeholder || 'ระบุข้อความคำตอบ...'}
+            minLength={field.minLength ?? undefined}
+            maxLength={field.maxLength ?? undefined}
             rows={2}
           />
         );
@@ -47,29 +50,79 @@ export default function DynamicFieldRenderer({
               onChange(val === '' ? null : Number(val));
             }}
             disabled={disabled}
-            placeholder="0"
+            placeholder={field.placeholder || '0'}
+            min={field.min ?? undefined}
+            max={field.max ?? undefined}
           />
         );
 
-      case 'SELECT': {
-        const config = field.config as {
-          options?: Array<{ label: string; value: string }>;
-        };
-        const options = Array.isArray(config?.options) ? config.options : [];
+      case 'SELECT':
+      case 'RADIO': {
+        const options = field.options || [];
+        if (field.type === 'RADIO')
+          return (
+            <div className="flex flex-col gap-2">
+              {options.map((option) => (
+                <label
+                  key={option.id}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <input
+                    type="radio"
+                    name={field.id}
+                    value={option.value}
+                    checked={value === option.value}
+                    onChange={() => onChange(option.value)}
+                    disabled={disabled}
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          );
         return (
           <select
             value={typeof value === 'string' ? value : ''}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
+            aria-label={field.placeholder || field.label}
             className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="">-- กรุณาเลือก --</option>
-            {options.map((opt, i) => (
-              <option key={i} value={opt.value}>
+            {options.map((opt) => (
+              <option key={opt.id} value={opt.value}>
                 {opt.label}
               </option>
             ))}
           </select>
+        );
+      }
+
+      case 'CHECKBOX_GROUP': {
+        const selected = Array.isArray(value) ? value : [];
+        return (
+          <div className="flex flex-col gap-2">
+            {(field.options || []).map((option) => (
+              <label
+                key={option.id}
+                className="flex items-center gap-2 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.includes(option.value)}
+                  onChange={(e) =>
+                    onChange(
+                      e.target.checked
+                        ? [...selected, option.value]
+                        : selected.filter((item) => item !== option.value),
+                    )
+                  }
+                  disabled={disabled}
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
         );
       }
 
@@ -96,6 +149,19 @@ export default function DynamicFieldRenderer({
             value={typeof value === 'string' ? value : ''}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
+          />
+        );
+
+      case 'EMAIL':
+        return (
+          <Input
+            type="email"
+            value={typeof value === 'string' ? value : ''}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            placeholder={field.placeholder || 'name@example.com'}
+            minLength={field.minLength ?? undefined}
+            maxLength={field.maxLength ?? undefined}
           />
         );
 

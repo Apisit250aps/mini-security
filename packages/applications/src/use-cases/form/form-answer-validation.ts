@@ -1,20 +1,20 @@
 import type { FormField } from '@repo/domains/entities/form';
-import {
-  formAnswerValueSchema,
-  formSelectConfigSchema,
-} from '@repo/domains/schema/form';
+import { formAnswerValueSchema } from '@repo/domains/schema/form';
 import { ValidationError } from '../../lib/error';
 
 export async function validateFormFieldConfig(
-  field: Pick<FormField, 'type' | 'config'>,
+  field: Pick<FormField, 'type'> & {
+    options?: Array<{ label: string; value: string }>;
+  },
 ) {
-  if (field.type !== 'SELECT') return;
-  const result = await formSelectConfigSchema.safeParseAsync(field.config);
-  if (!result.success)
-    throw new ValidationError(
-      'SELECT requires unique, nonempty options',
-      result.error,
-    );
+  if (!['SELECT', 'RADIO', 'CHECKBOX_GROUP'].includes(field.type)) return;
+  const options = field.options || [];
+  if (options.length === 0) return;
+
+  const values = options.map((o) => o.value);
+  if (new Set(values).size !== values.length) {
+    throw new ValidationError('Option values must be unique');
+  }
 }
 
 export async function validateFormAnswer(

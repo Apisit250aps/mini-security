@@ -101,10 +101,14 @@ const createFormFieldSchema = z
     sectionId: z.string().uuid().optional(),
     formSectionId: z.string().uuid().optional(),
     companyId: z.string().uuid().optional(),
+    name: z.string().min(1).max(100),
     type: z.enum([
       'TEXT',
+      'TEXTAREA',
       'NUMBER',
       'SELECT',
+      'RADIO',
+      'CHECKBOX_GROUP',
       'BOOLEAN',
       'DATE',
       'IMAGE',
@@ -112,11 +116,22 @@ const createFormFieldSchema = z
     ]),
     label: z.string().min(1).max(255),
     description: z.string().nullish(),
+    placeholder: z.string().max(255).nullish(),
     isRequired: z.boolean().default(false),
+    min: z.number().nullish(),
+    max: z.number().nullish(),
+    minLength: z.number().int().nonnegative().nullish(),
+    maxLength: z.number().int().nonnegative().nullish(),
     sortOrder: z.number().int().optional(),
-    config: z.record(z.string(), z.unknown()).optional(),
-    options: z.record(z.string(), z.unknown()).optional(),
-    validationRules: z.record(z.string(), z.unknown()).optional(),
+    options: z
+      .array(
+        z.object({
+          label: z.string().min(1),
+          value: z.string().min(1),
+          sortOrder: z.number().int().optional(),
+        }),
+      )
+      .optional(),
   })
   .refine((data) => Boolean(data.formSectionId || data.sectionId), {
     message: 'formSectionId or sectionId is required',
@@ -126,21 +141,37 @@ const editFormFieldSchema = z
   .object({
     sectionId: z.string().uuid().optional(),
     formSectionId: z.string().uuid().optional(),
+    name: z.string().min(1).max(100).optional(),
     type: z.enum([
       'TEXT',
+      'TEXTAREA',
       'NUMBER',
       'SELECT',
+      'RADIO',
+      'CHECKBOX_GROUP',
       'BOOLEAN',
       'DATE',
+      'EMAIL',
       'IMAGE',
       'FILE',
     ]),
     label: z.string().min(1).max(255),
     description: z.string().nullish(),
+    placeholder: z.string().max(255).nullish(),
     isRequired: z.boolean().default(false),
-    config: z.record(z.string(), z.unknown()).optional(),
-    options: z.record(z.string(), z.unknown()).optional(),
-    validationRules: z.record(z.string(), z.unknown()).optional(),
+    min: z.number().nullish(),
+    max: z.number().nullish(),
+    minLength: z.number().int().nonnegative().nullish(),
+    maxLength: z.number().int().nonnegative().nullish(),
+    options: z
+      .array(
+        z.object({
+          label: z.string().min(1),
+          value: z.string().min(1),
+          sortOrder: z.number().int().optional(),
+        }),
+      )
+      .optional(),
   })
   .refine((data) => Boolean(data.formSectionId || data.sectionId), {
     message: 'formSectionId or sectionId is required',
@@ -504,10 +535,6 @@ export class FormController extends Controller {
     async (c) => {
       const body = c.get('body');
       const formSectionId = (body.formSectionId ?? body.sectionId)!;
-      const config = (body.config ?? body.options ?? {}) as Record<
-        string,
-        unknown
-      >;
       const field = await this.createFormFieldUseCase.execute({
         ...this.securityContext(c),
         data: {
@@ -515,12 +542,18 @@ export class FormController extends Controller {
             this.securityContext(c).activeCompanyId)!,
           formVersionId: body.formVersionId,
           formSectionId,
+          name: body.name,
           type: body.type,
           label: body.label,
           description: body.description ?? null,
+          placeholder: body.placeholder ?? null,
           isRequired: body.isRequired ?? false,
+          min: body.min ?? null,
+          max: body.max ?? null,
+          minLength: body.minLength ?? null,
+          maxLength: body.maxLength ?? null,
           sortOrder: body.sortOrder ?? 0,
-          config,
+          options: body.options,
         },
       });
       return this.created(c, 'Form field created successfully', field);
@@ -533,21 +566,23 @@ export class FormController extends Controller {
       const { id, fieldId } = c.get('params');
       const body = c.get('body');
       const formSectionId = (body.formSectionId ?? body.sectionId)!;
-      const config = (body.config ?? body.options ?? {}) as Record<
-        string,
-        unknown
-      >;
       const field = await this.editFormFieldUseCase.execute({
         ...this.securityContext(c),
         formTemplateId: id,
         fieldId,
         data: {
           formSectionId,
+          ...(body.name !== undefined ? { name: body.name } : {}),
           type: body.type,
           label: body.label,
           description: body.description ?? null,
+          placeholder: body.placeholder ?? null,
           isRequired: body.isRequired ?? false,
-          config,
+          min: body.min ?? null,
+          max: body.max ?? null,
+          minLength: body.minLength ?? null,
+          maxLength: body.maxLength ?? null,
+          options: body.options,
         } as EditFormField,
       });
       return this.success(c, 'Form field updated successfully', field);
