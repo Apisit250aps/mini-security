@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface FileMetadata {
   id: string;
@@ -22,26 +22,30 @@ export interface UseFileUploadOptions {
 }
 
 export function formatBytes(bytes: number, decimals = 2): string {
-  if (!+bytes) return "0 Bytes";
+  if (!+bytes) return '0 Bytes';
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
-function matchAccept(fileType: string, fileName: string, accept?: string): boolean {
-  if (!accept || accept === "*" || accept === "*/*") return true;
+function matchAccept(
+  fileType: string,
+  fileName: string,
+  accept?: string,
+): boolean {
+  if (!accept || accept === '*' || accept === '*/*') return true;
 
-  const patterns = accept.split(",").map((p) => p.trim().toLowerCase());
-  const ext = "." + fileName.split(".").pop()?.toLowerCase();
+  const patterns = accept.split(',').map((p) => p.trim().toLowerCase());
+  const ext = '.' + fileName.split('.').pop()?.toLowerCase();
 
   return patterns.some((pattern) => {
-    if (pattern.startsWith(".")) {
+    if (pattern.startsWith('.')) {
       return ext === pattern;
     }
-    if (pattern.endsWith("/*")) {
-      const mainType = pattern.replace("/*", "");
+    if (pattern.endsWith('/*')) {
+      const mainType = pattern.replace('/*', '');
       return fileType.toLowerCase().startsWith(mainType);
     }
     return fileType.toLowerCase() === pattern;
@@ -66,7 +70,7 @@ export function useFileUpload({
   const previewUrlsRef = useRef<Set<string>>(new Set());
 
   const createPreview = (file: File): string | undefined => {
-    if (file.type.startsWith("image/")) {
+    if (file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       previewUrlsRef.current.add(url);
       return url;
@@ -99,18 +103,22 @@ export function useFileUpload({
 
       const filesToProcess = incomingFiles.slice(0, spaceLeft);
       if (incomingFiles.length > spaceLeft) {
-        currentErrors.push(`เลือกไฟล์เกินจำนวนที่กำหนด ระบบนำเข้าเฉพาะ ${spaceLeft} ไฟล์แรก`);
+        currentErrors.push(
+          `เลือกไฟล์เกินจำนวนที่กำหนด ระบบนำเข้าเฉพาะ ${spaceLeft} ไฟล์แรก`,
+        );
       }
 
       for (const file of filesToProcess) {
         if (accept && !matchAccept(file.type, file.name, accept)) {
-          currentErrors.push(`ไฟล์ "${file.name}" ไม่ตรงกับประเภทที่รองรับ (${accept})`);
+          currentErrors.push(
+            `ไฟล์ "${file.name}" ไม่ตรงกับประเภทที่รองรับ (${accept})`,
+          );
           continue;
         }
 
         if (maxSize && file.size > maxSize) {
           currentErrors.push(
-            `ไฟล์ "${file.name}" มีขนาดใหญ่เกินไป (ขนาดสูงสุด ${formatBytes(maxSize)})`
+            `ไฟล์ "${file.name}" มีขนาดใหญ่เกินไป (ขนาดสูงสุด ${formatBytes(maxSize)})`,
           );
           continue;
         }
@@ -136,7 +144,7 @@ export function useFileUpload({
         return updated;
       });
     },
-    [accept, files.length, maxFiles, maxSize, multiple, onFilesChange]
+    [accept, files.length, maxFiles, maxSize, multiple, onFilesChange],
   );
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -175,12 +183,12 @@ export function useFileUpload({
         e.dataTransfer.clearData();
       }
     },
-    [addFiles]
+    [addFiles],
   );
 
   const openFileDialog = useCallback(() => {
     if (inputRef.current) {
-      inputRef.current.value = "";
+      inputRef.current.value = '';
       inputRef.current.click();
     }
   }, []);
@@ -199,7 +207,7 @@ export function useFileUpload({
       });
       setErrors([]);
     },
-    [onFilesChange]
+    [onFilesChange],
   );
 
   const clearFiles = useCallback(() => {
@@ -217,17 +225,17 @@ export function useFileUpload({
   const getInputProps = useCallback(
     () => ({
       ref: inputRef,
-      type: "file" as const,
+      type: 'file' as const,
       accept,
       multiple,
-      style: { display: "none" },
+      style: { display: 'none' },
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
           addFiles(e.target.files);
         }
       },
     }),
-    [accept, addFiles, multiple]
+    [accept, addFiles, multiple],
   );
 
   return [

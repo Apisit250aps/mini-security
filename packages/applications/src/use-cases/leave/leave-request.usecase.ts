@@ -30,7 +30,6 @@ import { NotFoundError, ValidationError } from '../../lib/error';
 import { calculateLeaveDays } from '@repo/domains';
 export { calculateLeaveDays };
 
-
 export class SubmitLeaveRequestUseCase implements ISubmitLeaveRequestUseCase {
   constructor(
     private readonly leaveRequestRepository: ILeaveRequestRepository,

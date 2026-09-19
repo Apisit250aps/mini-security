@@ -208,7 +208,8 @@ export class CancelOccurrenceUseCase implements ICancelOccurrenceUseCase {
       throw new NotFoundError('Occurrence not found');
     }
 
-    requireRevisionMatch( occurrence.revision,
+    requireRevisionMatch(
+      occurrence.revision,
       context.expectedRevision,
       () => new BadRequestError('Optimistic concurrency check failed'),
       { optional: true },

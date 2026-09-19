@@ -128,7 +128,6 @@ export default function RoleForm({
         )}
       </FieldGroup>
 
-
       {!readOnly && (
         <div className="flex justify-end">
           <ButtonLoading type="submit" isLoading={isLoading}>

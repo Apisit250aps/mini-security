@@ -25,8 +25,7 @@ export default function LocationTable({
           (b) => b.id === row.original.companyBranchId,
         );
         return (
-          branch?.name ??
-          (row.original.companyBranchId ? 'สาขาหลัก' : '-')
+          branch?.name ?? (row.original.companyBranchId ? 'สาขาหลัก' : '-')
         );
       },
     },

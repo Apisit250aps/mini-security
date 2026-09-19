@@ -31,10 +31,7 @@ import { buildPageUrl } from '@/shared/utils';
 export default function CompanyEmployeeView() {
   const { activeCompany, activeCompanyId, isLoading } = useActiveCompany();
   const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
-  const members = useMemo(
-    () => membersQuery.data || [],
-    [membersQuery.data],
-  );
+  const members = useMemo(() => membersQuery.data || [], [membersQuery.data]);
 
   const activeCount = useMemo(
     () => members.filter((m) => m.isActive).length,
@@ -116,4 +113,3 @@ export default function CompanyEmployeeView() {
     </PageLayout>
   );
 }
-

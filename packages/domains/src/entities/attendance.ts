@@ -94,7 +94,6 @@ export class AttendanceLog implements AttendanceLogEntity {
   }
 }
 
-
 export class CheckInScheduleRole implements CheckInScheduleRoleEntity {
   id: string;
   companyId: string;

@@ -99,14 +99,23 @@ export const formKeys = {
     ['FORM', 'SUBMISSIONS', companyId ?? 'ALL', filters] as const,
   submission: (submissionId: string) =>
     ['FORM', 'SUBMISSION', submissionId] as const,
-  plans: (companyId: string, templateId?: string) => ['FORM', 'PLANS', companyId, templateId ?? 'ALL'] as const,
+  plans: (companyId: string, templateId?: string) =>
+    ['FORM', 'PLANS', companyId, templateId ?? 'ALL'] as const,
   plan: (planId: string) => ['FORM', 'PLAN', planId] as const,
-  schedulePreview: (planId: string) => ['FORM', 'PLAN', planId, 'PREVIEW'] as const,
-  occurrences: (companyId: string, templateId?: string) => ['FORM', 'OCCURRENCES', companyId, templateId ?? 'ALL'] as const,
-  occurrence: (occurrenceId: string) => ['FORM', 'OCCURRENCE', occurrenceId] as const,
-  occurrenceAssignments: (occurrenceId: string) => ['FORM', 'OCCURRENCE', occurrenceId, 'ASSIGNMENTS'] as const,
-  myAssignments: (companyId: string, memberId?: string) => ['FORM', 'ASSIGNMENTS', companyId, memberId ?? 'ME'] as const,
-  assignment: (assignmentId: string) => ['FORM', 'ASSIGNMENT', assignmentId] as const,
-  reviewQueue: (companyId: string) => ['FORM', 'REVIEWS', 'QUEUE', companyId] as const,
-  reviewDetail: (submissionId: string) => ['FORM', 'REVIEWS', 'DETAIL', submissionId] as const,
+  schedulePreview: (planId: string) =>
+    ['FORM', 'PLAN', planId, 'PREVIEW'] as const,
+  occurrences: (companyId: string, templateId?: string) =>
+    ['FORM', 'OCCURRENCES', companyId, templateId ?? 'ALL'] as const,
+  occurrence: (occurrenceId: string) =>
+    ['FORM', 'OCCURRENCE', occurrenceId] as const,
+  occurrenceAssignments: (occurrenceId: string) =>
+    ['FORM', 'OCCURRENCE', occurrenceId, 'ASSIGNMENTS'] as const,
+  myAssignments: (companyId: string, memberId?: string) =>
+    ['FORM', 'ASSIGNMENTS', companyId, memberId ?? 'ME'] as const,
+  assignment: (assignmentId: string) =>
+    ['FORM', 'ASSIGNMENT', assignmentId] as const,
+  reviewQueue: (companyId: string) =>
+    ['FORM', 'REVIEWS', 'QUEUE', companyId] as const,
+  reviewDetail: (submissionId: string) =>
+    ['FORM', 'REVIEWS', 'DETAIL', submissionId] as const,
 };

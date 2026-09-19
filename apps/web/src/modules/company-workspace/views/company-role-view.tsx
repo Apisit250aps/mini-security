@@ -92,7 +92,8 @@ export default function CompanyRoleView() {
             <CardHeader>
               <CardTitle>บทบาททั้งหมด (Roles)</CardTitle>
               <CardDescription>
-                รายการบทบาทและตำแหน่งพนักงานเฉพาะสำหรับองค์กร {activeCompany.name}
+                รายการบทบาทและตำแหน่งพนักงานเฉพาะสำหรับองค์กร{' '}
+                {activeCompany.name}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -104,4 +105,3 @@ export default function CompanyRoleView() {
     </PageLayout>
   );
 }
-

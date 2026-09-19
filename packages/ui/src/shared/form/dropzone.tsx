@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Control, FieldValues, Path } from "react-hook-form";
-import { FileUploadField } from "./file-upload-field";
+import React from 'react';
+import { Control, FieldValues, Path } from 'react-hook-form';
+import { FileUploadField } from './file-upload-field';
 
 export interface FileDropzoneFieldProps<T extends FieldValues> {
   name: Path<T>;
@@ -17,7 +17,7 @@ export interface FileDropzoneFieldProps<T extends FieldValues> {
 export function FileDropzoneField<T extends FieldValues>({
   name,
   control,
-  accept = ".xlsx, .xls, .csv",
+  accept = '.xlsx, .xls, .csv',
   maxSizeMB = 5,
   label,
   description,

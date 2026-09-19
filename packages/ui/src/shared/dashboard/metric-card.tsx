@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Card,
   CardAction,
   CardContent,
   CardHeader,
   CardTitle,
-} from "#components/card";
-import { Skeleton } from "#components/skeleton";
-import { cn } from "#lib/utils";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+} from '#components/card';
+import { Skeleton } from '#components/skeleton';
+import { cn } from '#lib/utils';
+import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
 
 export interface MetricCardTrend {
   value: string | number;
@@ -43,7 +43,7 @@ export function MetricCard({
 }: MetricCardProps) {
   if (isLoading) {
     return (
-      <Card className={cn("overflow-hidden", className)}>
+      <Card className={cn('overflow-hidden', className)}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <Skeleton className="h-4 w-28" />
           <Skeleton className="size-8 rounded-lg" />
@@ -59,11 +59,13 @@ export function MetricCard({
   const renderIcon = () => {
     if (!Icon) return null;
     if (React.isValidElement(Icon)) return Icon;
-    if (typeof Icon === "function") {
+    if (typeof Icon === 'function') {
       const IconComponent = Icon as React.ComponentType<{ className?: string }>;
       return (
         <div className="flex size-9 items-center justify-center rounded-lg border bg-muted/40 text-primary">
-          <IconComponent className={cn("size-4.5 text-primary", iconClassName)} />
+          <IconComponent
+            className={cn('size-4.5 text-primary', iconClassName)}
+          />
         </div>
       );
     }
@@ -73,7 +75,7 @@ export function MetricCard({
   return (
     <Card
       className={cn(
-        "transition-all duration-200 hover:border-primary/40 hover:shadow-xs",
+        'transition-all duration-200 hover:border-primary/40 hover:shadow-xs',
         className,
       )}
     >
@@ -93,10 +95,10 @@ export function MetricCard({
             {trend && (
               <span
                 className={cn(
-                  "inline-flex items-center gap-0.5 font-medium",
+                  'inline-flex items-center gap-0.5 font-medium',
                   trend.isPositive !== false
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-destructive",
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-destructive',
                 )}
               >
                 {trend.isPositive !== false ? (

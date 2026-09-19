@@ -23,7 +23,10 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
   const router = useRouter();
   const ui = useOverlay();
   const submission = cell.row.original;
-  const cloneMutation = useFormSubmissionCreateCorrection(submission.id, companyId);
+  const cloneMutation = useFormSubmissionCreateCorrection(
+    submission.id,
+    companyId,
+  );
 
   const { data: session } = useSession();
   const membersQuery = useCompanyMembersQueries(companyId);
@@ -60,18 +63,15 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
         'ระบบจะคัดลอกคำตอบทั้งหมดจากฉบับเดิมที่ถูกปฏิเสธ มาสร้างเป็นฉบับร่างใหม่ (Draft) เพื่อให้แก้ไขและส่งใหม่',
       confirmVariant: 'default',
       onConfirm: () => {
-        cloneMutation.mutate(
-          undefined,
-          {
-            onSuccess: (res: { data?: { id?: string } }) => {
-              ui.alert.close();
-              const newSub = res?.data;
-              if (newSub?.id) {
-                router.push(`/company/forms/submissions/${newSub.id}`);
-              }
-            },
+        cloneMutation.mutate(undefined, {
+          onSuccess: (res: { data?: { id?: string } }) => {
+            ui.alert.close();
+            const newSub = res?.data;
+            if (newSub?.id) {
+              router.push(`/company/forms/submissions/${newSub.id}`);
+            }
           },
-        );
+        });
       },
     });
   }, [ui.alert, cloneMutation, router]);

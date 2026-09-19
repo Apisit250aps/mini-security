@@ -81,15 +81,25 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
           (!member || !member.isActive || member.companyId !== companyId) &&
           context.data?.createdBy
         ) {
-          const maybeMember = await this.memberRepo.findById(context.data.createdBy);
-          if (maybeMember && maybeMember.isActive && maybeMember.companyId === companyId) {
+          const maybeMember = await this.memberRepo.findById(
+            context.data.createdBy,
+          );
+          if (
+            maybeMember &&
+            maybeMember.isActive &&
+            maybeMember.companyId === companyId
+          ) {
             member = maybeMember;
           } else {
             const maybeUserMember = await this.memberRepo.findByCompanyAndUser(
               companyId,
               context.data.createdBy,
             );
-            if (maybeUserMember && maybeUserMember.isActive && maybeUserMember.companyId === companyId) {
+            if (
+              maybeUserMember &&
+              maybeUserMember.isActive &&
+              maybeUserMember.companyId === companyId
+            ) {
               member = maybeUserMember;
             }
           }

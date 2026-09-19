@@ -123,7 +123,11 @@ export const attendanceLogSchema = BaseEntity({
     (lng) => lng == null || (lng >= -180 && lng <= 180),
     'Longitude must be between -180 and 180',
   ),
-  locationNameSnapshot: StringField({ required: false, nullable: true, max: 255 }),
+  locationNameSnapshot: StringField({
+    required: false,
+    nullable: true,
+    max: 255,
+  }),
   locationLatitudeSnapshot: NumberField({
     required: false,
     nullable: true,
@@ -145,40 +149,43 @@ export const attendanceLogSchema = BaseEntity({
     (r) => r == null || (r > 0 && Number.isFinite(r)),
     'Radius must be positive and finite',
   ),
-}).refine(
-  (data) => {
-    const fields = [
-      data.locationId,
-      data.checkedInLatitude,
-      data.checkedInLongitude,
-      data.locationNameSnapshot,
-      data.locationLatitudeSnapshot,
-      data.locationLongitudeSnapshot,
-      data.radiusMetersSnapshot,
-    ];
-    const nonNullCount = fields.filter((f) => f != null).length;
-    return nonNullCount === 0 || nonNullCount === 7;
-  },
-  {
-    message: 'Location snapshot fields must either be all provided or all null',
-    path: ['locationId'],
-  },
-).refine(
-  (data) => {
-    if (data.locationId != null) {
-      return (
-        data.checkedInAt != null &&
-        (data.status === 'present' || data.status === 'late')
-      );
-    }
-    return true;
-  },
-  {
-    message:
-      'Checked in record with location must have checkedInAt and status present or late',
-    path: ['status'],
-  },
-);
+})
+  .refine(
+    (data) => {
+      const fields = [
+        data.locationId,
+        data.checkedInLatitude,
+        data.checkedInLongitude,
+        data.locationNameSnapshot,
+        data.locationLatitudeSnapshot,
+        data.locationLongitudeSnapshot,
+        data.radiusMetersSnapshot,
+      ];
+      const nonNullCount = fields.filter((f) => f != null).length;
+      return nonNullCount === 0 || nonNullCount === 7;
+    },
+    {
+      message:
+        'Location snapshot fields must either be all provided or all null',
+      path: ['locationId'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.locationId != null) {
+        return (
+          data.checkedInAt != null &&
+          (data.status === 'present' || data.status === 'late')
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        'Checked in record with location must have checkedInAt and status present or late',
+      path: ['status'],
+    },
+  );
 
 export const createAttendanceLogSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
@@ -198,7 +205,11 @@ export const createAttendanceLogSchema = BaseEntity({
     (lng) => lng == null || (lng >= -180 && lng <= 180),
     'Longitude must be between -180 and 180',
   ),
-  locationNameSnapshot: StringField({ required: false, nullable: true, max: 255 }),
+  locationNameSnapshot: StringField({
+    required: false,
+    nullable: true,
+    max: 255,
+  }),
   locationLatitudeSnapshot: NumberField({
     required: false,
     nullable: true,
@@ -241,7 +252,8 @@ export const createAttendanceLogSchema = BaseEntity({
       return nonNullCount === 0 || nonNullCount === 7;
     },
     {
-      message: 'Location snapshot fields must either be all provided or all null',
+      message:
+        'Location snapshot fields must either be all provided or all null',
       path: ['locationId'],
     },
   )
@@ -275,4 +287,3 @@ export const updateAttendanceLogSchema = z
 export type AttendanceLogEntity = z.infer<typeof attendanceLogSchema>;
 export type CreateAttendanceLog = z.infer<typeof createAttendanceLogSchema>;
 export type UpdateAttendanceLog = z.infer<typeof updateAttendanceLogSchema>;
-

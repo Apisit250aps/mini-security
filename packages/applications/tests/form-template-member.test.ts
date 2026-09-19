@@ -43,8 +43,8 @@ function fixture() {
     findById: async () => null,
     findByIdAndCompany: async () => null,
     findByCompanyId: async () => [],
-    update: async () => ({} as unknown as FormTemplate),
-    delete: async () => ({} as unknown as FormTemplate),
+    update: async () => ({}) as unknown as FormTemplate,
+    delete: async () => ({}) as unknown as FormTemplate,
   };
 
   const versionRepo: IFormVersionRepository = {
@@ -109,15 +109,14 @@ function fixture() {
   } as unknown as IFormSectionRepository;
 
   const fieldRepo: IFormFieldRepository = {
-    findByVersionId: async () =>
-      [
-        {
-          id: 'field-1',
-          type: 'TEXT',
-          isRequired: false,
-          config: {},
-        } as FormField,
-      ],
+    findByVersionId: async () => [
+      {
+        id: 'field-1',
+        type: 'TEXT',
+        isRequired: false,
+        config: {},
+      } as FormField,
+    ],
   } as unknown as IFormFieldRepository;
 
   return {

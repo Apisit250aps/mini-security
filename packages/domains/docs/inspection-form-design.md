@@ -2,7 +2,6 @@
 
 > เอกสาร Form รุ่นถัดไป: [Forms workflow design](form-workflow-design.md), [UI flow](form-workflow-ui-flow.md), [development plan](form-workflow-development-plan.md) — Proposed 2026-09-15; ส่วน Form/Owner approval ในเอกสารนี้เป็นแบบก่อนหน้า ส่วน audit โมดูลอื่นยังใช้อ้างอิงได้ canonical DBML ปรับเป็นแบบเสนอใหม่แล้ว ดู [คำอธิบาย ERD ภาษาไทย](erd-description-th.md); runtime ยังไม่ได้ปรับตามข้อเสนอใหม่
 
-
 สถานะ: **เอกสารเก็บประวัติแบบเดิม 2026-09-09 ถูกแทนที่แล้ว** เนื้อหาด้านล่างอธิบาย MVP เดิม ไม่ตรงกับ [DBML ปัจจุบัน](../erDiagram.dbml) ให้ใช้ form-workflow-design และคำอธิบาย ERD ไทยสำหรับพัฒนารุ่นใหม่
 
 ## MVP ทำอะไรได้

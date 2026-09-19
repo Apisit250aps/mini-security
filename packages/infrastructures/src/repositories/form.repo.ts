@@ -1,4 +1,14 @@
-import { and, asc, desc, eq, inArray, isNull, isNotNull, sql, notInArray } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNull,
+  isNotNull,
+  sql,
+  notInArray,
+} from 'drizzle-orm';
 import { resolveDatabase } from '@repo/database/transaction';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
@@ -16,7 +26,7 @@ import {
   formPlanPeriod,
   formOccurrence,
   formAssignment,
-  formReviewEntry
+  formReviewEntry,
 } from '@repo/database/schema';
 import {
   FormAnswer,
@@ -32,7 +42,7 @@ import {
   FormPlanPeriod,
   FormOccurrence,
   FormAssignment,
-  FormReviewEntry
+  FormReviewEntry,
 } from '@repo/domains/entities/form';
 import type {
   IFormAnswerAttachmentRepository,
@@ -48,7 +58,7 @@ import type {
   IFormPlanPeriodRepository,
   IFormOccurrenceRepository,
   IFormAssignmentRepository,
-  IFormReviewEntryRepository
+  IFormReviewEntryRepository,
 } from '@repo/domains/repositories/form';
 import type {
   CreateFormAnswer,
@@ -73,7 +83,7 @@ import type {
   UpdateFormOccurrence,
   CreateFormAssignment,
   UpdateFormAssignment,
-  CreateFormReviewEntry
+  CreateFormReviewEntry,
 } from '@repo/domains/schema/form';
 
 // ==========================================
@@ -290,19 +300,27 @@ export class FormPlanRepository
     super(db, formPlan);
   }
 
-  async findByTemplateId(templateId: string, companyId: string): Promise<FormPlan[]> {
+  async findByTemplateId(
+    templateId: string,
+    companyId: string,
+  ): Promise<FormPlan[]> {
     const results = await this.db
       .select()
       .from(formPlan)
-      .where(and(
-        eq(formPlan.formTemplateId, templateId),
-        eq(formPlan.companyId, companyId)
-      ))
+      .where(
+        and(
+          eq(formPlan.formTemplateId, templateId),
+          eq(formPlan.companyId, companyId),
+        ),
+      )
       .orderBy(desc(formPlan.createdAt));
     return results.map((r) => new FormPlan(r as unknown as FormPlan));
   }
 
-  async findActive(companyId: string, templateId: string): Promise<FormPlan | null> {
+  async findActive(
+    companyId: string,
+    templateId: string,
+  ): Promise<FormPlan | null> {
     const [result] = await this.db
       .select()
       .from(formPlan)
@@ -311,14 +329,18 @@ export class FormPlanRepository
           eq(formPlan.companyId, companyId),
           eq(formPlan.formTemplateId, templateId),
           isNotNull(formPlan.effectiveFrom),
-          sql`(${formPlan.effectiveUntil} IS NULL OR ${formPlan.effectiveUntil} > now())`
-        )
+          sql`(${formPlan.effectiveUntil} IS NULL OR ${formPlan.effectiveUntil} > now())`,
+        ),
       )
       .limit(1);
     return result ? new FormPlan(result as unknown as FormPlan) : null;
   }
 
-  async listPlans(companyId: string, page: number, limit: number): Promise<FormPlan[]> {
+  async listPlans(
+    companyId: string,
+    page: number,
+    limit: number,
+  ): Promise<FormPlan[]> {
     const offset = (page - 1) * limit;
     const results = await this.db
       .select()
@@ -347,11 +369,12 @@ export class FormPlanTargetRepository implements IFormPlanTargetRepository {
       .select()
       .from(formPlanTarget)
       .where(eq(formPlanTarget.planId, planId));
-    return results.map((r) => new FormPlanTarget(r as unknown as FormPlanTarget));
+    return results.map(
+      (r) => new FormPlanTarget(r as unknown as FormPlanTarget),
+    );
   }
 
   async create(target: CreateFormPlanTarget): Promise<FormPlanTarget> {
-    
     const [result] = await this.db
       .insert(formPlanTarget)
       .values(target)
@@ -364,7 +387,9 @@ export class FormPlanTargetRepository implements IFormPlanTargetRepository {
   }
 
   async deleteByPlanId(planId: string): Promise<void> {
-    await this.db.delete(formPlanTarget).where(eq(formPlanTarget.planId, planId));
+    await this.db
+      .delete(formPlanTarget)
+      .where(eq(formPlanTarget.planId, planId));
   }
 }
 
@@ -385,11 +410,12 @@ export class FormPlanPeriodRepository implements IFormPlanPeriodRepository {
       .from(formPlanPeriod)
       .where(eq(formPlanPeriod.planId, planId))
       .orderBy(asc(formPlanPeriod.opensAt));
-    return results.map((r) => new FormPlanPeriod(r as unknown as FormPlanPeriod));
+    return results.map(
+      (r) => new FormPlanPeriod(r as unknown as FormPlanPeriod),
+    );
   }
 
   async create(period: CreateFormPlanPeriod): Promise<FormPlanPeriod> {
-    
     const [result] = await this.db
       .insert(formPlanPeriod)
       .values(period)
@@ -398,7 +424,9 @@ export class FormPlanPeriodRepository implements IFormPlanPeriodRepository {
   }
 
   async deleteByPlanId(planId: string): Promise<void> {
-    await this.db.delete(formPlanPeriod).where(eq(formPlanPeriod.planId, planId));
+    await this.db
+      .delete(formPlanPeriod)
+      .where(eq(formPlanPeriod.planId, planId));
   }
 }
 
@@ -418,7 +446,9 @@ export class FormOccurrenceRepository implements IFormOccurrenceRepository {
       .select()
       .from(formOccurrence)
       .where(eq(formOccurrence.id, id));
-    return result ? new FormOccurrence(result as unknown as FormOccurrence) : null;
+    return result
+      ? new FormOccurrence(result as unknown as FormOccurrence)
+      : null;
   }
 
   async findByPlanId(planId: string): Promise<FormOccurrence[]> {
@@ -427,25 +457,31 @@ export class FormOccurrenceRepository implements IFormOccurrenceRepository {
       .from(formOccurrence)
       .where(eq(formOccurrence.planId, planId))
       .orderBy(desc(formOccurrence.opensAt));
-    return results.map((r) => new FormOccurrence(r as unknown as FormOccurrence));
+    return results.map(
+      (r) => new FormOccurrence(r as unknown as FormOccurrence),
+    );
   }
 
-  async findByOccurrenceKey(planId: string, occurrenceKey: string): Promise<FormOccurrence | null> {
+  async findByOccurrenceKey(
+    planId: string,
+    occurrenceKey: string,
+  ): Promise<FormOccurrence | null> {
     const [result] = await this.db
       .select()
       .from(formOccurrence)
       .where(
         and(
           eq(formOccurrence.planId, planId),
-          eq(formOccurrence.occurrenceKey, occurrenceKey)
-        )
+          eq(formOccurrence.occurrenceKey, occurrenceKey),
+        ),
       )
       .limit(1);
-    return result ? new FormOccurrence(result as unknown as FormOccurrence) : null;
+    return result
+      ? new FormOccurrence(result as unknown as FormOccurrence)
+      : null;
   }
 
   async create(occurrence: CreateFormOccurrence): Promise<FormOccurrence> {
-    
     const [result] = await this.db
       .insert(formOccurrence)
       .values(occurrence)
@@ -453,21 +489,28 @@ export class FormOccurrenceRepository implements IFormOccurrenceRepository {
     return new FormOccurrence(result as unknown as FormOccurrence);
   }
 
-  async cancel(id: string, update: UpdateFormOccurrence): Promise<FormOccurrence> {
+  async cancel(
+    id: string,
+    update: UpdateFormOccurrence,
+  ): Promise<FormOccurrence> {
     const [result] = await this.db
       .update(formOccurrence)
       .set({
         cancelledAt: update.cancelledAt,
         cancelledBy: update.cancelledBy,
         cancelReason: update.cancelReason,
-        revision: update.revision
+        revision: update.revision,
       })
       .where(eq(formOccurrence.id, id))
       .returning();
     return new FormOccurrence(result as unknown as FormOccurrence);
   }
 
-  async list(companyId: string, formTemplateId?: string, planId?: string): Promise<FormOccurrence[]> {
+  async list(
+    companyId: string,
+    formTemplateId?: string,
+    planId?: string,
+  ): Promise<FormOccurrence[]> {
     const conditions = [eq(formOccurrence.companyId, companyId)];
     if (formTemplateId) {
       conditions.push(eq(formOccurrence.formTemplateId, formTemplateId));
@@ -480,7 +523,9 @@ export class FormOccurrenceRepository implements IFormOccurrenceRepository {
       .from(formOccurrence)
       .where(and(...conditions))
       .orderBy(desc(formOccurrence.opensAt));
-    return results.map((r) => new FormOccurrence(r as unknown as FormOccurrence));
+    return results.map(
+      (r) => new FormOccurrence(r as unknown as FormOccurrence),
+    );
   }
 }
 
@@ -500,7 +545,9 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
       .select()
       .from(formAssignment)
       .where(eq(formAssignment.id, id));
-    return result ? new FormAssignment(result as unknown as FormAssignment) : null;
+    return result
+      ? new FormAssignment(result as unknown as FormAssignment)
+      : null;
   }
 
   async findByOccurrenceId(occurrenceId: string): Promise<FormAssignment[]> {
@@ -508,38 +555,53 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
       .select()
       .from(formAssignment)
       .where(eq(formAssignment.occurrenceId, occurrenceId));
-    return results.map((r) => new FormAssignment(r as unknown as FormAssignment));
+    return results.map(
+      (r) => new FormAssignment(r as unknown as FormAssignment),
+    );
   }
 
-  async findByMemberId(companyId: string, memberId: string): Promise<FormAssignment[]> {
+  async findByMemberId(
+    companyId: string,
+    memberId: string,
+  ): Promise<FormAssignment[]> {
     const results = await this.db
       .select()
       .from(formAssignment)
       .where(
         and(
           eq(formAssignment.companyId, companyId),
-          eq(formAssignment.companyMemberId, memberId)
-        )
+          eq(formAssignment.companyMemberId, memberId),
+        ),
       )
       .orderBy(desc(formAssignment.createdAt));
-    return results.map((r) => new FormAssignment(r as unknown as FormAssignment));
+    return results.map(
+      (r) => new FormAssignment(r as unknown as FormAssignment),
+    );
   }
 
-  async findByRoleId(companyId: string, roleId: string): Promise<FormAssignment[]> {
+  async findByRoleId(
+    companyId: string,
+    roleId: string,
+  ): Promise<FormAssignment[]> {
     const results = await this.db
       .select()
       .from(formAssignment)
       .where(
         and(
           eq(formAssignment.companyId, companyId),
-          eq(formAssignment.roleId, roleId)
-        )
+          eq(formAssignment.roleId, roleId),
+        ),
       )
       .orderBy(desc(formAssignment.createdAt));
-    return results.map((r) => new FormAssignment(r as unknown as FormAssignment));
+    return results.map(
+      (r) => new FormAssignment(r as unknown as FormAssignment),
+    );
   }
 
-  async findActiveByOccurrenceAndRole(occurrenceId: string, roleId: string): Promise<FormAssignment | null> {
+  async findActiveByOccurrenceAndRole(
+    occurrenceId: string,
+    roleId: string,
+  ): Promise<FormAssignment | null> {
     const [result] = await this.db
       .select()
       .from(formAssignment)
@@ -547,14 +609,19 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
         and(
           eq(formAssignment.occurrenceId, occurrenceId),
           eq(formAssignment.roleId, roleId),
-          isNull(formAssignment.cancelledAt)
-        )
+          isNull(formAssignment.cancelledAt),
+        ),
       )
       .limit(1);
-    return result ? new FormAssignment(result as unknown as FormAssignment) : null;
+    return result
+      ? new FormAssignment(result as unknown as FormAssignment)
+      : null;
   }
 
-  async findActiveByOccurrenceAndMember(occurrenceId: string, memberId: string): Promise<FormAssignment | null> {
+  async findActiveByOccurrenceAndMember(
+    occurrenceId: string,
+    memberId: string,
+  ): Promise<FormAssignment | null> {
     const [result] = await this.db
       .select()
       .from(formAssignment)
@@ -562,15 +629,16 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
         and(
           eq(formAssignment.occurrenceId, occurrenceId),
           eq(formAssignment.companyMemberId, memberId),
-          isNull(formAssignment.cancelledAt)
-        )
+          isNull(formAssignment.cancelledAt),
+        ),
       )
       .limit(1);
-    return result ? new FormAssignment(result as unknown as FormAssignment) : null;
+    return result
+      ? new FormAssignment(result as unknown as FormAssignment)
+      : null;
   }
 
   async create(assignment: CreateFormAssignment): Promise<FormAssignment> {
-    
     const [result] = await this.db
       .insert(formAssignment)
       .values(assignment)
@@ -578,14 +646,17 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
     return new FormAssignment(result as unknown as FormAssignment);
   }
 
-  async cancel(id: string, update: UpdateFormAssignment): Promise<FormAssignment> {
+  async cancel(
+    id: string,
+    update: UpdateFormAssignment,
+  ): Promise<FormAssignment> {
     const [result] = await this.db
       .update(formAssignment)
       .set({
         cancelledAt: update.cancelledAt,
         cancelledBy: update.cancelledBy,
         cancelReason: update.cancelReason,
-        revision: update.revision
+        revision: update.revision,
       })
       .where(eq(formAssignment.id, id))
       .returning();
@@ -616,15 +687,18 @@ export class FormSubmissionRepository
     );
   }
 
-  async findByAssignmentId(assignmentId: string, companyId: string): Promise<FormSubmission[]> {
+  async findByAssignmentId(
+    assignmentId: string,
+    companyId: string,
+  ): Promise<FormSubmission[]> {
     const results = await this.db
       .select()
       .from(formSubmission)
       .where(
         and(
           eq(formSubmission.assignmentId, assignmentId),
-          eq(formSubmission.companyId, companyId)
-        )
+          eq(formSubmission.companyId, companyId),
+        ),
       )
       .orderBy(desc(formSubmission.createdAt));
     return results.map(
@@ -632,7 +706,10 @@ export class FormSubmissionRepository
     );
   }
 
-  async findByAssignmentIds(assignmentIds: string[], companyId: string): Promise<FormSubmission[]> {
+  async findByAssignmentIds(
+    assignmentIds: string[],
+    companyId: string,
+  ): Promise<FormSubmission[]> {
     if (assignmentIds.length === 0) return [];
     const results = await this.db
       .select()
@@ -640,8 +717,8 @@ export class FormSubmissionRepository
       .where(
         and(
           inArray(formSubmission.assignmentId, assignmentIds),
-          eq(formSubmission.companyId, companyId)
-        )
+          eq(formSubmission.companyId, companyId),
+        ),
       )
       .orderBy(desc(formSubmission.createdAt));
     return results.map(
@@ -649,7 +726,10 @@ export class FormSubmissionRepository
     );
   }
 
-  async findDraftByAssignmentId(assignmentId: string, companyId: string): Promise<FormSubmission | null> {
+  async findDraftByAssignmentId(
+    assignmentId: string,
+    companyId: string,
+  ): Promise<FormSubmission | null> {
     const [result] = await this.db
       .select()
       .from(formSubmission)
@@ -657,8 +737,8 @@ export class FormSubmissionRepository
         and(
           eq(formSubmission.assignmentId, assignmentId),
           eq(formSubmission.companyId, companyId),
-          isNull(formSubmission.submittedAt)
-        )
+          isNull(formSubmission.submittedAt),
+        ),
       )
       .orderBy(desc(formSubmission.createdAt))
       .limit(1);
@@ -711,7 +791,6 @@ export class FormSubmissionContributorRepository
   async create(
     entity: CreateFormSubmissionContributor,
   ): Promise<FormSubmissionContributor> {
-    
     const [result] = await this.db
       .insert(formSubmissionContributor)
       .values(entity)
@@ -862,7 +941,6 @@ export class FormAnswerAttachmentRepository
   async create(
     attachment: CreateFormAnswerAttachment,
   ): Promise<FormAnswerAttachment> {
-    
     const [result] = await this.db
       .insert(formAnswerAttachment)
       .values(attachment)
@@ -894,20 +972,29 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
       .from(formReviewEntry)
       .where(eq(formReviewEntry.submissionId, submissionId))
       .orderBy(asc(formReviewEntry.createdAt));
-    return results.map((r) => new FormReviewEntry(r as unknown as FormReviewEntry));
+    return results.map(
+      (r) => new FormReviewEntry(r as unknown as FormReviewEntry),
+    );
   }
 
   async findHeadByTarget(
     submissionId: string,
     targetType: 'answer' | 'section' | 'final',
-    targetId?: string
+    targetId?: string,
   ): Promise<FormReviewEntry | null> {
     const supersededIds = await this.db
       .select({ id: formReviewEntry.supersedesEntryId })
       .from(formReviewEntry)
-      .where(and(eq(formReviewEntry.submissionId, submissionId), isNotNull(formReviewEntry.supersedesEntryId)));
-    
-    const supersededSet = supersededIds.map((r) => r.id).filter(Boolean) as string[];
+      .where(
+        and(
+          eq(formReviewEntry.submissionId, submissionId),
+          isNotNull(formReviewEntry.supersedesEntryId),
+        ),
+      );
+
+    const supersededSet = supersededIds
+      .map((r) => r.id)
+      .filter(Boolean) as string[];
 
     let targetCondition;
     if (targetType === 'answer') {
@@ -915,12 +1002,15 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
     } else if (targetType === 'section') {
       targetCondition = eq(formReviewEntry.sectionId, targetId!);
     } else {
-      targetCondition = and(isNull(formReviewEntry.answerId), isNull(formReviewEntry.sectionId));
+      targetCondition = and(
+        isNull(formReviewEntry.answerId),
+        isNull(formReviewEntry.sectionId),
+      );
     }
 
     const filters = [
       eq(formReviewEntry.submissionId, submissionId),
-      targetCondition
+      targetCondition,
     ];
 
     if (supersededSet.length > 0) {
@@ -933,10 +1023,14 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
       .where(and(...filters))
       .limit(1);
 
-    return result ? new FormReviewEntry(result as unknown as FormReviewEntry) : null;
+    return result
+      ? new FormReviewEntry(result as unknown as FormReviewEntry)
+      : null;
   }
 
-  async findHeadFinalBySubmissionIds(submissionIds: string[]): Promise<FormReviewEntry[]> {
+  async findHeadFinalBySubmissionIds(
+    submissionIds: string[],
+  ): Promise<FormReviewEntry[]> {
     if (submissionIds.length === 0) return [];
     const results = await this.db
       .select()
@@ -945,14 +1039,15 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
         and(
           inArray(formReviewEntry.submissionId, submissionIds),
           isNull(formReviewEntry.answerId),
-          isNull(formReviewEntry.sectionId)
-        )
+          isNull(formReviewEntry.sectionId),
+        ),
       );
-    return results.map((r) => new FormReviewEntry(r as unknown as FormReviewEntry));
+    return results.map(
+      (r) => new FormReviewEntry(r as unknown as FormReviewEntry),
+    );
   }
 
   async create(entry: CreateFormReviewEntry): Promise<FormReviewEntry> {
-    
     const [result] = await this.db
       .insert(formReviewEntry)
       .values(entry)
@@ -966,6 +1061,8 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
       .from(formReviewEntry)
       .where(eq(formReviewEntry.companyId, companyId))
       .orderBy(desc(formReviewEntry.createdAt));
-    return results.map((r) => new FormReviewEntry(r as unknown as FormReviewEntry));
+    return results.map(
+      (r) => new FormReviewEntry(r as unknown as FormReviewEntry),
+    );
   }
 }

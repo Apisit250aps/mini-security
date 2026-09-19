@@ -93,4 +93,3 @@ export class LeaveRequest implements LeaveRequestEntity {
     this.updatedAt = data.updatedAt;
   }
 }
-

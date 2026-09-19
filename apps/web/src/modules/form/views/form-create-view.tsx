@@ -46,14 +46,11 @@ export default function FormCreateView() {
   const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
 
   const createMutation = useFormTemplateCreate(activeCompanyId || '');
-  
 
   const currentMember = membersQuery.data?.find(
     (m) => m.userId === session?.user.id && m.isActive,
   );
   const createdBy = currentMember?.id || session?.user.id || '';
-
-  
 
   const methods = useForm<CreateFormValues>({
     resolver: zodResolver(createFormSchema as never),
@@ -62,7 +59,6 @@ export default function FormCreateView() {
       description: '',
     },
   });
-
 
   const handleSubmit = useCallback(
     (values: CreateFormValues) => {
@@ -87,8 +83,10 @@ export default function FormCreateView() {
               return;
             }
 
-            toast.success('สร้างแบบฟอร์มสำเร็จ กำลังนำเข้าสู่หน้าออกแบบฟิลด์คำถาม');
-              router.push(`/company/forms/templates/${template.id}/builder`);
+            toast.success(
+              'สร้างแบบฟอร์มสำเร็จ กำลังนำเข้าสู่หน้าออกแบบฟิลด์คำถาม',
+            );
+            router.push(`/company/forms/templates/${template.id}/builder`);
           },
           onError: (err) => {
             toast.error(getErrorMessage(err, 'ไม่สามารถสร้างแบบฟอร์มได้'));
@@ -173,9 +171,7 @@ export default function FormCreateView() {
 
                 <ButtonLoading
                   type="submit"
-                  isLoading={
-                    createMutation.isPending 
-                  }
+                  isLoading={createMutation.isPending}
                   className="gap-2"
                 >
                   สร้างและเริ่มออกแบบคำถาม

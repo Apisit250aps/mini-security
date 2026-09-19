@@ -77,9 +77,7 @@ function resolveAssignmentWorkflowAndActions(params: {
     );
     const unSuperceded = submissions.filter((s) => !supersededSet.has(s.id));
     // Sort by createdAt desc if multiple
-    unSuperceded.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-    );
+    unSuperceded.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     latestSubmission = unSuperceded[0] ?? null;
   }
 
@@ -233,20 +231,14 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
     const now = new Date();
     const activeAssignments = assignments.filter((a) => {
       const occurrence = occurrenceMap.get(a.occurrenceId);
-      return (
-        occurrence &&
-        !occurrence.cancelledAt &&
-        occurrence.opensAt <= now
-      );
+      return occurrence && !occurrence.cancelledAt && occurrence.opensAt <= now;
     });
 
     const activeOccurrenceList = activeAssignments
       .map((a) => occurrenceMap.get(a.occurrenceId))
       .filter((o): o is NonNullable<typeof o> => o != null);
 
-    const planIds = [
-      ...new Set(activeOccurrenceList.map((o) => o.planId)),
-    ];
+    const planIds = [...new Set(activeOccurrenceList.map((o) => o.planId))];
     const plans = this.planRepo
       ? await Promise.all(planIds.map((id) => this.planRepo!.findById(id)))
       : [];
@@ -305,9 +297,7 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
     const submissionIds = submissions.map((s) => s.id);
     const finalReviews =
       this.reviewEntryRepo && submissionIds.length > 0
-        ? await this.reviewEntryRepo.findHeadFinalBySubmissionIds(
-            submissionIds,
-          )
+        ? await this.reviewEntryRepo.findHeadFinalBySubmissionIds(submissionIds)
         : [];
     const finalReviewMap = new Map<string, FormReviewEntry>(
       finalReviews.map((r) => [r.submissionId, r]),
@@ -320,20 +310,16 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
       const role = a.roleId ? roleMap.get(a.roleId) : null;
       const assignSubs = submissionsByAssignment.get(a.id) ?? [];
 
-      const {
-        latestSubmission,
-        workflowStatus,
-        isOverdue,
-        availableActions,
-      } = resolveAssignmentWorkflowAndActions({
-        assignment: a,
-        occurrence,
-        plan,
-        submissions: assignSubs,
-        finalReviewMap,
-        now,
-        isAssignedToCurrentActor: true,
-      });
+      const { latestSubmission, workflowStatus, isOverdue, availableActions } =
+        resolveAssignmentWorkflowAndActions({
+          assignment: a,
+          occurrence,
+          plan,
+          submissions: assignSubs,
+          finalReviewMap,
+          now,
+          isAssignedToCurrentActor: true,
+        });
 
       const isPersonal = Boolean(a.companyMemberId);
       const recipientLabel = isPersonal
@@ -599,9 +585,7 @@ export class ListOccurrenceAssignmentsUseCase
 
     return assignments.map((a) => {
       const role = a.roleId ? roleMap.get(a.roleId) : null;
-      const mem = a.companyMemberId
-        ? memberMap.get(a.companyMemberId)
-        : null;
+      const mem = a.companyMemberId ? memberMap.get(a.companyMemberId) : null;
       const u = mem ? userMap.get(mem.userId) : null;
       const memberName = u?.name ?? null;
       const assignSubs = submissionsByAssignment.get(a.id) ?? [];
@@ -613,20 +597,16 @@ export class ListOccurrenceAssignmentsUseCase
             (!isPersonal && a.roleId && a.roleId === currentMember.roleId)),
       );
 
-      const {
-        latestSubmission,
-        workflowStatus,
-        isOverdue,
-        availableActions,
-      } = resolveAssignmentWorkflowAndActions({
-        assignment: a,
-        occurrence,
-        plan,
-        submissions: assignSubs,
-        finalReviewMap,
-        now,
-        isAssignedToCurrentActor: isAssignedToActor,
-      });
+      const { latestSubmission, workflowStatus, isOverdue, availableActions } =
+        resolveAssignmentWorkflowAndActions({
+          assignment: a,
+          occurrence,
+          plan,
+          submissions: assignSubs,
+          finalReviewMap,
+          now,
+          isAssignedToCurrentActor: isAssignedToActor,
+        });
 
       const recipientLabel = isPersonal
         ? `งานส่วนตัว (${memberName ?? 'สมาชิก'})`

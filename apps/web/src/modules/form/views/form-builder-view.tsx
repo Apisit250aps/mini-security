@@ -173,8 +173,6 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
     });
   }, [ui.dialog, activeCompanyId, template]);
 
-
-
   const handleAddSection = useCallback(() => {
     if (!activeCompanyId || !currentVersion) {
       toast.error('ไม่พบเวอร์ชันแบบฟอร์ม');
@@ -450,7 +448,6 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
           {/* TAB 1: FORM BUILDER CANVAS */}
           {activeTab === 'builder' && (
             <div className="flex flex-col gap-6">
-
               {/* Sections & Fields List */}
               {sections.length === 0 ? (
                 <Card className="border-dashed border-2 border-border/80 bg-muted/10 p-8 text-center">

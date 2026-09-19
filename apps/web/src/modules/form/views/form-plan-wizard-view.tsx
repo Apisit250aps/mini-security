@@ -94,24 +94,42 @@ export default function FormPlanWizardView() {
   const [currentStep, setCurrentStep] = useState(1);
   // --- Step 1 State: Plan Info & Form ---
   const [name, setName] = useState('');
-  const [selectedTemplateId, setSelectedTemplateId] = useState(preselectedTemplateId);
-  const [versionOption, setVersionOption] = useState<'LATEST' | 'LOCKED'>('LATEST');
+  const [selectedTemplateId, setSelectedTemplateId] = useState(
+    preselectedTemplateId,
+  );
+  const [versionOption, setVersionOption] = useState<'LATEST' | 'LOCKED'>(
+    'LATEST',
+  );
 
   // Load detail of selected template to check activeVersion
-  const templateDetailQuery = useFormTemplateQueries(selectedTemplateId || undefined);
+  const templateDetailQuery = useFormTemplateQueries(
+    selectedTemplateId || undefined,
+  );
   const selectedTemplateDetail = templateDetailQuery.data;
   const activeVersion = selectedTemplateDetail?.activeVersion;
 
   // --- Step 2 State: Schedule & Periods ---
-  const [scheduleKind, setScheduleKind] = useState<'RECURRING' | 'EXPLICIT'>('RECURRING');
-  const [frequency, setFrequency] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>('DAILY');
+  const [scheduleKind, setScheduleKind] = useState<'RECURRING' | 'EXPLICIT'>(
+    'RECURRING',
+  );
+  const [frequency, setFrequency] = useState<
+    'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
+  >('DAILY');
   const [interval, setInterval] = useState(1);
-  const [timezone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Bangkok');
-  const [anchorLocalDate, setAnchorLocalDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [timezone] = useState(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Bangkok',
+  );
+  const [anchorLocalDate, setAnchorLocalDate] = useState(
+    () => new Date().toISOString().split('T')[0],
+  );
   const [openLocalTime, setOpenLocalTime] = useState('08:00');
   const [dueAmount, setDueAmount] = useState(8);
-  const [dueUnit, setDueUnit] = useState<'ELAPSED_HOURS' | 'CALENDAR_DAYS'>('ELAPSED_HOURS');
-  const [invalidDayPolicy, setInvalidDayPolicy] = useState<'SKIP' | 'LAST_DAY'>('LAST_DAY');
+  const [dueUnit, setDueUnit] = useState<'ELAPSED_HOURS' | 'CALENDAR_DAYS'>(
+    'ELAPSED_HOURS',
+  );
+  const [invalidDayPolicy, setInvalidDayPolicy] = useState<'SKIP' | 'LAST_DAY'>(
+    'LAST_DAY',
+  );
   const [missedPolicy, setMissedPolicy] = useState<'SKIP' | 'CATCH_UP'>('SKIP');
 
   // For EXPLICIT periods
@@ -121,11 +139,15 @@ export default function FormPlanWizardView() {
   const [targets, setTargets] = useState<TargetItem[]>([]);
   const [newTargetType, setNewTargetType] = useState<'ROLE' | 'MEMBER'>('ROLE');
   const [newRoleId, setNewRoleId] = useState('');
-  const [newRoleDistribution, setNewRoleDistribution] = useState<'SHARED' | 'PER_MEMBER'>('SHARED');
+  const [newRoleDistribution, setNewRoleDistribution] = useState<
+    'SHARED' | 'PER_MEMBER'
+  >('SHARED');
   const [newMemberId, setNewMemberId] = useState('');
 
   // --- Step 4 State: Review & Policies ---
-  const [reviewMode, setReviewMode] = useState<'NONE' | 'OVERALL' | 'ALL_SECTIONS' | 'ALL_ANSWERS'>('OVERALL');
+  const [reviewMode, setReviewMode] = useState<
+    'NONE' | 'OVERALL' | 'ALL_SECTIONS' | 'ALL_ANSWERS'
+  >('OVERALL');
   const [latePolicy, setLatePolicy] = useState<'ALLOW' | 'DENY'>('DENY');
 
   // Saving states
@@ -133,7 +155,10 @@ export default function FormPlanWizardView() {
 
   const roles = useMemo(() => rolesQuery.data || [], [rolesQuery.data]);
   const members = useMemo(() => membersQuery.data || [], [membersQuery.data]);
-  const templates = useMemo(() => templatesQuery.data || [], [templatesQuery.data]);
+  const templates = useMemo(
+    () => templatesQuery.data || [],
+    [templatesQuery.data],
+  );
 
   const handleAddTarget = () => {
     if (newTargetType === 'ROLE') {
@@ -141,7 +166,9 @@ export default function FormPlanWizardView() {
         toast.error('กรุณาเลือกตำแหน่ง (Role)');
         return;
       }
-      const exists = targets.some((t) => t.type === 'ROLE' && t.roleId === newRoleId);
+      const exists = targets.some(
+        (t) => t.type === 'ROLE' && t.roleId === newRoleId,
+      );
       if (exists) {
         toast.error('ตำแหน่งนี้ถูกเพิ่มในรายการมอบหมายแล้ว');
         return;
@@ -159,7 +186,9 @@ export default function FormPlanWizardView() {
         toast.error('กรุณาเลือกพนักงาน');
         return;
       }
-      const exists = targets.some((t) => t.type === 'MEMBER' && t.companyMemberId === newMemberId);
+      const exists = targets.some(
+        (t) => t.type === 'MEMBER' && t.companyMemberId === newMemberId,
+      );
       if (exists) {
         toast.error('พนักงานคนนี้ถูกเพิ่มในรายการมอบหมายแล้ว');
         return;
@@ -183,7 +212,9 @@ export default function FormPlanWizardView() {
       ...periods,
       {
         opensAt: new Date(Date.now() + 86400000).toISOString().slice(0, 16),
-        dueAt: new Date(Date.now() + 86400000 + 28800000).toISOString().slice(0, 16),
+        dueAt: new Date(Date.now() + 86400000 + 28800000)
+          .toISOString()
+          .slice(0, 16),
       },
     ]);
   };
@@ -208,7 +239,9 @@ export default function FormPlanWizardView() {
         return false;
       }
       if (!activeVersion) {
-        toast.error('แบบฟอร์มที่เลือกยังไม่มีเวอร์ชันเผยแพร่ (Published) ไม่สามารถเปิดแผนได้');
+        toast.error(
+          'แบบฟอร์มที่เลือกยังไม่มีเวอร์ชันเผยแพร่ (Published) ไม่สามารถเปิดแผนได้',
+        );
         return false;
       }
       return true;
@@ -438,7 +471,8 @@ export default function FormPlanWizardView() {
             <CardHeader>
               <CardTitle>ขั้นตอนที่ 1: ข้อมูลแผนและเลือกแบบฟอร์ม</CardTitle>
               <CardDescription>
-                ตั้งชื่อแผนการตรวจและเลือกแม่แบบฟอร์มที่มีเวอร์ชันเผยแพร่แล้ว (Published)
+                ตั้งชื่อแผนการตรวจและเลือกแม่แบบฟอร์มที่มีเวอร์ชันเผยแพร่แล้ว
+                (Published)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -460,7 +494,8 @@ export default function FormPlanWizardView() {
 
                 <Field>
                   <FieldLabel htmlFor="plan-template">
-                    เลือกแม่แบบฟอร์ม (Form Template) <span className="text-destructive">*</span>
+                    เลือกแม่แบบฟอร์ม (Form Template){' '}
+                    <span className="text-destructive">*</span>
                   </FieldLabel>
                   <select
                     id="plan-template"
@@ -502,8 +537,12 @@ export default function FormPlanWizardView() {
                       </p>
                     )}
                     <div className="flex items-center gap-4 text-muted-foreground pt-1">
-                      <span>หมวดหมู่: {selectedTemplateDetail.sections.length} หมวด</span>
-                      <span>ข้อคำถาม: {selectedTemplateDetail.fields.length} ข้อ</span>
+                      <span>
+                        หมวดหมู่: {selectedTemplateDetail.sections.length} หมวด
+                      </span>
+                      <span>
+                        ข้อคำถาม: {selectedTemplateDetail.fields.length} ข้อ
+                      </span>
                     </div>
 
                     {!activeVersion && (
@@ -526,7 +565,9 @@ export default function FormPlanWizardView() {
 
                 {activeVersion && (
                   <Field>
-                    <FieldLabel>นโยบายเวอร์ชันของแบบฟอร์ม (Form Version Policy)</FieldLabel>
+                    <FieldLabel>
+                      นโยบายเวอร์ชันของแบบฟอร์ม (Form Version Policy)
+                    </FieldLabel>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div
                         onClick={() => setVersionOption('LATEST')}
@@ -537,13 +578,16 @@ export default function FormPlanWizardView() {
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold text-sm">ใช้เวอร์ชันล่าสุดเสมอ</span>
+                          <span className="font-semibold text-sm">
+                            ใช้เวอร์ชันล่าสุดเสมอ
+                          </span>
                           <Badge variant="outline" className="text-xs">
                             แนะนำ
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          เมื่อมีการเผยแพร่เวอร์ชันใหม่ รอบงานที่เปิดหลังจากนั้นจะใช้คำถามเวอร์ชันใหม่ล่าสุดโดยอัตโนมัติ
+                          เมื่อมีการเผยแพร่เวอร์ชันใหม่
+                          รอบงานที่เปิดหลังจากนั้นจะใช้คำถามเวอร์ชันใหม่ล่าสุดโดยอัตโนมัติ
                         </p>
                       </div>
 
@@ -556,13 +600,16 @@ export default function FormPlanWizardView() {
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold text-sm">ล็อกเวอร์ชันปัจจุบัน</span>
+                          <span className="font-semibold text-sm">
+                            ล็อกเวอร์ชันปัจจุบัน
+                          </span>
                           <Badge variant="secondary" className="text-xs">
                             v{activeVersion.version}
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          ล็อกให้ทุกรอบงานใช้เฉพาะคำถามของเวอร์ชัน {activeVersion.version} นี้เสมอ แม้จะมีการอัปเดตแม่แบบ
+                          ล็อกให้ทุกรอบงานใช้เฉพาะคำถามของเวอร์ชัน{' '}
+                          {activeVersion.version} นี้เสมอ แม้จะมีการอัปเดตแม่แบบ
                         </p>
                       </div>
                     </div>
@@ -574,7 +621,10 @@ export default function FormPlanWizardView() {
               <Link href="/company/forms/plans">
                 <Button variant="ghost">ยกเลิก</Button>
               </Link>
-              <Button onClick={handleNext} isDisabled={!activeVersion || !name.trim()}>
+              <Button
+                onClick={handleNext}
+                isDisabled={!activeVersion || !name.trim()}
+              >
                 ต่อไป
                 <ChevronRight data-icon="inline-end" />
               </Button>
@@ -588,7 +638,8 @@ export default function FormPlanWizardView() {
             <CardHeader>
               <CardTitle>ขั้นตอนที่ 2: ตั้งเวลาและรอบงาน</CardTitle>
               <CardDescription>
-                เลือกระหว่างทำซ้ำตามรอบอัตโนมัติ (Recurring) หรือกำหนดช่วงเวลาเฉพาะ (Explicit Periods)
+                เลือกระหว่างทำซ้ำตามรอบอัตโนมัติ (Recurring)
+                หรือกำหนดช่วงเวลาเฉพาะ (Explicit Periods)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -604,7 +655,9 @@ export default function FormPlanWizardView() {
                           : 'border-border hover:bg-muted/30'
                       }`}
                     >
-                      <span className="font-semibold text-sm block">ทำซ้ำตามรอบ (Recurring)</span>
+                      <span className="font-semibold text-sm block">
+                        ทำซ้ำตามรอบ (Recurring)
+                      </span>
                       <span className="text-xs text-muted-foreground">
                         เปิดรอบตามเวลาประจำ เช่น ทุกวันเวลา 08:00 น.
                       </span>
@@ -618,7 +671,9 @@ export default function FormPlanWizardView() {
                           : 'border-border hover:bg-muted/30'
                       }`}
                     >
-                      <span className="font-semibold text-sm block">กำหนดช่วงเวลาเฉพาะ (Explicit)</span>
+                      <span className="font-semibold text-sm block">
+                        กำหนดช่วงเวลาเฉพาะ (Explicit)
+                      </span>
                       <span className="text-xs text-muted-foreground">
                         ระบุช่วงวันและเวลาเปิด/กำหนดส่งเป็นรอบๆ
                       </span>
@@ -630,11 +685,15 @@ export default function FormPlanWizardView() {
                   <div className="flex flex-col gap-4 border rounded-xl p-4 bg-muted/10">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field>
-                        <FieldLabel htmlFor="freq-select">ความถี่การทำซ้ำ</FieldLabel>
+                        <FieldLabel htmlFor="freq-select">
+                          ความถี่การทำซ้ำ
+                        </FieldLabel>
                         <select
                           id="freq-select"
                           value={frequency}
-                          onChange={(e) => setFrequency(e.target.value as never)}
+                          onChange={(e) =>
+                            setFrequency(e.target.value as never)
+                          }
                           className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         >
                           <option value="DAILY">ทุกวัน (Daily)</option>
@@ -645,14 +704,18 @@ export default function FormPlanWizardView() {
                       </Field>
 
                       <Field>
-                        <FieldLabel htmlFor="interval-input">ช่วงระยะ (Interval)</FieldLabel>
+                        <FieldLabel htmlFor="interval-input">
+                          ช่วงระยะ (Interval)
+                        </FieldLabel>
                         <Input
                           id="interval-input"
                           type="number"
                           min={1}
                           max={100}
                           value={interval}
-                          onChange={(e) => setInterval(Math.max(1, Number(e.target.value)))}
+                          onChange={(e) =>
+                            setInterval(Math.max(1, Number(e.target.value)))
+                          }
                         />
                         <FieldDescription>
                           {frequency === 'DAILY'
@@ -677,36 +740,48 @@ export default function FormPlanWizardView() {
                           value={anchorLocalDate}
                           onChange={(e) => setAnchorLocalDate(e.target.value)}
                         />
-                        <FieldDescription>วันที่ตั้งต้นในเขตเวลา {timezone}</FieldDescription>
+                        <FieldDescription>
+                          วันที่ตั้งต้นในเขตเวลา {timezone}
+                        </FieldDescription>
                       </Field>
 
                       <Field>
-                        <FieldLabel htmlFor="open-time">เวลาเปิดรอบในแต่ละวัน</FieldLabel>
+                        <FieldLabel htmlFor="open-time">
+                          เวลาเปิดรอบในแต่ละวัน
+                        </FieldLabel>
                         <Input
                           id="open-time"
                           type="time"
                           value={openLocalTime}
                           onChange={(e) => setOpenLocalTime(e.target.value)}
                         />
-                        <FieldDescription>เวลาที่รอบจะเริ่มเปิดให้ผู้กรอกเห็น</FieldDescription>
+                        <FieldDescription>
+                          เวลาที่รอบจะเริ่มเปิดให้ผู้กรอกเห็น
+                        </FieldDescription>
                       </Field>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field>
-                        <FieldLabel htmlFor="due-amount">ระยะเวลาส่งงาน (Due Offset)</FieldLabel>
+                        <FieldLabel htmlFor="due-amount">
+                          ระยะเวลาส่งงาน (Due Offset)
+                        </FieldLabel>
                         <div className="flex gap-2">
                           <Input
                             id="due-amount"
                             type="number"
                             min={1}
                             value={dueAmount}
-                            onChange={(e) => setDueAmount(Math.max(1, Number(e.target.value)))}
+                            onChange={(e) =>
+                              setDueAmount(Math.max(1, Number(e.target.value)))
+                            }
                             className="w-2/3"
                           />
                           <select
                             value={dueUnit}
-                            onChange={(e) => setDueUnit(e.target.value as never)}
+                            onChange={(e) =>
+                              setDueUnit(e.target.value as never)
+                            }
                             className="w-1/3 rounded-md border border-input bg-transparent px-2 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                           >
                             <option value="ELAPSED_HOURS">ชั่วโมง</option>
@@ -714,20 +789,29 @@ export default function FormPlanWizardView() {
                           </select>
                         </div>
                         <FieldDescription>
-                          กำหนดส่งจะคำนวณถัดจากเวลาเปิดรอบ เช่น {dueAmount} {dueUnit === 'ELAPSED_HOURS' ? 'ชั่วโมง' : 'วัน'}
+                          กำหนดส่งจะคำนวณถัดจากเวลาเปิดรอบ เช่น {dueAmount}{' '}
+                          {dueUnit === 'ELAPSED_HOURS' ? 'ชั่วโมง' : 'วัน'}
                         </FieldDescription>
                       </Field>
 
                       <Field>
-                        <FieldLabel htmlFor="missed-policy">นโยบายเมื่อระบบพลาดรอบ (Missed Policy)</FieldLabel>
+                        <FieldLabel htmlFor="missed-policy">
+                          นโยบายเมื่อระบบพลาดรอบ (Missed Policy)
+                        </FieldLabel>
                         <select
                           id="missed-policy"
                           value={missedPolicy}
-                          onChange={(e) => setMissedPolicy(e.target.value as never)}
+                          onChange={(e) =>
+                            setMissedPolicy(e.target.value as never)
+                          }
                           className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         >
-                          <option value="SKIP">ข้ามรอบเก่า (SKIP - แนะนำ)</option>
-                          <option value="CATCH_UP">ตามเปิดย้อนหลัง (CATCH_UP)</option>
+                          <option value="SKIP">
+                            ข้ามรอบเก่า (SKIP - แนะนำ)
+                          </option>
+                          <option value="CATCH_UP">
+                            ตามเปิดย้อนหลัง (CATCH_UP)
+                          </option>
                         </select>
                         <FieldDescription>
                           หากไม่มีการเปิดรอบตามเวลา ระบบจะข้ามหรือเปิดย้อนหลัง
@@ -743,10 +827,14 @@ export default function FormPlanWizardView() {
                         <select
                           id="invalid-day-policy"
                           value={invalidDayPolicy}
-                          onChange={(e) => setInvalidDayPolicy(e.target.value as never)}
+                          onChange={(e) =>
+                            setInvalidDayPolicy(e.target.value as never)
+                          }
                           className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         >
-                          <option value="LAST_DAY">ใช้วันสุดท้ายของเดือน (LAST_DAY)</option>
+                          <option value="LAST_DAY">
+                            ใช้วันสุดท้ายของเดือน (LAST_DAY)
+                          </option>
                           <option value="SKIP">ข้ามเดือนนั้นไป (SKIP)</option>
                         </select>
                       </Field>
@@ -755,7 +843,9 @@ export default function FormPlanWizardView() {
                 ) : (
                   <div className="flex flex-col gap-4 border rounded-xl p-4 bg-muted/10">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm">รายการช่วงเวลาตรวจ (Periods)</span>
+                      <span className="font-semibold text-sm">
+                        รายการช่วงเวลาตรวจ (Periods)
+                      </span>
                       <Button
                         type="button"
                         variant="outline"
@@ -783,7 +873,10 @@ export default function FormPlanWizardView() {
                                 value={period.opensAt}
                                 onChange={(e) => {
                                   const updated = [...periods];
-                                  updated[idx] = { ...updated[idx]!, opensAt: e.target.value };
+                                  updated[idx] = {
+                                    ...updated[idx]!,
+                                    opensAt: e.target.value,
+                                  };
                                   setPeriods(updated);
                                 }}
                               />
@@ -797,7 +890,10 @@ export default function FormPlanWizardView() {
                                 value={period.dueAt}
                                 onChange={(e) => {
                                   const updated = [...periods];
-                                  updated[idx] = { ...updated[idx]!, dueAt: e.target.value };
+                                  updated[idx] = {
+                                    ...updated[idx]!,
+                                    dueAt: e.target.value,
+                                  };
                                   setPeriods(updated);
                                 }}
                               />
@@ -838,21 +934,28 @@ export default function FormPlanWizardView() {
             <CardHeader>
               <CardTitle>ขั้นตอนที่ 3: มอบหมายผู้กรอก (Targets)</CardTitle>
               <CardDescription>
-                กำหนดตำแหน่ง (Role) หรือพนักงานรายบุคคลที่จะได้รับมอบหมายให้กรอกแบบฟอร์มในแต่ละรอบ
+                กำหนดตำแหน่ง (Role)
+                หรือพนักงานรายบุคคลที่จะได้รับมอบหมายให้กรอกแบบฟอร์มในแต่ละรอบ
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-6">
                 {/* Target Creation Box */}
                 <div className="p-4 border rounded-xl bg-muted/20 flex flex-col gap-4">
-                  <span className="font-semibold text-sm">เพิ่มผู้รับผิดชอบใหม่</span>
+                  <span className="font-semibold text-sm">
+                    เพิ่มผู้รับผิดชอบใหม่
+                  </span>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <span className="text-xs font-medium block mb-1">ประเภทผู้รับมอบหมาย</span>
+                      <span className="text-xs font-medium block mb-1">
+                        ประเภทผู้รับมอบหมาย
+                      </span>
                       <select
                         value={newTargetType}
-                        onChange={(e) => setNewTargetType(e.target.value as 'ROLE' | 'MEMBER')}
+                        onChange={(e) =>
+                          setNewTargetType(e.target.value as 'ROLE' | 'MEMBER')
+                        }
                         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       >
                         <option value="ROLE">ตามตำแหน่ง (Role)</option>
@@ -863,7 +966,9 @@ export default function FormPlanWizardView() {
                     {newTargetType === 'ROLE' ? (
                       <>
                         <div>
-                          <span className="text-xs font-medium block mb-1">เลือกตำแหน่ง (Role)</span>
+                          <span className="text-xs font-medium block mb-1">
+                            เลือกตำแหน่ง (Role)
+                          </span>
                           <select
                             value={newRoleId}
                             onChange={(e) => setNewRoleId(e.target.value)}
@@ -879,20 +984,32 @@ export default function FormPlanWizardView() {
                         </div>
 
                         <div>
-                          <span className="text-xs font-medium block mb-1">การกระจายงาน</span>
+                          <span className="text-xs font-medium block mb-1">
+                            การกระจายงาน
+                          </span>
                           <select
                             value={newRoleDistribution}
-                            onChange={(e) => setNewRoleDistribution(e.target.value as 'SHARED' | 'PER_MEMBER')}
+                            onChange={(e) =>
+                              setNewRoleDistribution(
+                                e.target.value as 'SHARED' | 'PER_MEMBER',
+                              )
+                            }
                             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                           >
-                            <option value="SHARED">ร่วมกันทำ 1 ชุด (SHARED)</option>
-                            <option value="PER_MEMBER">แยกคนละ 1 ชุด (PER_MEMBER)</option>
+                            <option value="SHARED">
+                              ร่วมกันทำ 1 ชุด (SHARED)
+                            </option>
+                            <option value="PER_MEMBER">
+                              แยกคนละ 1 ชุด (PER_MEMBER)
+                            </option>
                           </select>
                         </div>
                       </>
                     ) : (
                       <div className="sm:col-span-2">
-                        <span className="text-xs font-medium block mb-1">เลือกพนักงาน</span>
+                        <span className="text-xs font-medium block mb-1">
+                          เลือกพนักงาน
+                        </span>
                         <select
                           value={newMemberId}
                           onChange={(e) => setNewMemberId(e.target.value)}
@@ -901,7 +1018,8 @@ export default function FormPlanWizardView() {
                           <option value="">-- เลือกพนักงาน --</option>
                           {members.map((m) => (
                             <option key={m.id} value={m.id}>
-                              พนักงาน ID: {m.userId.slice(0, 8)} ({m.id.slice(0, 8)})
+                              พนักงาน ID: {m.userId.slice(0, 8)} (
+                              {m.id.slice(0, 8)})
                             </option>
                           ))}
                         </select>
@@ -925,13 +1043,16 @@ export default function FormPlanWizardView() {
 
                   {targets.length === 0 ? (
                     <div className="p-8 text-center border rounded-xl border-dashed bg-card text-muted-foreground text-sm">
-                      ยังไม่มีการกำหนดผู้รับผิดชอบ กรุณากดปุ่ม &quot;เพิ่มผู้รับผิดชอบ&quot; ด้านบน
+                      ยังไม่มีการกำหนดผู้รับผิดชอบ กรุณากดปุ่ม
+                      &quot;เพิ่มผู้รับผิดชอบ&quot; ด้านบน
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2">
                       {targets.map((target, idx) => {
                         if (target.type === 'ROLE') {
-                          const role = roles.find((r) => r.id === target.roleId);
+                          const role = roles.find(
+                            (r) => r.id === target.roleId,
+                          );
                           return (
                             <div
                               key={idx}
@@ -963,7 +1084,9 @@ export default function FormPlanWizardView() {
                           );
                         }
 
-                        const member = members.find((m) => m.id === target.companyMemberId);
+                        const member = members.find(
+                          (m) => m.id === target.companyMemberId,
+                        );
                         return (
                           <div
                             key={idx}
@@ -973,7 +1096,10 @@ export default function FormPlanWizardView() {
                               <Users className="size-4 text-primary" />
                               <div>
                                 <span className="font-semibold text-sm">
-                                  พนักงานรายบุคคล: {member ? `ID: ${member.userId.slice(0, 8)}` : target.companyMemberId}
+                                  พนักงานรายบุคคล:{' '}
+                                  {member
+                                    ? `ID: ${member.userId.slice(0, 8)}`
+                                    : target.companyMemberId}
                                 </span>
                                 <p className="text-xs text-muted-foreground">
                                   มอบหมายงานเฉพาะบุคคล 1 ชุดต่อรอบ
@@ -1055,13 +1181,18 @@ export default function FormPlanWizardView() {
                             : 'border-border hover:bg-muted/30'
                         }`}
                       >
-                        <span className="font-semibold text-sm block mb-1">{item.title}</span>
-                        <span className="text-xs text-muted-foreground">{item.desc}</span>
+                        <span className="font-semibold text-sm block mb-1">
+                          {item.title}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {item.desc}
+                        </span>
                       </div>
                     ))}
                   </div>
                   <FieldDescription>
-                    หมายเหตุ: ผู้ที่มีสิทธิ์ตรวจรับมาจาก Role permissions ขององค์กร (form_review)
+                    หมายเหตุ: ผู้ที่มีสิทธิ์ตรวจรับมาจาก Role permissions
+                    ขององค์กร (form_review)
                   </FieldDescription>
                 </Field>
 
@@ -1076,7 +1207,9 @@ export default function FormPlanWizardView() {
                           : 'border-border hover:bg-muted/30'
                       }`}
                     >
-                      <span className="font-semibold text-sm block mb-1">ไม่อนุญาตส่งช้า (DENY)</span>
+                      <span className="font-semibold text-sm block mb-1">
+                        ไม่อนุญาตส่งช้า (DENY)
+                      </span>
                       <span className="text-xs text-muted-foreground">
                         หากเลยเวลาที่กำหนดส่ง (Due Date) ระบบจะปฏิเสธการส่งงาน
                       </span>
@@ -1090,9 +1223,12 @@ export default function FormPlanWizardView() {
                           : 'border-border hover:bg-muted/30'
                       }`}
                     >
-                      <span className="font-semibold text-sm block mb-1">อนุญาตให้ส่งช้าได้ (ALLOW)</span>
+                      <span className="font-semibold text-sm block mb-1">
+                        อนุญาตให้ส่งช้าได้ (ALLOW)
+                      </span>
                       <span className="text-xs text-muted-foreground">
-                        ผู้รับมอบหมายยังสามารถส่งงานได้แม้เลยกำหนดส่ง (จะติดแท็ก Overdue)
+                        ผู้รับมอบหมายยังสามารถส่งงานได้แม้เลยกำหนดส่ง (จะติดแท็ก
+                        Overdue)
                       </span>
                     </div>
                   </div>
@@ -1125,11 +1261,17 @@ export default function FormPlanWizardView() {
               <div className="flex flex-col gap-4 border rounded-xl p-5 bg-card">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b">
                   <div>
-                    <span className="text-xs text-muted-foreground block">ชื่อแผนการตรวจ</span>
-                    <span className="font-semibold text-base text-foreground">{name}</span>
+                    <span className="text-xs text-muted-foreground block">
+                      ชื่อแผนการตรวจ
+                    </span>
+                    <span className="font-semibold text-base text-foreground">
+                      {name}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-xs text-muted-foreground block">แม่แบบฟอร์มที่ใช้</span>
+                    <span className="text-xs text-muted-foreground block">
+                      แม่แบบฟอร์มที่ใช้
+                    </span>
                     <span className="font-semibold text-base text-foreground">
                       {selectedTemplateDetail?.template.name}
                     </span>
@@ -1143,24 +1285,31 @@ export default function FormPlanWizardView() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b">
                   <div>
-                    <span className="text-xs text-muted-foreground block">รูปแบบกำหนดการ</span>
+                    <span className="text-xs text-muted-foreground block">
+                      รูปแบบกำหนดการ
+                    </span>
                     <span className="font-medium text-sm text-foreground">
                       {scheduleKind === 'RECURRING'
                         ? `ทำซ้ำ ${frequency} ทุก ${interval} รอบ เวลา ${openLocalTime} น.`
                         : `กำหนดช่วงเวลาเฉพาะ (${periods.length} ช่วง)`}
                     </span>
                     <span className="text-xs text-muted-foreground block">
-                      ส่งภายใน {dueAmount} {dueUnit === 'ELAPSED_HOURS' ? 'ชั่วโมง' : 'วัน'} ({timezone})
+                      ส่งภายใน {dueAmount}{' '}
+                      {dueUnit === 'ELAPSED_HOURS' ? 'ชั่วโมง' : 'วัน'} (
+                      {timezone})
                     </span>
                   </div>
                   <div>
-                    <span className="text-xs text-muted-foreground block">การตรวจรับและนโยบาย</span>
+                    <span className="text-xs text-muted-foreground block">
+                      การตรวจรับและนโยบาย
+                    </span>
                     <span className="font-medium text-sm text-foreground">
                       โหมดตรวจ: {reviewMode}
                     </span>
                     <span className="text-xs text-muted-foreground block">
-                      การส่งช้า: {latePolicy === 'ALLOW' ? 'อนุญาต' : 'ไม่อนุญาต'} · Missed:{' '}
-                      {missedPolicy}
+                      การส่งช้า:{' '}
+                      {latePolicy === 'ALLOW' ? 'อนุญาต' : 'ไม่อนุญาต'} ·
+                      Missed: {missedPolicy}
                     </span>
                   </div>
                 </div>
@@ -1175,7 +1324,8 @@ export default function FormPlanWizardView() {
                         const r = roles.find((role) => role.id === t.roleId);
                         return (
                           <Badge key={i} variant="secondary">
-                            ตำแหน่ง: {r?.name || t.roleId} ({t.roleDistribution})
+                            ตำแหน่ง: {r?.name || t.roleId} ({t.roleDistribution}
+                            )
                           </Badge>
                         );
                       }
@@ -1190,7 +1340,11 @@ export default function FormPlanWizardView() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t pt-4">
-              <Button variant="outline" onClick={handleBack} isDisabled={isSubmitting}>
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                isDisabled={isSubmitting}
+              >
                 <ChevronLeft data-icon="inline-start" />
                 ย้อนกลับ
               </Button>

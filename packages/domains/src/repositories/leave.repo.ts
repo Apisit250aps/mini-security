@@ -49,4 +49,3 @@ export interface ILeaveRequestRepository
     year: number,
   ): Promise<LeaveRequest[]>;
 }
-

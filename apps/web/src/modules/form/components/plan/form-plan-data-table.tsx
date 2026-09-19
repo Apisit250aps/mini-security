@@ -19,7 +19,9 @@ export default function FormPlanDataTable({
   companyId,
 }: FormPlanDataTableProps) {
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'DRAFT' | 'PAUSED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<
+    'ALL' | 'ACTIVE' | 'DRAFT' | 'PAUSED'
+  >('ALL');
 
   const plansQuery = useFormPlansQueries(companyId);
   const templatesQuery = useCompanyFormTemplatesQueries(companyId);

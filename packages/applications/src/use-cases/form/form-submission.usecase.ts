@@ -8,7 +8,10 @@ import {
 import { validateFormAnswer } from './form-answer-validation';
 import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import type { FormSubmission, FormReviewEntry } from '@repo/domains/entities/form';
+import type {
+  FormSubmission,
+  FormReviewEntry,
+} from '@repo/domains/entities/form';
 import type {
   ICreateCorrectionContext,
   ICreateCorrectionUseCase,
@@ -694,9 +697,7 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
     }
 
     // Batch fetch assignments
-    const assignmentIds = [
-      ...new Set(allowed.map((s) => s.assignmentId)),
-    ];
+    const assignmentIds = [...new Set(allowed.map((s) => s.assignmentId))];
     const assignments = await Promise.all(
       assignmentIds.map((id) => this.assignmentRepo.findById(id)),
     );
@@ -708,9 +709,7 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
 
     // Batch fetch occurrences
     const occurrenceIds = [
-      ...new Set(
-        Array.from(assignmentMap.values()).map((a) => a.occurrenceId),
-      ),
+      ...new Set(Array.from(assignmentMap.values()).map((a) => a.occurrenceId)),
     ];
     const occurrences = this.occurrenceRepo
       ? await Promise.all(
@@ -725,9 +724,7 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
 
     // Batch fetch plans
     const planIds = [
-      ...new Set(
-        Array.from(occurrenceMap.values()).map((o) => o.planId),
-      ),
+      ...new Set(Array.from(occurrenceMap.values()).map((o) => o.planId)),
     ];
     const plans = this.planRepo
       ? await Promise.all(planIds.map((id) => this.planRepo!.findById(id)))
@@ -789,9 +786,7 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
 
     // Batch fetch users
     const userIds = [
-      ...new Set(
-        Array.from(memberMap.values()).map((m) => m.userId),
-      ),
+      ...new Set(Array.from(memberMap.values()).map((m) => m.userId)),
     ];
     const users = this.userRepo
       ? await Promise.all(userIds.map((id) => this.userRepo!.findById(id)))

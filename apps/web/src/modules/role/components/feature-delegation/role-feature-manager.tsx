@@ -82,8 +82,7 @@ export function RoleFeatureManager({
           const isPending =
             (assignMutation.isPending &&
               assignMutation.variables?.featureId === feat.id) ||
-            (revokeMutation.isPending &&
-              revokeMutation.variables === feat.id);
+            (revokeMutation.isPending && revokeMutation.variables === feat.id);
 
           return (
             <div className="flex items-center gap-2">
@@ -157,7 +156,10 @@ export function RoleFeatureManager({
               มอบหมายแล้ว
             </Badge>
           ) : (
-            <Badge variant="outline" className="text-xs text-muted-foreground font-normal">
+            <Badge
+              variant="outline"
+              className="text-xs text-muted-foreground font-normal"
+            >
               ยังไม่มอบหมาย
             </Badge>
           );

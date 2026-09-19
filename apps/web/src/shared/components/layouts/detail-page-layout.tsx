@@ -43,15 +43,11 @@ export default function DetailPageLayout({
             )}
           </div>
           {actions && (
-            <div className="flex flex-wrap items-center gap-2">
-              {actions}
-            </div>
+            <div className="flex flex-wrap items-center gap-2">{actions}</div>
           )}
         </div>
 
-        {headerContent && (
-          <div className="mt-1">{headerContent}</div>
-        )}
+        {headerContent && <div className="mt-1">{headerContent}</div>}
       </div>
 
       {/* Main Content */}

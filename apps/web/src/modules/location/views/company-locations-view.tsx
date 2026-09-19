@@ -92,10 +92,7 @@ function CompanyLocations({ companyId }: { companyId: string }) {
             </AlertDescription>
           </Alert>
 
-          <LocationTable
-            locations={locationList}
-            branches={branchList}
-          />
+          <LocationTable locations={locationList} branches={branchList} />
         </div>
       )}
     </PageLayout>
@@ -116,7 +113,8 @@ export default function CompanyLocationsView() {
           <EmptyHeader>
             <EmptyTitle>ไม่พบองค์กรหรือไม่มีสิทธิ์ดูสถานที่</EmptyTitle>
             <EmptyDescription>
-              คุณไม่มีสิทธิ์ในการเข้าถึงข้อมูลสถานที่ หรือยังไม่ได้เลือกองค์กรที่สังกัด
+              คุณไม่มีสิทธิ์ในการเข้าถึงข้อมูลสถานที่
+              หรือยังไม่ได้เลือกองค์กรที่สังกัด
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -124,4 +122,3 @@ export default function CompanyLocationsView() {
     );
   return <CompanyLocations key={activeCompanyId} companyId={activeCompanyId} />;
 }
-

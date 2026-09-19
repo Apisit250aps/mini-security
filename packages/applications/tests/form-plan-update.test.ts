@@ -49,7 +49,9 @@ function fixture() {
   const memberRepo: Partial<ICompanyMemberRepository> = {
     findById: async (id) => (id === member.id ? member : null),
     findByCompanyAndUser: async (companyId, userId) =>
-      companyId === member.companyId && userId === member.userId ? member : null,
+      companyId === member.companyId && userId === member.userId
+        ? member
+        : null,
   };
 
   const template: FormTemplate = {
@@ -204,7 +206,11 @@ test('GetFormPlanUseCase returns plan with targets and periods', async () => {
     roleDistribution: 'SHARED',
   });
 
-  const getUseCase = new GetFormPlanUseCase(f.planRepo, f.targetRepo, f.periodRepo);
+  const getUseCase = new GetFormPlanUseCase(
+    f.planRepo,
+    f.targetRepo,
+    f.periodRepo,
+  );
   const detail = await getUseCase.execute({
     ...baseCtx,
     id: plan.id,

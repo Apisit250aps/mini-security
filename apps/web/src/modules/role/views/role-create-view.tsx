@@ -6,7 +6,13 @@ import FormPageLayout from '@/shared/components/layouts/form-page-layout';
 import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import RoleCreateForm from '../components/form/role-create-form';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui/components/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@repo/ui/components/card';
 import { ShieldCheck, Info, CheckCircle2 } from 'lucide-react';
 
 export default function RoleCreateView() {
@@ -43,19 +49,24 @@ export default function RoleCreateView() {
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 size-3.5 text-primary shrink-0" />
                 <div>
-                  <strong className="text-foreground">ADMIN:</strong> เหมาะสำหรับผู้จัดการสาขาหรือหัวหน้างาน สามารถดูและจัดการข้อมูลส่วนใหญ่ของบริษัทได้
+                  <strong className="text-foreground">ADMIN:</strong>{' '}
+                  เหมาะสำหรับผู้จัดการสาขาหรือหัวหน้างาน
+                  สามารถดูและจัดการข้อมูลส่วนใหญ่ของบริษัทได้
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 size-3.5 text-primary shrink-0" />
                 <div>
-                  <strong className="text-foreground">MEMBER:</strong> เหมาะสำหรับเจ้าหน้าที่ปฏิบัติการหรือรปภ. มีสิทธิ์ลงเวลาและตรวจสอบตารางงานตนเอง
+                  <strong className="text-foreground">MEMBER:</strong>{' '}
+                  เหมาะสำหรับเจ้าหน้าที่ปฏิบัติการหรือรปภ.
+                  มีสิทธิ์ลงเวลาและตรวจสอบตารางงานตนเอง
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 size-3.5 text-primary shrink-0" />
                 <div>
-                  <strong className="text-foreground">VIEWER:</strong> มีสิทธิ์อ่านข้อมูลเท่านั้น ไม่สามารถแก้ไขหรือลบข้อมูลได้
+                  <strong className="text-foreground">VIEWER:</strong>{' '}
+                  มีสิทธิ์อ่านข้อมูลเท่านั้น ไม่สามารถแก้ไขหรือลบข้อมูลได้
                 </div>
               </div>
             </CardContent>
@@ -65,11 +76,15 @@ export default function RoleCreateView() {
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <Info className="size-4 text-muted-foreground" />
-                <CardTitle className="text-sm">การจัดการสิทธิ์เชิงลึก</CardTitle>
+                <CardTitle className="text-sm">
+                  การจัดการสิทธิ์เชิงลึก
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="text-xs text-muted-foreground">
-              หลังจากสร้างบทบาทเสร็จสิ้น คุณสามารถกำหนดสิทธิ์อย่างละเอียดระดับโมดูล (Granular Permissions) และมอบหมายฟีเจอร์ที่หน้าจัดการบทบาทได้ทันที
+              หลังจากสร้างบทบาทเสร็จสิ้น
+              คุณสามารถกำหนดสิทธิ์อย่างละเอียดระดับโมดูล (Granular Permissions)
+              และมอบหมายฟีเจอร์ที่หน้าจัดการบทบาทได้ทันที
             </CardContent>
           </Card>
         </div>

@@ -235,4 +235,3 @@ export const updateLeaveRequestSchema = z
 export type LeaveRequestEntity = z.infer<typeof leaveRequestSchema>;
 export type CreateLeaveRequest = z.infer<typeof createLeaveRequestSchema>;
 export type UpdateLeaveRequest = z.infer<typeof updateLeaveRequestSchema>;
-

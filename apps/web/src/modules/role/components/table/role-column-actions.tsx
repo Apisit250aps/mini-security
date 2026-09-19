@@ -82,7 +82,7 @@ function RoleColumnActions<T extends Role>({
           'ดูฟีเจอร์ที่ดูแล (Features)': {
             onAction: () => actionManage('features'),
           },
-          'ดูรายละเอียดบทบาท': {
+          ดูรายละเอียดบทบาท: {
             onAction: () => actionManage('general'),
           },
         }}
@@ -99,7 +99,7 @@ function RoleColumnActions<T extends Role>({
         'มอบหมายฟีเจอร์ (Features)': {
           onAction: () => actionManage('features'),
         },
-        'จัดการบทบาทเชิงลึก': {
+        จัดการบทบาทเชิงลึก: {
           onAction: () => actionManage('general'),
         },
         'แก้ไขข้อมูลด่วน (Quick Edit)': {

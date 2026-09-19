@@ -11,8 +11,16 @@ import {
   useMemberLeaveQuotasQueries,
 } from '../hooks/leave-queries';
 import { useLeaveRequestSubmit } from '../hooks/leave-mutations';
-import LeaveRequestForm, { LeaveRequestFormValues } from '../components/requests/leave-request-form';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui/components/card';
+import LeaveRequestForm, {
+  LeaveRequestFormValues,
+} from '../components/requests/leave-request-form';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@repo/ui/components/card';
 import { Badge } from '@repo/ui/components/badge';
 import { CalendarCheck, ShieldAlert, CheckCircle2, Clock } from 'lucide-react';
 
@@ -28,7 +36,10 @@ export default function LeaveRequestCreateView() {
     return membersQuery.data.find((m) => m.userId === userId) || null;
   }, [session?.user?.id, membersQuery.data]);
 
-  const leaveTypesQuery = useCompanyLeaveTypesQueries(activeCompanyId || '', true);
+  const leaveTypesQuery = useCompanyLeaveTypesQueries(
+    activeCompanyId || '',
+    true,
+  );
   const quotasQuery = useMemberLeaveQuotasQueries(currentMember?.id);
   const submitMutation = useLeaveRequestSubmit(activeCompanyId || '');
 
@@ -85,7 +96,9 @@ export default function LeaveRequestCreateView() {
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               {quotasWithTypes.length === 0 ? (
-                <p className="text-xs text-muted-foreground">ยังไม่มีการกำหนดประเภทวันลา</p>
+                <p className="text-xs text-muted-foreground">
+                  ยังไม่มีการกำหนดประเภทวันลา
+                </p>
               ) : (
                 quotasWithTypes.map(({ type, totalDays }) => (
                   <div
@@ -93,15 +106,19 @@ export default function LeaveRequestCreateView() {
                     className="flex items-center justify-between rounded-lg border border-border/60 bg-background p-3 text-xs"
                   >
                     <div>
-                      <p className="font-semibold text-foreground">{type.name}</p>
+                      <p className="font-semibold text-foreground">
+                        {type.name}
+                      </p>
                       <p className="text-muted-foreground">
-                        หน่วย: {type.unit === 'day' ? 'วัน' : type.unit === 'half_day' ? 'ครึ่งวัน' : 'ชั่วโมง'}
+                        หน่วย:{' '}
+                        {type.unit === 'day'
+                          ? 'วัน'
+                          : type.unit === 'half_day'
+                            ? 'ครึ่งวัน'
+                            : 'ชั่วโมง'}
                       </p>
                     </div>
-                    <Badge
-                      variant="default"
-                      className="font-medium"
-                    >
+                    <Badge variant="default" className="font-medium">
                       {totalDays ? `${totalDays} วัน/ปี` : 'ตามที่อนุมัติ'}
                     </Badge>
                   </div>
@@ -122,13 +139,15 @@ export default function LeaveRequestCreateView() {
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 size-3.5 text-primary shrink-0" />
                 <span>
-                  การลาป่วยติดต่อกันเกิน 3 วัน ควรแนบใบรับรองแพทย์ในช่องเอกสารแนบ
+                  การลาป่วยติดต่อกันเกิน 3 วัน
+                  ควรแนบใบรับรองแพทย์ในช่องเอกสารแนบ
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <Clock className="mt-0.5 size-3.5 text-primary shrink-0" />
                 <span>
-                  การลาพักร้อนควรยื่นล่วงหน้าอย่างน้อย 3 วันทำการเพื่อให้หัวหน้างานจัดกะทดแทน
+                  การลาพักร้อนควรยื่นล่วงหน้าอย่างน้อย 3
+                  วันทำการเพื่อให้หัวหน้างานจัดกะทดแทน
                 </span>
               </div>
             </CardContent>

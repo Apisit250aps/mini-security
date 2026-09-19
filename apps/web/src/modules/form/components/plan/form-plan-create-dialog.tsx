@@ -4,10 +4,7 @@ import React, { useCallback } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  InputField,
-  SelectField,
-} from '@repo/ui/form';
+import { InputField, SelectField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Button } from '@repo/ui/components/button';
@@ -29,7 +26,9 @@ const planFormSchema = z.object({
   roleId: z.string().optional(),
   roleDistribution: z.enum(['SHARED', 'PER_MEMBER']).default('SHARED'),
   companyMemberId: z.string().optional(),
-  reviewMode: z.enum(['NONE', 'OVERALL', 'ALL_SECTIONS', 'ALL_ANSWERS']).default('OVERALL'),
+  reviewMode: z
+    .enum(['NONE', 'OVERALL', 'ALL_SECTIONS', 'ALL_ANSWERS'])
+    .default('OVERALL'),
   latePolicy: z.enum(['ALLOW', 'DENY']).default('DENY'),
   autoActivate: z.boolean().default(true),
 });
@@ -141,7 +140,9 @@ export default function FormPlanCreateDialog({
             name: values.name,
             scheduleKind: values.scheduleKind,
             scheduleConfig,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Bangkok',
+            timezone:
+              Intl.DateTimeFormat().resolvedOptions().timeZone ||
+              'Asia/Bangkok',
             fixedVersionId: null,
             reviewMode: values.reviewMode,
             latePolicy: values.latePolicy,
@@ -158,14 +159,17 @@ export default function FormPlanCreateDialog({
           onError: (err) => {
             toast.error(getErrorMessage(err, 'ไม่สามารถสร้างแผนงานได้'));
           },
-        }
+        },
       );
     },
-    [companyId, templateId, createPlanMutation, onClose]
+    [companyId, templateId, createPlanMutation, onClose],
   );
 
   return (
-    <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4 pt-1">
+    <form
+      onSubmit={methods.handleSubmit(handleSubmit)}
+      className="space-y-4 pt-1"
+    >
       <FieldGroup>
         <InputField
           control={control}
@@ -246,7 +250,9 @@ export default function FormPlanCreateDialog({
 
         {/* Target Assignment */}
         <div className="border rounded-xl p-4 bg-muted/20 space-y-3">
-          <h4 className="text-sm font-semibold">การมอบหมายผู้รับผิดชอบ (Target Assignment)</h4>
+          <h4 className="text-sm font-semibold">
+            การมอบหมายผู้รับผิดชอบ (Target Assignment)
+          </h4>
           <div className="grid grid-cols-2 gap-3">
             <SelectField
               control={control}

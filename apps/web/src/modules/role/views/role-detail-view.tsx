@@ -13,7 +13,12 @@ import { useRoleFeaturesQueries } from '@/modules/feature/hooks/feature-queries'
 import RoleEditForm from '../components/form/role-edit-form';
 import RolePermissionManager from '../components/permission-manager/role-permission-manager';
 import RoleFeatureManager from '../components/feature-delegation/role-feature-manager';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui/components/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@repo/ui/components/tabs';
 import { Badge } from '@repo/ui/components/badge';
 import { Card, CardContent } from '@repo/ui/components/card';
 import EmptyState from '@/shared/components/app/empty-state';
@@ -66,10 +71,7 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
 
   if (!role) {
     return (
-      <DetailPageLayout
-        title="ไม่พบบทบาท"
-        backHref={basePath}
-      >
+      <DetailPageLayout title="ไม่พบบทบาท" backHref={basePath}>
         <EmptyState
           icon={Shield}
           title="ไม่พบบทบาทที่ระบุ"
@@ -87,7 +89,10 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
   return (
     <DetailPageLayout
       title={role.name}
-      description={role.description || 'จัดการรายละเอียดบทบาท สิทธิ์การเข้าถึงระดับโมดูล และฟีเจอร์ที่มอบหมาย'}
+      description={
+        role.description ||
+        'จัดการรายละเอียดบทบาท สิทธิ์การเข้าถึงระดับโมดูล และฟีเจอร์ที่มอบหมาย'
+      }
       backHref={basePath}
       backLabel="กลับสู่หน้ารายชื่อบทบาท"
       badges={
@@ -99,7 +104,10 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
             <Badge variant="outline">บทบาทเฉพาะองค์กร (Custom Role)</Badge>
           )}
           {isReadOnly && (
-            <Badge variant="outline" className="text-amber-600 border-amber-300">
+            <Badge
+              variant="outline"
+              className="text-amber-600 border-amber-300"
+            >
               อ่านอย่างเดียว (Read Only)
             </Badge>
           )}
@@ -113,7 +121,9 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
             title="ประเภทบทบาท (Role Type)"
             value={role.roleType}
             icon={Shield}
-            description={role.isSystemDefault ? 'กำหนดโดยระบบกลาง' : 'กำหนดโดยองค์กร'}
+            description={
+              role.isSystemDefault ? 'กำหนดโดยระบบกลาง' : 'กำหนดโดยองค์กร'
+            }
           />
           <MetricStatCard
             title="สิทธิ์การใช้งานที่ได้รับ"
@@ -176,7 +186,9 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
                       ข้อมูลบทบาท
                     </div>
                     <div className="flex flex-col gap-1 border-t border-border/50 pt-2 text-xs">
-                      <span className="text-muted-foreground">รหัสอ้างอิงบทบาท:</span>
+                      <span className="text-muted-foreground">
+                        รหัสอ้างอิงบทบาท:
+                      </span>
                       <span className="font-mono text-xs font-semibold text-foreground">
                         #{role.id.slice(0, 8)}
                       </span>
@@ -184,7 +196,9 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
                     <div className="flex flex-col gap-1 text-xs">
                       <span className="text-muted-foreground">สถานะ:</span>
                       <span className="font-medium text-foreground">
-                        {role.isSystemDefault ? 'บทบาทระบบ (ล็อกการแก้ไขสิทธิ์หลัก)' : 'บทบาทกำหนดเอง'}
+                        {role.isSystemDefault
+                          ? 'บทบาทระบบ (ล็อกการแก้ไขสิทธิ์หลัก)'
+                          : 'บทบาทกำหนดเอง'}
                       </span>
                     </div>
                   </CardContent>
@@ -202,7 +216,8 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
                     กำหนดสิทธิ์การเข้าถึงระดับโมดูล (Granular Permissions)
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    เลือกสิทธิ์การอ่าน บันทึก แก้ไข หรือลบข้อมูลในแต่ละฟังก์ชันของระบบสำหรับบทบาทนี้
+                    เลือกสิทธิ์การอ่าน บันทึก แก้ไข
+                    หรือลบข้อมูลในแต่ละฟังก์ชันของระบบสำหรับบทบาทนี้
                   </p>
                 </div>
                 <RolePermissionManager role={role} readOnly={isReadOnly} />

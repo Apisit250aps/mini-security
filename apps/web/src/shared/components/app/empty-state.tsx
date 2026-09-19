@@ -28,7 +28,12 @@ export default function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <Empty className={cn('min-h-64 border border-dashed border-border/80 bg-card/20', className)}>
+    <Empty
+      className={cn(
+        'min-h-64 border border-dashed border-border/80 bg-card/20',
+        className,
+      )}
+    >
       <EmptyHeader>
         {Icon && (
           <EmptyMedia variant="icon">

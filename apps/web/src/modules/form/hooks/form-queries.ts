@@ -82,7 +82,10 @@ export function useFormSubmissionQueries(id?: string) {
   });
 }
 
-export function useMyAssignmentsQueries(filters: { companyId: string; memberId?: string }) {
+export function useMyAssignmentsQueries(filters: {
+  companyId: string;
+  memberId?: string;
+}) {
   return useQuery({
     queryKey: formKeys.myAssignments(filters.companyId, filters.memberId),
     queryFn: async ({ signal }) => {
@@ -209,6 +212,3 @@ export function useFormSchedulePreviewQueries(planId: string) {
     enabled: Boolean(planId),
   });
 }
-
-
-

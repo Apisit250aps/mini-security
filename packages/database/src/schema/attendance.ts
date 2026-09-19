@@ -251,4 +251,3 @@ export const attendanceLogs = pgTable(
     ),
   ],
 );
-

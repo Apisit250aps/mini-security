@@ -25,8 +25,7 @@ export default function CompanyAttendanceScheduleView() {
     [schedules],
   );
   const totalAssignedRoles = useMemo(
-    () =>
-      schedules.reduce((acc, s) => acc + (s.roleIds?.length ?? 0), 0),
+    () => schedules.reduce((acc, s) => acc + (s.roleIds?.length ?? 0), 0),
     [schedules],
   );
 
@@ -75,4 +74,3 @@ export default function CompanyAttendanceScheduleView() {
     </PageLayout>
   );
 }
-

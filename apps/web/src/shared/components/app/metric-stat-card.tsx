@@ -29,7 +29,12 @@ export default function MetricStatCard({
   className,
 }: MetricStatCardProps) {
   return (
-    <Card className={cn('overflow-hidden transition-all hover:shadow-xs', className)}>
+    <Card
+      className={cn(
+        'overflow-hidden transition-all hover:shadow-xs',
+        className,
+      )}
+    >
       <CardContent className="p-6">
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>

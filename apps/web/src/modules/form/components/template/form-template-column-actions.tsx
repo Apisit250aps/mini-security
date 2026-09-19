@@ -67,8 +67,6 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
     });
   }, [ui.dialog, companyId, template]);
 
-
-
   const actionAddSection = useCallback(async () => {
     const res = await formServicesGetTemplate({ path: { id: template.id } });
     const detail = res.data?.data;
@@ -171,7 +169,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
           onAction: () =>
             router.push(`/company/forms/templates/${template.id}`),
         },
-        'สร้างแผนจากแม่แบบนี้': {
+        สร้างแผนจากแม่แบบนี้: {
           onAction: () =>
             router.push(`/company/forms/plans/new?templateId=${template.id}`),
         },

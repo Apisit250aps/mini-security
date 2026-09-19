@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   FileIcon,
   ImageIcon,
@@ -9,14 +9,14 @@ import {
   Trash2,
   FileSpreadsheet,
   FileText,
-} from "lucide-react";
-import { Button } from "#components/button";
-import { cn } from "#lib/utils";
+} from 'lucide-react';
+import { Button } from '#components/button';
+import { cn } from '#lib/utils';
 import {
   useFileUpload,
   formatBytes,
   type FileMetadata,
-} from "#hooks/use-file-upload";
+} from '#hooks/use-file-upload';
 
 export interface FileUploadProps {
   value?: FileMetadata[];
@@ -33,11 +33,21 @@ export interface FileUploadProps {
 }
 
 function getFileTypeIcon(type: string, name: string) {
-  if (type.startsWith("image/")) return ImageIcon;
-  if (name.endsWith(".xlsx") || name.endsWith(".xls") || name.endsWith(".csv")) {
+  if (type.startsWith('image/')) return ImageIcon;
+  if (
+    name.endsWith('.xlsx') ||
+    name.endsWith('.xls') ||
+    name.endsWith('.csv')
+  ) {
     return FileSpreadsheet;
   }
-  if (type.includes("pdf") || type.includes("text") || name.endsWith(".pdf") || name.endsWith(".doc") || name.endsWith(".docx")) {
+  if (
+    type.includes('pdf') ||
+    type.includes('text') ||
+    name.endsWith('.pdf') ||
+    name.endsWith('.doc') ||
+    name.endsWith('.docx')
+  ) {
     return FileText;
   }
   return FileIcon;
@@ -53,7 +63,7 @@ export function FileUpload({
   disabled = false,
   className,
   dropzoneClassName,
-  placeholder = "ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์",
+  placeholder = 'ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์',
   description,
 }: FileUploadProps) {
   const maxSize = maxSizeMB * 1024 * 1024;
@@ -82,8 +92,12 @@ export function FileUpload({
   const displayFiles = value !== undefined ? value : files;
 
   return (
-    <div className={cn("flex w-full flex-col gap-3", className)}>
-      <input {...getInputProps()} disabled={disabled} aria-label="Upload files input" />
+    <div className={cn('flex w-full flex-col gap-3', className)}>
+      <input
+        {...getInputProps()}
+        disabled={disabled}
+        aria-label="Upload files input"
+      />
 
       {/* Dropzone Container */}
       <div
@@ -91,7 +105,7 @@ export function FileUpload({
         tabIndex={disabled ? -1 : 0}
         onClick={disabled ? undefined : openFileDialog}
         onKeyDown={(e) => {
-          if (!disabled && (e.key === "Enter" || e.key === " ")) {
+          if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault();
             openFileDialog();
           }
@@ -103,11 +117,11 @@ export function FileUpload({
         data-dragging={isDragging || undefined}
         data-disabled={disabled || undefined}
         className={cn(
-          "relative flex min-h-[140px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-6 text-center transition-all duration-150 outline-none select-none",
-          "hover:border-primary/60 hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-          "data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5",
-          "data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50",
-          !disabled && "cursor-pointer",
+          'relative flex min-h-[140px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-6 text-center transition-all duration-150 outline-none select-none',
+          'hover:border-primary/60 hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+          'data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5',
+          'data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50',
+          !disabled && 'cursor-pointer',
           dropzoneClassName,
         )}
       >
@@ -119,7 +133,7 @@ export function FileUpload({
             <p className="text-sm font-medium text-foreground">{placeholder}</p>
             <p className="text-xs text-muted-foreground">
               {description ||
-                `รองรับขนาดสูงสุด ${maxSizeMB}MB ${multiple ? `· สูงสุด ${maxFiles} ไฟล์` : ""}`}
+                `รองรับขนาดสูงสุด ${maxSizeMB}MB ${multiple ? `· สูงสุด ${maxFiles} ไฟล์` : ''}`}
             </p>
           </div>
           <Button
@@ -159,7 +173,8 @@ export function FileUpload({
           <ul className="grid gap-2">
             {displayFiles.map((f) => {
               const Icon = getFileTypeIcon(f.type, f.name);
-              const isImage = f.type.startsWith("image/") && (f.preview || f.url);
+              const isImage =
+                f.type.startsWith('image/') && (f.preview || f.url);
 
               return (
                 <li
@@ -217,7 +232,11 @@ export function FileUpload({
       {errors.length > 0 && (
         <div className="flex flex-col gap-1 px-1">
           {errors.map((err, i) => (
-            <p key={i} className="text-xs text-destructive font-medium" role="alert">
+            <p
+              key={i}
+              className="text-xs text-destructive font-medium"
+              role="alert"
+            >
               • {err}
             </p>
           ))}

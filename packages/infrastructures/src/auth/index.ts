@@ -60,9 +60,7 @@ const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
-          const { companyId } = await getUserPermissionActions(
-            session.userId,
-          );
+          const { companyId } = await getUserPermissionActions(session.userId);
 
           return {
             data: {

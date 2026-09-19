@@ -1,13 +1,23 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Field, FieldLabel, FieldError, FieldDescription } from "#components/field";
-import { FileUpload, type FileUploadProps } from "./file-upload";
-import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
-import type { FileMetadata } from "#hooks/use-file-upload";
+import * as React from 'react';
+import {
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldDescription,
+} from '#components/field';
+import { FileUpload, type FileUploadProps } from './file-upload';
+import {
+  Controller,
+  type Control,
+  type FieldValues,
+  type Path,
+} from 'react-hook-form';
+import type { FileMetadata } from '#hooks/use-file-upload';
 
 export interface FileUploadFieldProps<T extends FieldValues>
-  extends Omit<FileUploadProps, "value" | "onChange"> {
+  extends Omit<FileUploadProps, 'value' | 'onChange'> {
   control: Control<T>;
   name: Path<T>;
   label?: string;

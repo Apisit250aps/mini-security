@@ -88,4 +88,3 @@ export const rolePermission = pgTable(
     unique('role_permission_unique_idx').on(table.roleId, table.permissionId),
   ],
 );
-

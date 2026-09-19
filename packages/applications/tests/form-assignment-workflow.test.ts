@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import type { FormAssignment, FormOccurrence, FormPlan, FormSubmission, FormReviewEntry } from '@repo/domains/entities/form';
+import type {
+  FormAssignment,
+  FormOccurrence,
+  FormPlan,
+  FormSubmission,
+  FormReviewEntry,
+} from '@repo/domains/entities/form';
 import type { CompanyMember } from '@repo/domains/entities/company';
 import type { User } from '@repo/domains/entities/user';
 import type {
@@ -11,13 +17,9 @@ import type {
   IFormTemplateRepository,
   IFormReviewEntryRepository,
 } from '@repo/domains/repositories/form';
-import type {
-  ICompanyMemberRepository,
-} from '@repo/domains/repositories/company';
+import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
 import type { IUserRepository } from '@repo/domains/repositories/user';
-import {
-  ListMyAssignmentsUseCase,
-} from '../src/use-cases/form/form-assignment.usecase';
+import { ListMyAssignmentsUseCase } from '../src/use-cases/form/form-assignment.usecase';
 import { ListFormSubmissionsUseCase } from '../src/use-cases/form/form-submission.usecase';
 
 const ctx = {
@@ -25,7 +27,8 @@ const ctx = {
   memberId: 'm1',
   companyId: 'c1',
   activeCompanyId: 'c1',
-  permissions: 'form_submission:read,form_submission:create,form_submission:update,form_plan:read,form_plan:manage',
+  permissions:
+    'form_submission:read,form_submission:create,form_submission:update,form_plan:read,form_plan:manage',
 };
 
 test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
@@ -110,7 +113,7 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
   };
 
   const templateRepo: Partial<IFormTemplateRepository> = {
-    findById: async () => ({ id: 't1', name: 'Safety Checklist v1' } as never),
+    findById: async () => ({ id: 't1', name: 'Safety Checklist v1' }) as never,
   };
 
   const submissionRepo: Partial<IFormSubmissionRepository> = {
@@ -378,28 +381,31 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
   };
 
   const assignRepo: Partial<IFormAssignmentRepository> = {
-    findById: async () => ({
-      id: 'a1',
-      occurrenceId: 'occ1',
-      companyMemberId: 'm1',
-      roleId: null,
-    } as never),
+    findById: async () =>
+      ({
+        id: 'a1',
+        occurrenceId: 'occ1',
+        companyMemberId: 'm1',
+        roleId: null,
+      }) as never,
   };
 
   const memRepo: Partial<ICompanyMemberRepository> = {
-    findById: async (id: string) => (id === 'm1' ? member1 : id === 'm2' ? member2 : null),
+    findById: async (id: string) =>
+      id === 'm1' ? member1 : id === 'm2' ? member2 : null,
   };
 
   const occRepo: Partial<IFormOccurrenceRepository> = {
-    findById: async () => ({ id: 'occ1', planId: 'p1', formTemplateId: 't1' } as never),
+    findById: async () =>
+      ({ id: 'occ1', planId: 'p1', formTemplateId: 't1' }) as never,
   };
 
   const pRepo: Partial<IFormPlanRepository> = {
-    findById: async () => ({ id: 'p1', name: 'Monthly Audit' } as never),
+    findById: async () => ({ id: 'p1', name: 'Monthly Audit' }) as never,
   };
 
   const tRepo: Partial<IFormTemplateRepository> = {
-    findById: async () => ({ id: 't1', name: 'Audit Checklist' } as never),
+    findById: async () => ({ id: 't1', name: 'Audit Checklist' }) as never,
   };
 
   const revEntryRepo: Partial<IFormReviewEntryRepository> = {
@@ -407,7 +413,8 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
   };
 
   const uRepo: Partial<IUserRepository> = {
-    findById: async (id: string) => (id === 'u1' ? user1 : id === 'u2' ? user2 : null),
+    findById: async (id: string) =>
+      id === 'u1' ? user1 : id === 'u2' ? user2 : null,
   };
 
   const usecase = new ListFormSubmissionsUseCase(

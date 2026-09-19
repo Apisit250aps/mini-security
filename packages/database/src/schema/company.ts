@@ -1,4 +1,11 @@
-import { boolean, index, pgTable, text, unique, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  index,
+  pgTable,
+  text,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
   primaryKeyUuid7,
@@ -66,4 +73,3 @@ export const companyMember = pgTable(
     unique('company_member_id_company_unique').on(table.id, table.companyId),
   ],
 );
-

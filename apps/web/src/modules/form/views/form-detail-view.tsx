@@ -15,7 +15,12 @@ import {
 } from '../hooks/form-mutations';
 import type { FormPlan } from '@repo/domains/entities';
 import { Badge } from '@repo/ui/components/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui/components/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@repo/ui/components/tabs';
 import {
   FileText,
   Layers,
@@ -83,7 +88,10 @@ function PlanItemCard({
           <Calendar className="w-5 h-5 text-primary" />
           <h4 className="font-semibold text-base">{plan.name}</h4>
           {isActive ? (
-            <Badge variant="default" className="text-xs bg-emerald-600 hover:bg-emerald-700">
+            <Badge
+              variant="default"
+              className="text-xs bg-emerald-600 hover:bg-emerald-700"
+            >
               เปิดใช้งาน (Active)
             </Badge>
           ) : isPaused ? (
@@ -91,7 +99,10 @@ function PlanItemCard({
               ระงับชั่วคราว (Paused)
             </Badge>
           ) : (
-            <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
+            <Badge
+              variant="outline"
+              className="text-xs border-amber-400 text-amber-600"
+            >
               ฉบับร่าง (Draft)
             </Badge>
           )}
@@ -116,7 +127,9 @@ function PlanItemCard({
               variant="outline"
               size="sm"
               className="gap-1 text-amber-600 border-amber-300 hover:bg-amber-50"
-              onClick={() => pauseMutation.mutate({ expectedRevision: plan.revision })}
+              onClick={() =>
+                pauseMutation.mutate({ expectedRevision: plan.revision })
+              }
               isDisabled={pauseMutation.isPending}
             >
               <Pause className="w-3.5 h-3.5" />
@@ -127,7 +140,9 @@ function PlanItemCard({
               variant="outline"
               size="sm"
               className="gap-1 text-emerald-600 border-emerald-300 hover:bg-emerald-50"
-              onClick={() => activateMutation.mutate({ expectedRevision: plan.revision })}
+              onClick={() =>
+                activateMutation.mutate({ expectedRevision: plan.revision })
+              }
               isDisabled={activateMutation.isPending}
             >
               <Play className="w-3.5 h-3.5" />
@@ -491,7 +506,8 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                       แผนการตรวจที่ใช้แม่แบบนี้ ({plans.length} แผน)
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      การตั้งค่ารอบเวลาตรวจ ผู้รับผิดชอบ และนโยบายการตรวจรับ ถูกกำหนดในแผนการตรวจ
+                      การตั้งค่ารอบเวลาตรวจ ผู้รับผิดชอบ และนโยบายการตรวจรับ
+                      ถูกกำหนดในแผนการตรวจ
                     </p>
                   </div>
                   <Button
@@ -509,9 +525,12 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                   <div className="py-12 text-center border rounded-xl border-dashed bg-muted/10 space-y-3">
                     <Calendar className="w-10 h-10 text-muted-foreground mx-auto" />
                     <div>
-                      <h4 className="font-medium text-sm">ยังไม่มีแผนการตรวจที่ใช้แบบฟอร์มนี้</h4>
+                      <h4 className="font-medium text-sm">
+                        ยังไม่มีแผนการตรวจที่ใช้แบบฟอร์มนี้
+                      </h4>
                       <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-                        สร้างแผนการตรวจเพื่อกำหนดว่าใครจะเป็นผู้รับผิดชอบกรอกฟอร์มนี้ พร้อมระบุรอบเวลาการทำงานและโหมดตรวจรับ
+                        สร้างแผนการตรวจเพื่อกำหนดว่าใครจะเป็นผู้รับผิดชอบกรอกฟอร์มนี้
+                        พร้อมระบุรอบเวลาการทำงานและโหมดตรวจรับ
                       </p>
                     </div>
                     <Button
@@ -544,7 +563,9 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                     ข้อมูลแม่แบบฟอร์ม
                   </h3>
                   <p className="text-sm text-muted-foreground mb-5">
-                    ปรับปรุงชื่อและคำอธิบายแม่แบบฟอร์ม (สำหรับการตั้งค่ารอบเวลาตรวจและผู้รับผิดชอบ ให้ไปที่แท็บ &quot;แผนการตรวจ&quot;)
+                    ปรับปรุงชื่อและคำอธิบายแม่แบบฟอร์ม
+                    (สำหรับการตั้งค่ารอบเวลาตรวจและผู้รับผิดชอบ ให้ไปที่แท็บ
+                    &quot;แผนการตรวจ&quot;)
                   </p>
                   <FormTemplateForm
                     defaultValues={{

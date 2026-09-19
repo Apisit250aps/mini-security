@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Card,
   CardAction,
@@ -8,10 +8,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "#components/card";
-import { Badge } from "#components/badge";
-import { Skeleton } from "#components/skeleton";
-import { cn } from "#lib/utils";
+} from '#components/card';
+import { Badge } from '#components/badge';
+import { Skeleton } from '#components/skeleton';
+import { cn } from '#lib/utils';
 
 export interface ActivityItem {
   id: string | number;
@@ -23,7 +23,7 @@ export interface ActivityItem {
   value?: React.ReactNode;
   badge?: {
     label: string;
-    variant?: "default" | "secondary" | "outline" | "destructive";
+    variant?: 'default' | 'secondary' | 'outline' | 'destructive';
     className?: string;
   };
   timestamp?: string;
@@ -45,12 +45,12 @@ export function RecentActivityCard({
   description,
   headerAction,
   items,
-  emptyMessage = "ไม่มีกิจกรรมล่าสุด",
+  emptyMessage = 'ไม่มีกิจกรรมล่าสุด',
   isLoading = false,
   className,
 }: RecentActivityCardProps) {
   return (
-    <Card className={cn("flex flex-col", className)}>
+    <Card className={cn('flex flex-col', className)}>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <div className="flex flex-col gap-1">
           <CardTitle className="text-base font-semibold">{title}</CardTitle>
@@ -83,8 +83,9 @@ export function RecentActivityCard({
                 key={item.id}
                 onClick={item.onClick}
                 className={cn(
-                  "flex items-center justify-between gap-3 py-3 transition-colors",
-                  item.onClick && "cursor-pointer hover:bg-muted/40 -mx-4 px-4 rounded-lg",
+                  'flex items-center justify-between gap-3 py-3 transition-colors',
+                  item.onClick &&
+                    'cursor-pointer hover:bg-muted/40 -mx-4 px-4 rounded-lg',
                 )}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -100,7 +101,7 @@ export function RecentActivityCard({
                     />
                   ) : (
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                      {item.avatarText || "•"}
+                      {item.avatarText || '•'}
                     </div>
                   )}
 
@@ -124,7 +125,7 @@ export function RecentActivityCard({
                   )}
                   {item.badge && (
                     <Badge
-                      variant={item.badge.variant || "secondary"}
+                      variant={item.badge.variant || 'secondary'}
                       className={item.badge.className}
                     >
                       {item.badge.label}

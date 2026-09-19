@@ -82,7 +82,8 @@ export const companyPageConfigs: PageConfigs = {
   companyFormPlans: {
     name: 'แผนการตรวจ',
     title: 'แผนการตรวจและรอบงาน',
-    description: 'กำหนดตารางเวลา มอบหมายผู้ตรวจ และบริหารจัดการรอบการตรวจประเมิน',
+    description:
+      'กำหนดตารางเวลา มอบหมายผู้ตรวจ และบริหารจัดการรอบการตรวจประเมิน',
     url: '/company/forms/plans',
   },
   companyFormPlanCreate: {

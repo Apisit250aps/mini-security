@@ -17,7 +17,13 @@ import {
   CardContent,
   CardAction,
 } from '@repo/ui/components/card';
-import { CalendarRange, Sliders, Building2, Clock, CheckCircle2 } from 'lucide-react';
+import {
+  CalendarRange,
+  Sliders,
+  Building2,
+  Clock,
+  CheckCircle2,
+} from 'lucide-react';
 import {
   MetricCard,
   DashboardStatsGrid,

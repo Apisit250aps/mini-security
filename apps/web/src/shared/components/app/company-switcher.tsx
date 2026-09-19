@@ -50,7 +50,11 @@ export function CompanySwitcher({ className }: { className?: string }) {
         <SelectContent>
           <SelectGroup>
             {companies.map((company) => (
-              <SelectItem key={company.id} id={company.id} textValue={company.name}>
+              <SelectItem
+                key={company.id}
+                id={company.id}
+                textValue={company.name}
+              >
                 {company.name}
               </SelectItem>
             ))}

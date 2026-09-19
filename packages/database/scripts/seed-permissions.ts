@@ -63,9 +63,13 @@ async function runTransactionalSeed(): Promise<SeedStats> {
     roleFeatures: { backfilled: 0, existing: 0 },
   };
 
-  console.log('\n================================================================');
+  console.log(
+    '\n================================================================',
+  );
   console.log('🚀 Starting Database Permissions Seeding (Transaction)');
-  console.log('================================================================\n');
+  console.log(
+    '================================================================\n',
+  );
 
   await db.transaction(async (tx) => {
     // ------------------------------------------------------------------------
@@ -195,7 +199,9 @@ async function runTransactionalSeed(): Promise<SeedStats> {
     const roleIdByType = new Map<string, string>();
 
     for (const r of SYSTEM_DEFAULT_ROLES) {
-      const existing = existingRoles.find((dbRole) => dbRole.roleType === r.roleType);
+      const existing = existingRoles.find(
+        (dbRole) => dbRole.roleType === r.roleType,
+      );
       if (existing) {
         roleIdByType.set(r.roleType, existing.id);
         stats.roles.existing++;
@@ -223,7 +229,9 @@ async function runTransactionalSeed(): Promise<SeedStats> {
     // ------------------------------------------------------------------------
     // Step 4: Map Role Permissions (Duplicate check & Idempotent Sync)
     // ------------------------------------------------------------------------
-    console.log('🛡️  [Step 4/5] Mapping Permissions to System Default Roles...');
+    console.log(
+      '🛡️  [Step 4/5] Mapping Permissions to System Default Roles...',
+    );
     for (const [roleTypeStr, actions] of Object.entries(
       SYSTEM_DEFAULT_ROLE_PERMISSIONS,
     )) {
@@ -281,7 +289,9 @@ async function runTransactionalSeed(): Promise<SeedStats> {
     // ------------------------------------------------------------------------
     // Step 5: Backfill Company Features & Role Features
     // ------------------------------------------------------------------------
-    console.log('🏢 [Step 5/5] Backfilling Company & Tenant Role Feature Entitlements...');
+    console.log(
+      '🏢 [Step 5/5] Backfilling Company & Tenant Role Feature Entitlements...',
+    );
     const companies = await tx.select({ id: company.id }).from(company);
     const allFeatureIds = Array.from(featureIdByCode.values());
 
@@ -354,9 +364,15 @@ async function runTransactionalSeed(): Promise<SeedStats> {
 // 2. Comprehensive Verification Phase ("เช็ค permissions ว่าตรงกันไหม")
 // ============================================================================
 async function runVerification(): Promise<VerificationResult> {
-  console.log('================================================================');
-  console.log('🔍 Starting Comprehensive Permissions Audit & Match Verification');
-  console.log('================================================================\n');
+  console.log(
+    '================================================================',
+  );
+  console.log(
+    '🔍 Starting Comprehensive Permissions Audit & Match Verification',
+  );
+  console.log(
+    '================================================================\n',
+  );
 
   let featuresMatched = true;
   let permissionsMatched = true;
@@ -371,7 +387,9 @@ async function runVerification(): Promise<VerificationResult> {
   const dbFeatureCodes = new Set(dbFeatures.map((f) => f.code));
   const expectedFeatureCodes = SYSTEM_FEATURES.map((f) => f.code);
 
-  const missingFeatures = expectedFeatureCodes.filter((c) => !dbFeatureCodes.has(c));
+  const missingFeatures = expectedFeatureCodes.filter(
+    (c) => !dbFeatureCodes.has(c),
+  );
   const extraFeatures = dbFeatures
     .map((f) => f.code)
     .filter((c) => !expectedFeatureCodes.includes(c));
@@ -383,14 +401,18 @@ async function runVerification(): Promise<VerificationResult> {
   } else {
     featuresMatched = false;
     console.error(`   ✖ [MISMATCH] Features mismatch:`);
-    if (missingFeatures.length > 0) console.error(`     - Missing: ${missingFeatures.join(', ')}`);
-    if (extraFeatures.length > 0) console.error(`     - Extra: ${extraFeatures.join(', ')}`);
+    if (missingFeatures.length > 0)
+      console.error(`     - Missing: ${missingFeatures.join(', ')}`);
+    if (extraFeatures.length > 0)
+      console.error(`     - Extra: ${extraFeatures.join(', ')}`);
   }
 
   // --------------------------------------------------------------------------
   // Audit 2: Permissions match with Domain Catalog
   // --------------------------------------------------------------------------
-  console.log('\n2️⃣  Verifying Permissions catalog (Domains SSOT vs Database)...');
+  console.log(
+    '\n2️⃣  Verifying Permissions catalog (Domains SSOT vs Database)...',
+  );
   const dbPermissions = await db
     .select({
       id: permission.id,
@@ -426,9 +448,7 @@ async function runVerification(): Promise<VerificationResult> {
 
   const extraInDb = dbPermissions
     .map((p) => p.action)
-    .filter(
-      (action) => !SYSTEM_PERMISSIONS.some((sp) => sp.action === action),
-    );
+    .filter((action) => !SYSTEM_PERMISSIONS.some((sp) => sp.action === action));
 
   if (
     missingInDb.length === 0 &&
@@ -442,10 +462,14 @@ async function runVerification(): Promise<VerificationResult> {
     permissionsMatched = false;
     console.error(`   ✖ [MISMATCH] Permissions catalog mismatch:`);
     if (missingInDb.length > 0) {
-      console.error(`     - Missing in DB (${missingInDb.length}): ${missingInDb.join(', ')}`);
+      console.error(
+        `     - Missing in DB (${missingInDb.length}): ${missingInDb.join(', ')}`,
+      );
     }
     if (extraInDb.length > 0) {
-      console.error(`     - Extra in DB (${extraInDb.length}): ${extraInDb.join(', ')}`);
+      console.error(
+        `     - Extra in DB (${extraInDb.length}): ${extraInDb.join(', ')}`,
+      );
     }
     if (propertyMismatches.length > 0) {
       console.error(`     - Property mismatches:`);
@@ -456,18 +480,25 @@ async function runVerification(): Promise<VerificationResult> {
   // --------------------------------------------------------------------------
   // Audit 3: Permissions used in Application Layer Decorators (@RequirePermission)
   // --------------------------------------------------------------------------
-  console.log('\n3️⃣  Verifying Application Layer @RequirePermission Decorators...');
+  console.log(
+    '\n3️⃣  Verifying Application Layer @RequirePermission Decorators...',
+  );
   const useCasesDir = resolve(__dirname, '../../applications/src/use-cases');
   const usedActions = new Set<string>();
   let decoratorOccurrences = 0;
 
   try {
-    const files = readdirSync(useCasesDir, { recursive: true, withFileTypes: true });
+    const files = readdirSync(useCasesDir, {
+      recursive: true,
+      withFileTypes: true,
+    });
     for (const file of files) {
       if (!file.isFile() || !file.name.endsWith('.ts')) continue;
       const fullPath = resolve(file.parentPath || file.path, file.name);
       const content = readFileSync(fullPath, 'utf8');
-      const matches = content.matchAll(/@RequirePermission(?:<[^;]*?>)?\(\s*'([^']+)'/g);
+      const matches = content.matchAll(
+        /@RequirePermission(?:<[^;]*?>)?\(\s*'([^']+)'/g,
+      );
       for (const match of matches) {
         decoratorOccurrences++;
         if (match[1]) usedActions.add(match[1]);
@@ -492,7 +523,9 @@ async function runVerification(): Promise<VerificationResult> {
       }
     }
   } catch (err) {
-    console.warn(`   ⚠️ Unable to read applications use cases: ${(err as Error).message}`);
+    console.warn(
+      `   ⚠️ Unable to read applications use cases: ${(err as Error).message}`,
+    );
   }
 
   // --------------------------------------------------------------------------
@@ -538,10 +571,14 @@ async function runVerification(): Promise<VerificationResult> {
         `   ✖ [MISMATCH] Role ${rType} grants mismatch (${dbActions.size} in DB vs ${expectedActions.length} expected):`,
       );
       if (missingRoleActions.length > 0) {
-        console.error(`     - Missing grants (${missingRoleActions.length}): ${missingRoleActions.join(', ')}`);
+        console.error(
+          `     - Missing grants (${missingRoleActions.length}): ${missingRoleActions.join(', ')}`,
+        );
       }
       if (extraRoleActions.length > 0) {
-        console.error(`     - Extra grants (${extraRoleActions.length}): ${extraRoleActions.join(', ')}`);
+        console.error(
+          `     - Extra grants (${extraRoleActions.length}): ${extraRoleActions.join(', ')}`,
+        );
       }
     }
   }
@@ -555,9 +592,13 @@ async function runVerification(): Promise<VerificationResult> {
   // --------------------------------------------------------------------------
   // Summary Dashboard
   // --------------------------------------------------------------------------
-  console.log('\n================================================================');
+  console.log(
+    '\n================================================================',
+  );
   console.log('📊 Permissions Verification Summary Dashboard');
-  console.log('================================================================');
+  console.log(
+    '================================================================',
+  );
   console.log(
     ` • Master Features:       ${featuresMatched ? '✅ PASS (6/6)' : '❌ FAIL'}`,
   );
@@ -570,7 +611,9 @@ async function runVerification(): Promise<VerificationResult> {
   console.log(
     ` • System Role Grants:    ${roleGrantsMatched ? '✅ PASS (All 5 roles match)' : '❌ FAIL'}`,
   );
-  console.log('================================================================');
+  console.log(
+    '================================================================',
+  );
 
   if (allPassed) {
     console.log('🎉 ALL PERMISSION CHECKS PASSED PERFECTLY!\n');

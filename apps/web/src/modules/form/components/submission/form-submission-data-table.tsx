@@ -69,7 +69,11 @@ export default function FormSubmissionDataTable({
           item.startedByName ||
           ''
         ).toLowerCase();
-        if (!plan.includes(q) && !template.includes(q) && !submitter.includes(q)) {
+        if (
+          !plan.includes(q) &&
+          !template.includes(q) &&
+          !submitter.includes(q)
+        ) {
           return false;
         }
       }

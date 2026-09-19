@@ -268,7 +268,8 @@ export const SYSTEM_PERMISSIONS = [
   {
     action: PERMISSION_ACTIONS.FORM_REVIEW_SELF,
     module: 'form_review',
-    description: 'Allow reviewing own submissions (requires another review permission)',
+    description:
+      'Allow reviewing own submissions (requires another review permission)',
     featureCode: FEATURE_CODES.FORM_MANAGEMENT,
   },
   {

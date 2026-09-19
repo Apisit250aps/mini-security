@@ -6,7 +6,9 @@ import { created, response, success, validator } from '../lib/response';
 export abstract class Controller {
   protected securityContext(c: Context): ISecurityContext {
     const user: Session['user'] | undefined = c.get('user');
-    const session = c.get('session') as (Session['session'] & { memberId?: string | null }) | undefined;
+    const session = c.get('session') as
+      | (Session['session'] & { memberId?: string | null })
+      | undefined;
     return {
       user,
       userId: user?.id,

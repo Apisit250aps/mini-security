@@ -74,7 +74,6 @@ export default function FormTemplatePreviewDialog({
               <Badge variant="secondary">v{draftVersion.version}</Badge>
             </span>
           )}
-          
         </div>
       </div>
 

@@ -42,23 +42,19 @@ export default function FormPageLayout({
     <div className={`mx-auto flex flex-col gap-6 ${MAX_WIDTH_MAP[maxWidth]}`}>
       {/* Top Header */}
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/50 pb-4">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
-                {title}
-              </h1>
-              {badge}
-            </div>
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
-            )}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
+              {title}
+            </h1>
+            {badge}
           </div>
-          {actions && (
-            <div className="flex items-center gap-2">
-              {actions}
-            </div>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
           )}
         </div>
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
+      </div>
 
       {/* Main Form Content */}
       {isLoading ? (

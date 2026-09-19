@@ -22,9 +22,9 @@ export default function FormTemplateEditDialog({
     (values: FormTemplateFormValues) => {
       updateMutation.mutate(
         {
-            name: values.name,
-            description: values.description || null,
-            isActive: values.isActive,
+          name: values.name,
+          description: values.description || null,
+          isActive: values.isActive,
         },
         {
           onSuccess: () => {

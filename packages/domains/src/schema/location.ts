@@ -107,11 +107,13 @@ export const scheduleSlotLocationSchema = BaseEntity({
   isActive: BooleanField({ default: () => true }),
 });
 
-export const createScheduleSlotLocationSchema = scheduleSlotLocationSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createScheduleSlotLocationSchema = scheduleSlotLocationSchema.omit(
+  {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+);
 
 export const updateScheduleSlotLocationSchema = scheduleSlotLocationSchema
   .partial()

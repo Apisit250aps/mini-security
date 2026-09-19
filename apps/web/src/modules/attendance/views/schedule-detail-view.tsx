@@ -315,7 +315,9 @@ export default function ScheduleDetailView({
           title="ไม่พบข้อมูลตารางเวลาที่ระบุ"
           description="ตารางเวลานี้อาจถูกลบหรือไม่มีสิทธิ์เข้าถึง"
           action={
-            <Button onPress={() => router.push('/company/attendance/schedules')}>
+            <Button
+              onPress={() => router.push('/company/attendance/schedules')}
+            >
               กลับสู่หน้ารายการตารางเวลา
             </Button>
           }

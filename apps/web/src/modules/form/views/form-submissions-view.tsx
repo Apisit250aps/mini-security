@@ -42,9 +42,8 @@ export default function FormSubmissionsView() {
 
   const inReviewCount = useMemo(
     () =>
-      submissions.filter(
-        (s) => Boolean(s.submittedAt) && !s.finalReviewAction,
-      ).length,
+      submissions.filter((s) => Boolean(s.submittedAt) && !s.finalReviewAction)
+        .length,
     [submissions],
   );
 

@@ -284,7 +284,8 @@ export function useFormSectionDelete(templateId: string) {
         queryKey: formKeys.template(templateId),
       });
     },
-    onError: (error) => toast.error(getErrorMessage(error, 'ลบหมวดหมู่ไม่สำเร็จ')),
+    onError: (error) =>
+      toast.error(getErrorMessage(error, 'ลบหมวดหมู่ไม่สำเร็จ')),
   });
 }
 
@@ -362,7 +363,9 @@ export function useFormPlanUpdate(companyId: string, planId: string) {
       return result;
     },
     onError: (error) =>
-      toast.error(getErrorMessage(error, 'บันทึกการตั้งค่าแผนการตรวจไม่สำเร็จ')),
+      toast.error(
+        getErrorMessage(error, 'บันทึกการตั้งค่าแผนการตรวจไม่สำเร็จ'),
+      ),
   });
 }
 

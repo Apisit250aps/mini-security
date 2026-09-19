@@ -54,17 +54,23 @@ Local development continues to use the direct app ports from `.env.dev`.
 The system uses Drizzle ORM migrations located in `packages/database/migrations/`.
 
 ### Development (Generating Migration Artifacts)
+
 When schema changes are made in `packages/database/src/schema/`:
+
 ```sh
 npm run db:generate --workspace=@repo/database
 ```
+
 Always review generated migration files, verify statement breakpoints (`--> statement-breakpoint`), ensure naming follows `YYYYMMDDHHmmss_<action>_<description>`, and never commit random auto-generated names.
 
 ### Deployment & Target Environment (Applying Migrations)
+
 To apply migrations (both DDL schema and system catalog seed data) to the target database:
+
 ```sh
 npm run db:migrate --workspace=@repo/database
 ```
+
 System seed migrations (features, permissions, system default roles, and role grants) are versioned SQL migrations included in the migration chain and execute automatically in transaction. No manual or separate seed script is required.
 
 # Turborepo starter

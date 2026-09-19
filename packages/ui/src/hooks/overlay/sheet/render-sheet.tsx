@@ -29,10 +29,7 @@ function SheetView({
       onOpenChange={onOpenChange}
       isDismissable={closeOnClickOutside}
       side={side}
-      className={cn(
-        DIALOG_SIZE[size],
-        'w-full max-w-full sm:w-auto',
-      )}
+      className={cn(DIALOG_SIZE[size], 'w-full max-w-full sm:w-auto')}
     >
       <SheetHeader className="border-b border-border/50 pb-4">
         <SheetTitle>{title}</SheetTitle>

@@ -29,7 +29,6 @@ export class Session implements SessionEntity {
   }
 }
 
-
 export class Account implements AccountEntity {
   id: string;
   userId: string;

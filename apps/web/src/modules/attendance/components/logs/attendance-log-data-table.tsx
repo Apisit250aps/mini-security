@@ -80,7 +80,8 @@ export default function AttendanceLogDataTable({
   );
   const absentExcusedCount = useMemo(
     () =>
-      data.filter((l) => l.status === 'absent' || l.status === 'excused').length,
+      data.filter((l) => l.status === 'absent' || l.status === 'excused')
+        .length,
     [data],
   );
   const onTimeRate = useMemo(

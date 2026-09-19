@@ -10,7 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@repo/ui/components/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/components/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@repo/ui/components/tabs';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Input } from '@repo/ui/components/input';
@@ -31,7 +36,11 @@ import {
   Trash2,
   Users,
 } from 'lucide-react';
-import type { FormPlan, FormPlanTarget, FormPlanPeriod } from '@repo/domains/entities';
+import type {
+  FormPlan,
+  FormPlanTarget,
+  FormPlanPeriod,
+} from '@repo/domains/entities';
 import type { FormTemplateDetail } from '@repo/client';
 import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
 import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
@@ -86,38 +95,38 @@ export default function FormPlanEditDialog({
   // General tab state
   const [name, setName] = useState(plan.name);
   const [versionOption, setVersionOption] = useState<'LATEST' | 'LOCKED'>(
-    plan.fixedVersionId ? 'LOCKED' : 'LATEST'
+    plan.fixedVersionId ? 'LOCKED' : 'LATEST',
   );
   const [timezone, setTimezone] = useState(plan.timezone);
 
   // Schedule tab state
   const cfg = plan.scheduleConfig as Record<string, unknown> | null;
   const [scheduleKind, setScheduleKind] = useState<'RECURRING' | 'EXPLICIT'>(
-    plan.scheduleKind
+    plan.scheduleKind,
   );
   const [frequency, setFrequency] = useState<
     'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
   >((cfg?.frequency as never) || 'DAILY');
   const [interval, setInterval] = useState<number>(
-    typeof cfg?.interval === 'number' ? cfg.interval : 1
+    typeof cfg?.interval === 'number' ? cfg.interval : 1,
   );
   const [anchorLocalDate, setAnchorLocalDate] = useState<string>(
     (cfg?.anchorLocalDate as string) ||
       new Date().toISOString().split('T')[0] ||
-      ''
+      '',
   );
   const [openLocalTime, setOpenLocalTime] = useState<string>(
-    (cfg?.openLocalTime as string) || '08:00'
+    (cfg?.openLocalTime as string) || '08:00',
   );
   const dueOffset = cfg?.dueOffset as
     | { amount?: number; unit?: string }
     | undefined;
   const [dueAmount, setDueAmount] = useState<number>(dueOffset?.amount || 8);
   const [dueUnit, setDueUnit] = useState<'ELAPSED_HOURS' | 'CALENDAR_DAYS'>(
-    (dueOffset?.unit as never) || 'ELAPSED_HOURS'
+    (dueOffset?.unit as never) || 'ELAPSED_HOURS',
   );
   const [invalidDayPolicy, setInvalidDayPolicy] = useState<'SKIP' | 'LAST_DAY'>(
-    (cfg?.invalidDayPolicy as never) || 'LAST_DAY'
+    (cfg?.invalidDayPolicy as never) || 'LAST_DAY',
   );
 
   // Explicit periods state
@@ -134,7 +143,7 @@ export default function FormPlanEditDialog({
               .toISOString()
               .slice(0, 16),
           },
-        ]
+        ],
   );
 
   // Targets tab state
@@ -150,8 +159,8 @@ export default function FormPlanEditDialog({
         : {
             type: 'MEMBER' as const,
             companyMemberId: t.companyMemberId || '',
-          }
-    )
+          },
+    ),
   );
 
   // New target input state
@@ -167,10 +176,10 @@ export default function FormPlanEditDialog({
     'NONE' | 'OVERALL' | 'ALL_SECTIONS' | 'ALL_ANSWERS'
   >(plan.reviewMode);
   const [latePolicy, setLatePolicy] = useState<'ALLOW' | 'DENY'>(
-    plan.latePolicy
+    plan.latePolicy,
   );
   const [missedPolicy, setMissedPolicy] = useState<'SKIP' | 'CATCH_UP'>(
-    plan.missedPolicy
+    plan.missedPolicy,
   );
 
   const isDraft = !plan.effectiveFrom;
@@ -182,7 +191,7 @@ export default function FormPlanEditDialog({
         return;
       }
       const exists = targets.some(
-        (t) => t.type === 'ROLE' && t.roleId === newRoleId
+        (t) => t.type === 'ROLE' && t.roleId === newRoleId,
       );
       if (exists) {
         toast.error('ตำแหน่งนี้ถูกเพิ่มในรายการมอบหมายแล้ว');
@@ -203,7 +212,7 @@ export default function FormPlanEditDialog({
         return;
       }
       const exists = targets.some(
-        (t) => t.type === 'MEMBER' && t.companyMemberId === newMemberId
+        (t) => t.type === 'MEMBER' && t.companyMemberId === newMemberId,
       );
       if (exists) {
         toast.error('พนักงานคนนี้ถูกเพิ่มในรายการมอบหมายแล้ว');
@@ -261,7 +270,9 @@ export default function FormPlanEditDialog({
 
     if (scheduleKind === 'EXPLICIT') {
       if (periods.length === 0) {
-        toast.error('กรุณากำหนดช่วงเวลาอย่างน้อย 1 ช่วงสำหรับกำหนดการแบบ Explicit');
+        toast.error(
+          'กรุณากำหนดช่วงเวลาอย่างน้อย 1 ช่วงสำหรับกำหนดการแบบ Explicit',
+        );
         setActiveTab('schedule');
         return;
       }
@@ -269,7 +280,7 @@ export default function FormPlanEditDialog({
         const p = periods[i]!;
         if (new Date(p.dueAt) <= new Date(p.opensAt)) {
           toast.error(
-            `ช่วงเวลาที่ ${i + 1}: เวลาสิ้นสุด (Due At) ต้องมากกว่าเวลาเปิด (Opens At)`
+            `ช่วงเวลาที่ ${i + 1}: เวลาสิ้นสุด (Due At) ต้องมากกว่าเวลาเปิด (Opens At)`,
           );
           setActiveTab('schedule');
           return;
@@ -318,7 +329,7 @@ export default function FormPlanEditDialog({
               }
             : {
                 companyMemberId: t.companyMemberId,
-              }
+              },
         ),
         periods:
           scheduleKind === 'EXPLICIT'
@@ -333,12 +344,12 @@ export default function FormPlanEditDialog({
           onOpenChange(false);
           if (result?.data && result.data.id !== plan.id) {
             toast.success(
-              `บันทึกการตั้งค่าสำเร็จ (สร้างเวอร์ชันใหม่ v${result.data.revision})`
+              `บันทึกการตั้งค่าสำเร็จ (สร้างเวอร์ชันใหม่ v${result.data.revision})`,
             );
             router.push(`/company/forms/plans/${result.data.id}`);
           }
         },
-      }
+      },
     );
   }, [
     name,
@@ -382,7 +393,10 @@ export default function FormPlanEditDialog({
           </div>
           <div className="flex items-center gap-1.5">
             {isDraft ? (
-              <Badge variant="outline" className="border-amber-400 text-amber-600">
+              <Badge
+                variant="outline"
+                className="border-amber-400 text-amber-600"
+              >
                 ฉบับร่าง
               </Badge>
             ) : (
@@ -396,7 +410,8 @@ export default function FormPlanEditDialog({
           </div>
         </div>
         <DialogDescription>
-          ปรับแต่งชื่อแผน กำหนดการ ผู้รับมอบหมาย และนโยบายการทำงานของแผนการตรวจนี้
+          ปรับแต่งชื่อแผน กำหนดการ ผู้รับมอบหมาย
+          และนโยบายการทำงานของแผนการตรวจนี้
         </DialogDescription>
       </DialogHeader>
 
@@ -408,7 +423,8 @@ export default function FormPlanEditDialog({
             <span className="font-semibold text-foreground">
               บันทึกการเปลี่ยนแปลงแบบประวัติ (Revision Tracking):
             </span>{' '}
-            เนื่องจากแผนนี้มีการเปิดใช้งานแล้ว ระบบจะปิดรอบแผนปัจจุบันและสร้างรอบแผนเวอร์ชันใหม่ (v
+            เนื่องจากแผนนี้มีการเปิดใช้งานแล้ว
+            ระบบจะปิดรอบแผนปัจจุบันและสร้างรอบแผนเวอร์ชันใหม่ (v
             {plan.revision + 1}) เพื่อรักษาประวัติการตรวจเดิมไว้อย่างปลอดภัย
           </div>
         </div>
@@ -454,7 +470,9 @@ export default function FormPlanEditDialog({
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="edit-plan-timezone">เขตเวลา (Timezone)</FieldLabel>
+                <FieldLabel htmlFor="edit-plan-timezone">
+                  เขตเวลา (Timezone)
+                </FieldLabel>
                 <Input
                   id="edit-plan-timezone"
                   value={timezone}
@@ -462,7 +480,9 @@ export default function FormPlanEditDialog({
                   placeholder="Asia/Bangkok"
                   required
                 />
-                <FieldDescription>เขตเวลา IANA สำหรับคำนวณรอบเวลา เช่น Asia/Bangkok</FieldDescription>
+                <FieldDescription>
+                  เขตเวลา IANA สำหรับคำนวณรอบเวลา เช่น Asia/Bangkok
+                </FieldDescription>
               </Field>
 
               <Field>
@@ -476,9 +496,12 @@ export default function FormPlanEditDialog({
                         : 'hover:bg-muted/50 text-muted-foreground'
                     }`}
                   >
-                    <div className="font-semibold text-sm">ใช้เวอร์ชันล่าสุดเสมอ (Latest)</div>
+                    <div className="font-semibold text-sm">
+                      ใช้เวอร์ชันล่าสุดเสมอ (Latest)
+                    </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      เมื่อแม่แบบฟอร์มมีการเผยแพร่เวอร์ชันใหม่ แผนจะเปลี่ยนไปใช้เวอร์ชันใหม่โดยอัตโนมัติ
+                      เมื่อแม่แบบฟอร์มมีการเผยแพร่เวอร์ชันใหม่
+                      แผนจะเปลี่ยนไปใช้เวอร์ชันใหม่โดยอัตโนมัติ
                     </div>
                   </div>
 
@@ -490,7 +513,9 @@ export default function FormPlanEditDialog({
                         : 'hover:bg-muted/50 text-muted-foreground'
                     }`}
                   >
-                    <div className="font-semibold text-sm">ล็อกเวอร์ชันปัจจุบัน (Locked)</div>
+                    <div className="font-semibold text-sm">
+                      ล็อกเวอร์ชันปัจจุบัน (Locked)
+                    </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
                       {templateDetail?.activeVersion
                         ? `ล็อกกับเวอร์ชัน v${templateDetail.activeVersion.version}`
@@ -518,7 +543,9 @@ export default function FormPlanEditDialog({
                         : 'hover:bg-muted/50 text-muted-foreground'
                     }`}
                   >
-                    <div className="font-semibold text-sm">ทำซ้ำตามรอบ (Recurring)</div>
+                    <div className="font-semibold text-sm">
+                      ทำซ้ำตามรอบ (Recurring)
+                    </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
                       เปิดรอบอัตโนมัติตามความถี่ที่กำหนด
                     </div>
@@ -532,7 +559,9 @@ export default function FormPlanEditDialog({
                         : 'hover:bg-muted/50 text-muted-foreground'
                     }`}
                   >
-                    <div className="font-semibold text-sm">กำหนดช่วงเวลาเอง (Explicit)</div>
+                    <div className="font-semibold text-sm">
+                      กำหนดช่วงเวลาเอง (Explicit)
+                    </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
                       ระบุวันเวลาเปิดและส่งงานแต่ละรอบเอง
                     </div>
@@ -544,7 +573,9 @@ export default function FormPlanEditDialog({
                 <div className="p-4 border rounded-xl bg-muted/10 space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field>
-                      <FieldLabel htmlFor="edit-freq">ความถี่การทำซ้ำ</FieldLabel>
+                      <FieldLabel htmlFor="edit-freq">
+                        ความถี่การทำซ้ำ
+                      </FieldLabel>
                       <select
                         id="edit-freq"
                         value={frequency}
@@ -559,14 +590,18 @@ export default function FormPlanEditDialog({
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="edit-interval">ช่วงระยะ (Interval)</FieldLabel>
+                      <FieldLabel htmlFor="edit-interval">
+                        ช่วงระยะ (Interval)
+                      </FieldLabel>
                       <Input
                         id="edit-interval"
                         type="number"
                         min={1}
                         max={100}
                         value={interval}
-                        onChange={(e) => setInterval(Math.max(1, Number(e.target.value)))}
+                        onChange={(e) =>
+                          setInterval(Math.max(1, Number(e.target.value)))
+                        }
                       />
                       <FieldDescription>
                         {frequency === 'DAILY'
@@ -594,7 +629,9 @@ export default function FormPlanEditDialog({
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="edit-open-time">เวลาเปิดรอบในแต่ละวัน</FieldLabel>
+                      <FieldLabel htmlFor="edit-open-time">
+                        เวลาเปิดรอบในแต่ละวัน
+                      </FieldLabel>
                       <Input
                         id="edit-open-time"
                         type="time"
@@ -606,14 +643,18 @@ export default function FormPlanEditDialog({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field>
-                      <FieldLabel htmlFor="edit-due-amount">ระยะเวลาส่งงาน (Due Offset)</FieldLabel>
+                      <FieldLabel htmlFor="edit-due-amount">
+                        ระยะเวลาส่งงาน (Due Offset)
+                      </FieldLabel>
                       <div className="flex gap-2">
                         <Input
                           id="edit-due-amount"
                           type="number"
                           min={1}
                           value={dueAmount}
-                          onChange={(e) => setDueAmount(Math.max(1, Number(e.target.value)))}
+                          onChange={(e) =>
+                            setDueAmount(Math.max(1, Number(e.target.value)))
+                          }
                           className="w-2/3"
                         />
                         <select
@@ -634,10 +675,14 @@ export default function FormPlanEditDialog({
                       <select
                         id="edit-invalid-day"
                         value={invalidDayPolicy}
-                        onChange={(e) => setInvalidDayPolicy(e.target.value as never)}
+                        onChange={(e) =>
+                          setInvalidDayPolicy(e.target.value as never)
+                        }
                         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       >
-                        <option value="LAST_DAY">ใช้วันสุดท้ายของเดือน (Last Day)</option>
+                        <option value="LAST_DAY">
+                          ใช้วันสุดท้ายของเดือน (Last Day)
+                        </option>
                         <option value="SKIP">ข้ามรอบนั้นไป (Skip)</option>
                       </select>
                     </Field>
@@ -676,7 +721,10 @@ export default function FormPlanEditDialog({
                               value={period.opensAt}
                               onChange={(e) => {
                                 const next = [...periods];
-                                next[idx] = { ...next[idx]!, opensAt: e.target.value };
+                                next[idx] = {
+                                  ...next[idx]!,
+                                  opensAt: e.target.value,
+                                };
                                 setPeriods(next);
                               }}
                             />
@@ -690,7 +738,10 @@ export default function FormPlanEditDialog({
                               value={period.dueAt}
                               onChange={(e) => {
                                 const next = [...periods];
-                                next[idx] = { ...next[idx]!, dueAt: e.target.value };
+                                next[idx] = {
+                                  ...next[idx]!,
+                                  dueAt: e.target.value,
+                                };
                                 setPeriods(next);
                               }}
                             />
@@ -724,7 +775,9 @@ export default function FormPlanEditDialog({
                   <span className="text-xs block mb-1">ประเภท</span>
                   <select
                     value={newTargetType}
-                    onChange={(e) => setNewTargetType(e.target.value as 'ROLE' | 'MEMBER')}
+                    onChange={(e) =>
+                      setNewTargetType(e.target.value as 'ROLE' | 'MEMBER')
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
                     <option value="ROLE">ตามตำแหน่ง (Role)</option>
@@ -754,12 +807,18 @@ export default function FormPlanEditDialog({
                       <select
                         value={newRoleDistribution}
                         onChange={(e) =>
-                          setNewRoleDistribution(e.target.value as 'SHARED' | 'PER_MEMBER')
+                          setNewRoleDistribution(
+                            e.target.value as 'SHARED' | 'PER_MEMBER',
+                          )
                         }
                         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       >
-                        <option value="SHARED">งานกองกลางรวมกัน (Shared)</option>
-                        <option value="PER_MEMBER">แยกงานรายบุคคล (Per Member)</option>
+                        <option value="SHARED">
+                          งานกองกลางรวมกัน (Shared)
+                        </option>
+                        <option value="PER_MEMBER">
+                          แยกงานรายบุคคล (Per Member)
+                        </option>
                       </select>
                     </div>
                   </>
@@ -798,13 +857,15 @@ export default function FormPlanEditDialog({
 
               {targets.length === 0 ? (
                 <div className="py-8 text-center text-xs text-muted-foreground border rounded-lg border-dashed">
-                  ยังไม่มีผู้รับผิดชอบ กรุณาเพิ่มตำแหน่งหรือพนักงานอย่างน้อย 1 รายการ
+                  ยังไม่มีผู้รับผิดชอบ กรุณาเพิ่มตำแหน่งหรือพนักงานอย่างน้อย 1
+                  รายการ
                 </div>
               ) : (
                 targets.map((t, idx) => {
                   const roleName =
                     t.type === 'ROLE'
-                      ? roles.find((r) => r.id === t.roleId)?.name || `ตำแหน่ง: ${t.roleId.slice(0, 8)}`
+                      ? roles.find((r) => r.id === t.roleId)?.name ||
+                        `ตำแหน่ง: ${t.roleId.slice(0, 8)}`
                       : null;
                   const memberName =
                     t.type === 'MEMBER'
@@ -857,17 +918,27 @@ export default function FormPlanEditDialog({
           <TabsContent id="policies" className="space-y-4">
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="edit-review-mode">โหมดการตรวจรับ (Review Mode)</FieldLabel>
+                <FieldLabel htmlFor="edit-review-mode">
+                  โหมดการตรวจรับ (Review Mode)
+                </FieldLabel>
                 <select
                   id="edit-review-mode"
                   value={reviewMode}
                   onChange={(e) => setReviewMode(e.target.value as never)}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="NONE">ไม่ต้องตรวจรับ (อนุมัติทันทีหลังส่ง)</option>
-                  <option value="OVERALL">ตรวจรับแบบภาพรวม (Overall Approve/Reject)</option>
-                  <option value="ALL_SECTIONS">ตรวจรับแยกตามหมวดหมู่ (Section-by-Section)</option>
-                  <option value="ALL_ANSWERS">ตรวจรับแยกรายข้อ (Answer-by-Answer)</option>
+                  <option value="NONE">
+                    ไม่ต้องตรวจรับ (อนุมัติทันทีหลังส่ง)
+                  </option>
+                  <option value="OVERALL">
+                    ตรวจรับแบบภาพรวม (Overall Approve/Reject)
+                  </option>
+                  <option value="ALL_SECTIONS">
+                    ตรวจรับแยกตามหมวดหมู่ (Section-by-Section)
+                  </option>
+                  <option value="ALL_ANSWERS">
+                    ตรวจรับแยกรายข้อ (Answer-by-Answer)
+                  </option>
                 </select>
                 <FieldDescription>
                   กำหนดขั้นตอนการอนุมัติหลังพนักงานส่งแบบฟอร์มแล้ว
@@ -875,7 +946,9 @@ export default function FormPlanEditDialog({
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="edit-late-policy">นโยบายการส่งงานล่าช้า (Late Policy)</FieldLabel>
+                <FieldLabel htmlFor="edit-late-policy">
+                  นโยบายการส่งงานล่าช้า (Late Policy)
+                </FieldLabel>
                 <select
                   id="edit-late-policy"
                   value={latePolicy}
@@ -886,7 +959,8 @@ export default function FormPlanEditDialog({
                   <option value="DENY">ไม่อนุญาตให้ส่งงานช้า (DENY)</option>
                 </select>
                 <FieldDescription>
-                  หากเลือกไม่อนุญาต ระบบจะปิดรับการส่งงานทันทีเมื่อเลยกำหนด Due Date
+                  หากเลือกไม่อนุญาต ระบบจะปิดรับการส่งงานทันทีเมื่อเลยกำหนด Due
+                  Date
                 </FieldDescription>
               </Field>
 
@@ -901,7 +975,9 @@ export default function FormPlanEditDialog({
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                   <option value="SKIP">ข้ามรอบที่ตกหล่นไป (SKIP)</option>
-                  <option value="CATCH_UP">เปิดย้อนหลังให้ครบ (CATCH_UP)</option>
+                  <option value="CATCH_UP">
+                    เปิดย้อนหลังให้ครบ (CATCH_UP)
+                  </option>
                 </select>
                 <FieldDescription>
                   เมื่อระบบกลับมาเปิดหลังจากเซิร์ฟเวอร์หรือตารางงานหยุดชะงัก

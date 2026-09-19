@@ -111,7 +111,9 @@ export default function AdminDashboardView() {
         icon: <Building2 className="size-4" />,
         badge: {
           label: c.isActive ? 'เปิดใช้งาน' : 'ปิดใช้งาน',
-          variant: (c.isActive ? 'default' : 'destructive') as 'default' | 'destructive',
+          variant: (c.isActive ? 'default' : 'destructive') as
+            | 'default'
+            | 'destructive',
           className: 'text-[11px]',
         },
       })),
@@ -133,9 +135,15 @@ export default function AdminDashboardView() {
             }
           : undefined,
         value: u.isActive ? (
-          <span className="flex size-2 rounded-full bg-emerald-500" title="Active" />
+          <span
+            className="flex size-2 rounded-full bg-emerald-500"
+            title="Active"
+          />
         ) : (
-          <span className="flex size-2 rounded-full bg-destructive" title="Inactive" />
+          <span
+            className="flex size-2 rounded-full bg-destructive"
+            title="Inactive"
+          />
         ),
       })),
     [recentUsers],

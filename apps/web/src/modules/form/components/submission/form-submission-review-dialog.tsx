@@ -5,6 +5,8 @@ export interface FormSubmissionReviewDialogProps {
   onClose?: () => void;
 }
 
-export default function FormSubmissionReviewDialog(_props: FormSubmissionReviewDialogProps) {
+export default function FormSubmissionReviewDialog(
+  _props: FormSubmissionReviewDialogProps,
+) {
   return null;
 }

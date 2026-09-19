@@ -7,11 +7,7 @@ import { formatDate } from '@/shared/utils';
 import PermissionEditForm from '../form/permission-edit-form';
 import PermissionColumnActions from './permission-column-actions';
 
-function PermissionActionCell({
-  permission,
-}: {
-  permission: Permission;
-}) {
+function PermissionActionCell({ permission }: { permission: Permission }) {
   const ui = useOverlay();
 
   const handleEdit = () => {

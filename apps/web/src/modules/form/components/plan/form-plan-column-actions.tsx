@@ -73,8 +73,11 @@ export default function FormPlanColumnActions<T extends FormPlan>({
     });
   }, [ui.alert, plan, pauseMutation]);
 
-  const actions: Record<string, { onAction: () => void; isDestructive?: boolean }> = {
-    'ดูรายละเอียดและการตั้งค่าแผน': {
+  const actions: Record<
+    string,
+    { onAction: () => void; isDestructive?: boolean }
+  > = {
+    ดูรายละเอียดและการตั้งค่าแผน: {
       onAction: () => router.push(`/company/forms/plans/${plan.id}`),
     },
   };

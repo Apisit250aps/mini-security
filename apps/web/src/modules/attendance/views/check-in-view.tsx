@@ -37,7 +37,8 @@ export default function CheckInView() {
               <div className="flex flex-col">
                 <CardTitle className="text-xl">{activeCompany.name}</CardTitle>
                 <CardDescription className="text-xs">
-                  ลงชื่อหลังเวลาสิ้นสุดรอบจะถือว่ามาสาย ระบบยืนยันสถานะจากเวลาที่บันทึก
+                  ลงชื่อหลังเวลาสิ้นสุดรอบจะถือว่ามาสาย
+                  ระบบยืนยันสถานะจากเวลาที่บันทึก
                 </CardDescription>
               </div>
             </div>
@@ -53,7 +54,8 @@ export default function CheckInView() {
                 <EmptyHeader>
                   <EmptyTitle>บริษัทนี้ปิดใช้งานอยู่</EmptyTitle>
                   <EmptyDescription>
-                    บริษัทของคุณถูกระงับหรือปิดใช้งาน กรุณาติดต่อผู้ดูแลระบบเพื่อขอเปิดใช้งาน
+                    บริษัทของคุณถูกระงับหรือปิดใช้งาน
+                    กรุณาติดต่อผู้ดูแลระบบเพื่อขอเปิดใช้งาน
                   </EmptyDescription>
                 </EmptyHeader>
               </Empty>
@@ -70,7 +72,8 @@ export default function CheckInView() {
               <EmptyHeader>
                 <EmptyTitle>ยังไม่มีบริษัทที่คุณสามารถลงเวลาได้</EmptyTitle>
                 <EmptyDescription>
-                  คุณยังไม่ได้เป็นสมาชิกของบริษัทใด หรือยังไม่มีสิทธิ์ในการลงเวลา กรุณาติดต่อผู้ดูแลระบบ
+                  คุณยังไม่ได้เป็นสมาชิกของบริษัทใด
+                  หรือยังไม่มีสิทธิ์ในการลงเวลา กรุณาติดต่อผู้ดูแลระบบ
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
@@ -80,4 +83,3 @@ export default function CheckInView() {
     </PageLayout>
   );
 }
-

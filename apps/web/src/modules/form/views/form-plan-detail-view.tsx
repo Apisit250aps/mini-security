@@ -29,7 +29,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@repo/ui/components/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/components/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@repo/ui/components/tabs';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Badge } from '@repo/ui/components/badge';
@@ -189,17 +194,12 @@ function OccurrenceAssignmentsList({
                         onSuccess: (res) => {
                           const sub = res?.data;
                           if (sub?.id) {
-                            router.push(
-                              `/company/forms/submissions/${sub.id}`,
-                            );
+                            router.push(`/company/forms/submissions/${sub.id}`);
                           }
                         },
                         onError: (err) => {
                           toast.error(
-                            getErrorMessage(
-                              err,
-                              'ไม่สามารถเปิดแบบฟอร์มได้',
-                            ),
+                            getErrorMessage(err, 'ไม่สามารถเปิดแบบฟอร์มได้'),
                           );
                         },
                       },
@@ -207,8 +207,7 @@ function OccurrenceAssignmentsList({
                   }
                   isLoading={
                     startMutation.isPending &&
-                    startMutation.variables?.assignmentId ===
-                      item.assignmentId
+                    startMutation.variables?.assignmentId === item.assignmentId
                   }
                 >
                   <Play className="size-3 mr-1" />
@@ -254,7 +253,9 @@ function OccurrenceAssignmentsList({
   );
 }
 
-export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) {
+export default function FormPlanDetailView({
+  planId,
+}: FormPlanDetailViewProps) {
   const router = useRouter();
   const ui = useOverlay();
   const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
@@ -262,8 +263,14 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
   const planQuery = useFormPlanDetailQueries(planId);
   const planDetail = planQuery.data;
   const plan = planDetail?.plan;
-  const planTargets = useMemo(() => planDetail?.targets || [], [planDetail?.targets]);
-  const planPeriods = useMemo(() => planDetail?.periods || [], [planDetail?.periods]);
+  const planTargets = useMemo(
+    () => planDetail?.targets || [],
+    [planDetail?.targets],
+  );
+  const planPeriods = useMemo(
+    () => planDetail?.periods || [],
+    [planDetail?.periods],
+  );
 
   const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
   const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
@@ -288,12 +295,16 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
   const activateMutation = useFormPlanActivate(activeCompanyId || '', planId);
   const pauseMutation = useFormPlanPause(activeCompanyId || '', planId);
   const openOccurrencesMutation = useFormOccurrencesOpen(activeCompanyId || '');
-  const cancelOccurrenceMutation = useFormOccurrenceCancel(activeCompanyId || '');
+  const cancelOccurrenceMutation = useFormOccurrenceCancel(
+    activeCompanyId || '',
+  );
 
   const [activeTab, setActiveTab] = useState('overview');
 
   // Cancel Occurrence Modal State
-  const [cancellingOccurrenceId, setCancellingOccurrenceId] = useState<string | null>(null);
+  const [cancellingOccurrenceId, setCancellingOccurrenceId] = useState<
+    string | null
+  >(null);
   const [cancelReason, setCancelReason] = useState('');
 
   const isActive = Boolean(plan?.effectiveFrom && !plan?.effectiveUntil);
@@ -370,7 +381,10 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
     });
   };
 
-  const handleConfirmCancelOccurrence = (occurrenceId: string, revision: number) => {
+  const handleConfirmCancelOccurrence = (
+    occurrenceId: string,
+    revision: number,
+  ) => {
     if (!cancelReason.trim()) {
       toast.error('กรุณาระบุเหตุผลในการยกเลิกรอบงาน');
       return;
@@ -397,7 +411,8 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
     );
   };
 
-  const isPageLoading = isCompanyLoading || !activeCompanyId || planQuery.isLoading;
+  const isPageLoading =
+    isCompanyLoading || !activeCompanyId || planQuery.isLoading;
 
   if (!isPageLoading && !plan) {
     return (
@@ -422,7 +437,9 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
   const cfg = plan?.scheduleConfig as Record<string, unknown> | null;
   const frequency = (cfg?.frequency as string) || 'DAILY';
   const openTime = (cfg?.openLocalTime as string) || '08:00';
-  const dueOffset = cfg?.dueOffset as { amount?: number; unit?: string } | undefined;
+  const dueOffset = cfg?.dueOffset as
+    | { amount?: number; unit?: string }
+    | undefined;
   const dueHours = dueOffset?.amount || 8;
 
   return (
@@ -506,11 +523,12 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                       เปิดใช้งาน (Active)
                     </Badge>
                   ) : isPaused ? (
-                    <Badge variant="secondary">
-                      พักแผนชั่วคราว (Paused)
-                    </Badge>
+                    <Badge variant="secondary">พักแผนชั่วคราว (Paused)</Badge>
                   ) : (
-                    <Badge variant="outline" className="border-amber-400 text-amber-600">
+                    <Badge
+                      variant="outline"
+                      className="border-amber-400 text-amber-600"
+                    >
                       ฉบับร่าง (ยังไม่เปิดใช้งาน)
                     </Badge>
                   )}
@@ -581,7 +599,9 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                   </CardHeader>
                   <CardContent className="flex flex-col gap-3 text-xs">
                     <div className="flex justify-between pb-2 border-b">
-                      <span className="text-muted-foreground">รูปแบบกำหนดการ:</span>
+                      <span className="text-muted-foreground">
+                        รูปแบบกำหนดการ:
+                      </span>
                       <span className="font-semibold">
                         {plan.scheduleKind === 'RECURRING'
                           ? 'ทำซ้ำตามรอบ (Recurring)'
@@ -592,21 +612,32 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                     {plan.scheduleKind === 'RECURRING' && (
                       <>
                         <div className="flex justify-between pb-2 border-b">
-                          <span className="text-muted-foreground">ความถี่:</span>
+                          <span className="text-muted-foreground">
+                            ความถี่:
+                          </span>
                           <span className="font-semibold">
-                            {frequency} (ทุก {cfg?.interval as number || 1} รอบ)
+                            {frequency} (ทุก {(cfg?.interval as number) || 1}{' '}
+                            รอบ)
                           </span>
                         </div>
                         <div className="flex justify-between pb-2 border-b">
-                          <span className="text-muted-foreground">เวลาเปิดรอบ:</span>
+                          <span className="text-muted-foreground">
+                            เวลาเปิดรอบ:
+                          </span>
                           <span className="font-semibold">{openTime} น.</span>
                         </div>
                         <div className="flex justify-between pb-2 border-b">
-                          <span className="text-muted-foreground">กำหนดส่งหลังเปิด:</span>
-                          <span className="font-semibold">{dueHours} ชั่วโมง</span>
+                          <span className="text-muted-foreground">
+                            กำหนดส่งหลังเปิด:
+                          </span>
+                          <span className="font-semibold">
+                            {dueHours} ชั่วโมง
+                          </span>
                         </div>
                         <div className="flex justify-between pb-2 border-b">
-                          <span className="text-muted-foreground">วันที่เริ่มต้นฐาน:</span>
+                          <span className="text-muted-foreground">
+                            วันที่เริ่มต้นฐาน:
+                          </span>
                           <span className="font-semibold">
                             {(cfg?.anchorLocalDate as string) || '-'}
                           </span>
@@ -615,11 +646,15 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                     )}
 
                     <div className="flex justify-between pb-2 border-b">
-                      <span className="text-muted-foreground">เขตเวลา (Timezone):</span>
+                      <span className="text-muted-foreground">
+                        เขตเวลา (Timezone):
+                      </span>
                       <span className="font-semibold">{plan.timezone}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">นโยบาย Missed Policy:</span>
+                      <span className="text-muted-foreground">
+                        นโยบาย Missed Policy:
+                      </span>
                       <span className="font-semibold">{plan.missedPolicy}</span>
                     </div>
                   </CardContent>
@@ -635,17 +670,29 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                   </CardHeader>
                   <CardContent className="flex flex-col gap-3 text-xs">
                     <div className="flex justify-between pb-2 border-b">
-                      <span className="text-muted-foreground">โหมดการตรวจรับ:</span>
+                      <span className="text-muted-foreground">
+                        โหมดการตรวจรับ:
+                      </span>
                       <Badge variant="outline">{plan.reviewMode}</Badge>
                     </div>
                     <div className="flex justify-between pb-2 border-b">
-                      <span className="text-muted-foreground">นโยบายส่งงานช้า:</span>
-                      <Badge variant={plan.latePolicy === 'ALLOW' ? 'secondary' : 'default'}>
-                        {plan.latePolicy === 'ALLOW' ? 'อนุญาต (ALLOW)' : 'ไม่อนุญาต (DENY)'}
+                      <span className="text-muted-foreground">
+                        นโยบายส่งงานช้า:
+                      </span>
+                      <Badge
+                        variant={
+                          plan.latePolicy === 'ALLOW' ? 'secondary' : 'default'
+                        }
+                      >
+                        {plan.latePolicy === 'ALLOW'
+                          ? 'อนุญาต (ALLOW)'
+                          : 'ไม่อนุญาต (DENY)'}
                       </Badge>
                     </div>
                     <div className="flex justify-between pb-2 border-b">
-                      <span className="text-muted-foreground">เวอร์ชันแบบฟอร์ม:</span>
+                      <span className="text-muted-foreground">
+                        เวอร์ชันแบบฟอร์ม:
+                      </span>
                       <span className="font-semibold">
                         {plan.fixedVersionId
                           ? `ล็อกเวอร์ชัน (ID: ${plan.fixedVersionId.slice(0, 8)})`
@@ -653,7 +700,9 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Revision Token:</span>
+                      <span className="text-muted-foreground">
+                        Revision Token:
+                      </span>
                       <span className="font-mono">{plan.revision}</span>
                     </div>
                   </CardContent>
@@ -683,13 +732,15 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                   <CardContent>
                     {planTargets.length === 0 ? (
                       <div className="py-6 text-center text-xs text-muted-foreground border rounded-lg border-dashed">
-                        ยังไม่มีการกำหนดผู้รับมอบหมาย คลิก &quot;แก้ไขการตั้งค่า&quot; เพื่อเพิ่มตำแหน่งหรือพนักงาน
+                        ยังไม่มีการกำหนดผู้รับมอบหมาย คลิก
+                        &quot;แก้ไขการตั้งค่า&quot; เพื่อเพิ่มตำแหน่งหรือพนักงาน
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {planTargets.map((t) => {
                           const roleName = t.roleId
-                            ? roles.find((r) => r.id === t.roleId)?.name || `ตำแหน่ง: ${t.roleId.slice(0, 8)}`
+                            ? roles.find((r) => r.id === t.roleId)?.name ||
+                              `ตำแหน่ง: ${t.roleId.slice(0, 8)}`
                             : null;
                           const memberName = t.companyMemberId
                             ? `พนักงาน: ${t.companyMemberId.slice(0, 8)}`
@@ -771,9 +822,12 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
             <TabsContent id="occurrences" className="mt-4 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-base">รอบงานที่เปิดแล้ว (Occurrences)</h3>
+                  <h3 className="font-semibold text-base">
+                    รอบงานที่เปิดแล้ว (Occurrences)
+                  </h3>
                   <p className="text-xs text-muted-foreground">
-                    รายการรอบงานที่ถูกสร้างจริง พร้อมให้ผู้รับผิดชอบเริ่มบันทึกแบบฟอร์ม
+                    รายการรอบงานที่ถูกสร้างจริง
+                    พร้อมให้ผู้รับผิดชอบเริ่มบันทึกแบบฟอร์ม
                   </p>
                 </div>
                 {isActive && (
@@ -794,8 +848,10 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                   <CalendarDays className="size-10 text-muted-foreground mx-auto mb-3" />
                   <h4 className="font-medium text-sm">ยังไม่มีรอบงานที่เปิด</h4>
                   <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto mb-4">
-                    เมื่อถึงเวลาเปิดรอบ ระบบจะสร้างรอบงานและงานที่มอบหมายให้ผู้ปฏิบัติงานโดยอัตโนมัติ
-                    หรือสามารถกด &quot;ประมวลผลรอบที่ถึงเวลา&quot; เพื่อสร้างรอบที่ถึงกำหนด
+                    เมื่อถึงเวลาเปิดรอบ
+                    ระบบจะสร้างรอบงานและงานที่มอบหมายให้ผู้ปฏิบัติงานโดยอัตโนมัติ
+                    หรือสามารถกด &quot;ประมวลผลรอบที่ถึงเวลา&quot;
+                    เพื่อสร้างรอบที่ถึงกำหนด
                   </p>
                 </div>
               ) : (
@@ -842,7 +898,10 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                                 กำลังเปิดรับคำตอบ
                               </Badge>
                             )}
-                            <Badge variant="outline" className="text-xs font-mono">
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-mono"
+                            >
                               v{occ.revision}
                             </Badge>
                           </div>
@@ -893,7 +952,9 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
 
                         {occ.cancelReason && (
                           <div className="p-2.5 rounded-lg bg-destructive/10 text-destructive text-xs">
-                            <span className="font-semibold">เหตุผลการยกเลิก:</span>{' '}
+                            <span className="font-semibold">
+                              เหตุผลการยกเลิก:
+                            </span>{' '}
                             {occ.cancelReason}
                           </div>
                         )}
@@ -920,7 +981,10 @@ export default function FormPlanDetailView({ planId }: FormPlanDetailViewProps) 
                                 size="sm"
                                 variant="destructive"
                                 onPress={() =>
-                                  handleConfirmCancelOccurrence(occ.id, occ.revision)
+                                  handleConfirmCancelOccurrence(
+                                    occ.id,
+                                    occ.revision,
+                                  )
                                 }
                                 isLoading={cancelOccurrenceMutation.isPending}
                               >

@@ -68,7 +68,10 @@ export default function LeaveRequestDetailSheet({
     switch (status) {
       case 'approved':
         return (
-          <Badge variant="default" className="gap-1 bg-emerald-600 hover:bg-emerald-700">
+          <Badge
+            variant="default"
+            className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+          >
             <CheckCircle2 className="size-3" />
             อนุมัติแล้ว
           </Badge>
@@ -89,7 +92,10 @@ export default function LeaveRequestDetailSheet({
         );
       default:
         return (
-          <Badge variant="outline" className="gap-1 border-amber-400 text-amber-600">
+          <Badge
+            variant="outline"
+            className="gap-1 border-amber-400 text-amber-600"
+          >
             <Clock className="size-3" />
             รอพิจารณา (Pending)
           </Badge>
@@ -132,7 +138,10 @@ export default function LeaveRequestDetailSheet({
               <Clock className="size-4" />
               <span>จำนวนวันลาทั้งหมด:</span>
             </div>
-            <Badge variant="secondary" className="font-semibold text-foreground">
+            <Badge
+              variant="secondary"
+              className="font-semibold text-foreground"
+            >
               {daysCount} วันทำการ
             </Badge>
           </div>
@@ -224,7 +233,9 @@ export default function LeaveRequestDetailSheet({
             {request.reviewNote ? (
               <p className="text-foreground">{request.reviewNote}</p>
             ) : (
-              <p className="text-xs text-muted-foreground italic">ไม่มีความเห็นเพิ่มเติม</p>
+              <p className="text-xs text-muted-foreground italic">
+                ไม่มีความเห็นเพิ่มเติม
+              </p>
             )}
             {request.reviewedAt && (
               <p className="mt-2 text-xs text-muted-foreground">

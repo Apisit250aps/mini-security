@@ -47,7 +47,9 @@ export const formPlanDataColumns = ({
         const cfg = plan.scheduleConfig as Record<string, unknown> | null;
         const frequency = (cfg?.frequency as string) || 'DAILY';
         const openTime = (cfg?.openLocalTime as string) || '08:00';
-        const dueOffset = cfg?.dueOffset as { amount?: number; unit?: string } | undefined;
+        const dueOffset = cfg?.dueOffset as
+          | { amount?: number; unit?: string }
+          | undefined;
         const dueHours = dueOffset?.amount || 8;
 
         const freqLabel: Record<string, string> = {
@@ -71,7 +73,9 @@ export const formPlanDataColumns = ({
 
       return (
         <div className="flex flex-col gap-0.5 text-xs">
-          <span className="font-medium text-foreground">กำหนดช่วงเวลาเฉพาะ</span>
+          <span className="font-medium text-foreground">
+            กำหนดช่วงเวลาเฉพาะ
+          </span>
           <span className="text-muted-foreground">ระบุช่วงเปิดและกำหนดส่ง</span>
         </div>
       );
@@ -82,7 +86,10 @@ export const formPlanDataColumns = ({
     header: 'โหมดตรวจรับ',
     cell: ({ getValue }) => {
       const mode = getValue<string>();
-      const labels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
+      const labels: Record<
+        string,
+        { label: string; variant: 'default' | 'secondary' | 'outline' }
+      > = {
         NONE: { label: 'ไม่ต้องตรวจ', variant: 'secondary' },
         OVERALL: { label: 'ตรวจทั้งชุด', variant: 'outline' },
         ALL_SECTIONS: { label: 'ต้องผ่านทุกหมวด', variant: 'outline' },
@@ -102,7 +109,10 @@ export const formPlanDataColumns = ({
 
       if (isActive) {
         return (
-          <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-xs">
+          <Badge
+            variant="default"
+            className="bg-emerald-600 hover:bg-emerald-700 text-xs"
+          >
             เปิดใช้งาน
           </Badge>
         );
@@ -115,7 +125,10 @@ export const formPlanDataColumns = ({
         );
       }
       return (
-        <Badge variant="outline" className="text-xs border-amber-400 text-amber-600 dark:text-amber-400">
+        <Badge
+          variant="outline"
+          className="text-xs border-amber-400 text-amber-600 dark:text-amber-400"
+        >
           ยังไม่เปิดใช้งาน (ร่าง)
         </Badge>
       );
@@ -133,9 +146,7 @@ export const formPlanDataColumns = ({
   {
     id: 'actions',
     header: '',
-    cell: (cell) => (
-      <FormPlanColumnActions cell={cell} companyId={companyId} />
-    ),
+    cell: (cell) => <FormPlanColumnActions cell={cell} companyId={companyId} />,
   },
 ];
 

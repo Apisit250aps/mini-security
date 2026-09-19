@@ -185,8 +185,7 @@ export const leaveRequestDataColumns = ({
       id: 'actions',
       header: 'จัดการ',
       cell: (cell) => {
-        const typeName =
-          typeMap.get(cell.row.original.leaveTypeId) || 'การลา';
+        const typeName = typeMap.get(cell.row.original.leaveTypeId) || 'การลา';
         const member = memberObjMap.get(cell.row.original.companyMemberId);
         const user = member ? usersMap?.get(member.userId) : undefined;
         const memberName = user

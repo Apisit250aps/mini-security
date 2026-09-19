@@ -20,7 +20,11 @@ async function getAllPermissionActions(): Promise<string[]> {
 async function getUserPermissionActions(
   userId: string,
   activeCompanyId?: string | null,
-): Promise<{ actions: string[]; companyId: string | null; memberId: string | null }> {
+): Promise<{
+  actions: string[];
+  companyId: string | null;
+  memberId: string | null;
+}> {
   const result = await db.transaction(async (tx) => {
     const [m] = await tx
       .select({ id: companyMember.id, companyId: companyMember.companyId })
@@ -45,11 +49,16 @@ async function getUserPermissionActions(
     return { member: m, user: u };
   });
 
-  if (!result.user?.isActive) return { actions: [], companyId: null, memberId: null };
+  if (!result.user?.isActive)
+    return { actions: [], companyId: null, memberId: null };
 
   if (result.user?.isAdmin) {
     const allActions = await getAllPermissionActions();
-    return { actions: allActions, companyId: activeCompanyId ?? null, memberId: result.member?.id ?? null };
+    return {
+      actions: allActions,
+      companyId: activeCompanyId ?? null,
+      memberId: result.member?.id ?? null,
+    };
   }
 
   if (!result.member) return { actions: [], companyId: null, memberId: null };

@@ -1,51 +1,29 @@
 {
   "id": "415f2355-4e8f-4c3a-a0f8-90ed9216f72e",
-  "prevIds": [
-    "f4f03c12-a97a-42df-a582-ea6c142b784c"
-  ],
+  "prevIds": ["f4f03c12-a97a-42df-a582-ea6c142b784c"],
   "version": "8",
   "dialect": "postgres",
   "ddl": [
     {
-      "values": [
-        "SUPER_ADMIN",
-        "OWNER",
-        "ADMIN",
-        "MEMBER",
-        "VIEWER"
-      ],
+      "values": ["SUPER_ADMIN", "OWNER", "ADMIN", "MEMBER", "VIEWER"],
       "name": "role_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "present",
-        "absent",
-        "late",
-        "excused"
-      ],
+      "values": ["present", "absent", "late", "excused"],
       "name": "attendance_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "pending",
-        "approved",
-        "rejected",
-        "cancelled"
-      ],
+      "values": ["pending", "approved", "rejected", "cancelled"],
       "name": "leave_request_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "day",
-        "half_day",
-        "hour"
-      ],
+      "values": ["day", "half_day", "hour"],
       "name": "leave_unit",
       "entityType": "enums",
       "schema": "public"
@@ -65,31 +43,19 @@
       "schema": "public"
     },
     {
-      "values": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVED",
-        "REJECTED"
-      ],
+      "values": ["DRAFT", "SUBMITTED", "APPROVED", "REJECTED"],
       "name": "form_submission_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "DRAFT",
-        "PUBLISHED",
-        "ARCHIVED"
-      ],
+      "values": ["DRAFT", "PUBLISHED", "ARCHIVED"],
       "name": "form_version_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "APPROVE",
-        "REJECT"
-      ],
+      "values": ["APPROVE", "REJECT"],
       "name": "submission_review_action",
       "entityType": "enums",
       "schema": "public"
@@ -5273,14 +5239,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "account_user_id_user_id_fkey",
@@ -5290,14 +5252,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "session_user_id_user_id_fkey",
@@ -5307,14 +5265,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_branch_company_id_company_id_fkey",
@@ -5324,14 +5278,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_branch_id"
-      ],
+      "columns": ["company_branch_id"],
       "schemaTo": "public",
       "tableTo": "company_branch",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_member_company_branch_id_company_branch_id_fkey",
@@ -5341,14 +5291,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_member_company_id_company_id_fkey",
@@ -5358,14 +5304,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_member_user_id_user_id_fkey",
@@ -5375,14 +5317,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "feature_id"
-      ],
+      "columns": ["feature_id"],
       "schemaTo": "public",
       "tableTo": "feature",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "permission_feature_id_feature_id_fkey",
@@ -5392,14 +5330,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_company_id_company_id_fkey",
@@ -5409,14 +5343,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "role_id"
-      ],
+      "columns": ["role_id"],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_permission_role_id_role_id_fkey",
@@ -5426,14 +5356,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "permission_id"
-      ],
+      "columns": ["permission_id"],
       "schemaTo": "public",
       "tableTo": "permission",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_permission_permission_id_permission_id_fkey",
@@ -5443,14 +5369,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_feature_company_id_company_id_fkey",
@@ -5460,14 +5382,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "feature_id"
-      ],
+      "columns": ["feature_id"],
       "schemaTo": "public",
       "tableTo": "feature",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "company_feature_feature_id_feature_id_fkey",
@@ -5477,14 +5395,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "assigned_by"
-      ],
+      "columns": ["assigned_by"],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "company_feature_assigned_by_user_id_fkey",
@@ -5494,14 +5408,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_feature_company_id_company_id_fkey",
@@ -5511,14 +5421,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "role_id"
-      ],
+      "columns": ["role_id"],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_feature_role_id_role_id_fkey",
@@ -5528,14 +5434,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "feature_id"
-      ],
+      "columns": ["feature_id"],
       "schemaTo": "public",
       "tableTo": "feature",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "role_feature_feature_id_feature_id_fkey",
@@ -5545,14 +5447,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_member_id"
-      ],
+      "columns": ["company_member_id"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "attendance_logs_company_member_id_company_member_id_fkey",
@@ -5562,14 +5460,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "schedule_slot_id"
-      ],
+      "columns": ["schedule_slot_id"],
       "schemaTo": "public",
       "tableTo": "schedule_slots",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "attendance_logs_schedule_slot_id_schedule_slots_id_fkey",
@@ -5579,14 +5473,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "recorded_by"
-      ],
+      "columns": ["recorded_by"],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "attendance_logs_recorded_by_user_id_fkey",
@@ -5596,14 +5486,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "role_id"
-      ],
+      "columns": ["role_id"],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "check_in_schedule_roles_role_id_role_id_fkey",
@@ -5613,16 +5499,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "check_in_schedule_id",
-        "company_id"
-      ],
+      "columns": ["check_in_schedule_id", "company_id"],
       "schemaTo": "public",
       "tableTo": "check_in_schedules",
-      "columnsTo": [
-        "id",
-        "company_id"
-      ],
+      "columnsTo": ["id", "company_id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "check_in_schedule_roles_6pkuxLN7igmX_fkey",
@@ -5632,14 +5512,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "check_in_schedules_company_id_company_id_fkey",
@@ -5649,14 +5525,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "check_in_schedule_id"
-      ],
+      "columns": ["check_in_schedule_id"],
       "schemaTo": "public",
       "tableTo": "check_in_schedules",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "schedule_slots_check_in_schedule_id_check_in_schedules_id_fkey",
@@ -5666,14 +5538,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_member_id"
-      ],
+      "columns": ["company_member_id"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "leave_quotas_company_member_id_company_member_id_fkey",
@@ -5683,14 +5551,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "leave_type_id"
-      ],
+      "columns": ["leave_type_id"],
       "schemaTo": "public",
       "tableTo": "leave_types",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "leave_quotas_leave_type_id_leave_types_id_fkey",
@@ -5700,14 +5564,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_member_id"
-      ],
+      "columns": ["company_member_id"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "leave_requests_company_member_id_company_member_id_fkey",
@@ -5717,14 +5577,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "leave_type_id"
-      ],
+      "columns": ["leave_type_id"],
       "schemaTo": "public",
       "tableTo": "leave_types",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "leave_requests_leave_type_id_leave_types_id_fkey",
@@ -5734,14 +5590,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "reviewed_by"
-      ],
+      "columns": ["reviewed_by"],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "SET NULL",
       "name": "leave_requests_reviewed_by_user_id_fkey",
@@ -5751,14 +5603,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "leave_types_company_id_company_id_fkey",
@@ -5768,14 +5616,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_company_id_company_id_fkey",
@@ -5785,14 +5629,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_version_id"
-      ],
+      "columns": ["form_version_id"],
       "schemaTo": "public",
       "tableTo": "form_version",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_form_version_id_form_version_id_fkey",
@@ -5802,14 +5642,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "submission_id"
-      ],
+      "columns": ["submission_id"],
       "schemaTo": "public",
       "tableTo": "form_submission",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_submission_id_form_submission_id_fkey",
@@ -5819,14 +5655,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "field_id"
-      ],
+      "columns": ["field_id"],
       "schemaTo": "public",
       "tableTo": "form_field",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_field_id_form_field_id_fkey",
@@ -5836,14 +5668,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "updated_by"
-      ],
+      "columns": ["updated_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_updated_by_company_member_id_fkey",
@@ -5853,14 +5681,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_attachment_company_id_company_id_fkey",
@@ -5870,14 +5694,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "answer_id"
-      ],
+      "columns": ["answer_id"],
       "schemaTo": "public",
       "tableTo": "form_answer",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_attachment_answer_id_form_answer_id_fkey",
@@ -5887,14 +5707,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "uploaded_by"
-      ],
+      "columns": ["uploaded_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_answer_attachment_uploaded_by_company_member_id_fkey",
@@ -5904,14 +5720,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_field_company_id_company_id_fkey",
@@ -5921,14 +5733,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_version_id"
-      ],
+      "columns": ["form_version_id"],
       "schemaTo": "public",
       "tableTo": "form_version",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_field_form_version_id_form_version_id_fkey",
@@ -5938,14 +5746,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_section_id"
-      ],
+      "columns": ["form_section_id"],
       "schemaTo": "public",
       "tableTo": "form_section",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_field_form_section_id_form_section_id_fkey",
@@ -5955,14 +5759,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_section_company_id_company_id_fkey",
@@ -5972,14 +5772,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_version_id"
-      ],
+      "columns": ["form_version_id"],
       "schemaTo": "public",
       "tableTo": "form_version",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_section_form_version_id_form_version_id_fkey",
@@ -5989,14 +5785,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_company_id_company_id_fkey",
@@ -6006,14 +5798,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_template_id"
-      ],
+      "columns": ["form_template_id"],
       "schemaTo": "public",
       "tableTo": "form_template",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_form_template_id_form_template_id_fkey",
@@ -6023,14 +5811,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_version_id"
-      ],
+      "columns": ["form_version_id"],
       "schemaTo": "public",
       "tableTo": "form_version",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_form_version_id_form_version_id_fkey",
@@ -6040,14 +5824,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "role_id"
-      ],
+      "columns": ["role_id"],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_role_id_role_id_fkey",
@@ -6057,14 +5837,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "started_by"
-      ],
+      "columns": ["started_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_started_by_company_member_id_fkey",
@@ -6074,14 +5850,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "submitted_by"
-      ],
+      "columns": ["submitted_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_submitted_by_company_member_id_fkey",
@@ -6091,14 +5863,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_contributor_company_id_company_id_fkey",
@@ -6108,14 +5876,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "submission_id"
-      ],
+      "columns": ["submission_id"],
       "schemaTo": "public",
       "tableTo": "form_submission",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_contributor_GA6fbriijyrK_fkey",
@@ -6125,14 +5889,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "member_id"
-      ],
+      "columns": ["member_id"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_submission_contributor_member_id_company_member_id_fkey",
@@ -6142,14 +5902,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_template_company_id_company_id_fkey",
@@ -6159,14 +5915,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_template_created_by_company_member_id_fkey",
@@ -6176,14 +5928,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_template_role_company_id_company_id_fkey",
@@ -6193,14 +5941,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_template_id"
-      ],
+      "columns": ["form_template_id"],
       "schemaTo": "public",
       "tableTo": "form_template",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_template_role_form_template_id_form_template_id_fkey",
@@ -6210,14 +5954,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "role_id"
-      ],
+      "columns": ["role_id"],
       "schemaTo": "public",
       "tableTo": "role",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_template_role_role_id_role_id_fkey",
@@ -6227,14 +5967,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_version_company_id_company_id_fkey",
@@ -6244,14 +5980,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "form_template_id"
-      ],
+      "columns": ["form_template_id"],
       "schemaTo": "public",
       "tableTo": "form_template",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_version_form_template_id_form_template_id_fkey",
@@ -6261,14 +5993,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "created_by"
-      ],
+      "columns": ["created_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_version_created_by_company_member_id_fkey",
@@ -6278,14 +6006,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "published_by"
-      ],
+      "columns": ["published_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "form_version_published_by_company_member_id_fkey",
@@ -6295,14 +6019,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "company_id"
-      ],
+      "columns": ["company_id"],
       "schemaTo": "public",
       "tableTo": "company",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "submission_review_company_id_company_id_fkey",
@@ -6312,14 +6032,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "submission_id"
-      ],
+      "columns": ["submission_id"],
       "schemaTo": "public",
       "tableTo": "form_submission",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "submission_review_submission_id_form_submission_id_fkey",
@@ -6329,14 +6045,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "reviewed_by"
-      ],
+      "columns": ["reviewed_by"],
       "schemaTo": "public",
       "tableTo": "company_member",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "RESTRICT",
       "name": "submission_review_reviewed_by_company_member_id_fkey",
@@ -6345,9 +6057,7 @@
       "table": "submission_review"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "user_pkey",
       "schema": "public",
@@ -6355,9 +6065,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "account_pkey",
       "schema": "public",
@@ -6365,9 +6073,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "jwks_pkey",
       "schema": "public",
@@ -6375,9 +6081,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "session_pkey",
       "schema": "public",
@@ -6385,9 +6089,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "verification_pkey",
       "schema": "public",
@@ -6395,9 +6097,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "company_pkey",
       "schema": "public",
@@ -6405,9 +6105,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "company_branch_pkey",
       "schema": "public",
@@ -6415,9 +6113,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "company_member_pkey",
       "schema": "public",
@@ -6425,9 +6121,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "permission_pkey",
       "schema": "public",
@@ -6435,9 +6129,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "role_pkey",
       "schema": "public",
@@ -6445,9 +6137,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "role_permission_pkey",
       "schema": "public",
@@ -6455,9 +6145,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "company_feature_pkey",
       "schema": "public",
@@ -6465,9 +6153,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "feature_pkey",
       "schema": "public",
@@ -6475,9 +6161,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "role_feature_pkey",
       "schema": "public",
@@ -6485,9 +6169,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "attendance_logs_pkey",
       "schema": "public",
@@ -6495,9 +6177,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "check_in_schedule_roles_pkey",
       "schema": "public",
@@ -6505,9 +6185,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "check_in_schedules_pkey",
       "schema": "public",
@@ -6515,9 +6193,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "schedule_slots_pkey",
       "schema": "public",
@@ -6525,9 +6201,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "leave_quotas_pkey",
       "schema": "public",
@@ -6535,9 +6209,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "leave_requests_pkey",
       "schema": "public",
@@ -6545,9 +6217,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "leave_types_pkey",
       "schema": "public",
@@ -6555,9 +6225,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_answer_pkey",
       "schema": "public",
@@ -6565,9 +6233,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_answer_attachment_pkey",
       "schema": "public",
@@ -6575,9 +6241,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_field_pkey",
       "schema": "public",
@@ -6585,9 +6249,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_section_pkey",
       "schema": "public",
@@ -6595,9 +6257,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_submission_pkey",
       "schema": "public",
@@ -6605,9 +6265,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_submission_contributor_pkey",
       "schema": "public",
@@ -6615,9 +6273,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_template_pkey",
       "schema": "public",
@@ -6625,9 +6281,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_template_role_pkey",
       "schema": "public",
@@ -6635,9 +6289,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "form_version_pkey",
       "schema": "public",
@@ -6645,9 +6297,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "submission_review_pkey",
       "schema": "public",
@@ -6656,10 +6306,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "company_id",
-        "feature_id"
-      ],
+      "columns": ["company_id", "feature_id"],
       "nullsNotDistinct": false,
       "name": "company_feature_company_feature_unique",
       "entityType": "uniques",
@@ -6668,10 +6315,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "role_id",
-        "feature_id"
-      ],
+      "columns": ["role_id", "feature_id"],
       "nullsNotDistinct": false,
       "name": "role_feature_role_feature_unique",
       "entityType": "uniques",
@@ -6680,11 +6324,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "company_member_id",
-        "schedule_slot_id",
-        "work_date"
-      ],
+      "columns": ["company_member_id", "schedule_slot_id", "work_date"],
       "nullsNotDistinct": false,
       "name": "attendance_log_unique_per_slot_per_day",
       "entityType": "uniques",
@@ -6693,10 +6333,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "check_in_schedule_id",
-        "role_id"
-      ],
+      "columns": ["check_in_schedule_id", "role_id"],
       "nullsNotDistinct": false,
       "name": "check_in_schedule_role_pair_unique",
       "entityType": "uniques",
@@ -6705,10 +6342,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id"
-      ],
+      "columns": ["id", "company_id"],
       "nullsNotDistinct": false,
       "name": "check_in_schedule_id_company_unique",
       "entityType": "uniques",
@@ -6717,10 +6351,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "check_in_schedule_id",
-        "slot_order"
-      ],
+      "columns": ["check_in_schedule_id", "slot_order"],
       "nullsNotDistinct": false,
       "name": "schedule_slot_order_unique",
       "entityType": "uniques",
@@ -6729,11 +6360,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "company_member_id",
-        "leave_type_id",
-        "year"
-      ],
+      "columns": ["company_member_id", "leave_type_id", "year"],
       "nullsNotDistinct": false,
       "name": "leave_quota_member_type_year_unique",
       "entityType": "uniques",
@@ -6742,10 +6369,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "company_id",
-        "name"
-      ],
+      "columns": ["company_id", "name"],
       "nullsNotDistinct": false,
       "name": "leave_type_company_name_unique",
       "entityType": "uniques",
@@ -6754,10 +6378,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id"
-      ],
+      "columns": ["id", "company_id"],
       "nullsNotDistinct": false,
       "name": "form_answer_id_company_unique",
       "entityType": "uniques",
@@ -6766,10 +6387,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "submission_id",
-        "field_id"
-      ],
+      "columns": ["submission_id", "field_id"],
       "nullsNotDistinct": false,
       "name": "form_answer_submission_field_unique",
       "entityType": "uniques",
@@ -6778,10 +6396,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "answer_id",
-        "storage_key"
-      ],
+      "columns": ["answer_id", "storage_key"],
       "nullsNotDistinct": false,
       "name": "form_answer_attachment_answer_key_unique",
       "entityType": "uniques",
@@ -6790,11 +6405,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id",
-        "form_version_id"
-      ],
+      "columns": ["id", "company_id", "form_version_id"],
       "nullsNotDistinct": false,
       "name": "form_field_id_company_version_unique",
       "entityType": "uniques",
@@ -6803,11 +6414,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id",
-        "form_version_id"
-      ],
+      "columns": ["id", "company_id", "form_version_id"],
       "nullsNotDistinct": false,
       "name": "form_section_id_company_version_unique",
       "entityType": "uniques",
@@ -6816,11 +6423,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id",
-        "form_version_id"
-      ],
+      "columns": ["id", "company_id", "form_version_id"],
       "nullsNotDistinct": false,
       "name": "form_submission_id_company_version_unique",
       "entityType": "uniques",
@@ -6829,12 +6432,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id",
-        "form_version_id",
-        "role_id"
-      ],
+      "columns": ["id", "company_id", "form_version_id", "role_id"],
       "nullsNotDistinct": false,
       "name": "form_submission_id_company_version_role_unique",
       "entityType": "uniques",
@@ -6843,10 +6441,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id"
-      ],
+      "columns": ["id", "company_id"],
       "nullsNotDistinct": false,
       "name": "form_submission_id_company_unique",
       "entityType": "uniques",
@@ -6855,9 +6450,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "supersedes_submission_id"
-      ],
+      "columns": ["supersedes_submission_id"],
       "nullsNotDistinct": false,
       "name": "form_submission_supersedes_submission_id_unique",
       "entityType": "uniques",
@@ -6866,10 +6459,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "submission_id",
-        "member_id"
-      ],
+      "columns": ["submission_id", "member_id"],
       "nullsNotDistinct": false,
       "name": "form_submission_contributor_submission_member_unique",
       "entityType": "uniques",
@@ -6878,10 +6468,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id"
-      ],
+      "columns": ["id", "company_id"],
       "nullsNotDistinct": false,
       "name": "form_template_id_company_id_unique",
       "entityType": "uniques",
@@ -6890,10 +6477,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "form_template_id",
-        "role_id"
-      ],
+      "columns": ["form_template_id", "role_id"],
       "nullsNotDistinct": false,
       "name": "form_template_role_template_role_unique",
       "entityType": "uniques",
@@ -6902,11 +6486,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "form_template_id",
-        "company_id",
-        "role_id"
-      ],
+      "columns": ["form_template_id", "company_id", "role_id"],
       "nullsNotDistinct": false,
       "name": "form_template_role_template_company_role_unique",
       "entityType": "uniques",
@@ -6915,10 +6495,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id"
-      ],
+      "columns": ["id", "company_id"],
       "nullsNotDistinct": false,
       "name": "form_version_id_company_id_unique",
       "entityType": "uniques",
@@ -6927,11 +6504,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "id",
-        "company_id",
-        "form_template_id"
-      ],
+      "columns": ["id", "company_id", "form_template_id"],
       "nullsNotDistinct": false,
       "name": "form_version_id_company_template_unique",
       "entityType": "uniques",
@@ -6940,10 +6513,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "form_template_id",
-        "version"
-      ],
+      "columns": ["form_template_id", "version"],
       "nullsNotDistinct": false,
       "name": "form_version_template_version_unique",
       "entityType": "uniques",
@@ -6952,9 +6522,7 @@
     },
     {
       "nameExplicit": true,
-      "columns": [
-        "submission_id"
-      ],
+      "columns": ["submission_id"],
       "nullsNotDistinct": false,
       "name": "submission_review_submission_id_unique",
       "entityType": "uniques",
@@ -6963,9 +6531,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "email"
-      ],
+      "columns": ["email"],
       "nullsNotDistinct": false,
       "name": "user_email_key",
       "schema": "public",
@@ -6974,9 +6540,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "token"
-      ],
+      "columns": ["token"],
       "nullsNotDistinct": false,
       "name": "session_token_key",
       "schema": "public",
@@ -6985,9 +6549,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "slug"
-      ],
+      "columns": ["slug"],
       "nullsNotDistinct": false,
       "name": "company_slug_key",
       "schema": "public",
@@ -6996,9 +6558,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "action"
-      ],
+      "columns": ["action"],
       "nullsNotDistinct": false,
       "name": "permission_action_key",
       "schema": "public",
@@ -7007,9 +6567,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "code"
-      ],
+      "columns": ["code"],
       "nullsNotDistinct": false,
       "name": "feature_code_key",
       "schema": "public",
