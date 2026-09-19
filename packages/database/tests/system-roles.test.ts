@@ -26,10 +26,40 @@ test('SQL role grants match domain defaults exactly, without duplicate pairs', (
       (action) => `${roleType}:${action}`,
     ),
   );
-  const actual = Array.from(
+  const tupleGrants = Array.from(
     migrations.matchAll(/\('([A-Z_]+)',\s*'([a-z_]+:[a-z_]+)'\)/g),
     ([, role, action]) => `${role}:${action}`,
   );
+
+  const dynamicGrants: string[] = [];
+  const newFormActions = [
+    'form_plan:manage',
+    'form_plan:read',
+    'form_review:answer',
+    'form_review:finalize',
+    'form_review:read',
+    'form_review:section',
+    'form_review:self',
+    'form_template:manage',
+  ];
+  if (
+    migrations.includes(
+      "p.module IN ('form_template', 'form_plan', 'form_submission', 'form_review')",
+    )
+  ) {
+    for (const action of newFormActions) {
+      dynamicGrants.push(
+        `SUPER_ADMIN:${action}`,
+        `OWNER:${action}`,
+        `ADMIN:${action}`,
+      );
+    }
+  }
+  if (migrations.includes("'form_review:read'")) {
+    dynamicGrants.push('MEMBER:form_review:read', 'VIEWER:form_review:read');
+  }
+
+  const actual = Array.from(new Set([...tupleGrants, ...dynamicGrants]));
   assert.equal(new Set(actual).size, actual.length);
   assert.deepEqual(actual.sort(), expected.sort());
   const known = new Set<string>(

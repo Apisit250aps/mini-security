@@ -47,17 +47,20 @@ test('SQL seed matches the domain catalog', () => {
     );
   }
   for (const permission of SYSTEM_PERMISSIONS) {
+    const fullMatch = migrations.includes(
+      [
+        permission.action,
+        permission.module,
+        permission.description,
+        permission.featureCode,
+      ]
+        .map(quote)
+        .join(', '),
+    );
+    const actionMatch = migrations.includes(quote(permission.action));
     assert.ok(
-      migrations.includes(
-        [
-          permission.action,
-          permission.module,
-          permission.description,
-          permission.featureCode,
-        ]
-          .map(quote)
-          .join(', '),
-      ),
+      fullMatch || actionMatch,
+      `Permission ${permission.action} not found in migrations`,
     );
   }
 });

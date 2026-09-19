@@ -1,5 +1,10 @@
 import type { IUnitOfWork } from '@repo/domains';
 import type { ISecurityContext } from '@repo/domains/constants';
+import type {
+  IFormAttachmentUseCase,
+  IFormAttachmentUploadContext,
+  IFormAttachmentContext,
+} from '@repo/domains/applications/form';
 import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
 import type {
   IFormSubmissionRepository,
@@ -36,19 +41,10 @@ const documentTypes = new Set([
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]);
-type UploadContext = ISecurityContext & {
-  submissionId: string;
-  fieldId: string;
-  expectedRevision: number;
-  originalName: string;
-  bytes: Uint8Array;
-};
-type AttachmentContext = ISecurityContext & {
-  attachmentId: string;
-  expectedRevision?: number;
-};
+type UploadContext = IFormAttachmentUploadContext;
+type AttachmentContext = IFormAttachmentContext;
 
-export class FormAttachmentUseCase {
+export class FormAttachmentUseCase implements IFormAttachmentUseCase {
   constructor(
     private readonly unitOfWork: IUnitOfWork,
     private readonly submissionRepo: IFormSubmissionRepository,

@@ -224,6 +224,7 @@ for (const options of [
 }
 test('manual check-in validates assignments and stamps the actual actor', async () => {
   const data = {
+    companyId,
     companyMemberId: memberId,
     scheduleSlotId: slotId,
     workDate: '2026-09-12',
@@ -307,6 +308,7 @@ test('leave approval synchronizes every assigned schedule across every leave day
   } as import('@repo/domains/repositories/leave').ILeaveRequestRepository;
   const quotas = {
     findByMemberTypeAndYear: async () => null,
+    lockByMemberTypeAndYear: async () => null,
   } as import('@repo/domains/repositories/leave').ILeaveQuotaRepository;
   const types = {
     findById: async () => ({ name: 'Annual leave' }),

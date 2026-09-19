@@ -15,12 +15,15 @@
     "./auth/client": "./src/auth/client.ts",
     "./compositions": "./src/compositions/index.ts",
     "./compositions/*": "./src/compositions/*",
+    "./storage": "./src/storage/form-attachment.storage.ts",
+    "./storage/*": "./src/storage/*.ts",
     "./types/*": "./src/types/*.d.ts"
   },
   "imports": {
     "#lib/*": "./src/lib/*.ts",
     "#repositories": "./src/repositories/index.ts",
     "#repositories/*": "./src/repositories/*.repo.ts",
+    "#storage/*": "./src/storage/*.ts",
     "#auth/*": "./src/auth/*.ts",
     "#auth/client": "./src/auth/client.ts",
     "#compositions": "./src/compositions/index.ts",

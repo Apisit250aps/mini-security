@@ -467,3 +467,25 @@ export type IDeleteFormSectionUseCase = BaseUseCase<
   IDeleteFormSectionContext,
   void
 >;
+
+export type IFormAttachmentUploadContext = ISecurityContext & {
+  submissionId: string;
+  fieldId: string;
+  expectedRevision: number;
+  originalName: string;
+  bytes: Uint8Array;
+};
+
+export type IFormAttachmentContext = ISecurityContext & {
+  attachmentId: string;
+  expectedRevision?: number;
+};
+
+export interface IFormAttachmentUseCase {
+  upload(context: IFormAttachmentUploadContext): Promise<FormAnswerAttachment>;
+  download(context: IFormAttachmentContext): Promise<{
+    attachment: FormAnswerAttachment;
+    bytes: Uint8Array;
+  }>;
+  remove(context: IFormAttachmentContext): Promise<void>;
+}
