@@ -1,8 +1,11 @@
 import BaseConfig from './base';
+import { logger as terminalLogger } from './logger';
 /**
  * Application configuration
  */
 export class Config extends BaseConfig {
+  /** Shared application logger used by infrastructure adapters. */
+  logger = terminalLogger;
   /**
    * Database configuration
    */
