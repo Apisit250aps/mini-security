@@ -674,69 +674,69 @@ TableGroup leave_management {
 
 
 Enum form_version_status {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+  DRAFT [note: 'ฉบับร่าง แก้ไข section/field ได้อิสระ']
+  PUBLISHED [note: 'เผยแพร่แล้ว ห้ามแก้เนื้อหา ใช้เปิดรอบงานได้']
+  ARCHIVED [note: 'ถูกแทนที่ด้วยฉบับใหม่ ยังใช้อ้างอิงคำตอบ/รอบเก่าได้']
 }
 
 
 Enum form_field_type {
-  TEXT
-  NUMBER
-  SELECT
-  BOOLEAN
-  DATE
-  IMAGE
-  FILE
+  TEXT [note: 'ข้อความสั้น/ยาว']
+  NUMBER [note: 'ตัวเลข อาจมีหน่วยใน config']
+  SELECT [note: 'เลือกจากตัวเลือกที่กำหนดใน config.options']
+  BOOLEAN [note: 'ใช่/ไม่ใช่ เหมาะกับเช็กลิสต์']
+  DATE [note: 'วันที่']
+  IMAGE [note: 'แนบรูปภาพ เก็บผ่าน form_answer_attachment']
+  FILE [note: 'แนบไฟล์ เก็บผ่าน form_answer_attachment']
 }
 
 
 Enum form_schedule_kind {
-  RECURRING
-  EXPLICIT
+  RECURRING [note: 'เปิดรอบซ้ำตามความถี่ที่ตั้งใน schedule_config']
+  EXPLICIT [note: 'เปิดรอบตามช่วงเวลาที่ระบุเองใน form_plan_period']
 }
 
 
 Enum form_review_mode {
-  NONE
-  OVERALL
-  ALL_SECTIONS
-  ALL_ANSWERS
+  NONE [note: 'ไม่มีขั้นตอนตรวจ']
+  OVERALL [note: 'ตรวจและตัดสินทั้งชุดคำตอบครั้งเดียว']
+  ALL_SECTIONS [note: 'ต้องตรวจครบทุกหมวดก่อนตัดสินทั้งชุด']
+  ALL_ANSWERS [note: 'ต้องตรวจครบทุกคำตอบก่อนตัดสินทั้งชุด']
 }
 
 
 Enum form_role_distribution {
-  SHARED
-  PER_MEMBER
+  SHARED [note: 'สมาชิกใน Role ร่วมกันทำงานชุดเดียว']
+  PER_MEMBER [note: 'แจกงานแยกให้สมาชิกแต่ละคนในบัดนั้น']
 }
 
 
 Enum form_late_policy {
-  ALLOW
-  DENY
+  ALLOW [note: 'ยังส่งคำตอบได้แม้เลย due_at']
+  DENY [note: 'ห้ามส่งคำตอบหลังพ้น due_at']
 }
 
 
 Enum form_missed_policy {
-  SKIP
-  CATCH_UP
+  SKIP [note: 'รอบที่ไม่ได้เปิด/พลาดจะข้ามไปเลย']
+  CATCH_UP [note: 'สร้างรอบย้อนหลังให้ครบตามกำหนดการ']
 }
 
 
 Enum form_review_action {
-  PASS
-  NEEDS_CHANGES
-  APPROVE
-  RETURN
+  PASS [note: 'ผ่าน ใช้กับคำตอบ/หมวดรายรายการ']
+  NEEDS_CHANGES [note: 'ต้องแก้ไข ใช้กับคำตอบ/หมวดรายรายการ ต้องมี note']
+  APPROVE [note: 'อนุมัติทั้งชุด เป็นคำตัดสินสุดท้าย']
+  RETURN [note: 'ตีกลับทั้งชุดให้แก้ไข เปิดทางสร้าง submission รอบใหม่']
 }
 
 
 Table form_template {
   id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
-  name text [not null]
-  description text
-  is_active boolean [not null, default: true]
+  company_id uuid [not null, note: 'FK -> company.id เจ้าของฟอร์ม']
+  name text [not null, note: 'ชื่อแม่แบบ ใช้แสดงในรายการฟอร์ม']
+  description text [note: 'คำอธิบายวัตถุประสงค์ของฟอร์ม']
+  is_active boolean [not null, default: true, note: 'ปิดใช้งานแทนลบเมื่อมีประวัติการใช้งาน']
   created_by uuid [not null, note: 'company_member ของบริษัทเจ้าของฟอร์ม']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
@@ -751,15 +751,15 @@ Table form_template {
 
 Table form_version {
   id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
-  form_template_id uuid [not null]
-  version integer [not null, check: `version > 0`]
-  status form_version_status [not null, default: 'DRAFT']
+  company_id uuid [not null, note: 'FK -> company.id']
+  form_template_id uuid [not null, note: 'FK -> form_template.id แม่แบบเจ้าของฉบับนี้']
+  version integer [not null, check: `version > 0`, note: 'เลขฉบับรันตามลำดับต่อแม่แบบ ไม่ลดหรือใช้ซ้ำ']
+  status form_version_status [not null, default: 'DRAFT', note: 'สถานะวงจรฉบับ: DRAFT/PUBLISHED/ARCHIVED']
   title text [not null, note: 'ชื่อในฉบับที่เผยแพร่ เป็นเนื้อหาประวัติไม่เปลี่ยนตามชื่อแม่แบบ']
-  description text
-  created_by uuid [not null]
-  published_by uuid
-  published_at timestamptz
+  description text [note: 'คำอธิบายเนื้อหาของฉบับนี้']
+  created_by uuid [not null, note: 'company_member ผู้สร้างฉบับนี้']
+  published_by uuid [note: 'company_member ผู้กดเผยแพร่ (Nullable ก่อนเผยแพร่)']
+  published_at timestamptz [note: 'เวลาที่เผยแพร่ฉบับนี้']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
 
@@ -779,11 +779,11 @@ Table form_version {
 
 Table form_section {
   id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
-  form_version_id uuid [not null]
-  title text [not null]
-  description text
-  sort_order integer [not null, default: 0, check: `sort_order >= 0`]
+  company_id uuid [not null, note: 'FK -> company.id']
+  form_version_id uuid [not null, note: 'FK -> form_version.id ฉบับที่หมวดนี้อยู่']
+  title text [not null, note: 'ชื่อหมวดคำถาม']
+  description text [note: 'คำอธิบายหมวดคำถาม']
+  sort_order integer [not null, default: 0, check: `sort_order >= 0`, note: 'ลำดับแสดงผลของหมวดในฉบับ']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
 
@@ -797,14 +797,14 @@ Table form_section {
 
 Table form_field {
   id uuid [pk, note: 'UUIDv7; clone version สร้าง id ใหม่']
-  company_id uuid [not null]
-  form_version_id uuid [not null]
-  form_section_id uuid [not null]
-  type form_field_type [not null]
-  label text [not null]
-  description text
-  is_required boolean [not null, default: false]
-  sort_order integer [not null, default: 0, check: `sort_order >= 0`]
+  company_id uuid [not null, note: 'FK -> company.id']
+  form_version_id uuid [not null, note: 'FK -> form_version.id ฉบับที่คำถามนี้อยู่']
+  form_section_id uuid [not null, note: 'FK -> form_section.id หมวดที่คำถามนี้อยู่']
+  type form_field_type [not null, note: 'ชนิดคำถาม กำหนดรูปแบบ config และการตรวจคำตอบ']
+  label text [not null, note: 'ข้อความคำถามที่แสดงให้ผู้ตอบเห็น']
+  description text [note: 'คำอธิบาย/คำแนะนำเพิ่มเติมของคำถาม']
+  is_required boolean [not null, default: false, note: 'บังคับตอบก่อน submit หรือไม่']
+  sort_order integer [not null, default: 0, check: `sort_order >= 0`, note: 'ลำดับแสดงผลของคำถามในหมวด']
   config jsonb [not null, default: `'{}'::jsonb`, check: `jsonb_typeof(config) = 'object'`, note: 'Config ขั้นต้น: TEXT.multiline, NUMBER.unit, SELECT.options [{value,label}]; จำกัดไฟล์ด้วยนโยบายระบบ']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
@@ -819,8 +819,8 @@ Table form_field {
 
 Table form_plan {
   id uuid [pk, note: 'รหัสชุดการตั้งค่าแผน UUIDv7; เมื่อแก้แผนที่เปิดใช้แล้วให้สร้างชุดถัดไป']
-  company_id uuid [not null]
-  form_template_id uuid [not null]
+  company_id uuid [not null, note: 'FK -> company.id']
+  form_template_id uuid [not null, note: 'FK -> form_template.id แม่แบบที่แผนนี้ใช้']
   supersedes_plan_id uuid [unique, note: 'ชุดการตั้งค่าก่อนหน้าในแผนเดียวกัน ไม่ใช่แผนใหม่ที่ผู้ใช้ต้องจัดการแยก']
   name text [not null]
   schedule_kind form_schedule_kind [not null]
@@ -832,7 +832,7 @@ Table form_plan {
   missed_policy form_missed_policy [not null, default: 'SKIP']
   effective_from timestamptz [note: 'เริ่มช่วงเปิดใช้; null คือยังไม่เคยเปิดใช้งาน ไม่ต้องมี is_enabled ซ้ำ']
   effective_until timestamptz [note: 'สิ้นสุดช่วงแบบไม่รวมขอบ เวลา pause หรือเริ่ม config ถัดไป; null คือยังไม่กำหนดสิ้นสุด']
-  created_by uuid [not null]
+  created_by uuid [not null, note: 'company_member ผู้สร้างแผนนี้']
   closed_by uuid [note: 'ผู้สั่งปิดช่วงใช้งานเมื่อมี manual action; ไม่ใช่ actor ปลอมของ worker']
   revision integer [not null, default: 1, check: `revision > 0`]
   created_at timestamptz [not null, default: `now()`]
@@ -842,64 +842,70 @@ Table form_plan {
     (id, company_id, form_template_id) [unique]
     (company_id, effective_from, effective_until)
   }
+
   checks {
     `(schedule_kind = 'RECURRING' AND schedule_config IS NOT NULL AND jsonb_typeof(schedule_config) = 'object') OR (schedule_kind = 'EXPLICIT' AND schedule_config IS NULL)` [name: 'form_plan_schedule_check']
     `effective_until IS NULL OR (effective_from IS NOT NULL AND effective_until > effective_from)` [name: 'form_plan_effective_check']
     `supersedes_plan_id IS NULL OR supersedes_plan_id <> id` [name: 'form_plan_no_self_check']
     `closed_by IS NULL OR effective_until IS NOT NULL` [name: 'form_plan_closed_actor_check']
   }
+
   Note: 'แบบเสนอ: หนึ่งแถวคือกติกาแผนหนึ่งช่วงเวลา เก็บประวัติด้วย successor เมื่อแก้เวลา ผู้รับ หรือ policy หลังเปิดใช้ ช่วง effective เป็นคำสั่งธุรกิจ ไม่ใช่ cache; use case กันช่วงทับและ cycle ในสายแผน การ pause ปิดช่วงเดิม resume สร้างช่วงใหม่ ไม่เปิดย้อนหลังในช่วงที่ตั้งใจหยุด'
 }
 
 Table form_plan_target {
-  id uuid [pk]
-  company_id uuid [not null]
-  plan_id uuid [not null]
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null, note: 'FK -> company.id']
+  plan_id uuid [not null, note: 'FK -> form_plan.id แผนที่กำหนดผู้รับนี้']
   role_id uuid [note: 'ใช้ Role ของ tenant หรือ system default ที่ระบบอนุญาต; use case ตรวจ scope เพราะ role.company_id nullable']
-  company_member_id uuid
+  company_member_id uuid [note: 'สมาชิกรายบุคคลที่เป็นผู้รับ เลือกอย่างใดอย่างหนึ่งกับ role_id']
   role_distribution form_role_distribution [note: 'มีค่าเฉพาะเป้าหมาย Role: SHARED ร่วมทำหนึ่งชุด, PER_MEMBER แจกคนละงาน']
   created_at timestamptz [not null, default: `now()`]
   Indexes {
     (plan_id, role_id) [unique]
     (plan_id, company_member_id) [unique]
   }
+
   checks {
     `(role_id IS NOT NULL AND company_member_id IS NULL AND role_distribution IS NOT NULL) OR (role_id IS NULL AND company_member_id IS NOT NULL AND role_distribution IS NULL)` [name: 'form_plan_target_xor_check']
   }
+
   Note: 'แบบเสนอ: รายการผู้รับที่ใช้สร้างงานในอนาคต ไม่ใช่ผู้รับจริงของรอบเก่า แก้ได้เมื่อแผนยังไม่เปิดใช้ หลังเปิดแล้ว clone ไป config ถัดไป เก็บแยกจาก Assignment เพราะสมาชิก Role เปลี่ยนได้'
 }
 
 Table form_plan_period {
-  id uuid [pk]
-  company_id uuid [not null]
-  plan_id uuid [not null]
-  opens_at timestamptz [not null]
-  due_at timestamptz [not null]
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null, note: 'FK -> company.id']
+  plan_id uuid [not null, note: 'FK -> form_plan.id แผนที่ใช้ช่วงเวลานี้ (ต้องเป็น EXPLICIT)']
+  opens_at timestamptz [not null, note: 'เวลาเปิดให้ทำงาน']
+  due_at timestamptz [not null, note: 'เวลาครบกำหนดส่ง']
   created_at timestamptz [not null, default: `now()`]
   Indexes {
     (id, company_id, plan_id) [unique]
     (plan_id, opens_at, due_at) [unique]
   }
+
   checks {
     `due_at > opens_at` [name: 'form_plan_period_time_check']
   }
+
   Note: 'แบบเสนอ: ช่วงเวลาที่ผู้ใช้ระบุเอง หนึ่งครั้งคือหนึ่งแถว หลายช่วงคือหลายแถว ใช้กับ EXPLICIT เท่านั้นตาม use case ไม่เก็บรอบ recurring ล่วงหน้าในตารางนี้ หลังเปิดใช้แผนห้ามแก้ช่วงเก่า'
 }
 
 Table form_occurrence {
-  id uuid [pk]
-  company_id uuid [not null]
-  plan_id uuid [not null]
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null, note: 'FK -> company.id']
+  plan_id uuid [not null, note: 'FK -> form_plan.id แผนที่เปิดรอบนี้']
   form_template_id uuid [not null, note: 'เก็บเพื่อ composite FK บังคับ plan และ version เป็นฟอร์มเดียวกัน ไม่ใช่ cache']
-  form_version_id uuid [not null]
+  form_version_id uuid [not null, note: 'ฉบับคำถามที่ใช้กับรอบนี้ (มาจาก fixed_version_id หรือฉบับเผยแพร่ล่าสุด)']
   period_id uuid [note: 'มีค่าเฉพาะ explicit period ของ plan เดียวกัน; recurring ใช้ occurrence_key']
   occurrence_key text [not null, note: 'รหัสรอบตามปฏิทินและ offset หรือ period ID เพื่อกัน retry ซ้ำ ไม่ใช่เวลา worker ทำงาน']
   opens_at timestamptz [not null, note: 'เวลาเปิดตามรอบ; created_at คือเวลาเปิดบันทึกจริงหาก worker ล่าช้า']
-  due_at timestamptz [not null]
-  cancelled_at timestamptz
-  cancelled_by uuid
-  cancel_reason text
-  revision integer [not null, default: 1, check: `revision > 0`]
+  due_at timestamptz [not null, note: 'เวลาครบกำหนดส่งของรอบนี้']
+  cancelled_at timestamptz [note: 'เวลาที่ยกเลิกรอบนี้ (null = ยังไม่ถูกยกเลิก)']
+  cancelled_by uuid [note: 'company_member ผู้สั่งยกเลิก']
+  cancel_reason text [note: 'เหตุผลการยกเลิก บังคับเมื่อมี cancelled_at']
+  revision integer [not null, default: 1, check: `revision > 0`, note: 'เลขระบุการแก้ไขของรอบ ไม่ใช่ยอดงานสะสม']
   created_at timestamptz [not null, default: `now()`]
   Indexes {
     (id, company_id) [unique]
@@ -908,26 +914,28 @@ Table form_occurrence {
     (plan_id, period_id) [unique]
     (company_id, opens_at)
   }
+
   checks {
     `due_at > opens_at` [name: 'form_occurrence_time_check']
     `(cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL) OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND cancel_reason IS NOT NULL AND length(trim(cancel_reason)) > 0)` [name: 'form_occurrence_cancel_check']
   }
+
   Note: 'แบบเสนอ: รอบงานที่เปิดจริง ล็อกฉบับคำถามและเวลาที่นำไปใช้ ไม่คัดลอก review/late policy ซ้ำเพราะอ้าง plan config ที่เก็บประวัติและห้ามแก้แล้ว การยกเลิกรอบมีผลต่อทุกงานลูกโดยคำนวณ ไม่เขียน cancelled ซ้ำทุก Assignment; ไม่มีสถานะหรือยอดงานสะสม'
 }
 
 Table form_assignment {
-  id uuid [pk]
-  company_id uuid [not null]
-  occurrence_id uuid [not null]
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null, note: 'FK -> company.id']
+  occurrence_id uuid [not null, note: 'FK -> form_occurrence.id รอบงานที่มอบหมายนี้']
   form_version_id uuid [not null, note: 'จำเป็นสำหรับ composite FK ให้คำตอบทุก revision ใช้ฉบับของรอบเดียวกัน']
-  role_id uuid
-  company_member_id uuid
+  role_id uuid [note: 'Role ผู้รับงาน (ร่วมทำ) เลือกอย่างใดอย่างหนึ่งกับ company_member_id']
+  company_member_id uuid [note: 'สมาชิกผู้รับงานส่วนตัว เลือกอย่างใดอย่างหนึ่งกับ role_id']
   replaces_assignment_id uuid [unique, note: 'งานเดิมที่ถูกยกเลิกและมอบหมายใหม่ ไม่ย้ายคำตอบเก่ามาเป็นของผู้รับใหม่']
   assigned_by uuid [note: 'null เมื่อสร้างอัตโนมัติจากแผน; มีค่าเมื่อผู้ใช้มอบหมายทดแทนจริง']
-  cancelled_at timestamptz
-  cancelled_by uuid
-  cancel_reason text
-  revision integer [not null, default: 1, check: `revision > 0`]
+  cancelled_at timestamptz [note: 'เวลาที่ยกเลิกงานนี้']
+  cancelled_by uuid [note: 'company_member ผู้สั่งยกเลิกงาน']
+  cancel_reason text [note: 'เหตุผลการยกเลิกงาน']
+  revision integer [not null, default: 1, check: `revision > 0`, note: 'เลขระบุการแก้ไขของงานมอบหมายนี้']
   created_at timestamptz [not null, default: `now()`, note: 'เวลามอบหมายจริง ไม่เพิ่ม assigned_at ซ้ำ']
   Indexes {
     (id, company_id, form_version_id) [unique]
@@ -935,25 +943,27 @@ Table form_assignment {
     (company_id, company_member_id, created_at)
     (company_id, role_id, created_at)
   }
+
   checks {
     `num_nonnulls(role_id, company_member_id) = 1` [name: 'form_assignment_target_check']
     `replaces_assignment_id IS NULL OR replaces_assignment_id <> id` [name: 'form_assignment_no_self_check']
     `(cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL) OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND cancel_reason IS NOT NULL AND length(trim(cancel_reason)) > 0)` [name: 'form_assignment_cancel_check']
   }
+
   Note: 'แบบเสนอ: ผู้รับงานจริงของรอบ Role คือร่วมทำ ส่วน member คือส่วนตัว PER_MEMBER ขยายรายชื่อตอนเปิดจริงและรวมสมาชิกซ้ำแล้ว ไม่เก็บ target_type หรือ distribution ซ้ำในงานจริง ต้องมี partial unique ของผู้รับที่ยังไม่ถูกยกเลิกใน migration เพื่ออนุญาต replacement โดยรักษาประวัติ'
 }
 
 
 Table form_submission {
   id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
-  assignment_id uuid [not null]
-  form_version_id uuid [not null]
+  company_id uuid [not null, note: 'FK -> company.id']
+  assignment_id uuid [not null, note: 'FK -> form_assignment.id งานที่ชุดคำตอบนี้สังกัด']
+  form_version_id uuid [not null, note: 'ฉบับคำถามที่ใช้ตอบ ล็อกตาม assignment/occurrence']
   started_by uuid [not null, note: 'สมาชิกผู้เริ่มชุดคำตอบ/รอบแก้ไข; ไม่ใช่เจ้าของคำตอบทั้งหมดหรือผู้ส่งโดยอัตโนมัติ']
   submitted_by uuid [note: 'สมาชิกผู้กดส่งจริง; NULL ระหว่าง DRAFT; ผู้รับแบบ member หรือสมาชิก Role ของ Assignment ที่มี permission ส่งได้']
   revision integer [not null, default: 1, check: `revision > 0`, note: 'Optimistic concurrency ทั้งชุด; ทุก mutation ต้องเทียบ expected_revision และเพิ่มค่าใน transaction']
   supersedes_submission_id uuid [unique, note: 'รอบแก้ไขชี้ไป RETURN เดิม; หนึ่งรอบเดิมมีรอบถัดไปได้หนึ่งเดียว']
-  submitted_at timestamptz
+  submitted_at timestamptz [note: 'เวลาที่กดส่งจริง; null คือยังเป็น DRAFT']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null]
 
@@ -979,8 +989,8 @@ Table form_submission {
 
 Table form_submission_contributor {
   id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
-  submission_id uuid [not null]
+  company_id uuid [not null, note: 'FK -> company.id']
+  submission_id uuid [not null, note: 'FK -> form_submission.id ชุดคำตอบที่มีส่วนร่วม']
   member_id uuid [not null, note: 'สมาชิกผู้เคยเริ่ม/แก้คำตอบ/จัดการไฟล์/ส่งชุดคำตอบ; ไม่ใช่รายการสิทธิ์เข้าถึง']
   created_at timestamptz [not null, default: `now()`]
 
@@ -994,10 +1004,10 @@ Table form_submission_contributor {
 
 Table form_answer {
   id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
+  company_id uuid [not null, note: 'FK -> company.id']
   form_version_id uuid [not null, note: 'Composite FKs บังคับ submission และ field อยู่ version เดียวกัน']
-  submission_id uuid [not null]
-  field_id uuid [not null]
+  submission_id uuid [not null, note: 'FK -> form_submission.id ชุดคำตอบที่คำตอบนี้สังกัด']
+  field_id uuid [not null, note: 'FK -> form_field.id คำถามที่คำตอบนี้ตอบ']
   value jsonb [note: 'Scalar/array ตาม field type; SQL NULL = ยังไม่ตอบ หรือคำตอบแบบไฟล์ที่อยู่ใน attachment']
   updated_by uuid [not null, note: 'สมาชิกผู้แก้คำตอบ/รายการไฟล์ล่าสุด; ต่างจากผู้กดส่ง; clone คง actor เดิมจนมีคนแก้จริง']
   created_at timestamptz [not null, default: `now()`]
@@ -1015,8 +1025,8 @@ Table form_answer {
 
 Table form_answer_attachment {
   id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null]
-  answer_id uuid [not null]
+  company_id uuid [not null, note: 'FK -> company.id']
+  answer_id uuid [not null, note: 'FK -> form_answer.id คำตอบที่แนบไฟล์นี้อยู่']
   storage_key text [not null, note: 'Immutable object key ภายใน namespace ของ company; ไม่เก็บ signed URL']
   original_name text [not null]
   mime_type text [not null]
@@ -1036,13 +1046,13 @@ Table form_answer_attachment {
 }
 
 Table form_review_entry {
-  id uuid [pk]
-  company_id uuid [not null]
-  submission_id uuid [not null]
+  id uuid [pk, note: 'UUIDv7']
+  company_id uuid [not null, note: 'FK -> company.id']
+  submission_id uuid [not null, note: 'FK -> form_submission.id ชุดคำตอบที่ถูกตรวจ']
   form_version_id uuid [not null, note: 'บังคับเป้าหมายหมวดและ submission อยู่ฉบับเดียวกันด้วย composite FK']
   answer_id uuid [note: 'มีค่าเมื่อตรวจคำตอบรายข้อ รวมข้อแนบภาพ']
   section_id uuid [note: 'มีค่าเมื่อตรวจทั้งหมวด; ห้ามมีพร้อม answer_id']
-  action form_review_action [not null]
+  action form_review_action [not null, note: 'ผลการตรวจ: PASS/NEEDS_CHANGES (รายข้อ/หมวด) หรือ APPROVE/RETURN (ทั้งชุด)']
   note text [note: 'คำอธิบาย/คำแนะนำ บังคับเมื่อ NEEDS_CHANGES หรือ RETURN ไม่ใช่เธรดสนทนา']
   reviewed_by uuid [not null, note: 'สมาชิกผู้ตรวจจริง ตรวจ Role permissions ปัจจุบัน ไม่บังคับ OWNER']
   supersedes_entry_id uuid [unique, note: 'ผลตรวจรายละเอียดที่ถูกแทน ต้องเป็น head ของเป้าหมายเดิม ตรวจด้วย transaction']
@@ -1053,11 +1063,13 @@ Table form_review_entry {
     (submission_id, section_id, created_at)
     (company_id, reviewed_by, created_at)
   }
+
   checks {
     `(num_nonnulls(answer_id, section_id) = 1 AND action IN ('PASS', 'NEEDS_CHANGES')) OR (answer_id IS NULL AND section_id IS NULL AND action IN ('APPROVE', 'RETURN') AND supersedes_entry_id IS NULL)` [name: 'form_review_target_action_check']
     `action NOT IN ('NEEDS_CHANGES', 'RETURN') OR (note IS NOT NULL AND length(trim(note)) > 0)` [name: 'form_review_note_check']
     `supersedes_entry_id IS NULL OR supersedes_entry_id <> id` [name: 'form_review_no_self_check']
   }
+
   Note: 'แบบเสนอ: ประวัติผลตรวจแบบเพิ่มอย่างเดียว รายข้อ/หมวดไม่ส่งงานกลับทันที ต้องมี RETURN ทั้งชุด ไม่มีตาราง review แบบหนึ่งต่อหนึ่ง ไม่มีสถานะตรวจซ้ำ ต้องเพิ่ม partial unique สำหรับ root ผลรายเป้าและคำตัดสินสุดท้ายใน migration; permission, coverage, head เป้าหมายเดิม และห้ามตรวจหลัง finalize บังคับใน use case'
 }
 
