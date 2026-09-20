@@ -28,9 +28,9 @@ import { role } from './permission';
 import { user } from './user';
 import { locations } from './location';
 
-// ==========================================
-// Enums
-// ==========================================
+/**
+ * Enums
+ */
 
 export const attendanceStatusEnum = pgEnum('attendance_status', [
   'present',
@@ -39,9 +39,9 @@ export const attendanceStatusEnum = pgEnum('attendance_status', [
   'excused',
 ]);
 
-// ==========================================
-// 1. Check-In Schedules Table
-// ==========================================
+/**
+ * 1. Check-In Schedules Table
+ */
 
 export const checkInSchedules = pgTable(
   'check_in_schedules',
@@ -92,9 +92,9 @@ export const checkInScheduleRoles = pgTable(
   ],
 );
 
-// ==========================================
-// 2. Schedule Slots Table
-// ==========================================
+/**
+ * 2. Schedule Slots Table
+ */
 
 export const scheduleSlots = pgTable(
   'schedule_slots',
@@ -126,9 +126,9 @@ export const scheduleSlots = pgTable(
   ],
 );
 
-// ==========================================
-// 3. Schedule Slot Location Table
-// ==========================================
+/**
+ * 3. Schedule Slot Location Table
+ */
 
 export const scheduleSlotLocation = pgTable(
   'schedule_slot_location',
@@ -175,9 +175,9 @@ export const scheduleSlotLocation = pgTable(
   ],
 );
 
-// ==========================================
-// 4. Attendance Logs Table
-// ==========================================
+/**
+ * 4. Attendance Logs Table
+ */
 
 export const attendanceLogs = pgTable(
   'attendance_logs',

@@ -91,9 +91,9 @@ import type {
   CreateFormReviewEntry,
 } from '@repo/domains/schema/form';
 
-// ==========================================
-// 1. Form Template Repository
-// ==========================================
+/**
+ * 1. Form Template Repository
+ */
 
 export class FormTemplateRepository
   extends Repository<FormTemplate, CreateFormTemplate, UpdateFormTemplate>
@@ -109,7 +109,7 @@ export class FormTemplateRepository
       .from(formTemplate)
       .where(eq(formTemplate.companyId, companyId))
       .orderBy(desc(formTemplate.createdAt));
-    return results.map((r) => new FormTemplate(r as unknown as FormTemplate));
+    return results.map((r) => new FormTemplate(r as FormTemplate));
   }
 
   async findByIdAndCompany(
@@ -122,13 +122,13 @@ export class FormTemplateRepository
       .where(
         and(eq(formTemplate.id, id), eq(formTemplate.companyId, companyId)),
       );
-    return result ? new FormTemplate(result as unknown as FormTemplate) : null;
+    return result ? new FormTemplate(result as FormTemplate) : null;
   }
 }
 
-// ==========================================
-// 2. Form Version Repository
-// ==========================================
+/**
+ * 2. Form Version Repository
+ */
 
 export class FormVersionRepository
   extends Repository<FormVersion, CreateFormVersion, UpdateFormVersion>
@@ -144,7 +144,7 @@ export class FormVersionRepository
       .from(formVersion)
       .where(eq(formVersion.formTemplateId, templateId))
       .orderBy(desc(formVersion.version));
-    return results.map((r) => new FormVersion(r as unknown as FormVersion));
+    return results.map((r) => new FormVersion(r as FormVersion));
   }
 
   async findPublishedByTemplateId(
@@ -159,7 +159,7 @@ export class FormVersionRepository
           eq(formVersion.status, 'PUBLISHED'),
         ),
       );
-    return result ? new FormVersion(result as unknown as FormVersion) : null;
+    return result ? new FormVersion(result as FormVersion) : null;
   }
 
   async findDraftByTemplateId(templateId: string): Promise<FormVersion | null> {
@@ -172,7 +172,7 @@ export class FormVersionRepository
           eq(formVersion.status, 'DRAFT'),
         ),
       );
-    return result ? new FormVersion(result as unknown as FormVersion) : null;
+    return result ? new FormVersion(result as FormVersion) : null;
   }
 
   async findByTemplateAndVersion(
@@ -188,7 +188,7 @@ export class FormVersionRepository
           eq(formVersion.version, version),
         ),
       );
-    return result ? new FormVersion(result as unknown as FormVersion) : null;
+    return result ? new FormVersion(result as FormVersion) : null;
   }
 
   async getLatestVersionNumber(templateId: string): Promise<number> {
@@ -202,9 +202,9 @@ export class FormVersionRepository
   }
 }
 
-// ==========================================
-// 3. Form Section Repository
-// ==========================================
+/**
+ * 3. Form Section Repository
+ */
 
 export class FormSectionRepository
   extends Repository<FormSection, CreateFormSection, UpdateFormSection>
@@ -220,7 +220,7 @@ export class FormSectionRepository
       .from(formSection)
       .where(eq(formSection.formVersionId, versionId))
       .orderBy(asc(formSection.sortOrder), asc(formSection.createdAt));
-    return results.map((r) => new FormSection(r as unknown as FormSection));
+    return results.map((r) => new FormSection(r as FormSection));
   }
 
   async deleteByVersionId(versionId: string): Promise<void> {
@@ -243,9 +243,9 @@ export class FormSectionRepository
   }
 }
 
-// ==========================================
-// 4. Form Field Repository
-// ==========================================
+/**
+ * 4. Form Field Repository
+ */
 
 export class FormFieldRepository
   extends Repository<FormField, CreateFormField, UpdateFormField>
@@ -324,9 +324,9 @@ export class FormFieldRepository
   }
 }
 
-// ==========================================
-// 4.1 Form Field Option Repository
-// ==========================================
+/**
+ * 4.1 Form Field Option Repository
+ */
 
 export class FormFieldOptionRepository
   extends Repository<
@@ -395,9 +395,9 @@ export class FormFieldOptionRepository
   }
 }
 
-// ==========================================
-// 5. Form Plan Repository
-// ==========================================
+/**
+ * 5. Form Plan Repository
+ */
 
 export class FormPlanRepository
   extends Repository<FormPlan, CreateFormPlan, UpdateFormPlan>
@@ -456,13 +456,13 @@ export class FormPlanRepository
       .orderBy(desc(formPlan.createdAt))
       .limit(limit)
       .offset(offset);
-    return results.map((r) => new FormPlan(r as unknown as FormPlan));
+    return results.map((r) => new FormPlan(r as FormPlan));
   }
 }
 
-// ==========================================
-// 6. Form Plan Target Repository
-// ==========================================
+/**
+ * 6. Form Plan Target Repository
+ */
 
 export class FormPlanTargetRepository implements IFormPlanTargetRepository {
   constructor(private readonly database: Database) {}
@@ -500,9 +500,9 @@ export class FormPlanTargetRepository implements IFormPlanTargetRepository {
   }
 }
 
-// ==========================================
-// 7. Form Plan Period Repository
-// ==========================================
+/**
+ * 7. Form Plan Period Repository
+ */
 
 export class FormPlanPeriodRepository implements IFormPlanPeriodRepository {
   constructor(private readonly database: Database) {}
@@ -537,9 +537,9 @@ export class FormPlanPeriodRepository implements IFormPlanPeriodRepository {
   }
 }
 
-// ==========================================
-// 8. Form Occurrence Repository
-// ==========================================
+/**
+ * 8. Form Occurrence Repository
+ */
 
 export class FormOccurrenceRepository implements IFormOccurrenceRepository {
   constructor(private readonly database: Database) {}
@@ -636,9 +636,9 @@ export class FormOccurrenceRepository implements IFormOccurrenceRepository {
   }
 }
 
-// ==========================================
-// 9. Form Assignment Repository
-// ==========================================
+/**
+ * 9. Form Assignment Repository
+ */
 
 export class FormAssignmentRepository implements IFormAssignmentRepository {
   constructor(private readonly database: Database) {}
@@ -771,9 +771,9 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
   }
 }
 
-// ==========================================
-// 10. Form Submission Repository
-// ==========================================
+/**
+ * 10. Form Submission Repository
+ */
 
 export class FormSubmissionRepository
   extends Repository<FormSubmission, CreateFormSubmission, UpdateFormSubmission>
@@ -867,9 +867,9 @@ export class FormSubmissionRepository
   }
 }
 
-// ==========================================
-// 11. Form Submission Contributor Repository
-// ==========================================
+/**
+ * 11. Form Submission Contributor Repository
+ */
 
 export class FormSubmissionContributorRepository
   implements IFormSubmissionContributorRepository
@@ -948,9 +948,9 @@ export class FormSubmissionContributorRepository
   }
 }
 
-// ==========================================
-// 12. Form Answer Repository
-// ==========================================
+/**
+ * 12. Form Answer Repository
+ */
 
 export class FormAnswerRepository
   extends Repository<FormAnswer, CreateFormAnswer, UpdateFormAnswer>
@@ -999,9 +999,9 @@ export class FormAnswerRepository
   }
 }
 
-// ==========================================
-// 13. Form Answer Attachment Repository
-// ==========================================
+/**
+ * 13. Form Answer Attachment Repository
+ */
 
 export class FormAnswerAttachmentRepository
   implements IFormAnswerAttachmentRepository
@@ -1062,9 +1062,9 @@ export class FormAnswerAttachmentRepository
   }
 }
 
-// ==========================================
-// 14. Form Review Entry Repository
-// ==========================================
+/**
+ * 14. Form Review Entry Repository
+ */
 
 export class FormReviewEntryRepository implements IFormReviewEntryRepository {
   constructor(private readonly database: Database) {}

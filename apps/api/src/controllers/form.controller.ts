@@ -444,9 +444,9 @@ export class FormController extends Controller {
     },
   );
 
-  // ==========================================
-  // Template & Builder
-  // ==========================================
+  /**
+   * Template & Builder
+   */
 
   public createTemplate = this.validator(
     { body: createFormTemplateSchema },
@@ -664,9 +664,9 @@ export class FormController extends Controller {
     },
   );
 
-  // ==========================================
-  // Plans
-  // ==========================================
+  /**
+   * Plans
+   */
 
   public createPlan = this.validator(
     { body: createPlanBodySchema },
@@ -790,9 +790,9 @@ export class FormController extends Controller {
     },
   );
 
-  // ==========================================
-  // Occurrences
-  // ==========================================
+  /**
+   * Occurrences
+   */
 
   public listOccurrences = this.validator(
     { query: listOccurrencesQuerySchema },
@@ -847,9 +847,9 @@ export class FormController extends Controller {
     },
   );
 
-  // ==========================================
-  // Assignments
-  // ==========================================
+  /**
+   * Assignments
+   */
 
   public listMyAssignments = this.validator(
     { query: assignmentListSchema },
@@ -931,9 +931,9 @@ export class FormController extends Controller {
     },
   );
 
-  // ==========================================
-  // Submissions
-  // ==========================================
+  /**
+   * Submissions
+   */
 
   public startSubmission = this.validator(
     { body: startSubmissionBodySchema },
@@ -1035,9 +1035,9 @@ export class FormController extends Controller {
     },
   );
 
-  // ==========================================
-  // Submission Reviews
-  // ==========================================
+  /**
+   * Submission Reviews
+   */
 
   public listReviewQueue = this.validator(
     { query: companyIdQuerySchema },

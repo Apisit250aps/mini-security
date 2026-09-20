@@ -9,9 +9,9 @@ import type {
   UpdateLeaveType,
 } from '#schema/leave';
 
-// ==========================================
-// 1. Leave Type Contexts & Use Cases
-// ==========================================
+/**
+ * 1. Leave Type Contexts & Use Cases
+ */
 
 export type ICreateLeaveTypeContext = ISecurityContext & {
   data: CreateLeaveType;
@@ -42,9 +42,9 @@ export type IGetLeaveTypesByCompanyUseCase = BaseUseCase<
   LeaveType[]
 >;
 
-// ==========================================
-// 2. Leave Quota Contexts & Use Cases
-// ==========================================
+/**
+ * 2. Leave Quota Contexts & Use Cases
+ */
 
 export type ICreateLeaveQuotaContext = ISecurityContext & {
   data: CreateLeaveQuota;
@@ -75,9 +75,9 @@ export type IGetLeaveQuotasByMemberUseCase = BaseUseCase<
   LeaveQuota[]
 >;
 
-// ==========================================
-// 3. Leave Request Contexts & Use Cases
-// ==========================================
+/**
+ * 3. Leave Request Contexts & Use Cases
+ */
 
 export type ISubmitLeaveRequestContext = ISecurityContext & {
   data: CreateLeaveRequest;

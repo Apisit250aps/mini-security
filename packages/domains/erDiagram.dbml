@@ -1,4 +1,3 @@
-// ==========================================
 // Mini-Security Database Schema (DBML)
 // โมดูลเดิมและแบบเสนอ Form ใช้ซ้ำ / ตารางเวลา / Role และสมาชิก / ตรวจตาม Permissions
 // and implemented many-to-many Check-in Schedule / Role assignments.
@@ -7,7 +6,6 @@
 // Source-only storage redesign is PROPOSED: docs/erd-storage-audit.md; runtime schema may differ.
 // แบบและคำอธิบายภาษาไทย: docs/form-workflow-design.md และ docs/erd-description-th.md
 // Attendance design: docs/check-in-schedule-design.md
-// ==========================================
 
 Project mini_security {
   database_type: 'PostgreSQL'
@@ -351,9 +349,7 @@ TableGroup feature_management {
   role_feature
 }
 
-// ==========================================
 // Location Management (proposed check-in locations)
-// ==========================================
 
 Table locations {
   id uuid [pk, note: 'UUIDv7']
@@ -410,9 +406,7 @@ TableGroup location_management {
   locations
 }
 
-// ==========================================
 // Attendance Module (ระบบเช็คชื่อเข้างาน)
-// ==========================================
 // หมายเหตุ:
 // "ตำแหน่งงาน" (position) → ใช้ตาราง `role` ที่มีอยู่แล้ว
 // "พนักงาน" (employee) → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
@@ -547,9 +541,7 @@ TableGroup attendance_module {
   attendance_logs
 }
 
-// ==========================================
 // Leave Management Module (ระบบขอลา)
-// ==========================================
 // หมายเหตุ:
 // "พนักงาน" → ใช้ตาราง `company_member` ที่มีอยู่แล้ว
 // ตารางใหม่: leave_types, leave_quotas, leave_requests
@@ -665,12 +657,10 @@ TableGroup leave_management {
   leave_requests
 }
 
-// ==========================================
 // แบบเสนอ 2026-09-15: ฟอร์มใช้ซ้ำ แผนเวลา งานราย Role/สมาชิก และตรวจตาม Permission
 // ยังไม่ใช่ Drizzle schema หรือ migration ที่ใช้งานจริง
 // คำอธิบาย: docs/erd-description-th.md และ docs/form-workflow-design.md
 // Partial unique และกติกาข้ามแถว: ดูคำอธิบาย ERD ก่อน implement
-// ==========================================
 
 
 Enum form_version_status {

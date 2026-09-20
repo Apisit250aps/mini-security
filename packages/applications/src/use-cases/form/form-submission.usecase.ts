@@ -53,9 +53,9 @@ import {
   ValidationError,
 } from '../../lib/error';
 
-// ==========================================
-// 1. Start Form Submission
-// ==========================================
+/**
+ * 1. Start Form Submission
+ */
 
 export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
   constructor(
@@ -139,9 +139,9 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
   }
 }
 
-// ==========================================
-// 2. Save Form Submission Draft
-// ==========================================
+/**
+ * 2. Save Form Submission Draft
+ */
 
 export class SaveFormSubmissionDraftUseCase
   implements ISaveFormSubmissionDraftUseCase
@@ -245,9 +245,9 @@ export class SaveFormSubmissionDraftUseCase
   }
 }
 
-// ==========================================
-// 3. Submit Form Submission
-// ==========================================
+/**
+ * 3. Submit Form Submission
+ */
 
 export class SubmitFormSubmissionUseCase
   implements ISubmitFormSubmissionUseCase
@@ -390,9 +390,9 @@ export class SubmitFormSubmissionUseCase
   }
 }
 
-// ==========================================
-// 4. Create Correction Submission
-// ==========================================
+/**
+ * 4. Create Correction Submission
+ */
 
 export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
   constructor(
@@ -507,9 +507,9 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
   }
 }
 
-// ==========================================
-// 5. Get Form Submission Detail
-// ==========================================
+/**
+ * 5. Get Form Submission Detail
+ */
 
 export class GetFormSubmissionUseCase implements IGetFormSubmissionUseCase {
   constructor(
@@ -581,9 +581,9 @@ export class GetFormSubmissionUseCase implements IGetFormSubmissionUseCase {
   }
 }
 
-// ==========================================
-// 6. List Form Submissions
-// ==========================================
+/**
+ * 6. List Form Submissions
+ */
 
 export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
   constructor(

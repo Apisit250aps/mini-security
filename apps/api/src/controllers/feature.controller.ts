@@ -85,9 +85,9 @@ export class FeatureController extends Controller {
     super();
   }
 
-  // ==========================================
-  // Master Features
-  // ==========================================
+  /**
+   * Master Features
+   */
 
   public getFeatures = async (c: Parameters<typeof this.success>[0]) => {
     const category = c.req.query('category');
@@ -152,9 +152,9 @@ export class FeatureController extends Controller {
     },
   );
 
-  // ==========================================
-  // Company Features (Entitlement & Toggles)
-  // ==========================================
+  /**
+   * Company Features (Entitlement & Toggles)
+   */
 
   public getCompanyFeatures = this.validator(
     { params: companyIdParamSchema },
@@ -235,9 +235,9 @@ export class FeatureController extends Controller {
     },
   );
 
-  // ==========================================
-  // Role Features (Delegation)
-  // ==========================================
+  /**
+   * Role Features (Delegation)
+   */
 
   public getRoleFeatures = this.validator(
     { params: roleIdParamSchema },

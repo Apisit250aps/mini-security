@@ -63,9 +63,9 @@ import {
   formReviewEntryRepository,
 } from '../../repositories';
 
-// ==========================================
-// Template & Builder Use Cases
-// ==========================================
+/**
+ * Template & Builder Use Cases
+ */
 
 export const createFormTemplateUseCase = new CreateFormTemplateUseCase(
   unitOfWork,
@@ -143,9 +143,9 @@ export const deleteFormSectionUseCase = new DeleteFormSectionUseCase(
   formFieldRepository,
 );
 
-// ==========================================
-// Plan Use Cases
-// ==========================================
+/**
+ * Plan Use Cases
+ */
 
 export const createFormPlanUseCase = new CreateFormPlanUseCase(
   unitOfWork,
@@ -197,9 +197,9 @@ export const previewScheduleUseCase = new PreviewScheduleUseCase(
   formPlanPeriodRepository,
 );
 
-// ==========================================
-// Occurrence Use Cases
-// ==========================================
+/**
+ * Occurrence Use Cases
+ */
 
 export const openDueOccurrencesUseCase = new OpenDueOccurrencesUseCase(
   unitOfWork,
@@ -220,9 +220,9 @@ export const listOccurrencesUseCase = new ListOccurrencesUseCase(
   formOccurrenceRepository,
 );
 
-// ==========================================
-// Assignment Use Cases
-// ==========================================
+/**
+ * Assignment Use Cases
+ */
 
 export const listMyAssignmentsUseCase = new ListMyAssignmentsUseCase(
   formAssignmentRepository,
@@ -263,9 +263,9 @@ export const replaceAssignmentUseCase = new ReplaceAssignmentUseCase(
   formAssignmentRepository,
 );
 
-// ==========================================
-// Submission Use Cases
-// ==========================================
+/**
+ * Submission Use Cases
+ */
 
 export const startFormSubmissionUseCase = new StartFormSubmissionUseCase(
   unitOfWork,
@@ -342,9 +342,9 @@ export const listFormSubmissionsUseCase = new ListFormSubmissionsUseCase(
   userRepository,
 );
 
-// ==========================================
-// Review Use Cases
-// ==========================================
+/**
+ * Review Use Cases
+ */
 
 export const listReviewQueueUseCase = new ListReviewQueueUseCase(
   formSubmissionRepository,

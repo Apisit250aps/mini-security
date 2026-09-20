@@ -10,9 +10,9 @@ import {
   UUIDField,
 } from '#lib/entity';
 
-// ==========================================
-// Enums
-// ==========================================
+/**
+ * Enums
+ */
 
 export const FormVersionStatusValues = [
   'DRAFT',
@@ -64,9 +64,9 @@ export const FormReviewActionValues = [
 ] as const;
 export type FormReviewAction = (typeof FormReviewActionValues)[number];
 
-// ==========================================
-// 1. Form Template Schema
-// ==========================================
+/**
+ * 1. Form Template Schema
+ */
 export const formTemplateSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   name: StringField({ required: true, max: 255 }),
@@ -86,9 +86,9 @@ export type FormTemplateEntity = z.infer<typeof formTemplateSchema>;
 export type CreateFormTemplate = z.infer<typeof createFormTemplateSchema>;
 export type UpdateFormTemplate = z.infer<typeof updateFormTemplateSchema>;
 
-// ==========================================
-// 2. Form Version Schema
-// ==========================================
+/**
+ * 2. Form Version Schema
+ */
 export const formVersionSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
@@ -112,9 +112,9 @@ export type FormVersionEntity = z.infer<typeof formVersionSchema>;
 export type CreateFormVersion = z.infer<typeof createFormVersionSchema>;
 export type UpdateFormVersion = z.infer<typeof updateFormVersionSchema>;
 
-// ==========================================
-// 3. Form Section Schema
-// ==========================================
+/**
+ * 3. Form Section Schema
+ */
 export const formSectionSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
@@ -170,9 +170,9 @@ export type FormFieldEntity = z.infer<typeof formFieldSchema>;
 export type CreateFormField = z.infer<typeof createFormFieldSchema>;
 export type UpdateFormField = z.infer<typeof updateFormFieldSchema>;
 
-// ==========================================
-// 4.1 Form Field Option Schema
-// ==========================================
+/**
+ * 4.1 Form Field Option Schema
+ */
 export const formFieldOptionSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
@@ -197,9 +197,9 @@ export type FormFieldWithOptions = FormFieldEntity & {
   options?: FormFieldOptionEntity[];
 };
 
-// ==========================================
-// 5. Form Plan Schema
-// ==========================================
+/**
+ * 5. Form Plan Schema
+ */
 const baseFormPlanSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
@@ -240,9 +240,9 @@ export type FormPlanEntity = z.infer<typeof formPlanSchema>;
 export type CreateFormPlan = z.infer<typeof createFormPlanSchema>;
 export type UpdateFormPlan = z.infer<typeof updateFormPlanSchema>;
 
-// ==========================================
-// 6. Form Plan Target Schema
-// ==========================================
+/**
+ * 6. Form Plan Target Schema
+ */
 const baseFormPlanTargetSchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   planId: UUIDField({ required: true }),
@@ -285,9 +285,9 @@ export const createFormPlanTargetSchema = baseFormPlanTargetSchema
 export type FormPlanTargetEntity = z.infer<typeof formPlanTargetSchema>;
 export type CreateFormPlanTarget = z.infer<typeof createFormPlanTargetSchema>;
 
-// ==========================================
-// 7. Form Plan Period Schema
-// ==========================================
+/**
+ * 7. Form Plan Period Schema
+ */
 const baseFormPlanPeriodSchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   planId: UUIDField({ required: true }),
@@ -305,9 +305,9 @@ export const createFormPlanPeriodSchema = baseFormPlanPeriodSchema
 export type FormPlanPeriodEntity = z.infer<typeof formPlanPeriodSchema>;
 export type CreateFormPlanPeriod = z.infer<typeof createFormPlanPeriodSchema>;
 
-// ==========================================
-// 8. Form Occurrence Schema
-// ==========================================
+/**
+ * 8. Form Occurrence Schema
+ */
 const baseFormOccurrenceSchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   planId: UUIDField({ required: true }),
@@ -344,9 +344,9 @@ export type FormOccurrenceEntity = z.infer<typeof formOccurrenceSchema>;
 export type CreateFormOccurrence = z.infer<typeof createFormOccurrenceSchema>;
 export type UpdateFormOccurrence = z.infer<typeof updateFormOccurrenceSchema>;
 
-// ==========================================
-// 9. Form Assignment Schema
-// ==========================================
+/**
+ * 9. Form Assignment Schema
+ */
 const baseFormAssignmentSchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   occurrenceId: UUIDField({ required: true }),
@@ -378,9 +378,9 @@ export type FormAssignmentEntity = z.infer<typeof formAssignmentSchema>;
 export type CreateFormAssignment = z.infer<typeof createFormAssignmentSchema>;
 export type UpdateFormAssignment = z.infer<typeof updateFormAssignmentSchema>;
 
-// ==========================================
-// 10. Form Submission Schema
-// ==========================================
+/**
+ * 10. Form Submission Schema
+ */
 const baseFormSubmissionSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   assignmentId: UUIDField({ required: true }),
@@ -419,9 +419,9 @@ export type FormSubmissionEntity = z.infer<typeof formSubmissionSchema>;
 export type CreateFormSubmission = z.infer<typeof createFormSubmissionSchema>;
 export type UpdateFormSubmission = z.infer<typeof updateFormSubmissionSchema>;
 
-// ==========================================
-// 11. Form Submission Contributor Schema
-// ==========================================
+/**
+ * 11. Form Submission Contributor Schema
+ */
 export const formSubmissionContributorSchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   submissionId: UUIDField({ required: true }),
@@ -436,9 +436,9 @@ export type CreateFormSubmissionContributor = z.infer<
   typeof createFormSubmissionContributorSchema
 >;
 
-// ==========================================
-// 12. Form Answer Schema
-// ==========================================
+/**
+ * 12. Form Answer Schema
+ */
 export const formAnswerSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
@@ -459,9 +459,9 @@ export type FormAnswerEntity = z.infer<typeof formAnswerSchema>;
 export type CreateFormAnswer = z.infer<typeof createFormAnswerSchema>;
 export type UpdateFormAnswer = z.infer<typeof updateFormAnswerSchema>;
 
-// ==========================================
-// 13. Form Answer Attachment Schema
-// ==========================================
+/**
+ * 13. Form Answer Attachment Schema
+ */
 export const formAnswerAttachmentSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   answerId: UUIDField({ required: true }),
@@ -482,9 +482,9 @@ export type CreateFormAnswerAttachment = z.infer<
   typeof createFormAnswerAttachmentSchema
 >;
 
-// ==========================================
-// 14. Form Review Entry Schema
-// ==========================================
+/**
+ * 14. Form Review Entry Schema
+ */
 const baseFormReviewEntrySchema = AppendOnlyBaseEntity({
   companyId: UUIDField({ required: true }),
   submissionId: UUIDField({ required: true }),
@@ -531,9 +531,9 @@ export const createFormReviewEntrySchema = baseFormReviewEntrySchema
 export type FormReviewEntryEntity = z.infer<typeof formReviewEntrySchema>;
 export type CreateFormReviewEntry = z.infer<typeof createFormReviewEntrySchema>;
 
-// ==========================================
-// Reorder Schema (shared for sections & fields)
-// ==========================================
+/**
+ * Reorder Schema (shared for sections & fields)
+ */
 export const reorderFormItemsSchema = z.object({
   formVersionId: z.string().uuid(),
   items: z

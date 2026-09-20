@@ -59,9 +59,9 @@ async function validateAssignedRoles(
   }
 }
 
-// ==========================================
-// Check-In Schedules Use Cases
-// ==========================================
+/**
+ * Check-In Schedules Use Cases
+ */
 
 export class CreateCheckInScheduleUseCase
   implements ICreateCheckInScheduleUseCase
@@ -169,9 +169,9 @@ export class GetCheckInSchedulesByCompanyUseCase
   }
 }
 
-// ==========================================
-// Schedule Slots Use Cases
-// ==========================================
+/**
+ * Schedule Slots Use Cases
+ */
 
 export class CreateScheduleSlotUseCase implements ICreateScheduleSlotUseCase {
   constructor(

@@ -19,9 +19,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@repo/ui/components/sonner';
 import { featureKeys, getErrorMessage } from '@/shared/utils';
 
-// ==========================================
-// 1. Company Feature Mutations (Super Admin)
-// ==========================================
+/**
+ * 1. Company Feature Mutations (Super Admin)
+ */
 
 export function useCompanyFeatureToggle() {
   const queryClient = useQueryClient();
@@ -135,9 +135,9 @@ export function useCompanyFeatureRemove(companyId: string) {
   });
 }
 
-// ==========================================
-// 2. Role Feature Mutations (Company Admin)
-// ==========================================
+/**
+ * 2. Role Feature Mutations (Company Admin)
+ */
 
 export function useRoleFeatureAssign(roleId: string) {
   const queryClient = useQueryClient();
@@ -245,9 +245,9 @@ export function useRoleFeatureRevoke(roleId: string, companyId: string) {
   });
 }
 
-// ==========================================
-// 3. Master Feature Catalog Mutations
-// ==========================================
+/**
+ * 3. Master Feature Catalog Mutations
+ */
 
 export function useFeatureCreate() {
   const queryClient = useQueryClient();

@@ -25,15 +25,15 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// ============================================================================
-// CLI Arguments
-// ============================================================================
+/**
+ * CLI Arguments
+ */
 const args = process.argv.slice(2);
 const isCheckOnly = args.includes('--check-only') || args.includes('-c');
 
-// ============================================================================
-// Types & Stats Tracker
-// ============================================================================
+/**
+ * Types & Stats Tracker
+ */
 export interface SystemSeedStats {
   features: {
     inserted: number;
@@ -71,9 +71,9 @@ export interface VerificationResult {
   allPassed: boolean;
 }
 
-// ============================================================================
-// 1. Transactional Systems Seeding Phase (Idempotent with Duplicate Checking)
-// ============================================================================
+/**
+ * 1. Transactional Systems Seeding Phase (Idempotent with Duplicate Checking)
+ */
 export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
   const stats: SystemSeedStats = {
     features: { inserted: 0, updated: 0, restored: 0, unchanged: 0 },
@@ -510,9 +510,9 @@ export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
   return stats;
 }
 
-// ============================================================================
-// 2. Comprehensive Verification Phase
-// ============================================================================
+/**
+ * 2. Comprehensive Verification Phase
+ */
 export async function runSystemsVerification(): Promise<VerificationResult> {
   logger.header(
     'SYSTEMS DATA AUDIT & MATCH VERIFICATION',
@@ -819,9 +819,9 @@ export async function runSystemsVerification(): Promise<VerificationResult> {
   };
 }
 
-// ============================================================================
-// Main Entrypoint
-// ============================================================================
+/**
+ * Main Entrypoint
+ */
 async function main() {
   try {
     if (isCheckOnly) {

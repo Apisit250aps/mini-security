@@ -7,9 +7,9 @@ import {
   UUIDField,
 } from '#lib/entity';
 
-// ==========================================
-// 1. Location Schema
-// ==========================================
+/**
+ * 1. Location Schema
+ */
 
 export const locationSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
@@ -96,9 +96,9 @@ export type LocationEntity = z.infer<typeof locationSchema>;
 export type CreateLocation = z.infer<typeof createLocationSchema>;
 export type UpdateLocation = z.infer<typeof updateLocationSchema>;
 
-// ==========================================
-// 2. Schedule Slot Location Schema
-// ==========================================
+/**
+ * 2. Schedule Slot Location Schema
+ */
 
 export const scheduleSlotLocationSchema = BaseEntity({
   companyId: UUIDField({ required: true }),

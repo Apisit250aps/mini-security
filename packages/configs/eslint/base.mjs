@@ -32,10 +32,6 @@ export const config = [
         'warn',
         {
           types: {
-            unknown: {
-              message:
-                'Avoid using `unknown` directly; prefer explicit types, interfaces, or domain schemas.',
-            },
             never: {
               message:
                 'Avoid using `never` or `as never` for type assertions; prefer specific types or proper type narrowing instead.',

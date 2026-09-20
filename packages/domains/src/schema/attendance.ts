@@ -9,9 +9,9 @@ import {
   UUIDField,
 } from '#lib/entity';
 
-// ==========================================
-// Enums
-// ==========================================
+/**
+ * Enums
+ */
 
 export const AttendanceStatusValues = [
   'present',
@@ -22,9 +22,9 @@ export const AttendanceStatusValues = [
 
 export type AttendanceStatus = (typeof AttendanceStatusValues)[number];
 
-// ==========================================
-// 1. Check-In Schedule Schema
-// ==========================================
+/**
+ * 1. Check-In Schedule Schema
+ */
 
 export const checkInScheduleSchema = BaseEntity({
   // Active assignments, stored in check_in_schedule_roles by the repository.
@@ -65,9 +65,9 @@ export type CheckInScheduleEntity = z.infer<typeof checkInScheduleSchema>;
 export type CreateCheckInSchedule = z.infer<typeof createCheckInScheduleSchema>;
 export type UpdateCheckInSchedule = z.infer<typeof updateCheckInScheduleSchema>;
 
-// ==========================================
-// 2. Schedule Slot Schema
-// ==========================================
+/**
+ * 2. Schedule Slot Schema
+ */
 
 export const scheduleSlotSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
@@ -101,9 +101,9 @@ export type ScheduleSlotEntity = z.infer<typeof scheduleSlotSchema>;
 export type CreateScheduleSlot = z.infer<typeof createScheduleSlotSchema>;
 export type UpdateScheduleSlot = z.infer<typeof updateScheduleSlotSchema>;
 
-// ==========================================
-// 3. Attendance Log Schema
-// ==========================================
+/**
+ * 3. Attendance Log Schema
+ */
 
 export const attendanceLogSchema = BaseEntity({
   companyId: UUIDField({ required: true }),

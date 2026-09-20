@@ -45,9 +45,9 @@ import {
   ValidationError,
 } from '../../lib/error';
 
-// ==========================================
-// 1. Create Form Template
-// ==========================================
+/**
+ * 1. Create Form Template
+ */
 
 export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
   constructor(
@@ -148,9 +148,9 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
   }
 }
 
-// ==========================================
-// 2. Update Form Template
-// ==========================================
+/**
+ * 2. Update Form Template
+ */
 
 export class UpdateFormTemplateUseCase implements IUpdateFormTemplateUseCase {
   constructor(private readonly templateRepo: IFormTemplateRepository) {}
@@ -171,9 +171,9 @@ export class UpdateFormTemplateUseCase implements IUpdateFormTemplateUseCase {
   }
 }
 
-// ==========================================
-// 3. Get Form Template With Details
-// ==========================================
+/**
+ * 3. Get Form Template With Details
+ */
 
 export class GetFormTemplateUseCase implements IGetFormTemplateUseCase {
   constructor(
@@ -218,9 +218,9 @@ export class GetFormTemplateUseCase implements IGetFormTemplateUseCase {
   }
 }
 
-// ==========================================
-// 4. List Form Templates By Company
-// ==========================================
+/**
+ * 4. List Form Templates By Company
+ */
 
 export class ListFormTemplatesByCompanyUseCase
   implements IListFormTemplatesByCompanyUseCase
@@ -235,9 +235,9 @@ export class ListFormTemplatesByCompanyUseCase
   }
 }
 
-// ==========================================
-// 6. Create Form Section
-// ==========================================
+/**
+ * 6. Create Form Section
+ */
 
 export class CreateFormSectionUseCase implements ICreateFormSectionUseCase {
   constructor(
@@ -271,9 +271,9 @@ export class CreateFormSectionUseCase implements ICreateFormSectionUseCase {
   }
 }
 
-// ==========================================
-// 7. Create Form Field
-// ==========================================
+/**
+ * 7. Create Form Field
+ */
 
 export class CreateFormFieldUseCase implements ICreateFormFieldUseCase {
   constructor(
@@ -320,9 +320,9 @@ export class CreateFormFieldUseCase implements ICreateFormFieldUseCase {
   }
 }
 
-// ==========================================
-// 8. Publish Form Version
-// ==========================================
+/**
+ * 8. Publish Form Version
+ */
 
 export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
   constructor(

@@ -13,9 +13,9 @@ import type {
   UpdateScheduleSlot,
 } from '#schema/attendance';
 
-// ==========================================
-// 1. Check-In Schedule Contexts & Use Cases
-// ==========================================
+/**
+ * 1. Check-In Schedule Contexts & Use Cases
+ */
 
 export type ICreateCheckInScheduleContext = ISecurityContext & {
   data: CreateCheckInSchedule;
@@ -55,9 +55,9 @@ export type IGetCheckInSchedulesByCompanyUseCase = BaseUseCase<
   CheckInSchedule[]
 >;
 
-// ==========================================
-// 2. Schedule Slot Contexts & Use Cases
-// ==========================================
+/**
+ * 2. Schedule Slot Contexts & Use Cases
+ */
 
 export type ICreateScheduleSlotContext = ISecurityContext & {
   data: CreateScheduleSlot;
@@ -96,9 +96,9 @@ export type IGetScheduleSlotsByScheduleUseCase = BaseUseCase<
   ScheduleSlot[]
 >;
 
-// ==========================================
-// 3. Attendance Log Contexts & Use Cases
-// ==========================================
+/**
+ * 3. Attendance Log Contexts & Use Cases
+ */
 
 export type ICheckInAttendanceContext = ISecurityContext & {
   companyMemberId: string;

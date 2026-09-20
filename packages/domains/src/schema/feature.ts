@@ -7,9 +7,9 @@ import {
   UUIDField,
 } from '#lib/entity';
 
-// ==========================================
-// 1. Feature Schema (Master Catalog)
-// ==========================================
+/**
+ * 1. Feature Schema (Master Catalog)
+ */
 
 export const featureSchema = BaseEntity({
   code: StringField({ required: true }),
@@ -33,9 +33,9 @@ export type FeatureEntity = z.infer<typeof featureSchema>;
 export type CreateFeature = z.infer<typeof createFeatureSchema>;
 export type UpdateFeature = z.infer<typeof updateFeatureSchema>;
 
-// ==========================================
-// 2. Company Feature Schema (Entitlement & Toggle)
-// ==========================================
+/**
+ * 2. Company Feature Schema (Entitlement & Toggle)
+ */
 
 export const companyFeatureSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
@@ -59,9 +59,9 @@ export type CompanyFeatureEntity = z.infer<typeof companyFeatureSchema>;
 export type CreateCompanyFeature = z.infer<typeof createCompanyFeatureSchema>;
 export type UpdateCompanyFeature = z.infer<typeof updateCompanyFeatureSchema>;
 
-// ==========================================
-// 3. Role Feature Schema (Delegation)
-// ==========================================
+/**
+ * 3. Role Feature Schema (Delegation)
+ */
 
 export const roleFeatureSchema = BaseEntity({
   companyId: UUIDField({ required: true }),

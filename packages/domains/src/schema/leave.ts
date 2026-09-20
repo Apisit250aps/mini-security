@@ -9,9 +9,9 @@ import {
   UUIDField,
 } from '#lib/entity';
 
-// ==========================================
-// Enums
-// ==========================================
+/**
+ * Enums
+ */
 
 export const LeaveRequestStatusValues = [
   'pending',
@@ -26,9 +26,9 @@ export const LeaveUnitValues = ['day', 'half_day', 'hour'] as const;
 
 export type LeaveUnit = (typeof LeaveUnitValues)[number];
 
-// ==========================================
-// 1. Leave Type Schema
-// ==========================================
+/**
+ * 1. Leave Type Schema
+ */
 
 export const leaveTypeSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
@@ -55,9 +55,9 @@ export type LeaveTypeEntity = z.infer<typeof leaveTypeSchema>;
 export type CreateLeaveType = z.infer<typeof createLeaveTypeSchema>;
 export type UpdateLeaveType = z.infer<typeof updateLeaveTypeSchema>;
 
-// ==========================================
-// 2. Leave Quota Schema
-// ==========================================
+/**
+ * 2. Leave Quota Schema
+ */
 
 export const leaveQuotaSchema = BaseEntity({
   companyMemberId: UUIDField({ required: true }),
@@ -91,9 +91,9 @@ export type LeaveQuotaEntity = z.infer<typeof leaveQuotaSchema>;
 export type CreateLeaveQuota = z.infer<typeof createLeaveQuotaSchema>;
 export type UpdateLeaveQuota = z.infer<typeof updateLeaveQuotaSchema>;
 
-// ==========================================
-// 3. Leave Request Schema
-// ==========================================
+/**
+ * 3. Leave Request Schema
+ */
 
 export const leaveRequestSchema = BaseEntity({
   companyMemberId: UUIDField({ required: true }),

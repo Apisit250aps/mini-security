@@ -85,4 +85,4 @@ async function getUserPermissionActions(
   };
 }
 
-export { getUserPermissionActions, getAllPermissionActions };
+export { getUserPermissionActions };

@@ -24,9 +24,9 @@ import {
 import { company, companyMember } from './company';
 import { user } from './user';
 
-// ==========================================
-// Enums
-// ==========================================
+/**
+ * Enums
+ */
 
 export const leaveRequestStatusEnum = pgEnum('leave_request_status', [
   'pending',
@@ -37,9 +37,9 @@ export const leaveRequestStatusEnum = pgEnum('leave_request_status', [
 
 export const leaveUnitEnum = pgEnum('leave_unit', ['day', 'half_day', 'hour']);
 
-// ==========================================
-// 1. Leave Types Table
-// ==========================================
+/**
+ * 1. Leave Types Table
+ */
 
 export const leaveTypes = pgTable(
   'leave_types',
@@ -68,9 +68,9 @@ export const leaveTypes = pgTable(
   ],
 );
 
-// ==========================================
-// 2. Leave Quotas Table
-// ==========================================
+/**
+ * 2. Leave Quotas Table
+ */
 
 export const leaveQuotas = pgTable(
   'leave_quotas',
@@ -99,9 +99,9 @@ export const leaveQuotas = pgTable(
   ],
 );
 
-// ==========================================
-// 3. Leave Requests Table
-// ==========================================
+/**
+ * 3. Leave Requests Table
+ */
 
 export const leaveRequests = pgTable(
   'leave_requests',
