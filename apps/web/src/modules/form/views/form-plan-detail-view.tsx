@@ -581,7 +581,7 @@ export default function FormPlanDetailView({
               </TabsTrigger>
               <TabsTrigger id="preview">
                 <Clock data-icon="inline-start" />
-                พรีวิวรอบเวลาถัดไป ({previewTimes.length})
+                พรีวิวรอบเวลา ({previewTimes.length})
               </TabsTrigger>
               <TabsTrigger id="occurrences">
                 <CalendarDays data-icon="inline-start" />
@@ -784,10 +784,11 @@ export default function FormPlanDetailView({
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <Clock className="size-4 text-primary" />
-                    พรีวิวรอบเวลาที่จะเปิดถัดไป (Schedule Preview)
+                    พรีวิวรอบเวลา (Schedule Preview)
                   </CardTitle>
                   <CardDescription>
-                    รอบเวลาที่ระบบคำนวณล่วงหน้าสำหรับแผนนี้ (10 รอบถัดไป)
+                    รอบเวลาที่ระบบคำนวณตามกำหนดการของแผนนี้
+                    นับจากวันเริ่มต้นที่ตั้งค่า (รวมรอบย้อนหลัง)
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -797,24 +798,35 @@ export default function FormPlanDetailView({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {previewTimes.map((timeStr, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 border rounded-xl bg-muted/10 text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="size-6 rounded-full bg-primary/10 text-primary font-semibold flex items-center justify-center text-[10px]">
-                              {idx + 1}
-                            </span>
-                            <span className="font-medium text-foreground">
-                              {formatDateTime(timeStr)}
-                            </span>
+                      {previewTimes.map((timeStr, idx) => {
+                        const isPast = new Date(timeStr).getTime() < now;
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-3 border rounded-xl bg-muted/10 text-xs"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="size-6 rounded-full bg-primary/10 text-primary font-semibold flex items-center justify-center text-[10px]">
+                                {idx + 1}
+                              </span>
+                              <span className="font-medium text-foreground">
+                                {formatDateTime(timeStr)}
+                              </span>
+                              {isPast && (
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[10px] py-0 px-1.5"
+                                >
+                                  ย้อนหลัง
+                                </Badge>
+                              )}
+                            </div>
+                            <Badge variant="outline" className="text-[10px]">
+                              {plan.timezone}
+                            </Badge>
                           </div>
-                          <Badge variant="outline" className="text-[10px]">
-                            {plan.timezone}
-                          </Badge>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </CardContent>

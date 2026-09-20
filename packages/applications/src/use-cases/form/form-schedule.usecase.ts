@@ -20,7 +20,7 @@ export type ScheduleConfig = {
   dueOffset: { amount: number; unit: 'ELAPSED_HOURS' | 'CALENDAR_DAYS' };
 };
 
-function localToUtc(
+export function localToUtc(
   localDateStr: string,
   localTimeStr: string,
   timezone: string,
@@ -113,7 +113,10 @@ export function calculateNextOccurrences(
   }
 
   let step = initialStep;
-  while (results.length < count && step < initialStep + 500) {
+  while (
+    results.length < count &&
+    step < initialStep + Math.max(1000, count * 10)
+  ) {
     let year = anchorYear;
     let month = anchorMonth;
     let day = anchorDay;
@@ -236,21 +239,50 @@ export class PreviewScheduleUseCase implements IPreviewScheduleUseCase {
       throw new NotFoundError('Form plan not found');
     }
 
+    const isSuccessor = Boolean(plan.supersedesPlanId);
+    const startBoundary =
+      isSuccessor && plan.effectiveFrom ? plan.effectiveFrom : null;
+
     if (plan.scheduleKind === 'EXPLICIT') {
       const periods = await this.periodRepo.findByPlanId(plan.id);
-      return periods.map((p) => p.opensAt);
+      return periods
+        .filter((p) => {
+          if (startBoundary && p.opensAt < startBoundary) return false;
+          if (plan.effectiveUntil && p.opensAt >= plan.effectiveUntil)
+            return false;
+          return true;
+        })
+        .sort((a, b) => a.opensAt.getTime() - b.opensAt.getTime())
+        .map((p) => p.opensAt);
     }
 
     if (plan.scheduleKind === 'RECURRING') {
       if (!plan.scheduleConfig) {
         throw new BadRequestError('Invalid schedule config');
       }
-      return calculateNextOccurrences(
-        plan.scheduleConfig as ScheduleConfig,
+      const config = plan.scheduleConfig as ScheduleConfig;
+      const timeStr = config.openLocalTime || '00:00';
+      const anchorDateUtc = localToUtc(
+        config.anchorLocalDate,
+        timeStr,
         plan.timezone,
-        new Date(Math.max(Date.now(), plan.effectiveFrom?.getTime() ?? 0)),
+      );
+
+      // แผนแรก: แสดงรอบนับจากวันเริ่มที่ตั้งค่า (รวมย้อนหลัง ไม่ตัดด้วยวันนี้หรือ effectiveFrom)
+      // แผนชุดถัดไป: ใช้วันที่การเปลี่ยนแปลงมีผล (effectiveFrom) เป็นขอบเขตเพิ่มเติม
+      const fromDate = startBoundary ?? anchorDateUtc;
+
+      return calculateNextOccurrences(
+        config,
+        plan.timezone,
+        fromDate,
         10,
-      ).filter((date) => !plan.effectiveUntil || date < plan.effectiveUntil);
+        false,
+      ).filter((date) => {
+        if (startBoundary && date < startBoundary) return false;
+        if (plan.effectiveUntil && date >= plan.effectiveUntil) return false;
+        return true;
+      });
     }
 
     return [];

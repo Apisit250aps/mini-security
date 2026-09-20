@@ -21,8 +21,8 @@ import type { ICompanyMemberRepository } from '@repo/domains/repositories/compan
 import { BadRequestError, NotFoundError } from '../../lib/error';
 import {
   calculateDueDate,
-  calculateNextOccurrences,
   generateOccurrenceKey,
+  localToUtc,
   ScheduleConfig,
 } from './form-schedule.usecase';
 import { requireRevisionMatch } from '#lib/index';
@@ -50,7 +50,8 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
       const opened = await this.unitOfWork.transaction(async () => {
         // Read the plan inside the same serializable transaction as its occurrences.
         const plan = await this.planRepo.findById(candidate.id);
-        if (!plan?.effectiveFrom || plan.effectiveFrom > now) return [];
+        if (!plan?.effectiveFrom) return [];
+        if (plan.supersedesPlanId && plan.effectiveFrom > now) return [];
         if (plan.effectiveUntil && plan.missedPolicy === 'SKIP') return [];
         const end =
           plan.effectiveUntil && plan.effectiveUntil < now
@@ -64,8 +65,16 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
         if (!version || version.status === 'DRAFT')
           throw new BadRequestError('Plan requires a published form version');
         const existing = await this.occurrenceRepo.findByPlanId(plan.id);
-        const keys = new Set(
+        const existingKeys = new Set(
           existing.map((occurrence) => occurrence.occurrenceKey),
+        );
+        const existingOpensAt = new Set(
+          existing.map((occurrence) => occurrence.opensAt.getTime()),
+        );
+        const existingPeriodIds = new Set(
+          existing
+            .map((occurrence) => occurrence.periodId)
+            .filter((id): id is string => Boolean(id)),
         );
         let rounds: Array<{
           opensAt: Date;
@@ -75,61 +84,232 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
         }> = [];
         if (plan.scheduleKind === 'RECURRING' && plan.scheduleConfig) {
           const config = plan.scheduleConfig as ScheduleConfig;
-          const latest = existing.reduce(
-            (date, occurrence) =>
-              occurrence.opensAt > date ? occurrence.opensAt : date,
-            new Date(plan.effectiveFrom.getTime() - 1),
+          const anchorParts = (config.anchorLocalDate || '2026-01-01').split(
+            '-',
           );
-          const from =
-            plan.missedPolicy === 'SKIP' ? now : new Date(latest.getTime() + 1);
-          let dates = calculateNextOccurrences(
-            config,
+          const anchorYear = Number(anchorParts[0]) || 2026;
+          const anchorMonth = Number(anchorParts[1]) || 1;
+          const anchorDay = Number(anchorParts[2]) || 1;
+          const timeStr = config.openLocalTime || '00:00';
+          const anchorDateUtc = localToUtc(
+            config.anchorLocalDate,
+            timeStr,
             plan.timezone,
-            from,
-            plan.missedPolicy === 'SKIP' ? 10 : 100,
-            plan.missedPolicy === 'SKIP',
           );
-          dates = dates.filter(
-            (date) =>
-              date >= plan.effectiveFrom! &&
-              date <= end &&
-              (!plan.effectiveUntil || date < plan.effectiveUntil),
-          );
-          if (plan.missedPolicy === 'SKIP') dates = dates.slice(-1);
-          rounds = dates.map((opensAt) => ({
-            opensAt,
-            dueAt: calculateDueDate(opensAt, config.dueOffset, plan.timezone),
-            occurrenceKey: generateOccurrenceKey(
-              plan.id,
-              new Intl.DateTimeFormat('en-CA', {
-                timeZone: plan.timezone,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-              }).format(opensAt),
-              plan.timezone,
-            ),
-          }));
+
+          // จุดที่ 1 และ 4: แผนแรกเริ่มจาก anchorDateUtc (ไม่ใช้วันสร้างหรือ effectiveFrom มาตัด)
+          // แผนชุดถัดไปใช้วันที่การเปลี่ยนแปลงมีผล (effectiveFrom) เป็นขอบเขตเพิ่มเติม
+          const planStartBoundary =
+            plan.supersedesPlanId !== null && plan.effectiveFrom
+              ? plan.effectiveFrom
+              : anchorDateUtc;
+
+          let initialStep = 0;
+          if (planStartBoundary.getTime() > anchorDateUtc.getTime()) {
+            const diffMs =
+              planStartBoundary.getTime() - anchorDateUtc.getTime();
+            if (config.frequency === 'DAILY') {
+              const est = Math.floor(diffMs / (config.interval * 86400000));
+              initialStep = Math.max(0, est - 2);
+            } else if (config.frequency === 'WEEKLY') {
+              const est = Math.floor(diffMs / (config.interval * 7 * 86400000));
+              initialStep = Math.max(0, est - 2);
+            } else if (config.frequency === 'MONTHLY') {
+              const est = Math.floor(
+                diffMs / (30.4 * 86400000 * config.interval),
+              );
+              initialStep = Math.max(0, est - 2);
+            } else if (config.frequency === 'YEARLY') {
+              const est = Math.floor(
+                diffMs / (365.25 * 86400000 * config.interval),
+              );
+              initialStep = Math.max(0, est - 2);
+            }
+          }
+
+          let step = initialStep;
+          const eligibleRounds: Array<{
+            opensAt: Date;
+            dueAt: Date;
+            occurrenceKey: string;
+          }> = [];
+
+          while (step < initialStep + 5000) {
+            let year = anchorYear;
+            let month = anchorMonth;
+            let day = anchorDay;
+
+            if (config.frequency === 'DAILY') {
+              const d = new Date(
+                Date.UTC(
+                  anchorYear,
+                  anchorMonth - 1,
+                  anchorDay + step * config.interval,
+                ),
+              );
+              year = d.getUTCFullYear();
+              month = d.getUTCMonth() + 1;
+              day = d.getUTCDate();
+            } else if (config.frequency === 'WEEKLY') {
+              const d = new Date(
+                Date.UTC(
+                  anchorYear,
+                  anchorMonth - 1,
+                  anchorDay + step * config.interval * 7,
+                ),
+              );
+              year = d.getUTCFullYear();
+              month = d.getUTCMonth() + 1;
+              day = d.getUTCDate();
+            } else if (config.frequency === 'MONTHLY') {
+              const totalMonths = anchorMonth - 1 + step * config.interval;
+              year = anchorYear + Math.floor(totalMonths / 12);
+              month = (totalMonths % 12) + 1;
+              const targetDay = anchorDay;
+              const daysInMonth = new Date(
+                Date.UTC(year, month, 0),
+              ).getUTCDate();
+              if (targetDay > daysInMonth) {
+                if (config.invalidDayPolicy === 'SKIP') {
+                  step++;
+                  continue;
+                } else {
+                  day = daysInMonth;
+                }
+              } else {
+                day = targetDay;
+              }
+            } else if (config.frequency === 'YEARLY') {
+              year = anchorYear + step * config.interval;
+              const targetDay = anchorDay;
+              const daysInMonth = new Date(
+                Date.UTC(year, month, 0),
+              ).getUTCDate();
+              if (
+                targetDay > daysInMonth &&
+                config.invalidDayPolicy === 'SKIP'
+              ) {
+                step++;
+                continue;
+              }
+              day = Math.min(targetDay, daysInMonth);
+            }
+
+            const y = String(year).padStart(4, '0');
+            const m = String(month).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            const dateStr = `${y}-${m}-${d}`;
+
+            if (config.endLocalDate && dateStr > config.endLocalDate) break;
+            const occurrenceDate = localToUtc(dateStr, timeStr, plan.timezone);
+
+            if (occurrenceDate > end) break;
+            if (plan.effectiveUntil && occurrenceDate >= plan.effectiveUntil)
+              break;
+
+            if (occurrenceDate >= planStartBoundary) {
+              const occurrenceKey = generateOccurrenceKey(
+                plan.id,
+                dateStr,
+                plan.timezone,
+              );
+              eligibleRounds.push({
+                opensAt: occurrenceDate,
+                dueAt: calculateDueDate(
+                  occurrenceDate,
+                  config.dueOffset,
+                  plan.timezone,
+                ),
+                occurrenceKey,
+              });
+            }
+
+            step++;
+          }
+
+          if (plan.missedPolicy === 'CATCH_UP') {
+            // CATCH_UP — สร้างรอบย้อนหลังที่ยังไม่มี ตั้งแต่วันเริ่มจนถึงปัจจุบัน
+            rounds = eligibleRounds.filter(
+              (r) =>
+                !existingKeys.has(r.occurrenceKey) &&
+                !existingOpensAt.has(r.opensAt.getTime()),
+            );
+          } else {
+            // SKIP — ข้ามรอบที่พลาดไป โดยยังคำนวณจังหวะจากวันเริ่มเดิม
+            const latestNominal = eligibleRounds[eligibleRounds.length - 1];
+            if (
+              latestNominal &&
+              !existingKeys.has(latestNominal.occurrenceKey) &&
+              !existingOpensAt.has(latestNominal.opensAt.getTime())
+            ) {
+              rounds = [latestNominal];
+            } else {
+              rounds = [];
+            }
+          }
         } else if (plan.scheduleKind === 'EXPLICIT') {
           const periods = await this.periodRepo!.findByPlanId(plan.id);
-          rounds = periods
+          const planStartBoundary =
+            plan.supersedesPlanId !== null && plan.effectiveFrom
+              ? plan.effectiveFrom
+              : null;
+          let eligiblePeriods = periods
             .filter(
               (period) =>
-                period.opensAt >= plan.effectiveFrom! &&
+                (!planStartBoundary || period.opensAt >= planStartBoundary) &&
                 period.opensAt <= end &&
                 (!plan.effectiveUntil || period.opensAt < plan.effectiveUntil),
             )
-            .sort((a, b) => a.opensAt.getTime() - b.opensAt.getTime())
+            .sort((a, b) => a.opensAt.getTime() - b.opensAt.getTime());
+
+          if (plan.missedPolicy === 'SKIP') {
+            eligiblePeriods = eligiblePeriods.slice(-1);
+          }
+
+          rounds = eligiblePeriods
             .map((period) => ({
               ...period,
               periodId: period.id,
               occurrenceKey: `${plan.id}_period_${period.id}`,
-            }));
-          if (plan.missedPolicy === 'SKIP') rounds = rounds.slice(-1);
+            }))
+            .filter(
+              (r) =>
+                !existingKeys.has(r.occurrenceKey) &&
+                !existingOpensAt.has(r.opensAt.getTime()) &&
+                !existingPeriodIds.has(r.periodId),
+            );
         }
-        rounds = rounds
-          .filter((round) => !keys.has(round.occurrenceKey))
-          .slice(0, 100);
+
+        // Deduplicate within the batch and cap at 100 rounds
+        const distinctRounds: typeof rounds = [];
+        const seenKeysInBatch = new Set<string>();
+        const seenOpensAtInBatch = new Set<number>();
+        const seenPeriodIdsInBatch = new Set<string>();
+
+        for (const round of rounds) {
+          if (
+            existingKeys.has(round.occurrenceKey) ||
+            seenKeysInBatch.has(round.occurrenceKey) ||
+            existingOpensAt.has(round.opensAt.getTime()) ||
+            seenOpensAtInBatch.has(round.opensAt.getTime())
+          ) {
+            continue;
+          }
+          if (
+            round.periodId &&
+            (existingPeriodIds.has(round.periodId) ||
+              seenPeriodIdsInBatch.has(round.periodId))
+          ) {
+            continue;
+          }
+          seenKeysInBatch.add(round.occurrenceKey);
+          seenOpensAtInBatch.add(round.opensAt.getTime());
+          if (round.periodId) seenPeriodIdsInBatch.add(round.periodId);
+          distinctRounds.push(round);
+          if (distinctRounds.length >= 100) break;
+        }
+
+        rounds = distinctRounds;
         if (!rounds.length) return [];
         const targets = await this.targetRepo.findByPlanId(plan.id);
         const members = (
@@ -170,22 +350,43 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
             periodId: round.periodId ?? null,
             revision: 1,
           });
-          for (const roleId of roleIds)
-            await this.assignmentRepo.create({
-              companyId: context.companyId,
-              occurrenceId: occurrence.id,
-              formVersionId: version.id,
-              roleId,
-              revision: 1,
-            });
-          for (const companyMemberId of memberIds)
-            await this.assignmentRepo.create({
-              companyId: context.companyId,
-              occurrenceId: occurrence.id,
-              formVersionId: version.id,
-              companyMemberId,
-              revision: 1,
-            });
+          const existingAssignments =
+            await this.assignmentRepo.findByOccurrenceId(occurrence.id);
+          const activeRoleAssignments = new Set(
+            existingAssignments
+              .filter((a) => !a.cancelledAt && a.roleId)
+              .map((a) => a.roleId!),
+          );
+          const activeMemberAssignments = new Set(
+            existingAssignments
+              .filter((a) => !a.cancelledAt && a.companyMemberId)
+              .map((a) => a.companyMemberId!),
+          );
+
+          for (const roleId of roleIds) {
+            if (!activeRoleAssignments.has(roleId)) {
+              await this.assignmentRepo.create({
+                companyId: context.companyId,
+                occurrenceId: occurrence.id,
+                formVersionId: version.id,
+                roleId,
+                revision: 1,
+              });
+              activeRoleAssignments.add(roleId);
+            }
+          }
+          for (const companyMemberId of memberIds) {
+            if (!activeMemberAssignments.has(companyMemberId)) {
+              await this.assignmentRepo.create({
+                companyId: context.companyId,
+                occurrenceId: occurrence.id,
+                formVersionId: version.id,
+                companyMemberId,
+                revision: 1,
+              });
+              activeMemberAssignments.add(companyMemberId);
+            }
+          }
           result.push(occurrence);
         }
         return result;
