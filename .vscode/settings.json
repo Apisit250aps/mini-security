@@ -13,16 +13,13 @@
   },
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.*.ts",
-    "*.tsx": "${capture}.*.tsx",
-    "*.js": "${capture}.*.js",
-    "*.jsx": "${capture}.*.jsx",
+    "*.ts": "${capture}.test.ts,${capture}.spec.ts,${capture}.*.ts",
+    "*.tsx": "${capture}.test.tsx,${capture}.spec.tsx,${capture}.*.tsx",
+    "*.js": "${capture}.test.js,${capture}.spec.js,${capture}.*.js",
+    "*.jsx": "${capture}.test.jsx,${capture}.spec.jsx,${capture}.*.jsx",
     "*.json": "${capture}.*.json",
     "*.css": "${capture}.*.css",
     ".env": "${capture}.*",
-    ".fallow": "${capture}.*",
-    "*.config.{js,ts,json}": "${capture}.*.config.{js,ts,json}",
-    "*.test.ts": "${capture}.*.test.ts",
-    "*.test.js": "${capture}.*.test.js"
+    ".fallow": "${capture}.*"
   }
 }
