@@ -1,9 +1,14 @@
 'use client';
 
-import React from 'react';
-import { OptionsSelect } from '@/shared/components/form/options-select';
+import React, { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { SelectField } from '@repo/ui/form';
 import { useCompanyMemberUpdate } from '../../hooks/company-mutations';
 import type { CompanyBranch, CompanyMember } from '@repo/client';
+
+type BranchFormValues = {
+  companyBranchId: string;
+};
 
 export default function CompanyMemberBranchSelect({
   member,
@@ -16,36 +21,71 @@ export default function CompanyMemberBranchSelect({
 }) {
   const updateMutation = useCompanyMemberUpdate(companyId);
 
-  const activeBranches = React.useMemo(() => {
+  const activeBranches = useMemo(() => {
     return branches.filter(
       (b) => b.isActive || b.id === member.companyBranchId,
     );
   }, [branches, member.companyBranchId]);
 
-  const handleBranchChange = React.useCallback(
-    async (key: React.Key | null) => {
-      if (!key || key === member.companyBranchId) return;
-      await updateMutation.mutateAsync({
-        id: member.id,
-        data: {
-          companyBranchId: key as string,
-        },
-      });
+  const methods = useForm<BranchFormValues>({
+    mode: 'onChange',
+    defaultValues: {
+      companyBranchId: member.companyBranchId || '',
     },
-    [member.companyBranchId, member.id, updateMutation],
+    values: {
+      companyBranchId: member.companyBranchId || '',
+    },
+  });
+
+  const onSubmit = React.useCallback(
+    async (data: BranchFormValues) => {
+      if (
+        !data.companyBranchId ||
+        data.companyBranchId === member.companyBranchId ||
+        updateMutation.isPending
+      ) {
+        return;
+      }
+      try {
+        await updateMutation.mutateAsync({
+          id: member.id,
+          data: {
+            companyBranchId: data.companyBranchId,
+          },
+        });
+      } catch {
+        methods.reset({ companyBranchId: member.companyBranchId || '' });
+      }
+    },
+    [member.id, member.companyBranchId, updateMutation, methods],
   );
 
   return (
-    <OptionsSelect
-      value={member.companyBranchId}
-      label="สาขา"
-      onChange={handleBranchChange}
-      disabled={updateMutation.isPending}
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void methods.handleSubmit(onSubmit)(e);
+      }}
+      onChange={() => {
+        void methods.handleSubmit(onSubmit)();
+      }}
       className="w-44"
-      options={activeBranches.map((item) => ({
-        value: item.id,
-        label: item.name,
-      }))}
-    />
+    >
+      <SelectField
+        control={methods.control}
+        name="companyBranchId"
+        label="สาขา"
+        placeholder="เลือกสาขา..."
+        disabled={updateMutation.isPending}
+        options={activeBranches.map((item) => ({
+          value: item.id,
+          label: item.name,
+        }))}
+        onValueChange={() => {
+          void methods.handleSubmit(onSubmit)();
+        }}
+      />
+    </form>
   );
 }
+
