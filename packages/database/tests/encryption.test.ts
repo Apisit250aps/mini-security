@@ -14,6 +14,8 @@ import {
   encryptedText,
   searchableEncryptedText,
   encryptedNumber,
+  getEncryptionKey,
+  getLookupKey,
 } from '../src/lib/encryption';
 
 test('Probabilistic encryption (encryptedText) encrypts and decrypts accurately', () => {
@@ -84,13 +86,7 @@ test('Blind index and emailLookup normalize and produce deterministic hash for s
 
 test('encryptedNumber accurately converts floats <-> encrypted text for GPS coordinates', () => {
   const coordinates = [
-    13.7563309,
-    100.5017651,
-    -33.8688197,
-    151.2092955,
-    0,
-    -90,
-    90,
+    13.7563309, 100.5017651, -33.8688197, 151.2092955, 0, -90, 90,
   ];
 
   for (const coord of coordinates) {
@@ -111,12 +107,16 @@ test('Tamper detection: modifying ciphertext or auth tag throws an error', () =>
 
   // 1. Tamper with ciphertext
   const tamperedData = parts[3]!.slice(0, -2) + 'AA';
-  const tamperedPayload1 = [parts[0], parts[1], parts[2], tamperedData].join('.');
+  const tamperedPayload1 = [parts[0], parts[1], parts[2], tamperedData].join(
+    '.',
+  );
   assert.throws(() => decrypt(tamperedPayload1), /Failed to decrypt/);
 
   // 2. Tamper with authentication tag
   const tamperedTag = parts[2]!.slice(0, -2) + 'BB';
-  const tamperedPayload2 = [parts[0], parts[1], tamperedTag, parts[3]].join('.');
+  const tamperedPayload2 = [parts[0], parts[1], tamperedTag, parts[3]].join(
+    '.',
+  );
   assert.throws(() => decrypt(tamperedPayload2), /Failed to decrypt/);
 });
 
@@ -186,4 +186,38 @@ test('Drizzle column helpers execute toDriver and fromDriver correctly', () => {
   assert.ok(isEncrypted(driverEmail));
   const readEmail = searchableEncryptedText.fromDriver(driverEmail);
   assert.equal(readEmail, email);
+});
+
+test('Production mode fails fast when encryption keys are missing', () => {
+  const originalEnv = process.env.NODE_ENV;
+  const originalKey = process.env.FIELD_ENCRYPTION_KEY;
+  const originalSecret = process.env.BETTER_AUTH_SECRET;
+  const originalLookup = process.env.FIELD_LOOKUP_KEY;
+
+  try {
+    delete process.env.FIELD_ENCRYPTION_KEY;
+    delete process.env.BETTER_AUTH_SECRET;
+    delete process.env.FIELD_LOOKUP_KEY;
+    resetKeyCache();
+
+    process.env.NODE_ENV = 'production';
+    assert.throws(
+      () => getEncryptionKey(999),
+      /Missing field encryption key in production/,
+    );
+    assert.throws(
+      () => getLookupKey(),
+      /Missing field lookup key in production/,
+    );
+
+    process.env.NODE_ENV = 'test';
+    assert.doesNotThrow(() => getEncryptionKey(999));
+    assert.doesNotThrow(() => getLookupKey());
+  } finally {
+    process.env.NODE_ENV = originalEnv;
+    if (originalKey) process.env.FIELD_ENCRYPTION_KEY = originalKey;
+    if (originalSecret) process.env.BETTER_AUTH_SECRET = originalSecret;
+    if (originalLookup) process.env.FIELD_LOOKUP_KEY = originalLookup;
+    resetKeyCache();
+  }
 });

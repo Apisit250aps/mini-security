@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import type { IUnitOfWork } from '@repo/domains';
 import type {
   IFormFieldRepository,
+  IFormFieldOptionRepository,
   IFormVersionRepository,
   IFormSectionRepository,
 } from '@repo/domains/repositories/form';
@@ -81,6 +82,10 @@ function fixture(status = 'DRAFT') {
     version,
     section,
     writes,
+    uow,
+    versions,
+    fields,
+    sections,
     edit: new EditFormFieldUseCase(uow, versions, fields, sections),
     remove: new DeleteFormFieldUseCase(uow, versions, fields),
   };
@@ -154,4 +159,58 @@ test('edit rejects client ownership and order changes', async () => {
     /invalid/i,
   );
   assert.equal(f.writes.length, 0);
+});
+
+test('edit throws InternalError when options are provided but optionRepo is missing', async () => {
+  const f = fixture();
+  await assert.rejects(
+    f.edit.execute({
+      ...ctx,
+      data: {
+        ...data,
+        options: [{ label: 'Option 1', value: 'opt1', sortOrder: 0 }],
+      },
+    }),
+    /FormFieldOptionRepository is required/,
+  );
+});
+
+test('edit saves and returns options when optionRepo is provided', async () => {
+  const f = fixture();
+  const optionsStub = {
+    replaceOptions: async (
+      fieldId: string,
+      companyId: string,
+      formVersionId: string,
+      opts: Array<{ label: string; value: string; sortOrder?: number }>,
+    ) => {
+      return opts.map((o, idx) => ({
+        ...o,
+        id: `opt-${idx}`,
+        fieldId,
+        companyId,
+        formVersionId,
+        sortOrder: o.sortOrder ?? idx,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }));
+    },
+    findByFieldId: async () => [],
+  };
+  const editWithOptionRepo = new EditFormFieldUseCase(
+    f.uow,
+    f.versions,
+    f.fields,
+    f.sections,
+    optionsStub as unknown as IFormFieldOptionRepository,
+  );
+  const result = await editWithOptionRepo.execute({
+    ...ctx,
+    data: {
+      ...data,
+      options: [{ label: 'Option 1', value: 'opt1', sortOrder: 0 }],
+    },
+  });
+  assert.equal(result.options?.length, 1);
+  assert.equal(result.options?.[0]?.value, 'opt1');
 });

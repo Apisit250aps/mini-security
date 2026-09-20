@@ -10,8 +10,11 @@ export async function validateFormFieldConfig(
 ) {
   if (!['SELECT', 'RADIO', 'CHECKBOX_GROUP'].includes(field.type)) return;
   const legacyOptions =
-    typeof field.config === 'object' && field.config !== null && 'options' in field.config
-      ? (field.config as { options?: Array<{ label: string; value: string }> }).options
+    typeof field.config === 'object' &&
+    field.config !== null &&
+    'options' in field.config
+      ? (field.config as { options?: Array<{ label: string; value: string }> })
+          .options
       : undefined;
   const options = field.options || legacyOptions || [];
   if (options.length === 0) return;
@@ -46,15 +49,19 @@ export async function validateFormAnswer(
   }
 
   const legacyOptions =
-    typeof field.config === 'object' && field.config !== null && 'options' in field.config
-      ? (field.config as { options?: Array<{ label: string; value: string }> }).options
+    typeof field.config === 'object' &&
+    field.config !== null &&
+    'options' in field.config
+      ? (field.config as { options?: Array<{ label: string; value: string }> })
+          .options
       : undefined;
   const normalizedField = {
     ...field,
     options: field.options || legacyOptions,
   };
 
-  const result = await formAnswerValueSchema(normalizedField).safeParseAsync(value);
+  const result =
+    await formAnswerValueSchema(normalizedField).safeParseAsync(value);
   if (!result.success)
     throw new ValidationError(
       `Invalid answer for "${field.label}"`,

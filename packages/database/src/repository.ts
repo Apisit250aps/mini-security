@@ -72,14 +72,20 @@ export abstract class Repository<
       .insert(this.table)
       .values(entity)
       .returning();
-    config.logger.debug(`INSERT ${this.tableName()} ${this.elapsed(startedAt)}`, 'DB');
+    config.logger.debug(
+      `INSERT ${this.tableName()} ${this.elapsed(startedAt)}`,
+      'DB',
+    );
     return withoutDeletedAt(result as object) as T;
   }
 
   async delete(id: string): Promise<void> {
     const startedAt = performance.now();
     await this.softDelete(eq(this.table.id, id));
-    config.logger.debug(`DELETE ${this.tableName()} ${this.elapsed(startedAt)}`, 'DB');
+    config.logger.debug(
+      `DELETE ${this.tableName()} ${this.elapsed(startedAt)}`,
+      'DB',
+    );
   }
 
   async findAll(): Promise<T[]> {
@@ -87,7 +93,10 @@ export abstract class Repository<
     const where = this.whereActive();
     const query = this.db.select().from(this.table);
     const results = where ? await query.where(where) : await query;
-    config.logger.debug(`SELECT ${this.tableName()} ${this.elapsed(startedAt)}`, 'DB');
+    config.logger.debug(
+      `SELECT ${this.tableName()} ${this.elapsed(startedAt)}`,
+      'DB',
+    );
     return results.map(withoutDeletedAt) as T[];
   }
 
@@ -95,7 +104,10 @@ export abstract class Repository<
     const startedAt = performance.now();
     const where = this.whereActive(eq(this.table.id, id));
     const [result] = await this.db.select().from(this.table).where(where!);
-    config.logger.debug(`SELECT ${this.tableName()} ${this.elapsed(startedAt)}`, 'DB');
+    config.logger.debug(
+      `SELECT ${this.tableName()} ${this.elapsed(startedAt)}`,
+      'DB',
+    );
     return result ? (withoutDeletedAt(result) as T) : null;
   }
 
@@ -107,7 +119,10 @@ export abstract class Repository<
       .set(entity)
       .where(where!)
       .returning();
-    config.logger.debug(`UPDATE ${this.tableName()} ${this.elapsed(startedAt)}`, 'DB');
+    config.logger.debug(
+      `UPDATE ${this.tableName()} ${this.elapsed(startedAt)}`,
+      'DB',
+    );
     return withoutDeletedAt(result as object) as T;
   }
 

@@ -12,7 +12,12 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { deletedAtTimestamp, encryptedNumber, encryptedText, primaryKeyUuid7 } from '#lib/utils';
+import {
+  deletedAtTimestamp,
+  encryptedNumber,
+  encryptedText,
+  primaryKeyUuid7,
+} from '#lib/utils';
 import { company, companyBranch } from './company';
 
 export const locations = pgTable(

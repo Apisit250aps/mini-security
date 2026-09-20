@@ -15,7 +15,11 @@ import type {
 } from '@repo/domains/repositories/form';
 import { editFormFieldSchema } from '@repo/domains/schema/form';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import { BadRequestError, ValidationError } from '../../lib/error';
+import {
+  BadRequestError,
+  InternalError,
+  ValidationError,
+} from '../../lib/error';
 import { loadDraftFormEntity } from './form-guards';
 
 async function loadDraftField(
@@ -91,17 +95,20 @@ export class EditFormFieldUseCase implements IEditFormFieldUseCase {
       });
 
       let savedOptions: FormFieldOption[] = [];
-      if (this.optionRepo) {
-        if (options !== undefined) {
-          savedOptions = await this.optionRepo.replaceOptions(
-            field.id,
-            field.companyId,
-            field.formVersionId,
-            options,
+      if (options !== undefined) {
+        if (!this.optionRepo) {
+          throw new InternalError(
+            'FormFieldOptionRepository is required to persist form field options',
           );
-        } else {
-          savedOptions = await this.optionRepo.findByFieldId(field.id);
         }
+        savedOptions = await this.optionRepo.replaceOptions(
+          field.id,
+          field.companyId,
+          field.formVersionId,
+          options,
+        );
+      } else if (this.optionRepo) {
+        savedOptions = await this.optionRepo.findByFieldId(field.id);
       }
 
       return new FormField({

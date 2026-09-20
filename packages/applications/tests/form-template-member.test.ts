@@ -87,7 +87,9 @@ function fixture() {
           companyId,
           userId,
           isActive: true,
-        } as unknown as Awaited<ReturnType<ICompanyMemberRepository['findById']>>;
+        } as unknown as Awaited<
+          ReturnType<ICompanyMemberRepository['findById']>
+        >;
       }
       return null;
     },
@@ -98,7 +100,9 @@ function fixture() {
           companyId,
           userId,
           isActive: true,
-        } as unknown as Awaited<ReturnType<ICompanyMemberRepository['findByCompanyAndUser']>>;
+        } as unknown as Awaited<
+          ReturnType<ICompanyMemberRepository['findByCompanyAndUser']>
+        >;
       }
       return null;
     },

@@ -23,7 +23,9 @@ export function deletedAtTimestamp<T extends string>(columnName: T) {
 }
 
 /** Removes the database-only soft-delete marker from repository results. */
-export function withoutDeletedAt<T extends object>(value: T): Omit<T, 'deletedAt'> {
+export function withoutDeletedAt<T extends object>(
+  value: T,
+): Omit<T, 'deletedAt'> {
   if (!('deletedAt' in value)) return value as Omit<T, 'deletedAt'>;
 
   const { deletedAt: _deletedAt, ...result } = value as T & {

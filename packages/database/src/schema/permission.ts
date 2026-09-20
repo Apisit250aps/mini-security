@@ -1,10 +1,4 @@
-import {
-  index,
-  pgTable,
-  text,
-  unique,
-  uuid,
-} from 'drizzle-orm/pg-core';
+import { index, pgTable, text, unique, uuid } from 'drizzle-orm/pg-core';
 import {
   createdAtTimestamp,
   deletedAtTimestamp,
@@ -15,7 +9,6 @@ import { feature } from './feature';
 import { role, roleTypeEnum } from './role';
 
 export { role, roleTypeEnum };
-
 
 export const permission = pgTable(
   'permission',

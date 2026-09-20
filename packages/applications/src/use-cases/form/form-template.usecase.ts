@@ -4,6 +4,7 @@ import { RequirePermission } from '../../decorators/permission.decorator';
 import {
   FormSection,
   FormField,
+  FormFieldOption,
   FormTemplate,
   FormVersion,
 } from '@repo/domains/entities/form';
@@ -40,6 +41,7 @@ import {
 } from '@repo/domains/schema/form';
 import {
   BadRequestError,
+  InternalError,
   NotFoundError,
   ValidationError,
 } from '../../lib/error';
@@ -305,15 +307,20 @@ export class CreateFormFieldUseCase implements ICreateFormFieldUseCase {
       await validateFormFieldConfig(parsed.data);
       const { options, ...fieldData } = parsed.data;
       const field = await this.fieldRepo.create(fieldData);
-      const savedOptions =
-        this.optionRepo && options !== undefined
-          ? await this.optionRepo.replaceOptions(
-              field.id,
-              field.companyId,
-              field.formVersionId,
-              options,
-            )
-          : [];
+      let savedOptions: FormFieldOption[] = [];
+      if (options !== undefined && options.length > 0) {
+        if (!this.optionRepo) {
+          throw new InternalError(
+            'FormFieldOptionRepository is required to persist form field options',
+          );
+        }
+        savedOptions = await this.optionRepo.replaceOptions(
+          field.id,
+          field.companyId,
+          field.formVersionId,
+          options,
+        );
+      }
       return new FormField({ ...field, options: savedOptions });
     });
   }

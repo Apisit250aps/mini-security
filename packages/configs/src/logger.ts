@@ -80,6 +80,19 @@ export class TerminalLogger {
   }
 
   debug(message: string, scope?: string): void {
+    if (
+      (process.env.NODE_ENV === 'production' ||
+        process.env.NODE_ENV === 'test') &&
+      !process.env.DEBUG
+    ) {
+      return;
+    }
+    if (
+      process.env.LOG_LEVEL &&
+      !['debug', 'trace'].includes(process.env.LOG_LEVEL.toLowerCase())
+    ) {
+      return;
+    }
     const parts = [
       this.getTimestamp(),
       chalk.bgMagenta.black.bold(' DBG  '),

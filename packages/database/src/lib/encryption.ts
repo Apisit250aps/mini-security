@@ -51,12 +51,18 @@ export function getEncryptionKey(
   if (cached) return cached;
 
   const versionedEnvName = `FIELD_ENCRYPTION_KEY_V${version}`;
-  const rawKey =
+  const envKey =
     process.env[versionedEnvName] ||
     process.env.FIELD_ENCRYPTION_KEY ||
-    process.env.BETTER_AUTH_SECRET ||
-    'dev-fallback-encryption-secret-key-32bytes';
+    process.env.BETTER_AUTH_SECRET;
 
+  if (!envKey && process.env.NODE_ENV === 'production') {
+    throw new Error(
+      `Missing field encryption key in production: configure ${versionedEnvName}, FIELD_ENCRYPTION_KEY, or BETTER_AUTH_SECRET`,
+    );
+  }
+
+  const rawKey = envKey || 'dev-fallback-encryption-secret-key-32bytes';
   const key = resolve32ByteKey(rawKey);
   keyCache.set(version, key);
   return key;
@@ -68,11 +74,19 @@ export function getEncryptionKey(
 export function getLookupKey(): Buffer {
   if (lookupKeyCache) return lookupKeyCache;
 
-  const rawKey =
+  const envKey =
     process.env.FIELD_LOOKUP_KEY ||
     (process.env.BETTER_AUTH_SECRET
       ? `${process.env.BETTER_AUTH_SECRET}:lookup`
-      : 'dev-fallback-lookup-secret-key-32bytes');
+      : undefined);
+
+  if (!envKey && process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'Missing field lookup key in production: configure FIELD_LOOKUP_KEY or BETTER_AUTH_SECRET',
+    );
+  }
+
+  const rawKey = envKey || 'dev-fallback-lookup-secret-key-32bytes';
 
   const key = resolve32ByteKey(rawKey);
   lookupKeyCache = key;
@@ -202,13 +216,7 @@ export function decrypt(
   if (typeof payload !== 'string' || payload === '') return payload;
 
   const parts = payload.split('.');
-  if (
-    parts.length !== 4 ||
-    !parts[0] ||
-    !parts[1] ||
-    !parts[2] ||
-    !parts[3]
-  ) {
+  if (parts.length !== 4 || !parts[0] || !parts[1] || !parts[2] || !parts[3]) {
     return payload;
   }
 
@@ -237,7 +245,9 @@ export function decrypt(
     return decrypted.toString('utf8');
   } catch {
     // If decryption fails (e.g. data corrupted or tampered), throw an error for security
-    throw new Error('Failed to decrypt authenticated data: authentication tag mismatch or invalid payload');
+    throw new Error(
+      'Failed to decrypt authenticated data: authentication tag mismatch or invalid payload',
+    );
   }
 }
 

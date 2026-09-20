@@ -8,7 +8,9 @@
     "FIELD_ENCRYPTION_KEY",
     "FIELD_LOOKUP_KEY",
     "FIELD_ENCRYPTION_CURRENT_VERSION",
-    "ATTENDANCE_DB_TESTS"
+    "ATTENDANCE_DB_TESTS",
+    "DEBUG",
+    "LOG_LEVEL"
   ],
   "tasks": {
     "transit": {

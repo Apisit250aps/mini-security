@@ -399,7 +399,11 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
 
   const occRepo: Partial<IFormOccurrenceRepository> = {
     findById: async () =>
-      ({ id: 'occ1', planId: 'p1', formTemplateId: 't1' }) as unknown as FormOccurrence,
+      ({
+        id: 'occ1',
+        planId: 'p1',
+        formTemplateId: 't1',
+      }) as unknown as FormOccurrence,
   };
 
   const pRepo: Partial<IFormPlanRepository> = {

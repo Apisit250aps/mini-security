@@ -1,10 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "ignorePatterns": [
-    "out/**",
-    "**/dist/**",
-    "**/*.gen.ts"
-  ],
+  "ignorePatterns": ["out/**", "**/dist/**", "**/*.gen.ts"],
   "ignoreDependencies": [
     "@typespec/*",
     "@hey-api/*",
@@ -67,11 +63,24 @@
       },
       {
         "from": "infrastructure",
-        "allow": ["infrastructure", "application", "database", "domain", "shared"]
+        "allow": [
+          "infrastructure",
+          "application",
+          "database",
+          "domain",
+          "shared"
+        ]
       },
       {
         "from": "presentation",
-        "allow": ["presentation", "application", "infrastructure", "domain", "database", "shared"]
+        "allow": [
+          "presentation",
+          "application",
+          "infrastructure",
+          "domain",
+          "database",
+          "shared"
+        ]
       }
     ]
   }
