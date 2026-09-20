@@ -213,7 +213,7 @@ export interface IFormReviewEntryRepository {
   findBySubmissionId(submissionId: string): Promise<FormReviewEntry[]>;
   findHeadByTarget(
     submissionId: string,
-    targetType: 'answer' | 'section' | 'final',
+    targetType: 'answer' | 'final',
     targetId?: string,
   ): Promise<FormReviewEntry | null>;
   findHeadFinalBySubmissionIds(

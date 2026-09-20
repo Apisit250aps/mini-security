@@ -125,6 +125,9 @@ export default function FormPlanEditDialog({
   const [dueUnit, setDueUnit] = useState<'ELAPSED_HOURS' | 'CALENDAR_DAYS'>(
     (dueOffset?.unit as never) || 'ELAPSED_HOURS',
   );
+  const [endLocalDate, setEndLocalDate] = useState(
+    plan.scheduleConfig?.endLocalDate ?? '',
+  );
   const [invalidDayPolicy, setInvalidDayPolicy] = useState<'SKIP' | 'LAST_DAY'>(
     (cfg?.invalidDayPolicy as never) || 'LAST_DAY',
   );
@@ -172,9 +175,6 @@ export default function FormPlanEditDialog({
   const [newMemberId, setNewMemberId] = useState('');
 
   // Policies tab state
-  const [reviewMode, setReviewMode] = useState<
-    'NONE' | 'OVERALL' | 'ALL_SECTIONS' | 'ALL_ANSWERS'
-  >(plan.reviewMode);
   const [latePolicy, setLatePolicy] = useState<'ALLOW' | 'DENY'>(
     plan.latePolicy,
   );
@@ -294,6 +294,7 @@ export default function FormPlanEditDialog({
             frequency,
             interval,
             anchorLocalDate,
+            endLocalDate: endLocalDate || null,
             openLocalTime,
             invalidDayPolicy,
             dueOffset: {
@@ -317,7 +318,6 @@ export default function FormPlanEditDialog({
           scheduleConfig,
           timezone,
           fixedVersionId,
-          reviewMode,
           latePolicy,
           missedPolicy,
         },
@@ -359,6 +359,7 @@ export default function FormPlanEditDialog({
     frequency,
     interval,
     anchorLocalDate,
+    endLocalDate,
     openLocalTime,
     invalidDayPolicy,
     dueAmount,
@@ -369,7 +370,6 @@ export default function FormPlanEditDialog({
     plan.id,
     templateDetail?.activeVersion?.id,
     timezone,
-    reviewMode,
     latePolicy,
     missedPolicy,
     updatePlanMutation,
@@ -628,6 +628,18 @@ export default function FormPlanEditDialog({
                       />
                     </Field>
 
+                    <Field>
+                      <FieldLabel htmlFor="edit-end-date">
+                        วันที่สิ้นสุด (รวมวันนี้)
+                      </FieldLabel>
+                      <Input
+                        id="edit-end-date"
+                        type="date"
+                        min={anchorLocalDate}
+                        value={endLocalDate}
+                        onChange={(e) => setEndLocalDate(e.target.value)}
+                      />
+                    </Field>
                     <Field>
                       <FieldLabel htmlFor="edit-open-time">
                         เวลาเปิดรอบในแต่ละวัน
@@ -917,33 +929,9 @@ export default function FormPlanEditDialog({
           {/* TAB 4: POLICIES */}
           <TabsContent id="policies" className="space-y-4">
             <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="edit-review-mode">
-                  โหมดการตรวจรับ (Review Mode)
-                </FieldLabel>
-                <select
-                  id="edit-review-mode"
-                  value={reviewMode}
-                  onChange={(e) => setReviewMode(e.target.value as never)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="NONE">
-                    ไม่ต้องตรวจรับ (อนุมัติทันทีหลังส่ง)
-                  </option>
-                  <option value="OVERALL">
-                    ตรวจรับแบบภาพรวม (Overall Approve/Reject)
-                  </option>
-                  <option value="ALL_SECTIONS">
-                    ตรวจรับแยกตามหมวดหมู่ (Section-by-Section)
-                  </option>
-                  <option value="ALL_ANSWERS">
-                    ตรวจรับแยกรายข้อ (Answer-by-Answer)
-                  </option>
-                </select>
-                <FieldDescription>
-                  กำหนดขั้นตอนการอนุมัติหลังพนักงานส่งแบบฟอร์มแล้ว
-                </FieldDescription>
-              </Field>
+              <p className="text-sm text-muted-foreground">
+                ผลตรวจอยู่รายข้อ ผู้ตรวจตัดสินใจอนุมัติหรือส่งกลับทั้งชุด
+              </p>
 
               <Field>
                 <FieldLabel htmlFor="edit-late-policy">

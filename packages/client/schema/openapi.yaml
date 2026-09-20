@@ -3272,7 +3272,9 @@ paths:
                   message:
                     type: string
                   data:
-                    $ref: '#/components/schemas/Domain.Entity.FormReviewEntry'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Domain.Entity.FormReviewEntry'
                 description: Successful response wrapping data payload
         '400':
           description: 400 Bad Request — INVALID_DATA
@@ -6276,7 +6278,6 @@ components:
             - scheduleKind
             - scheduleConfig
             - timezone
-            - reviewMode
             - latePolicy
             - missedPolicy
           properties:
@@ -6290,8 +6291,7 @@ components:
               $ref: '#/components/schemas/Domain.Entity.FormScheduleKind'
             scheduleConfig:
               anyOf:
-                - type: object
-                  unevaluatedProperties: {}
+                - $ref: '#/components/schemas/Domain.Entity.FormScheduleConfig'
                 - type: 'null'
             timezone:
               type: string
@@ -6299,8 +6299,6 @@ components:
               anyOf:
                 - type: string
                 - type: 'null'
-            reviewMode:
-              $ref: '#/components/schemas/Domain.Entity.FormReviewMode'
             latePolicy:
               $ref: '#/components/schemas/Domain.Entity.FormLatePolicy'
             missedPolicy:
@@ -6822,7 +6820,6 @@ components:
         - scheduleKind
         - scheduleConfig
         - timezone
-        - reviewMode
         - latePolicy
         - missedPolicy
         - createdBy
@@ -6850,8 +6847,7 @@ components:
           $ref: '#/components/schemas/Domain.Entity.FormScheduleKind'
         scheduleConfig:
           anyOf:
-            - type: object
-              unevaluatedProperties: {}
+            - $ref: '#/components/schemas/Domain.Entity.FormScheduleConfig'
             - type: 'null'
         timezone:
           type: string
@@ -6859,8 +6855,6 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-        reviewMode:
-          $ref: '#/components/schemas/Domain.Entity.FormReviewMode'
         latePolicy:
           $ref: '#/components/schemas/Domain.Entity.FormLatePolicy'
         missedPolicy:
@@ -6983,10 +6977,6 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-        sectionId:
-          anyOf:
-            - type: string
-            - type: 'null'
         action:
           $ref: '#/components/schemas/Domain.Entity.FormReviewAction'
         note:
@@ -6999,18 +6989,58 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-    Domain.Entity.FormReviewMode:
-      type: string
-      enum:
-        - NONE
-        - OVERALL
-        - ALL_SECTIONS
-        - ALL_ANSWERS
     Domain.Entity.FormRoleDistribution:
       type: string
       enum:
         - SHARED
         - PER_MEMBER
+    Domain.Entity.FormScheduleConfig:
+      type: object
+      required:
+        - frequency
+        - interval
+        - anchorLocalDate
+        - openLocalTime
+        - invalidDayPolicy
+        - dueOffset
+      properties:
+        frequency:
+          type: string
+          enum:
+            - DAILY
+            - WEEKLY
+            - MONTHLY
+            - YEARLY
+        interval:
+          type: integer
+          format: int32
+        anchorLocalDate:
+          type: string
+        endLocalDate:
+          anyOf:
+            - type: string
+            - type: 'null'
+        openLocalTime:
+          type: string
+        invalidDayPolicy:
+          type: string
+          enum:
+            - SKIP
+            - LAST_DAY
+        dueOffset:
+          type: object
+          properties:
+            amount:
+              type: integer
+              format: int32
+            unit:
+              type: string
+              enum:
+                - ELAPSED_HOURS
+                - CALENDAR_DAYS
+          required:
+            - amount
+            - unit
     Domain.Entity.FormScheduleKind:
       type: string
       enum:
@@ -7288,8 +7318,6 @@ components:
           type: string
         latePolicy:
           $ref: '#/components/schemas/Domain.Entity.FormLatePolicy'
-        reviewMode:
-          $ref: '#/components/schemas/Domain.Entity.FormReviewMode'
         assignmentType:
           type: string
         recipientLabel:
@@ -8491,8 +8519,7 @@ components:
               $ref: '#/components/schemas/Domain.Entity.FormScheduleKind'
             scheduleConfig:
               anyOf:
-                - type: object
-                  unevaluatedProperties: {}
+                - $ref: '#/components/schemas/Domain.Entity.FormScheduleConfig'
                 - type: 'null'
             timezone:
               type: string
@@ -8500,8 +8527,6 @@ components:
               anyOf:
                 - type: string
                 - type: 'null'
-            reviewMode:
-              $ref: '#/components/schemas/Domain.Entity.FormReviewMode'
             latePolicy:
               $ref: '#/components/schemas/Domain.Entity.FormLatePolicy'
             missedPolicy:

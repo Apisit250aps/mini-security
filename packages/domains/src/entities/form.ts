@@ -17,7 +17,7 @@ import type {
   FormVersionEntity,
   FormVersionStatus,
   FormScheduleKind,
-  FormReviewMode,
+  FormScheduleConfig,
   FormRoleDistribution,
   FormLatePolicy,
   FormMissedPolicy,
@@ -166,10 +166,9 @@ export class FormPlan implements FormPlanEntity {
   supersedesPlanId?: string | null;
   name: string;
   scheduleKind: FormScheduleKind;
-  scheduleConfig: Record<string, unknown> | null;
+  scheduleConfig: FormScheduleConfig | null;
   timezone: string;
   fixedVersionId?: string | null;
-  reviewMode: FormReviewMode;
   latePolicy: FormLatePolicy;
   missedPolicy: FormMissedPolicy;
   effectiveFrom?: Date | null;
@@ -189,7 +188,6 @@ export class FormPlan implements FormPlanEntity {
     this.scheduleConfig = data.scheduleConfig;
     this.timezone = data.timezone;
     this.fixedVersionId = data.fixedVersionId;
-    this.reviewMode = data.reviewMode;
     this.latePolicy = data.latePolicy;
     this.missedPolicy = data.missedPolicy;
     this.effectiveFrom = data.effectiveFrom;
@@ -396,13 +394,13 @@ export class FormAnswerAttachment implements FormAnswerAttachmentEntity {
   }
 }
 
+/** API history read model combining answer reviews and submission decisions. */
 export class FormReviewEntry implements FormReviewEntryEntity {
   id: string;
   companyId: string;
   submissionId: string;
   formVersionId: string;
   answerId?: string | null;
-  sectionId?: string | null;
   action: FormReviewAction;
   note?: string | null;
   reviewedBy: string;
@@ -414,7 +412,6 @@ export class FormReviewEntry implements FormReviewEntryEntity {
     this.submissionId = data.submissionId;
     this.formVersionId = data.formVersionId;
     this.answerId = data.answerId;
-    this.sectionId = data.sectionId;
     this.action = data.action;
     this.note = data.note;
     this.reviewedBy = data.reviewedBy;

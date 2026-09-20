@@ -161,7 +161,7 @@ function PlanItemCard({
         </div>
         <div>
           <span className="font-medium text-foreground">โหมดตรวจ: </span>
-          {plan.reviewMode}
+          รอผู้ตรวจอนุมัติ
         </div>
         <div>
           <span className="font-medium text-foreground">ส่งเกินเวลา: </span>

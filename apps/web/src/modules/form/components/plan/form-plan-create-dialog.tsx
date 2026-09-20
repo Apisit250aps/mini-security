@@ -18,6 +18,8 @@ const planFormSchema = z.object({
   name: z.string().min(1, 'กรุณาระบุชื่อแผนงาน'),
   scheduleKind: z.enum(['RECURRING', 'EXPLICIT']),
   frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']).default('DAILY'),
+  anchorLocalDate: z.string().min(1),
+  endLocalDate: z.string().optional(),
   openTime: z.string().default('08:00'),
   dueHours: z.coerce.number().min(1).default(8),
   opensAt: z.string().optional(),
@@ -26,9 +28,6 @@ const planFormSchema = z.object({
   roleId: z.string().optional(),
   roleDistribution: z.enum(['SHARED', 'PER_MEMBER']).default('SHARED'),
   companyMemberId: z.string().optional(),
-  reviewMode: z
-    .enum(['NONE', 'OVERALL', 'ALL_SECTIONS', 'ALL_ANSWERS'])
-    .default('OVERALL'),
   latePolicy: z.enum(['ALLOW', 'DENY']).default('DENY'),
   autoActivate: z.boolean().default(true),
 });
@@ -59,13 +58,14 @@ export default function FormPlanCreateDialog({
       name: '',
       scheduleKind: 'RECURRING',
       frequency: 'DAILY',
+      anchorLocalDate: new Date().toISOString().slice(0, 10),
+      endLocalDate: '',
       openTime: '08:00',
       dueHours: 8,
       targetType: 'ROLE',
       roleId: roles[0]?.id || '',
       roleDistribution: 'SHARED',
       companyMemberId: members[0]?.id || '',
-      reviewMode: 'OVERALL',
       latePolicy: 'DENY',
       autoActivate: true,
     },
@@ -102,11 +102,13 @@ export default function FormPlanCreateDialog({
           ? {
               frequency: values.frequency,
               interval: 1,
-              anchorLocalDate: new Date().toISOString().split('T')[0],
+              anchorLocalDate: values.anchorLocalDate,
+              endLocalDate: values.endLocalDate || null,
+              invalidDayPolicy: 'LAST_DAY' as const,
               openLocalTime: values.openTime || '08:00',
               dueOffset: {
                 amount: Number(values.dueHours) || 8,
-                unit: 'ELAPSED_HOURS',
+                unit: 'ELAPSED_HOURS' as const,
               },
             }
           : null;
@@ -144,7 +146,6 @@ export default function FormPlanCreateDialog({
               Intl.DateTimeFormat().resolvedOptions().timeZone ||
               'Asia/Bangkok',
             fixedVersionId: null,
-            reviewMode: values.reviewMode,
             latePolicy: values.latePolicy,
             missedPolicy: 'SKIP',
           },
@@ -201,6 +202,20 @@ export default function FormPlanCreateDialog({
                   { value: 'WEEKLY', label: 'ทุกสัปดาห์ (Weekly)' },
                   { value: 'MONTHLY', label: 'ทุกเดือน (Monthly)' },
                 ]}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <InputField
+                control={control}
+                name="anchorLocalDate"
+                label="วันที่เริ่มต้น"
+                type="date"
+              />
+              <InputField
+                control={control}
+                name="endLocalDate"
+                label="วันที่สิ้นสุด (รวมวันนี้)"
+                type="date"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -304,18 +319,6 @@ export default function FormPlanCreateDialog({
 
         {/* Policies */}
         <div className="grid grid-cols-2 gap-3">
-          <SelectField
-            control={control}
-            name="reviewMode"
-            label="โหมดการตรวจประเมิน"
-            options={[
-              { value: 'NONE', label: 'ไม่ต้องตรวจ (จบงานทันทีหลังส่ง)' },
-              { value: 'OVERALL', label: 'ตรวจสรุปภาพรวมทั้งใบ' },
-              { value: 'ALL_SECTIONS', label: 'ต้องตรวจผ่านครบทุกหมวด' },
-              { value: 'ALL_ANSWERS', label: 'ต้องตรวจผ่านครบทุกข้อ' },
-            ]}
-          />
-
           <SelectField
             control={control}
             name="latePolicy"

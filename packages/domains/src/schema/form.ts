@@ -39,14 +39,6 @@ export type FormFieldType = (typeof FormFieldTypeValues)[number];
 export const FormScheduleKindValues = ['RECURRING', 'EXPLICIT'] as const;
 export type FormScheduleKind = (typeof FormScheduleKindValues)[number];
 
-export const FormReviewModeValues = [
-  'NONE',
-  'OVERALL',
-  'ALL_SECTIONS',
-  'ALL_ANSWERS',
-] as const;
-export type FormReviewMode = (typeof FormReviewModeValues)[number];
-
 export const FormRoleDistributionValues = ['SHARED', 'PER_MEMBER'] as const;
 export type FormRoleDistribution = (typeof FormRoleDistributionValues)[number];
 
@@ -200,16 +192,38 @@ export type FormFieldWithOptions = FormFieldEntity & {
 /**
  * 5. Form Plan Schema
  */
+export const formScheduleConfigSchema = z
+  .object({
+    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']),
+    interval: z.number().int().min(1).max(100),
+    anchorLocalDate: z.iso.date(),
+    endLocalDate: z.iso.date().nullable().optional(),
+    openLocalTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+    invalidDayPolicy: z.enum(['SKIP', 'LAST_DAY']).default('LAST_DAY'),
+    dueOffset: z.object({
+      amount: z.number().int().positive(),
+      unit: z.enum(['ELAPSED_HOURS', 'CALENDAR_DAYS']),
+    }),
+  })
+  .strict()
+  .refine(
+    (data) => !data.endLocalDate || data.endLocalDate >= data.anchorLocalDate,
+    {
+      message: 'End date must be on or after the anchor date',
+      path: ['endLocalDate'],
+    },
+  );
+export type FormScheduleConfig = z.infer<typeof formScheduleConfigSchema>;
+
 const baseFormPlanSchema = BaseEntity({
   companyId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
   supersedesPlanId: UUIDField({ required: false, nullable: true }),
   name: StringField({ required: true, max: 255 }),
   scheduleKind: EnumField(FormScheduleKindValues, { required: true }),
-  scheduleConfig: z.record(z.string(), z.unknown()).nullable(),
+  scheduleConfig: formScheduleConfigSchema.nullable(),
   timezone: StringField({ required: true, max: 255 }),
   fixedVersionId: UUIDField({ required: false, nullable: true }),
-  reviewMode: EnumField(FormReviewModeValues, { default: () => 'OVERALL' }),
   latePolicy: EnumField(FormLatePolicyValues, { default: () => 'DENY' }),
   missedPolicy: EnumField(FormMissedPolicyValues, { default: () => 'SKIP' }),
   effectiveFrom: DateField({ required: false, nullable: true }),
@@ -490,7 +504,6 @@ const baseFormReviewEntrySchema = AppendOnlyBaseEntity({
   submissionId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   answerId: UUIDField({ required: false, nullable: true }),
-  sectionId: UUIDField({ required: false, nullable: true }),
   action: EnumField(FormReviewActionValues, { required: true }),
   note: StringField({ required: false, nullable: true }),
   reviewedBy: UUIDField({ required: true }),
@@ -499,8 +512,7 @@ const baseFormReviewEntrySchema = AppendOnlyBaseEntity({
 
 export const formReviewEntrySchema = baseFormReviewEntrySchema
   .refine((data) => {
-    const hasTarget =
-      (data.answerId != null ? 1 : 0) + (data.sectionId != null ? 1 : 0);
+    const hasTarget = data.answerId != null ? 1 : 0;
     if (['PASS', 'NEEDS_CHANGES'].includes(data.action)) return hasTarget === 1;
     if (['APPROVE', 'RETURN'].includes(data.action))
       return hasTarget === 0 && data.supersedesEntryId == null;
@@ -515,8 +527,7 @@ export const formReviewEntrySchema = baseFormReviewEntrySchema
 export const createFormReviewEntrySchema = baseFormReviewEntrySchema
   .omit({ id: true, createdAt: true })
   .refine((data) => {
-    const hasTarget =
-      (data.answerId != null ? 1 : 0) + (data.sectionId != null ? 1 : 0);
+    const hasTarget = data.answerId != null ? 1 : 0;
     if (['PASS', 'NEEDS_CHANGES'].includes(data.action)) return hasTarget === 1;
     if (['APPROVE', 'RETURN'].includes(data.action))
       return hasTarget === 0 && data.supersedesEntryId == null;
@@ -718,16 +729,3 @@ export function formAnswerValueSchema(
 ) {
   return buildDynamicFormFieldValidation(field);
 }
-
-export const formScheduleConfigSchema = z.object({
-  frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']),
-  interval: z.number().int().min(1).max(100),
-  anchorLocalDate: z.iso.date(),
-  openLocalTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
-  dayOfMonth: z.number().int().min(1).max(31).optional(),
-  invalidDayPolicy: z.enum(['SKIP', 'LAST_DAY']).optional(),
-  dueOffset: z.object({
-    amount: z.number().int().positive(),
-    unit: z.enum(['ELAPSED_HOURS', 'CALENDAR_DAYS']),
-  }),
-});

@@ -85,7 +85,6 @@ model CreateFormPlanRequest {
     | "scheduleConfig"
     | "timezone"
     | "fixedVersionId"
-    | "reviewMode"
     | "latePolicy"
     | "missedPolicy"
   >;
@@ -102,7 +101,6 @@ model UpdateFormPlanRequest {
     | "scheduleConfig"
     | "timezone"
     | "fixedVersionId"
-    | "reviewMode"
     | "latePolicy"
     | "missedPolicy"
   >>;
@@ -249,7 +247,6 @@ model FormAssignmentItem extends Domain.Entity.FormAssignment {
   dueAt?: utcDateTime;
   timezone?: string;
   latePolicy?: Domain.Entity.FormLatePolicy;
-  reviewMode?: Domain.Entity.FormReviewMode;
   assignmentType?: string;
   recipientLabel?: string;
   roleName?: string;

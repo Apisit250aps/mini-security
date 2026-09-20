@@ -184,6 +184,7 @@ export const activateFormPlanUseCase = new ActivateFormPlanUseCase(
   formVersionRepository,
   formPlanTargetRepository,
   formPlanPeriodRepository,
+  companyMemberRepository,
 );
 
 export const pauseFormPlanUseCase = new PauseFormPlanUseCase(
@@ -380,6 +381,8 @@ export const recordSectionReviewUseCase = new RecordSectionReviewUseCase(
   formReviewEntryRepository,
   formSubmissionContributorRepository,
   companyMemberRepository,
+  formAnswerRepository,
+  formFieldRepository,
 );
 
 export const finalizeSubmissionReviewUseCase =

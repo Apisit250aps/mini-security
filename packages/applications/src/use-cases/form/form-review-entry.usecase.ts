@@ -93,10 +93,7 @@ export class ListReviewQueueUseCase implements IListReviewQueueUseCase {
     const finalReviewSubIds = new Set(
       allReviews
         .filter(
-          (r) =>
-            r.answerId == null &&
-            r.sectionId == null &&
-            ['APPROVE', 'RETURN'].includes(r.action),
+          (r) => r.answerId == null && ['APPROVE', 'RETURN'].includes(r.action),
         )
         .map((r) => r.submissionId),
     );
@@ -113,7 +110,7 @@ export class ListReviewQueueUseCase implements IListReviewQueueUseCase {
       );
       if (!occurrence || occurrence.cancelledAt) continue;
       const plan = await this.planRepo.findById(occurrence.planId);
-      if (plan && plan.reviewMode !== 'NONE') pendingSubs.push(sub);
+      if (plan) pendingSubs.push(sub);
     }
 
     if (!this.versionRepo || !this.templateRepo) {
@@ -295,7 +292,6 @@ export class RecordAnswerReviewUseCase implements IRecordAnswerReviewUseCase {
         submissionId: submission.id,
         formVersionId: submission.formVersionId,
         answerId: context.answerId,
-        sectionId: null,
         action: context.action,
         note: context.note?.trim() ?? null,
         reviewedBy: memberId,
@@ -305,6 +301,7 @@ export class RecordAnswerReviewUseCase implements IRecordAnswerReviewUseCase {
   }
 }
 
+/** Section review is an atomic batch of answer reviews, with no section result persisted. */
 export class RecordSectionReviewUseCase implements IRecordSectionReviewUseCase {
   constructor(
     private readonly unitOfWork: IUnitOfWork,
@@ -313,6 +310,8 @@ export class RecordSectionReviewUseCase implements IRecordSectionReviewUseCase {
     private readonly reviewEntryRepo: IFormReviewEntryRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
     private readonly memberRepo: ICompanyMemberRepository,
+    private readonly answerRepo: IFormAnswerRepository,
+    private readonly fieldRepo: IFormFieldRepository,
   ) {}
 
   @RequirePermission('form_review:section')
@@ -323,18 +322,13 @@ export class RecordSectionReviewUseCase implements IRecordSectionReviewUseCase {
       sectionId: string;
       action: FormReviewAction;
       note?: string;
-      supersedesEntryId?: string;
     },
-  ): Promise<FormReviewEntry> {
+  ): Promise<FormReviewEntry[]> {
     return this.unitOfWork.transaction(async () => {
-      const memberId = context.memberId as string;
-      const companyId = context.companyId!;
       const submission = await this.submissionRepo.findById(
         context.submissionId,
       );
       if (!submission) throw new NotFoundError('Submission not found');
-      if (submission.companyId !== companyId)
-        throw new ForbiddenError('Company mismatch');
       if (!submission.submittedAt)
         throw new BadRequestError('Submission is not submitted');
       requireRevisionMatch(
@@ -342,60 +336,53 @@ export class RecordSectionReviewUseCase implements IRecordSectionReviewUseCase {
         context.expectedRevision,
         () => new DuplicateError('Review changed. Refresh and retry.'),
       );
-
-      const finalEntry = await this.reviewEntryRepo.findHeadByTarget(
-        submission.id,
-        'final',
-      );
-      if (finalEntry)
-        throw new BadRequestError('Submission is already finalized');
-
       await requireReviewActor(
         context,
         submission,
         this.memberRepo,
         this.contributorRepo,
       );
-
-      if (context.action === 'APPROVE' || context.action === 'RETURN') {
-        throw new BadRequestError('Invalid action for section review');
-      }
-      if (
-        context.action === 'NEEDS_CHANGES' &&
-        (!context.note || context.note.trim().length === 0)
-      ) {
+      if (await this.reviewEntryRepo.findHeadByTarget(submission.id, 'final'))
+        throw new BadRequestError('Submission is already finalized');
+      if (context.action !== 'PASS' && context.action !== 'NEEDS_CHANGES')
+        throw new BadRequestError('Invalid answer review action');
+      if (context.action === 'NEEDS_CHANGES' && !context.note?.trim())
         throw new BadRequestError('Note is required for NEEDS_CHANGES');
-      }
-
       const section = await this.sectionRepo.findById(context.sectionId);
-      if (!section || section.formVersionId !== submission.formVersionId) {
+      if (!section || section.formVersionId !== submission.formVersionId)
         throw new NotFoundError('Section not found in this form version');
-      }
-
-      const headEntry = await this.reviewEntryRepo.findHeadByTarget(
-        submission.id,
-        'section',
-        context.sectionId,
-      );
-      if ((headEntry?.id ?? null) !== (context.supersedesEntryId ?? null))
-        throw new DuplicateError(
-          'supersedesEntryId must match the current review head',
+      const fields = (
+        await this.fieldRepo.findByVersionId(submission.formVersionId)
+      ).filter((f) => f.formSectionId === section.id);
+      const answers = await this.answerRepo.findBySubmissionId(submission.id);
+      const results: FormReviewEntry[] = [];
+      for (const field of fields) {
+        const answer = answers.find((a) => a.fieldId === field.id);
+        if (!answer)
+          throw new BadRequestError('A field has no answer to review');
+        const head = await this.reviewEntryRepo.findHeadByTarget(
+          submission.id,
+          'answer',
+          answer.id,
         );
-
-      await this.submissionRepo.update(submission.id, {
-        revision: submission.revision + 1,
-      });
-      return await this.reviewEntryRepo.create({
-        companyId,
-        submissionId: submission.id,
-        formVersionId: submission.formVersionId,
-        answerId: null,
-        sectionId: context.sectionId,
-        action: context.action,
-        note: context.note?.trim() ?? null,
-        reviewedBy: memberId,
-        supersedesEntryId: context.supersedesEntryId ?? null,
-      });
+        results.push(
+          await this.reviewEntryRepo.create({
+            companyId: submission.companyId,
+            submissionId: submission.id,
+            formVersionId: submission.formVersionId,
+            answerId: answer.id,
+            action: context.action,
+            note: context.note?.trim() ?? null,
+            reviewedBy: context.memberId!,
+            supersedesEntryId: head?.id ?? null,
+          }),
+        );
+      }
+      if (results.length)
+        await this.submissionRepo.update(submission.id, {
+          revision: submission.revision + 1,
+        });
+      return results;
     });
   }
 }
@@ -472,11 +459,6 @@ export class FinalizeSubmissionReviewUseCase
       const plan = await this.planRepo.findById(occurrence.planId);
       if (!plan) throw new NotFoundError('Plan not found');
 
-      const reviewMode = plan.reviewMode;
-      if (reviewMode === 'NONE') {
-        throw new BadRequestError('This submission does not require review');
-      }
-
       const allEntries = await this.reviewEntryRepo.findBySubmissionId(
         submission.id,
       );
@@ -501,49 +483,6 @@ export class FinalizeSubmissionReviewUseCase
             'Cannot APPROVE while there are active NEEDS_CHANGES entries',
           );
         }
-
-        if (reviewMode === 'ALL_SECTIONS') {
-          const sections = await this.sectionRepo.findByVersionId(
-            submission.formVersionId,
-          );
-          const fields = await this.fieldRepo.findByVersionId(
-            submission.formVersionId,
-          );
-          for (const section of sections.filter((section) =>
-            fields.some((field) => field.formSectionId === section.id),
-          )) {
-            const head = headEntries.find((e) => e.sectionId === section.id);
-            if (!head || head.action !== 'PASS') {
-              throw new BadRequestError(
-                `Section ${section.title} must have PASS before APPROVE`,
-              );
-            }
-          }
-        }
-
-        if (reviewMode === 'ALL_ANSWERS') {
-          const fields = await this.fieldRepo.findByVersionId(
-            submission.formVersionId,
-          );
-          const answers = await this.answerRepo.findBySubmissionId(
-            submission.id,
-          );
-
-          for (const field of fields) {
-            const answer = answers.find((a) => a.fieldId === field.id);
-            if (!answer) {
-              throw new BadRequestError(
-                `Missing answer for field ${field.label}`,
-              );
-            }
-            const head = headEntries.find((e) => e.answerId === answer.id);
-            if (!head || head.action !== 'PASS') {
-              throw new BadRequestError(
-                `Answer for field ${field.label} must have PASS before APPROVE`,
-              );
-            }
-          }
-        }
       }
 
       await this.submissionRepo.update(submission.id, {
@@ -554,7 +493,6 @@ export class FinalizeSubmissionReviewUseCase
         submissionId: submission.id,
         formVersionId: submission.formVersionId,
         answerId: null,
-        sectionId: null,
         action: context.action,
         note: context.note?.trim() ?? null,
         reviewedBy: memberId,

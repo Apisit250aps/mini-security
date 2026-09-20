@@ -7,9 +7,8 @@ import {
   isNull,
   isNotNull,
   sql,
-  notInArray,
 } from 'drizzle-orm';
-import { resolveDatabase } from '@repo/database/transaction';
+import { resolveDatabase, withTransaction } from '@repo/database/transaction';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
 import {
@@ -28,6 +27,8 @@ import {
   formOccurrence,
   formAssignment,
   formReviewEntry,
+  formPlanRecurringSchedule,
+  formSubmissionDecision,
 } from '@repo/database/schema';
 import {
   FormAnswer,
@@ -403,8 +404,114 @@ export class FormPlanRepository
   extends Repository<FormPlan, CreateFormPlan, UpdateFormPlan>
   implements IFormPlanRepository
 {
-  constructor(db: Database) {
-    super(db, formPlan);
+  constructor(private readonly planDatabase: Database) {
+    super(planDatabase, formPlan);
+  }
+
+  private async hydrate(
+    rows: (typeof formPlan.$inferSelect)[],
+  ): Promise<FormPlan[]> {
+    if (!rows.length) return [];
+    const schedules = await this.db
+      .select()
+      .from(formPlanRecurringSchedule)
+      .where(
+        inArray(
+          formPlanRecurringSchedule.planId,
+          rows.map((r) => r.id),
+        ),
+      );
+    return rows.map((row) => {
+      const schedule = schedules.find((s) => s.planId === row.id);
+      return new FormPlan({
+        ...row,
+        scheduleConfig: schedule
+          ? {
+              frequency: schedule.frequency,
+              interval: schedule.interval,
+              anchorLocalDate: schedule.anchorLocalDate,
+              openLocalTime: schedule.openLocalTime,
+              endLocalDate: schedule.endLocalDate,
+              invalidDayPolicy: schedule.invalidDayPolicy,
+              dueOffset: {
+                amount: schedule.dueOffsetAmount,
+                unit: schedule.dueOffsetUnit,
+              },
+            }
+          : null,
+      });
+    });
+  }
+
+  private async saveSchedule(
+    planId: string,
+    companyId: string,
+    config: CreateFormPlan['scheduleConfig'],
+  ) {
+    if (!config) {
+      await this.db
+        .delete(formPlanRecurringSchedule)
+        .where(eq(formPlanRecurringSchedule.planId, planId));
+      return;
+    }
+    const values = {
+      planId,
+      companyId,
+      frequency: config.frequency,
+      interval: config.interval,
+      anchorLocalDate: config.anchorLocalDate,
+      openLocalTime: config.openLocalTime,
+      endLocalDate: config.endLocalDate ?? null,
+      invalidDayPolicy: config.invalidDayPolicy,
+      dueOffsetAmount: config.dueOffset.amount,
+      dueOffsetUnit: config.dueOffset.unit,
+    };
+    await this.db
+      .insert(formPlanRecurringSchedule)
+      .values(values)
+      .onConflictDoUpdate({
+        target: formPlanRecurringSchedule.planId,
+        set: values,
+      });
+  }
+
+  override async create(entity: CreateFormPlan): Promise<FormPlan> {
+    return withTransaction(this.planDatabase, async () => {
+      const { scheduleConfig, ...values } = entity;
+      const [row] = await this.db.insert(formPlan).values(values).returning();
+      if (!row) throw new Error('Plan insert returned no row');
+      await this.saveSchedule(row.id, row.companyId, scheduleConfig);
+      return (await this.hydrate([row]))[0]!;
+    });
+  }
+
+  override async update(id: string, entity: UpdateFormPlan): Promise<FormPlan> {
+    return withTransaction(this.planDatabase, async () => {
+      const { scheduleConfig, ...values } = entity;
+      const [row] = await this.db
+        .update(formPlan)
+        .set(values)
+        .where(this.whereActive(eq(formPlan.id, id)))
+        .returning();
+      if (!row) throw new Error('Plan not found');
+      if (scheduleConfig !== undefined)
+        await this.saveSchedule(row.id, row.companyId, scheduleConfig);
+      return (await this.hydrate([row]))[0]!;
+    });
+  }
+
+  override async findById(id: string): Promise<FormPlan | null> {
+    const rows = await this.db
+      .select()
+      .from(formPlan)
+      .where(this.whereActive(eq(formPlan.id, id)));
+    return (await this.hydrate(rows))[0] ?? null;
+  }
+
+  override async findAll(): Promise<FormPlan[]> {
+    return this.hydrate(
+      await this.db.select().from(formPlan).where(this.whereActive()),
+    );
   }
 
   async findByTemplateId(
@@ -421,7 +528,7 @@ export class FormPlanRepository
         ),
       )
       .orderBy(desc(formPlan.createdAt));
-    return results.map((r) => new FormPlan(r as unknown as FormPlan));
+    return this.hydrate(results);
   }
 
   async findActive(
@@ -440,7 +547,7 @@ export class FormPlanRepository
         ),
       )
       .limit(1);
-    return result ? new FormPlan(result as unknown as FormPlan) : null;
+    return result ? (await this.hydrate([result]))[0]! : null;
   }
 
   async listPlans(
@@ -456,7 +563,7 @@ export class FormPlanRepository
       .orderBy(desc(formPlan.createdAt))
       .limit(limit)
       .offset(offset);
-    return results.map((r) => new FormPlan(r as FormPlan));
+    return this.hydrate(results);
   }
 }
 
@@ -1066,110 +1173,113 @@ export class FormAnswerAttachmentRepository
  * 14. Form Review Entry Repository
  */
 
+/** Review history read model combines answer events and final decisions; writes use separate tables. */
 export class FormReviewEntryRepository implements IFormReviewEntryRepository {
   constructor(private readonly database: Database) {}
-
   private get db() {
     return resolveDatabase(this.database);
   }
 
+  private decision(
+    row: typeof formSubmissionDecision.$inferSelect,
+  ): FormReviewEntry {
+    return new FormReviewEntry({
+      ...row,
+      answerId: null,
+      reviewedBy: row.decidedBy,
+      supersedesEntryId: null,
+    });
+  }
+
   async findBySubmissionId(submissionId: string): Promise<FormReviewEntry[]> {
-    const results = await this.db
+    const answers = await this.db
       .select()
       .from(formReviewEntry)
-      .where(eq(formReviewEntry.submissionId, submissionId))
-      .orderBy(asc(formReviewEntry.createdAt));
-    return results.map(
-      (r) => new FormReviewEntry(r as unknown as FormReviewEntry),
-    );
+      .where(eq(formReviewEntry.submissionId, submissionId));
+    const decisions = await this.db
+      .select()
+      .from(formSubmissionDecision)
+      .where(eq(formSubmissionDecision.submissionId, submissionId));
+    return [
+      ...answers.map((r) => new FormReviewEntry(r)),
+      ...decisions.map((r) => this.decision(r)),
+    ].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
 
   async findHeadByTarget(
     submissionId: string,
-    targetType: 'answer' | 'section' | 'final',
+    targetType: 'answer' | 'final',
     targetId?: string,
   ): Promise<FormReviewEntry | null> {
-    const supersededIds = await this.db
-      .select({ id: formReviewEntry.supersedesEntryId })
+    if (targetType === 'final') {
+      const [row] = await this.db
+        .select()
+        .from(formSubmissionDecision)
+        .where(eq(formSubmissionDecision.submissionId, submissionId));
+      return row ? this.decision(row) : null;
+    }
+    const entries = await this.db
+      .select()
       .from(formReviewEntry)
       .where(
         and(
           eq(formReviewEntry.submissionId, submissionId),
-          isNotNull(formReviewEntry.supersedesEntryId),
+          eq(formReviewEntry.answerId, targetId!),
         ),
       );
-
-    const supersededSet = supersededIds
-      .map((r) => r.id)
-      .filter(Boolean) as string[];
-
-    let targetCondition;
-    if (targetType === 'answer') {
-      targetCondition = eq(formReviewEntry.answerId, targetId!);
-    } else if (targetType === 'section') {
-      targetCondition = eq(formReviewEntry.sectionId, targetId!);
-    } else {
-      targetCondition = and(
-        isNull(formReviewEntry.answerId),
-        isNull(formReviewEntry.sectionId),
-      );
-    }
-
-    const filters = [
-      eq(formReviewEntry.submissionId, submissionId),
-      targetCondition,
-    ];
-
-    if (supersededSet.length > 0) {
-      filters.push(notInArray(formReviewEntry.id, supersededSet));
-    }
-
-    const [result] = await this.db
-      .select()
-      .from(formReviewEntry)
-      .where(and(...filters))
-      .limit(1);
-
-    return result
-      ? new FormReviewEntry(result as unknown as FormReviewEntry)
-      : null;
+    const superseded = new Set(entries.map((r) => r.supersedesEntryId));
+    const row = entries.find((r) => !superseded.has(r.id));
+    return row ? new FormReviewEntry(row) : null;
   }
 
   async findHeadFinalBySubmissionIds(
     submissionIds: string[],
   ): Promise<FormReviewEntry[]> {
-    if (submissionIds.length === 0) return [];
-    const results = await this.db
+    if (!submissionIds.length) return [];
+    const rows = await this.db
       .select()
-      .from(formReviewEntry)
-      .where(
-        and(
-          inArray(formReviewEntry.submissionId, submissionIds),
-          isNull(formReviewEntry.answerId),
-          isNull(formReviewEntry.sectionId),
-        ),
-      );
-    return results.map(
-      (r) => new FormReviewEntry(r as unknown as FormReviewEntry),
-    );
+      .from(formSubmissionDecision)
+      .where(inArray(formSubmissionDecision.submissionId, submissionIds));
+    return rows.map((r) => this.decision(r));
   }
 
   async create(entry: CreateFormReviewEntry): Promise<FormReviewEntry> {
-    const [result] = await this.db
+    if (entry.action === 'APPROVE' || entry.action === 'RETURN') {
+      const [row] = await this.db
+        .insert(formSubmissionDecision)
+        .values({
+          companyId: entry.companyId,
+          submissionId: entry.submissionId,
+          formVersionId: entry.formVersionId,
+          action: entry.action,
+          note: entry.note,
+          decidedBy: entry.reviewedBy,
+        })
+        .returning();
+      if (!row) throw new Error('Decision insert returned no row');
+      return this.decision(row);
+    }
+    if (!entry.answerId) throw new Error('Answer review requires answerId');
+    const [row] = await this.db
       .insert(formReviewEntry)
-      .values(entry)
+      .values({ ...entry, answerId: entry.answerId })
       .returning();
-    return new FormReviewEntry(result as unknown as FormReviewEntry);
+    if (!row) throw new Error('Review insert returned no row');
+    return new FormReviewEntry(row);
   }
 
   async list(companyId: string): Promise<FormReviewEntry[]> {
-    const results = await this.db
+    const answers = await this.db
       .select()
       .from(formReviewEntry)
-      .where(eq(formReviewEntry.companyId, companyId))
-      .orderBy(desc(formReviewEntry.createdAt));
-    return results.map(
-      (r) => new FormReviewEntry(r as unknown as FormReviewEntry),
-    );
+      .where(eq(formReviewEntry.companyId, companyId));
+    const decisions = await this.db
+      .select()
+      .from(formSubmissionDecision)
+      .where(eq(formSubmissionDecision.companyId, companyId));
+    return [
+      ...answers.map((r) => new FormReviewEntry(r)),
+      ...decisions.map((r) => this.decision(r)),
+    ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 }

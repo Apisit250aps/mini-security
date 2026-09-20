@@ -12,7 +12,12 @@ import {
   useFormSubmissionQueries,
   useReviewDetailQueries,
 } from '../hooks/form-queries';
-import { useFormReviewFinalize } from '../hooks/form-mutations';
+import {
+  useFormReviewFinalize,
+  useFormReviewRecordAnswer,
+  useFormReviewRecordSection,
+} from '../hooks/form-mutations';
+import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import { Textarea } from '@repo/ui/components/textarea';
 import Link from 'next/link';
 import { getErrorMessage } from '@/shared/utils';
@@ -26,6 +31,10 @@ export default function FormReviewView({
   const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
 
   const [note, setNote] = useState('');
+  const [answerNotes, setAnswerNotes] = useState<Record<string, string>>({});
+  const { hasPermission, isSuperAdmin } = usePermission();
+  const answerMutation = useFormReviewRecordAnswer(activeCompanyId || '');
+  const sectionMutation = useFormReviewRecordSection(activeCompanyId || '');
 
   const submissionQuery = useFormSubmissionQueries(submissionId);
   const reviewQuery = useReviewDetailQueries(submissionId);
@@ -69,6 +78,40 @@ export default function FormReviewView({
   const isPageLoading =
     isCompanyLoading || !activeCompanyId || submissionQuery.isLoading;
   const detail = submissionQuery.data;
+  const entries = reviewQuery.data ?? [];
+  const superseded = new Set(entries.map((e) => e.supersedesEntryId));
+  const heads = entries.filter((e) => !superseded.has(e.id));
+  const finalDecision = heads.find((e) => !e.answerId);
+  const needsChanges = heads.some((e) => e.action === 'NEEDS_CHANGES');
+  const busy =
+    answerMutation.isPending ||
+    sectionMutation.isPending ||
+    finalizeMutation.isPending ||
+    reviewQuery.isLoading ||
+    submissionQuery.isFetching;
+  const canReviewAnswer = isSuperAdmin || hasPermission('form_review:answer');
+  const canReviewSection = isSuperAdmin || hasPermission('form_review:section');
+  const canFinalize = isSuperAdmin || hasPermission('form_review:finalize');
+
+  const reviewAnswer = (answerId: string, action: 'PASS' | 'NEEDS_CHANGES') => {
+    if (!detail || busy || finalDecision) return;
+    const answerNote = answerNotes[answerId]?.trim();
+    if (action === 'NEEDS_CHANGES' && !answerNote) {
+      toast.error('กรุณาระบุสิ่งที่ต้องแก้ไขในข้อนี้');
+      return;
+    }
+    const head = heads.find((e) => e.answerId === answerId);
+    answerMutation.mutate({
+      submissionId,
+      answerId,
+      data: {
+        action,
+        note: answerNote,
+        supersedesEntryId: head?.id,
+        expectedRevision: detail.submission.revision,
+      },
+    });
+  };
 
   return (
     <PageLayout
@@ -101,46 +144,132 @@ export default function FormReviewView({
         </div>
 
         <div className="md:col-span-2 space-y-6">
-          {detail?.sections?.map((section) => (
-            <div key={section.id} className="p-5 border rounded-xl bg-card">
-              <h4 className="font-semibold mb-4">{section.title}</h4>
-              <div className="space-y-4">
-                {detail.fields
-                  ?.filter((f) => f.formSectionId === section.id)
-                  .map((field) => {
-                    const answer = detail.answers?.find(
-                      (a) => a.fieldId === field.id,
-                    );
-                    return (
-                      <div
-                        key={field.id}
-                        className="p-3 border rounded bg-muted/30"
-                      >
-                        <p className="text-sm font-medium">{field.label}</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {String(answer?.value ?? '-')}
-                        </p>
-                        {detail.attachments
-                          .filter(
-                            (attachment) => attachment.answerId === answer?.id,
-                          )
-                          .map((attachment) => (
-                            <a
-                              key={attachment.id}
-                              className="block text-sm underline"
-                              href={`/api/forms/attachments/${attachment.id}`}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {attachment.originalName}
-                            </a>
-                          ))}
-                      </div>
-                    );
-                  })}
+          {detail?.sections?.map((section) => {
+            const fields = detail.fields.filter(
+              (f) => f.formSectionId === section.id,
+            );
+            const results = fields.map((f) =>
+              heads.find(
+                (e) =>
+                  e.answerId ===
+                  detail.answers.find((a) => a.fieldId === f.id)?.id,
+              ),
+            );
+            const status = results.some((r) => r?.action === 'NEEDS_CHANGES')
+              ? 'ต้องแก้ไข'
+              : results.length > 0 && results.every((r) => r?.action === 'PASS')
+                ? 'ผ่านทั้งหมด'
+                : 'รอตรวจ';
+            return (
+              <div key={section.id} className="p-5 border rounded-xl bg-card">
+                <h4 className="font-semibold mb-2">
+                  {section.title} · {status}
+                </h4>
+                {canReviewSection && !finalDecision && (
+                  <Button
+                    className="mb-4"
+                    size="sm"
+                    variant="outline"
+                    isDisabled={busy || !fields.length}
+                    onClick={() =>
+                      sectionMutation.mutate({
+                        submissionId,
+                        sectionId: section.id,
+                        data: {
+                          action: 'PASS',
+                          expectedRevision: detail.submission.revision,
+                        },
+                      })
+                    }
+                  >
+                    ผ่านทุกข้อในหมวดนี้
+                  </Button>
+                )}
+                <div className="space-y-4">
+                  {detail.fields
+                    ?.filter((f) => f.formSectionId === section.id)
+                    .map((field) => {
+                      const answer = detail.answers?.find(
+                        (a) => a.fieldId === field.id,
+                      );
+                      const head = heads.find((e) => e.answerId === answer?.id);
+                      return (
+                        <div
+                          key={field.id}
+                          className="p-3 border rounded bg-muted/30"
+                        >
+                          <p className="text-sm font-medium">{field.label}</p>
+                          <p className="text-xs mt-1">
+                            {head?.action === 'PASS'
+                              ? 'ผ่าน'
+                              : head?.action === 'NEEDS_CHANGES'
+                                ? 'ต้องแก้ไข'
+                                : 'ยังไม่ตรวจ'}
+                          </p>
+                          {head?.note && <p className="text-sm">{head.note}</p>}
+                          {canReviewAnswer && answer && !finalDecision && (
+                            <div className="space-y-2 my-2">
+                              <Textarea
+                                aria-label={`หมายเหตุสำหรับ ${field.label}`}
+                                placeholder="หมายเหตุรายข้อ"
+                                value={answerNotes[answer.id] ?? ''}
+                                onChange={(e) =>
+                                  setAnswerNotes((notes) => ({
+                                    ...notes,
+                                    [answer.id]: e.target.value,
+                                  }))
+                                }
+                              />
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  isDisabled={busy}
+                                  onClick={() =>
+                                    reviewAnswer(answer.id, 'PASS')
+                                  }
+                                >
+                                  ผ่าน
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  isDisabled={busy}
+                                  onClick={() =>
+                                    reviewAnswer(answer.id, 'NEEDS_CHANGES')
+                                  }
+                                >
+                                  ต้องแก้ไข
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {String(answer?.value ?? '-')}
+                          </p>
+                          {detail.attachments
+                            .filter(
+                              (attachment) =>
+                                attachment.answerId === answer?.id,
+                            )
+                            .map((attachment) => (
+                              <a
+                                key={attachment.id}
+                                className="block text-sm underline"
+                                href={`/api/forms/attachments/${attachment.id}`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {attachment.originalName}
+                              </a>
+                            ))}
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="md:col-span-1">
@@ -150,6 +279,14 @@ export default function FormReviewView({
               การตัดสินใจ
             </h3>
 
+            {finalDecision && (
+              <p className="text-sm">ผลตัดสิน: {finalDecision.action}</p>
+            )}
+            {needsChanges && (
+              <p className="text-sm text-destructive">
+                ยังมีข้อที่ต้องแก้ไข จึงยังอนุมัติไม่ได้
+              </p>
+            )}
             <div className="space-y-3 pt-2">
               <div className="space-y-2">
                 <label className="text-xs font-medium">
@@ -166,6 +303,9 @@ export default function FormReviewView({
               <ButtonLoading
                 className="w-full gap-2"
                 variant="default"
+                isDisabled={
+                  busy || !!finalDecision || needsChanges || !canFinalize
+                }
                 onPress={() => handleFinalize('APPROVE')}
                 isLoading={
                   finalizeMutation.isPending &&
@@ -179,6 +319,7 @@ export default function FormReviewView({
               <ButtonLoading
                 className="w-full gap-2"
                 variant="destructive"
+                isDisabled={busy || !!finalDecision || !canFinalize}
                 onPress={() => handleFinalize('RETURN')}
                 isLoading={
                   finalizeMutation.isPending &&

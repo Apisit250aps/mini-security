@@ -82,24 +82,6 @@ export const formPlanDataColumns = ({
     },
   },
   {
-    accessorKey: 'reviewMode',
-    header: 'โหมดตรวจรับ',
-    cell: ({ getValue }) => {
-      const mode = getValue<string>();
-      const labels: Record<
-        string,
-        { label: string; variant: 'default' | 'secondary' | 'outline' }
-      > = {
-        NONE: { label: 'ไม่ต้องตรวจ', variant: 'secondary' },
-        OVERALL: { label: 'ตรวจทั้งชุด', variant: 'outline' },
-        ALL_SECTIONS: { label: 'ต้องผ่านทุกหมวด', variant: 'outline' },
-        ALL_ANSWERS: { label: 'ต้องผ่านทุกข้อ', variant: 'outline' },
-      };
-      const conf = labels[mode] || { label: mode, variant: 'outline' };
-      return <Badge variant={conf.variant}>{conf.label}</Badge>;
-    },
-  },
-  {
     id: 'status',
     header: 'สถานะ',
     cell: ({ row }) => {

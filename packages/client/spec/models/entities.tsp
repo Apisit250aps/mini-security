@@ -55,37 +55,38 @@ enum FormFieldType {
 }
 
 enum FormScheduleKind {
-  RECURRING: "RECURRING",
-  EXPLICIT: "EXPLICIT",
+  RECURRING,
+  EXPLICIT,
 }
-
-enum FormReviewMode {
-  NONE: "NONE",
-  OVERALL: "OVERALL",
-  ALL_SECTIONS: "ALL_SECTIONS",
-  ALL_ANSWERS: "ALL_ANSWERS",
-}
-
 enum FormLatePolicy {
-  ALLOW: "ALLOW",
-  DENY: "DENY",
+  ALLOW,
+  DENY,
 }
-
 enum FormMissedPolicy {
-  SKIP: "SKIP",
-  CATCH_UP: "CATCH_UP",
+  SKIP,
+  CATCH_UP,
 }
-
 enum FormRoleDistribution {
-  SHARED: "SHARED",
-  PER_MEMBER: "PER_MEMBER",
+  SHARED,
+  PER_MEMBER,
 }
-
 enum FormReviewAction {
-  PASS: "PASS",
-  NEEDS_CHANGES: "NEEDS_CHANGES",
-  APPROVE: "APPROVE",
-  RETURN: "RETURN",
+  PASS,
+  NEEDS_CHANGES,
+  APPROVE,
+  RETURN,
+}
+model FormScheduleConfig {
+  frequency: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
+  interval: int32;
+  anchorLocalDate: string;
+  endLocalDate?: string | null;
+  openLocalTime: string;
+  invalidDayPolicy: "SKIP" | "LAST_DAY";
+  dueOffset: {
+    amount: int32;
+    unit: "ELAPSED_HOURS" | "CALENDAR_DAYS";
+  };
 }
 
 enum FormSubmissionStatus {
@@ -305,10 +306,9 @@ model FormPlan {
   supersedesPlanId?: string | null;
   name: string;
   scheduleKind: FormScheduleKind;
-  scheduleConfig: Record<unknown> | null;
+  scheduleConfig: FormScheduleConfig | null;
   timezone: string;
   fixedVersionId?: string | null;
-  reviewMode: FormReviewMode;
   latePolicy: FormLatePolicy;
   missedPolicy: FormMissedPolicy;
   effectiveFrom?: utcDateTime | null;
@@ -413,7 +413,6 @@ model FormReviewEntry {
   submissionId: string;
   formVersionId: string;
   answerId?: string | null;
-  sectionId?: string | null;
   action: FormReviewAction;
   note?: string | null;
   reviewedBy: string;

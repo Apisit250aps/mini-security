@@ -26,7 +26,6 @@ import type {
   FormReviewAction,
   FormRoleDistribution,
   FormLatePolicy,
-  FormReviewMode,
 } from '#schema/form';
 
 export type ICreateFormTemplateContext = ISecurityContext & {
@@ -233,7 +232,6 @@ export type MyAssignmentItem = FormAssignment & {
   dueAt?: Date;
   timezone?: string;
   latePolicy?: FormLatePolicy;
-  reviewMode?: FormReviewMode;
   assignmentType?: 'PERSONAL' | 'ROLE';
   recipientLabel?: string;
   roleName?: string | null;
@@ -432,7 +430,7 @@ export type IRecordSectionReviewUseCase = BaseUseCase<
     action: FormReviewAction;
     note?: string;
   },
-  FormReviewEntry
+  FormReviewEntry[]
 >;
 export type IFinalizeSubmissionReviewUseCase = BaseUseCase<
   ISecurityContext & {

@@ -692,7 +692,7 @@ export const formServicesGetReviewDetailResponseTransformer = async (data: any):
 
 export const formServicesRecordSectionReviewResponseTransformer = async (data: any): Promise<FormServicesRecordSectionReviewResponse> => {
     if (data.data) {
-        data.data = domainEntityFormReviewEntrySchemaResponseTransformer(data.data);
+        data.data = data.data.map((item: any) => domainEntityFormReviewEntrySchemaResponseTransformer(item));
     }
     return data;
 };

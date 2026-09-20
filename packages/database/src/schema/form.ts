@@ -3,6 +3,7 @@ import {
   bigint,
   boolean,
   check,
+  date,
   doublePrecision,
   foreignKey,
   index,
@@ -47,12 +48,6 @@ export const formFieldTypeEnum = pgEnum('form_field_type', [
 export const formScheduleKindEnum = pgEnum('form_schedule_kind', [
   'RECURRING',
   'EXPLICIT',
-]);
-export const formReviewModeEnum = pgEnum('form_review_mode', [
-  'NONE',
-  'OVERALL',
-  'ALL_SECTIONS',
-  'ALL_ANSWERS',
 ]);
 export const formRoleDistributionEnum = pgEnum('form_role_distribution', [
   'SHARED',
@@ -294,10 +289,8 @@ export const formPlan = pgTable(
     supersedesPlanId: uuid('supersedes_plan_id'),
     name: text('name').notNull(),
     scheduleKind: formScheduleKindEnum('schedule_kind').notNull(),
-    scheduleConfig: jsonb('schedule_config').$type<Record<string, unknown>>(),
     timezone: text('timezone').notNull(),
     fixedVersionId: uuid('fixed_version_id'),
-    reviewMode: formReviewModeEnum('review_mode').default('OVERALL').notNull(),
     latePolicy: formLatePolicyEnum('late_policy').default('DENY').notNull(),
     missedPolicy: formMissedPolicyEnum('missed_policy')
       .default('SKIP')
@@ -324,10 +317,6 @@ export const formPlan = pgTable(
       table.companyId,
       table.effectiveFrom,
       table.effectiveUntil,
-    ),
-    check(
-      'form_plan_schedule_check',
-      sql`(schedule_kind = 'RECURRING' AND schedule_config IS NOT NULL AND jsonb_typeof(schedule_config) = 'object') OR (schedule_kind = 'EXPLICIT' AND schedule_config IS NULL)`,
     ),
     check(
       'form_plan_effective_check',
@@ -866,8 +855,7 @@ export const formReviewEntry = pgTable(
       .references(() => company.id, { onDelete: 'restrict' }),
     submissionId: uuid('submission_id').notNull(),
     formVersionId: uuid('form_version_id').notNull(),
-    answerId: uuid('answer_id'),
-    sectionId: uuid('section_id'),
+    answerId: uuid('answer_id').notNull(),
     action: formReviewActionEnum('action').notNull(),
     note: text('note'),
     reviewedBy: uuid('reviewed_by').notNull(),
@@ -886,20 +874,9 @@ export const formReviewEntry = pgTable(
     uniqueIndex('form_one_answer_review_root')
       .on(table.submissionId, table.answerId)
       .where(sql`answer_id IS NOT NULL AND supersedes_entry_id IS NULL`),
-    uniqueIndex('form_one_section_review_root')
-      .on(table.submissionId, table.sectionId)
-      .where(sql`section_id IS NOT NULL AND supersedes_entry_id IS NULL`),
-    uniqueIndex('form_one_final_review')
-      .on(table.submissionId)
-      .where(sql`answer_id IS NULL AND section_id IS NULL`),
     index('form_review_entry_submission_answer_created_idx').on(
       table.submissionId,
       table.answerId,
-      table.createdAt,
-    ),
-    index('form_review_entry_submission_section_created_idx').on(
-      table.submissionId,
-      table.sectionId,
       table.createdAt,
     ),
     index('form_review_entry_company_reviewer_created_idx').on(
@@ -909,7 +886,7 @@ export const formReviewEntry = pgTable(
     ),
     check(
       'form_review_target_action_check',
-      sql`(num_nonnulls(answer_id, section_id) = 1 AND action IN ('PASS', 'NEEDS_CHANGES')) OR (answer_id IS NULL AND section_id IS NULL AND action IN ('APPROVE', 'RETURN') AND supersedes_entry_id IS NULL)`,
+      sql`action IN ('PASS', 'NEEDS_CHANGES')`,
     ),
     check(
       'form_review_note_check',
@@ -938,15 +915,6 @@ export const formReviewEntry = pgTable(
       name: 'form_review_entry_answer_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.sectionId, table.companyId, table.formVersionId],
-      foreignColumns: [
-        formSection.id,
-        formSection.companyId,
-        formSection.formVersionId,
-      ],
-      name: 'form_review_entry_section_fk',
-    }).onDelete('restrict'),
-    foreignKey({
       columns: [table.supersedesEntryId, table.companyId, table.submissionId],
       foreignColumns: [table.id, table.companyId, table.submissionId],
       name: 'form_review_entry_supersedes_fk',
@@ -956,5 +924,89 @@ export const formReviewEntry = pgTable(
       foreignColumns: [companyMember.id, companyMember.companyId],
       name: 'form_review_entry_reviewed_by_member_fk',
     }).onDelete('restrict'),
+  ],
+);
+
+/** Typed recurring inputs; plan_id is the one-to-one key, company_id enforces tenant integrity. */
+export const formPlanRecurringSchedule = pgTable(
+  'form_plan_recurring_schedule',
+  {
+    planId: uuid('plan_id').primaryKey(),
+    companyId: uuid('company_id').notNull(),
+    frequency: text('frequency')
+      .$type<'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>()
+      .notNull(),
+    interval: integer('interval').notNull(),
+    anchorLocalDate: date('anchor_local_date').notNull(),
+    endLocalDate: date('end_local_date'),
+    openLocalTime: text('open_local_time').notNull(),
+    invalidDayPolicy: text('invalid_day_policy')
+      .$type<'SKIP' | 'LAST_DAY'>()
+      .notNull(),
+    dueOffsetAmount: integer('due_offset_amount').notNull(),
+    dueOffsetUnit: text('due_offset_unit')
+      .$type<'ELAPSED_HOURS' | 'CALENDAR_DAYS'>()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.planId, table.companyId],
+      foreignColumns: [formPlan.id, formPlan.companyId],
+    }).onDelete('cascade'),
+    check(
+      'form_schedule_frequency_check',
+      sql`frequency IN ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY')`,
+    ),
+    check('form_schedule_interval_check', sql`interval BETWEEN 1 AND 100`),
+    check(
+      'form_schedule_range_check',
+      sql`end_local_date IS NULL OR end_local_date >= anchor_local_date`,
+    ),
+    check(
+      'form_schedule_invalid_day_check',
+      sql`invalid_day_policy IN ('SKIP', 'LAST_DAY')`,
+    ),
+    check(
+      'form_schedule_due_check',
+      sql`due_offset_amount > 0 AND due_offset_unit IN ('ELAPSED_HOURS', 'CALENDAR_DAYS')`,
+    ),
+    check(
+      'form_schedule_time_check',
+      sql`open_local_time ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'`,
+    ),
+  ],
+);
+
+/** One explicit final decision per submitted revision. */
+export const formSubmissionDecision = pgTable(
+  'form_submission_decision',
+  {
+    id: primaryKeyUuid7('id'),
+    companyId: uuid('company_id').notNull(),
+    submissionId: uuid('submission_id').notNull().unique(),
+    formVersionId: uuid('form_version_id').notNull(),
+    action: text('action').$type<'APPROVE' | 'RETURN'>().notNull(),
+    note: text('note'),
+    decidedBy: uuid('decided_by').notNull(),
+    createdAt: createdAtTimestamp('created_at'),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.submissionId, table.companyId, table.formVersionId],
+      foreignColumns: [
+        formSubmission.id,
+        formSubmission.companyId,
+        formSubmission.formVersionId,
+      ],
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.decidedBy, table.companyId],
+      foreignColumns: [companyMember.id, companyMember.companyId],
+    }).onDelete('restrict'),
+    check('form_decision_action_check', sql`action IN ('APPROVE', 'RETURN')`),
+    check(
+      'form_decision_note_check',
+      sql`action <> 'RETURN' OR (note IS NOT NULL AND length(trim(note)) > 0)`,
+    ),
   ],
 );

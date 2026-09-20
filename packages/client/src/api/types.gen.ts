@@ -251,12 +251,9 @@ export type CreateFormPlanRequest = {
         formTemplateId: string;
         name: string;
         scheduleKind: DomainEntityFormScheduleKind;
-        scheduleConfig: {
-            [key: string]: unknown;
-        } | null;
+        scheduleConfig: DomainEntityFormScheduleConfig | null;
         timezone: string;
         fixedVersionId?: string | null;
-        reviewMode: DomainEntityFormReviewMode;
         latePolicy: DomainEntityFormLatePolicy;
         missedPolicy: DomainEntityFormMissedPolicy;
     };
@@ -484,12 +481,9 @@ export type DomainEntityFormPlan = {
     supersedesPlanId?: string | null;
     name: string;
     scheduleKind: DomainEntityFormScheduleKind;
-    scheduleConfig: {
-        [key: string]: unknown;
-    } | null;
+    scheduleConfig: DomainEntityFormScheduleConfig | null;
     timezone: string;
     fixedVersionId?: string | null;
-    reviewMode: DomainEntityFormReviewMode;
     latePolicy: DomainEntityFormLatePolicy;
     missedPolicy: DomainEntityFormMissedPolicy;
     effectiveFrom?: Date | null;
@@ -530,16 +524,26 @@ export type DomainEntityFormReviewEntry = {
     submissionId: string;
     formVersionId: string;
     answerId?: string | null;
-    sectionId?: string | null;
     action: DomainEntityFormReviewAction;
     note?: string | null;
     reviewedBy: string;
     supersedesEntryId?: string | null;
 };
 
-export type DomainEntityFormReviewMode = 'NONE' | 'OVERALL' | 'ALL_SECTIONS' | 'ALL_ANSWERS';
-
 export type DomainEntityFormRoleDistribution = 'SHARED' | 'PER_MEMBER';
+
+export type DomainEntityFormScheduleConfig = {
+    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+    interval: number;
+    anchorLocalDate: string;
+    endLocalDate?: string | null;
+    openLocalTime: string;
+    invalidDayPolicy: 'SKIP' | 'LAST_DAY';
+    dueOffset: {
+        amount: number;
+        unit: 'ELAPSED_HOURS' | 'CALENDAR_DAYS';
+    };
+};
 
 export type DomainEntityFormScheduleKind = 'RECURRING' | 'EXPLICIT';
 
@@ -638,7 +642,6 @@ export type FormAssignmentItem = DomainEntityFormAssignment & {
     dueAt?: Date;
     timezone?: string;
     latePolicy?: DomainEntityFormLatePolicy;
-    reviewMode?: DomainEntityFormReviewMode;
     assignmentType?: string;
     recipientLabel?: string;
     roleName?: string;
@@ -1111,12 +1114,9 @@ export type UpdateFormPlanRequest = {
     data: {
         name?: string;
         scheduleKind?: DomainEntityFormScheduleKind;
-        scheduleConfig?: {
-            [key: string]: unknown;
-        } | null;
+        scheduleConfig?: DomainEntityFormScheduleConfig | null;
         timezone?: string;
         fixedVersionId?: string | null;
-        reviewMode?: DomainEntityFormReviewMode;
         latePolicy?: DomainEntityFormLatePolicy;
         missedPolicy?: DomainEntityFormMissedPolicy;
     };
@@ -3756,7 +3756,7 @@ export type FormServicesRecordSectionReviewResponses = {
     201: {
         success: boolean;
         message: string;
-        data?: DomainEntityFormReviewEntry;
+        data?: Array<DomainEntityFormReviewEntry>;
     };
 };
 

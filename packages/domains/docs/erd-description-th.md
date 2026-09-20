@@ -30,7 +30,7 @@
 | แผนและงาน    | form_plan, form_plan_target, form_plan_period, form_occurrence, form_assignment                      | กติกาเวลา ผู้รับในแผน ช่วงอิสระ รอบที่เปิดจริง และผู้รับจริง                             |
 | คำตอบและตรวจ | form_submission, form_submission_contributor, form_answer, form_answer_attachment, form_review_entry | คำตอบแต่ละ revision ผู้มีส่วนร่วม คำตอบรายข้อ หลักฐาน และผลตรวจ                          |
 
-ERD ปัจจุบันมี Form 14 ตาราง: นิยาม 4, แผนและงาน 5, คำตอบและตรวจ 5 แทน Form เดิม 10 ตาราง เพิ่มสุทธิ 4 ตาราง โดยถอด form_template_role และแทน submission_review ด้วย form_review_entry
+Form เพิ่ม form_plan_recurring_schedule และ form_submission_decision; การเปลี่ยนแปลงรอบนี้มี Drizzle schema และ initial migration แล้ว แต่ยังไม่ apply ฐานข้อมูลและไม่ตรวจ runtime
 
 ## 3. ขอบเขต tenant และผู้กระทำ
 
@@ -71,10 +71,9 @@ ERD ปัจจุบันมี Form 14 ตาราง: นิยาม 4, �
 | คอลัมน์                          | ความหมาย                                                                                      |
 | -------------------------------- | --------------------------------------------------------------------------------------------- |
 | schedule_kind                    | RECURRING คำนวณซ้ำจากกติกา หรือ EXPLICIT ใช้แถวช่วงเวลา                                       |
-| schedule_config                  | กติกาปฏิทินแบบ object เฉพาะ recurring เก็บ inputs และหน่วย ไม่เก็บรายการรอบที่คำนวณแล้ว       |
+| recurring schedule               | แยกตาราง form_plan_recurring_schedule แบบหนึ่งต่อหนึ่ง เก็บ typed inputs                      |
 | timezone                         | เขตเวลาที่ใช้ตีความวันที่และเวลาในกติกา                                                       |
 | fixed_version_id                 | มีค่าใช้ฉบับนั้น; null ใช้ฉบับล่าสุดตอนเปิดจริง จึงไม่เพิ่ม version_mode ที่บอกเรื่องเดียวกัน |
-| review_mode                      | NONE, OVERALL, ALL_SECTIONS, ALL_ANSWERS                                                      |
 | late_policy / missed_policy      | คำสั่งอนุญาตส่งช้า และข้าม/เปิดย้อนหลังเมื่อ worker พลาด                                      |
 | effective_from / effective_until | ช่วงเปิดใช้แบบรวมต้นไม่รวมท้าย; from ว่างคือยังไม่เปิด; until ว่างคือไม่กำหนดสิ้นสุด          |
 | created_by / closed_by           | ผู้สร้าง config และผู้ปิดช่วงเมื่อมีคำสั่งจริง ไม่สมมติว่า worker เป็นสมาชิก                  |
@@ -82,7 +81,7 @@ ERD ปัจจุบันมี Form 14 ตาราง: นิยาม 4, �
 
 ไม่เพิ่ม is_enabled เพราะ derive จากช่วง effective และเวลาปัจจุบันได้ การ pause ปิดช่วงปัจจุบัน resume สร้าง successor หลังช่วงว่าง การตั้งค่าของแถวที่ activate แล้วห้ามแก้ ยกเว้นปิดช่วง effective พร้อม actor เพื่อบันทึกคำสั่งหยุด/เปลี่ยนชุดใหม่
 
-ตัวอย่าง schedule_config ที่เสนอ (ต้อง validate ด้วย domain schema ก่อนใช้งาน):
+ตัวอย่าง scheduleConfig ใน API (repository แยกลง typed columns; ไม่มี JSON column ใน plan):
 
 ```json
 {
@@ -90,7 +89,7 @@ ERD ปัจจุบันมี Form 14 ตาราง: นิยาม 4, �
   "interval": 3,
   "anchorLocalDate": "2026-10-01",
   "openLocalTime": "08:00",
-  "dayOfMonth": 1,
+  "endLocalDate": "2027-09-30",
   "invalidDayPolicy": "LAST_DAY",
   "dueOffset": { "amount": 9, "unit": "ELAPSED_HOURS" }
 }
@@ -120,7 +119,7 @@ ERD ปัจจุบันมี Form 14 ตาราง: นิยาม 4, �
 
 `form_template_id` จำเป็นบังคับให้ plan กับ version อยู่ Form เดียวกัน `period_id` ถ้ามีต้องเป็นช่วงของ plan นั้น ใช้ check ใน use case ให้ตรง schedule_kind
 
-**ไม่เก็บ review_mode/late_policy ซ้ำใน Occurrence** เพราะ config ต้นทางถูกเก็บประวัติและล็อกไว้แล้ว Read model join plan_id ของรอบนั้น ไม่อ่าน successor ล่าสุดเป็นกติกางานเก่า นี่เป็นการลดข้อมูลซ้ำจากร่างก่อนหน้า
+**ไม่เก็บ late_policy ซ้ำใน Occurrence** เพราะ config ต้นทางถูกเก็บประวัติและล็อกไว้แล้ว Read model join plan_id ของรอบนั้น ไม่อ่าน successor ล่าสุดเป็นกติกางานเก่า นี่เป็นการลดข้อมูลซ้ำจากร่างก่อนหน้า
 
 เวลาในรอบเก็บเป็นขอบเขตธุรกิจที่เปิดใช้จริง ไม่แก้เมื่อเปลี่ยน calculator หรือกติกาแผน หากออกแบบระบบให้รอบเป็นเพียงผลคำนวณที่ไม่เคยมีการตัดสินใจอิสระ ต้องทบทวนคอลัมน์เหล่านี้ตาม source-only rule ก่อนเพิ่มความสามารถใหม่
 
@@ -152,7 +151,7 @@ Replacement ในรอบเดิมใช้ due เดิม ไม่ใ�
 
 หนึ่งแถวต่อ submission/field คำตอบ scalar อยู่ value ส่วนไฟล์อยู่ attachment ค่า false และ 0 เป็นคำตอบจริง NULL ไม่เท่ากับ false
 
-ก่อนส่งให้มี answer row สำหรับทุก field ใน version แม้ optional เว้นว่าง โดย value เป็น NULL เพื่อให้การตรวจ ALL_ANSWERS มี answer_id อ้างได้ ไม่แต่งคำตอบให้ผู้ใช้ ข้อนี้ต้อง materialize ใน submit transaction หลัง validate required
+ก่อนส่งให้มี answer row สำหรับทุก field ใน version แม้ optional เว้นว่าง โดย value เป็น NULL เพื่อให้การตรวจราย Field มี answer_id อ้างได้ ไม่แต่งคำตอบให้ผู้ใช้ ข้อนี้ต้อง materialize ใน submit transaction หลัง validate required
 
 Composite FK กัน field ต่าง version และ review ที่อ้าง answer ต่าง submission `updated_by` เก็บผู้แก้ล่าสุดจริงไม่เปลี่ยนเป็นผู้ clone จนกว่าจะมีการแก้
 
@@ -162,40 +161,37 @@ Composite FK กัน field ต่าง version และ review ที่อ�
 
 Revision ใหม่อ้าง object เก่าได้ เมื่อถ่ายใหม่ให้เปลี่ยน reference ของ revision ใหม่เท่านั้น ภาพเก่ายังดูจากคำตอบเก่าได้ Garbage collection ลบ object เมื่อไม่มี reference และผ่าน retention rule
 
-## 8. ผลตรวจทั้งสามระดับ
+## 8. ผลตรวจรายคำตอบและคำตัดสินทั้งชุด
 
-### form_review_entry
+form_review_entry เก็บ PASS / NEEDS_CHANGES ที่ answer_id เท่านั้น พร้อม reviewed_by, note และ supersedes_entry_id เพื่อเก็บประวัติ
+NEEDS_CHANGES ต้องมีหมายเหตุ และการแก้ผลต้องอ้าง head ของ answer เดิม
 
-หนึ่งแถวคือผลตรวจที่บันทึกจริง ไม่ใช่ช่องเก็บสถานะปัจจุบันที่เขียนทับกันได้
+Section ไม่มีผลตรวจที่จัดเก็บ: มีข้อที่ต้องแก้แสดงต้องแก้; ทุกข้อ PASS แสดงผ่าน; ที่เหลือรอตรวจ
+ปุ่มผ่านทั้ง Section เพิ่ม PASS ให้คำตอบแต่ละข้อใน transaction เดียว พร้อมตรวจ expectedRevision
 
-| เป้าหมาย | FK                  | Action               |
-| -------- | ------------------- | -------------------- |
-| รายข้อ   | answer_id เท่านั้น  | PASS / NEEDS_CHANGES |
-| หมวด     | section_id เท่านั้น | PASS / NEEDS_CHANGES |
-| ทั้งชุด  | ทั้งคู่ NULL        | APPROVE / RETURN     |
+form_submission_decision เก็บ APPROVE / RETURN เพียงหนึ่งแถวต่อ submission พร้อม decided_by และหมายเหตุ
+ทุก submission ที่ส่งแล้วรออนุมัติ ไม่มี review_mode หรือ requires_approval
+APPROVE ได้โดยไม่ต้อง PASS ครบ แต่ห้ามมี NEEDS_CHANGES ล่าสุดค้าง
+RETURN ต้องมีหมายเหตุ และส่งกลับได้ด้วยเหตุผลภาพรวมแม้ไม่มีข้อที่ทำเครื่องหมาย
+หลังคำตัดสินห้ามเพิ่มผลตรวจ; การแก้คำตอบหลัง RETURN สร้าง submission ใหม่และเริ่มผลตรวจใหม่
 
-note บังคับเมื่อขอแก้/ส่งกลับ เป็น comment ประกอบผล เช่น “ภาพไม่ชัด กรุณาถ่ายใหม่ให้เห็นตัวเลข” ไม่เพิ่มตาราง comment แยกเมื่อยังไม่มีการสนทนาเป็นเธรด
-
-รายละเอียดเปลี่ยนผลได้ก่อน finalize โดยเพิ่ม successor ที่ supersedes_entry_id ชี้ head เป้าหมายเดิม Unique successor กันแตกสาย แต่ use case ยังต้องตรวจว่าเป็น answer/section เดิมและเป็น head ล่าสุด เพราะ FK submission อย่างเดียวไม่เพียงพอ
-
-คำตัดสินทั้งชุดมีเพียงหนึ่งแถวต่อ submission ไม่มี successor; finalize ใช้ transaction lock ตรวจ coverage และผล NEEDS_CHANGES ล่าสุดก่อน APPROVE ส่วน RETURN ต้องมี note และยังทำได้แม้ไม่มี reject รายข้อ
-
-ไม่เพิ่ม form_review แบบ 1:1 ใช้ submission เป็นขอบเขตรอบตรวจ หลัง RETURN สร้างคำตอบใหม่และเริ่มตรวจใหม่ ผล PASS เก่าไม่ถูกยกมาเอง ไม่มี derived review status หรือ progress ในตาราง
+API review history รวมผลรายคำตอบและคำตัดสินเป็น read model เดียว โดยคำตัดสินมี answerId = null, reviewedBy มาจาก decided_by และ supersedesEntryId = null
+การรวมนี้ไม่มีการเก็บข้อมูลซ้ำในฐานข้อมูล
 
 ## 9. ข้อมูลซ้ำที่ยอมเก็บและข้อมูลที่ไม่เก็บ
 
-| ข้อมูล                                 | เหตุผล                                                                                |
-| -------------------------------------- | ------------------------------------------------------------------------------------- |
-| company_id ในตารางลูก                  | บังคับ tenant ด้วย composite FK ไม่ใช่ cache                                          |
-| version/template keys บางตาราง         | บังคับ plan/version, assignment/submission, answer/field และ section/review ให้ตรงกัน |
-| plan config ที่ supersede              | ประวัติกติกาที่ใช้จริงและ catch-up ไม่สามารถอาศัย config ล่าสุด                       |
-| occurrence version/เวลาจริง            | ขอบเขตงานที่เปิดใช้และห้ามเปลี่ยนตามแผนภายหลัง                                        |
-| plan target กับ assignment             | กติกาในอนาคตเทียบกับผู้รับจริงที่ membership อาจเปลี่ยนแล้ว                           |
-| contributor                            | ไม่สามารถสร้างรายชื่อคนเคยแก้ครบจาก answer ผู้แก้ล่าสุด                               |
-| concurrency tokens                     | ป้องกันเขียนชน ไม่ใช่จำนวนเชิงธุรกิจ                                                  |
-| status/progress/overdue/count/next_run | ไม่เก็บ คำนวณจากข้อเท็จจริงและเวลาปัจจุบัน                                            |
-| occurrence review/late policy          | ไม่เก็บซ้ำ อ่าน config ประวัติที่รอบอ้าง                                              |
-| version_mode/is_enabled/assigned_at    | ไม่เก็บซ้ำ ใช้ fixed_version_id/effective interval/created_at ตามลำดับ                |
+| ข้อมูล                                 | เหตุผล                                                                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------ |
+| company_id ในตารางลูก                  | บังคับ tenant ด้วย composite FK ไม่ใช่ cache                                         |
+| version/template keys บางตาราง         | บังคับ plan/version, assignment/submission, answer/field และ answer/review ให้ตรงกัน |
+| plan config ที่ supersede              | ประวัติกติกาที่ใช้จริงและ catch-up ไม่สามารถอาศัย config ล่าสุด                      |
+| occurrence version/เวลาจริง            | ขอบเขตงานที่เปิดใช้และห้ามเปลี่ยนตามแผนภายหลัง                                       |
+| plan target กับ assignment             | กติกาในอนาคตเทียบกับผู้รับจริงที่ membership อาจเปลี่ยนแล้ว                          |
+| contributor                            | ไม่สามารถสร้างรายชื่อคนเคยแก้ครบจาก answer ผู้แก้ล่าสุด                              |
+| concurrency tokens                     | ป้องกันเขียนชน ไม่ใช่จำนวนเชิงธุรกิจ                                                 |
+| status/progress/overdue/count/next_run | ไม่เก็บ คำนวณจากข้อเท็จจริงและเวลาปัจจุบัน                                           |
+| occurrence review/late policy          | ไม่เก็บซ้ำ อ่าน config ประวัติที่รอบอ้าง                                             |
+| version_mode/is_enabled/assigned_at    | ไม่เก็บซ้ำ ใช้ fixed_version_id/effective interval/created_at ตามลำดับ               |
 
 ## 10. ข้อบังคับที่ต้องเพิ่มใน migration และ use case
 
@@ -217,15 +213,10 @@ WHERE cancelled_at IS NULL AND company_member_id IS NOT NULL;
 CREATE UNIQUE INDEX form_one_answer_review_root
 ON form_review_entry (submission_id, answer_id)
 WHERE answer_id IS NOT NULL AND supersedes_entry_id IS NULL;
-CREATE UNIQUE INDEX form_one_section_review_root
-ON form_review_entry (submission_id, section_id)
-WHERE section_id IS NOT NULL AND supersedes_entry_id IS NULL;
-CREATE UNIQUE INDEX form_one_final_review
-ON form_review_entry (submission_id)
-WHERE answer_id IS NULL AND section_id IS NULL;
+-- form_submission_decision.submission_id มี UNIQUE constraint
 ```
 
-Use cases/transactions ต้องบังคับ: active membership/permissions, scope ของ global Role, published version selection, immutable configs/content/entries, เวลาใน config ไม่ทับกันในสายแผน, no cycle, explicit period อยู่ schedule kind ที่ถูกต้อง, review head เป้าหมายเดียวกัน, coverage, self-review, finalize once และ review NONE ไม่รับ review entries
+Use cases/transactions ต้องบังคับ: active membership/permissions, scope ของ global Role, published version selection, immutable configs/content/entries, เวลาใน config ไม่ทับกันในสายแผน, no cycle, explicit period อยู่ schedule kind ที่ถูกต้อง, review head เป้าหมายเดียวกัน, self-review, finalize once และห้าม APPROVE เมื่อมี NEEDS_CHANGES ล่าสุดค้าง
 
 การเปิดรอบใช้ unique key และ transaction สร้างผู้รับครบหรือ rollback ส่วน cancellation/submit/finalize ต้อง lock ทรัพยากรเกี่ยวข้องในลำดับเดียวกันเพื่อไม่ให้ยกเลิกกับส่งผ่านกันโดยไม่ตรวจสถานะล่าสุด
 
@@ -238,3 +229,10 @@ Form ตรวจพื้นที่ → Version 2 → แผนรายว�
 ## 12. สถานะการตรวจเอกสาร
 
 DBML ผ่านการ parse/export เป็น PostgreSQL SQL ด้วย @dbml/cli ในรอบเอกสารนี้ การ export ไม่ยืนยันว่า migration ถูกนำไปใช้หรือ runtime ทำงานแล้ว ต้องทำ DB constraint/integration tests ตามแผนพัฒนาก่อนใช้งานจริง
+
+## ช่วงวันที่ของ recurring schedule
+
+anchor_local_date เป็นวันเริ่มช่วงและจุดตั้งต้น; end_local_date รวมวันสุดท้ายตาม timezone (เว้นว่างได้)
+frequency และ interval กำหนดจังหวะ ไม่เก็บ weekday/day_of_month ซ้ำ
+ช่วง effective ของ plan เก็บประวัติการเปิด/ปิดใช้งาน และกรองรอบซ้ำอีกชั้นหนึ่ง
+worker เปิดเฉพาะรอบที่ถึงเวลาแล้ว จึงไม่มีการลบรอบอนาคตล่วงหน้าใน workflow นี้

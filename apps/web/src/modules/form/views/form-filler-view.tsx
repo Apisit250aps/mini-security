@@ -100,7 +100,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   const submissionQuery = useFormSubmissionQueries(submissionId);
   const reviewQuery = useReviewDetailQueries(submissionId);
   const reviewEntries = reviewQuery.data || [];
-  const review = reviewEntries.find((r) => !r.answerId && !r.sectionId);
+  const review = reviewEntries.find((r) => !r.answerId);
 
   const saveDraftMutation = useFormSubmissionSaveDraft(
     submissionId,

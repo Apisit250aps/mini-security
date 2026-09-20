@@ -119,14 +119,15 @@ export default function FormPlanWizardView() {
   const [timezone] = useState(
     () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Bangkok',
   );
-  const [anchorLocalDate, setAnchorLocalDate] = useState(
-    () => new Date().toISOString().split('T')[0],
+  const [anchorLocalDate, setAnchorLocalDate] = useState(() =>
+    new Date().toISOString().slice(0, 10),
   );
   const [openLocalTime, setOpenLocalTime] = useState('08:00');
   const [dueAmount, setDueAmount] = useState(8);
   const [dueUnit, setDueUnit] = useState<'ELAPSED_HOURS' | 'CALENDAR_DAYS'>(
     'ELAPSED_HOURS',
   );
+  const [endLocalDate, setEndLocalDate] = useState('');
   const [invalidDayPolicy, setInvalidDayPolicy] = useState<'SKIP' | 'LAST_DAY'>(
     'LAST_DAY',
   );
@@ -145,9 +146,6 @@ export default function FormPlanWizardView() {
   const [newMemberId, setNewMemberId] = useState('');
 
   // --- Step 4 State: Review & Policies ---
-  const [reviewMode, setReviewMode] = useState<
-    'NONE' | 'OVERALL' | 'ALL_SECTIONS' | 'ALL_ANSWERS'
-  >('OVERALL');
   const [latePolicy, setLatePolicy] = useState<'ALLOW' | 'DENY'>('DENY');
 
   // Saving states
@@ -312,15 +310,14 @@ export default function FormPlanWizardView() {
         ? {
             frequency,
             interval: Number(interval) || 1,
-            anchorLocalDate,
+            anchorLocalDate: anchorLocalDate || '',
+            endLocalDate: endLocalDate || null,
             openLocalTime,
             dueOffset: {
               amount: Number(dueAmount) || 8,
               unit: dueUnit,
             },
-            ...(frequency === 'MONTHLY' || frequency === 'YEARLY'
-              ? { invalidDayPolicy }
-              : {}),
+            invalidDayPolicy,
           }
         : null;
 
@@ -353,7 +350,6 @@ export default function FormPlanWizardView() {
         scheduleConfig,
         timezone,
         fixedVersionId,
-        reviewMode,
         latePolicy,
         missedPolicy,
       },
@@ -379,6 +375,7 @@ export default function FormPlanWizardView() {
       if (activateImmediately) {
         try {
           await activatePlanMutation.mutateAsync({
+            planId: createdPlan.id,
             expectedRevision: createdPlan.revision,
           });
           toast.success('สร้างและเปิดใช้งานแผนการตรวจเรียบร้อยแล้ว');
@@ -745,6 +742,21 @@ export default function FormPlanWizardView() {
                         </FieldDescription>
                       </Field>
 
+                      <Field>
+                        <FieldLabel htmlFor="end-date">
+                          วันที่สิ้นสุด (รวมวันนี้)
+                        </FieldLabel>
+                        <Input
+                          id="end-date"
+                          type="date"
+                          min={anchorLocalDate}
+                          value={endLocalDate}
+                          onChange={(e) => setEndLocalDate(e.target.value)}
+                        />
+                        <FieldDescription>
+                          เว้นว่างได้หากไม่กำหนดวันสิ้นสุด
+                        </FieldDescription>
+                      </Field>
                       <Field>
                         <FieldLabel htmlFor="open-time">
                           เวลาเปิดรอบในแต่ละวัน
@@ -1147,54 +1159,9 @@ export default function FormPlanWizardView() {
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                <Field>
-                  <FieldLabel>รูปแบบการตรวจรับ (Review Mode)</FieldLabel>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    {[
-                      {
-                        mode: 'OVERALL',
-                        title: 'ตรวจทั้งชุด (OVERALL)',
-                        desc: 'ผู้ตรวจพิจารณาอนุมัติหรือส่งกลับแก้ไขทั้งชุดคำตอบ',
-                      },
-                      {
-                        mode: 'ALL_SECTIONS',
-                        title: 'ต้องผ่านทุกหมวด (ALL_SECTIONS)',
-                        desc: 'ต้องบันทึกผลผ่าน (PASS) ให้ครบทุกหมวดหมู่คำถามจึงจะอนุมัติได้',
-                      },
-                      {
-                        mode: 'ALL_ANSWERS',
-                        title: 'ต้องผ่านทุกข้อ (ALL_ANSWERS)',
-                        desc: 'ต้องบันทึกผลผ่าน (PASS) ให้ครบทุกข้อคำถามจึงจะอนุมัติได้',
-                      },
-                      {
-                        mode: 'NONE',
-                        title: 'ไม่ต้องตรวจรับ (NONE)',
-                        desc: 'งานถือว่าเสร็จสมบูรณ์ทันทีที่ผู้รับมอบหมายกดส่งแบบฟอร์ม',
-                      },
-                    ].map((item) => (
-                      <div
-                        key={item.mode}
-                        onClick={() => setReviewMode(item.mode as never)}
-                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                          reviewMode === item.mode
-                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                            : 'border-border hover:bg-muted/30'
-                        }`}
-                      >
-                        <span className="font-semibold text-sm block mb-1">
-                          {item.title}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {item.desc}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <FieldDescription>
-                    หมายเหตุ: ผู้ที่มีสิทธิ์ตรวจรับมาจาก Role permissions
-                    ขององค์กร (form_review)
-                  </FieldDescription>
-                </Field>
+                <p className="text-sm text-muted-foreground">
+                  ผู้ตรวจบันทึกผลรายข้อได้ และเป็นผู้อนุมัติหรือส่งกลับทั้งชุด
+                </p>
 
                 <Field>
                   <FieldLabel>นโยบายการส่งงานช้า (Late Policy)</FieldLabel>
@@ -1304,7 +1271,7 @@ export default function FormPlanWizardView() {
                       การตรวจรับและนโยบาย
                     </span>
                     <span className="font-medium text-sm text-foreground">
-                      โหมดตรวจ: {reviewMode}
+                      โหมดตรวจ: ตรวจรายข้อและอนุมัติทั้งชุด
                     </span>
                     <span className="text-xs text-muted-foreground block">
                       การส่งช้า:{' '}

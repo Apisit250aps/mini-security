@@ -87,3 +87,13 @@ Snapshot ชื่อ/ศูนย์กลาง/รัศมีสถานท
 | Integrity keys                         | company/template/version keys ที่ซ้ำเพื่อ composite FK มีเหตุผลใน ERD description                                 |
 
 ผลนี้เป็น design audit และ DBML validation ไม่ใช่ migration หรือฐานข้อมูลจริง
+
+### Form relational schedule and field review — 2026-09-20
+
+- form_plan_recurring_schedule เก็บ frequency, interval, anchor/end local date, local time, invalid-day policy และ due offset พร้อมหน่วย เป็นกติกาที่ผู้ใช้กำหนด; ไม่มี schedule JSON, weekday/day-of-month ซ้ำ
+- form_plan เก็บ late_policy/missed_policy และ effective history; ถอด review_mode ทุกชุดส่งแล้วรอคำตัดสิน
+- form_review_entry เก็บผลจริง PASS/NEEDS_CHANGES ต่อ answer พร้อม actor/history; ไม่เก็บ section_id หรือ section status
+- form_submission_decision เก็บ APPROVE/RETURN ที่เป็นคำตัดสินจริง หนึ่งครั้งต่อ submission; ไม่ใช่ derived approval cache
+- company_id/form_version_id ในตารางลูกเก็บเพื่อ composite FK และ tenant/version integrity
+- form_answer.value ยังคง JSONB; ผลรวมและสถานะ Section คำนวณจากผลตรวจล่าสุด
+- Drizzle และ initial migration จัดทำแล้ว; ยังไม่ apply DB หรือยืนยัน runtime

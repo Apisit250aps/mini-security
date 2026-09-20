@@ -85,6 +85,10 @@ export const formRelations = (r: RelationsHelper) => ({
     }),
   },
   formPlan: {
+    recurringSchedule: r.one.formPlanRecurringSchedule({
+      from: r.formPlan.id,
+      to: r.formPlanRecurringSchedule.planId,
+    }),
     company: r.one.company({ from: r.formPlan.companyId, to: r.company.id }),
     template: r.one.formTemplate({
       from: r.formPlan.formTemplateId,
@@ -230,10 +234,6 @@ export const formRelations = (r: RelationsHelper) => ({
     answer: r.one.formAnswer({
       from: r.formReviewEntry.answerId,
       to: r.formAnswer.id,
-    }),
-    section: r.one.formSection({
-      from: r.formReviewEntry.sectionId,
-      to: r.formSection.id,
     }),
     reviewedByMember: r.one.companyMember({
       from: r.formReviewEntry.reviewedBy,

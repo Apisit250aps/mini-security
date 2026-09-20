@@ -113,11 +113,7 @@ function resolveAssignmentWorkflowAndActions(params: {
         workflowStatus = 'IN_REVIEW';
       }
     } else {
-      if (plan?.reviewMode === 'NONE') {
-        workflowStatus = 'COMPLETED';
-      } else {
-        workflowStatus = 'IN_REVIEW';
-      }
+      workflowStatus = 'IN_REVIEW';
     }
   }
 
@@ -339,7 +335,6 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
         dueAt: occurrence.dueAt,
         timezone: plan?.timezone ?? 'Asia/Bangkok',
         latePolicy: plan?.latePolicy ?? 'DENY',
-        reviewMode: plan?.reviewMode ?? 'OVERALL',
         assignmentType: isPersonal ? 'PERSONAL' : 'ROLE',
         recipientLabel,
         roleName: role?.name ?? null,

@@ -41,7 +41,10 @@ import {
   RecordSectionReviewUseCase,
   FinalizeSubmissionReviewUseCase,
 } from '@repo/applications';
-import type { EditFormField } from '@repo/domains/schema/form';
+import {
+  formScheduleConfigSchema,
+  type EditFormField,
+} from '@repo/domains/schema/form';
 import Controller from './base.controller';
 
 const idParamSchema = z.object({ id: z.string().uuid() });
@@ -197,12 +200,9 @@ const createPlanBodySchema = z.object({
     formTemplateId: z.string().uuid(),
     name: z.string().min(1).max(255),
     scheduleKind: z.enum(['RECURRING', 'EXPLICIT']),
-    scheduleConfig: z.record(z.string(), z.unknown()).nullish(),
+    scheduleConfig: formScheduleConfigSchema.nullish(),
     timezone: z.string().min(1),
     fixedVersionId: z.string().uuid().nullish(),
-    reviewMode: z
-      .enum(['NONE', 'OVERALL', 'ALL_SECTIONS', 'ALL_ANSWERS'])
-      .default('OVERALL'),
     latePolicy: z.enum(['ALLOW', 'DENY']).default('DENY'),
     missedPolicy: z.enum(['SKIP', 'CATCH_UP']).default('SKIP'),
   }),
@@ -239,12 +239,9 @@ const updatePlanBodySchema = z.object({
     .object({
       name: z.string().min(1).max(255).optional(),
       scheduleKind: z.enum(['RECURRING', 'EXPLICIT']).optional(),
-      scheduleConfig: z.record(z.string(), z.unknown()).nullish(),
+      scheduleConfig: formScheduleConfigSchema.nullish(),
       timezone: z.string().min(1).optional(),
       fixedVersionId: z.string().uuid().nullish(),
-      reviewMode: z
-        .enum(['NONE', 'OVERALL', 'ALL_SECTIONS', 'ALL_ANSWERS'])
-        .optional(),
       latePolicy: z.enum(['ALLOW', 'DENY']).optional(),
       missedPolicy: z.enum(['SKIP', 'CATCH_UP']).optional(),
     })

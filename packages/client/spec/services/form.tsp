@@ -269,7 +269,7 @@ interface FormServices {
   @post
   @route("/submissions/{id}/sections/{sectionId}/review")
   @summary("Record section review")
-  recordSectionReview(@path id: string, @path sectionId: string, @body body: RecordReviewRequest): ApiCreatedResponse<Domain.Entity.FormReviewEntry> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
+  recordSectionReview(@path id: string, @path sectionId: string, @body body: RecordReviewRequest): ApiCreatedResponse<Domain.Entity.FormReviewEntry[]> | ApiNotFoundResponse | ApiBadRequestResponse | ApiUnauthorizedResponse;
 
   @post
   @route("/submissions/{id}/finalize-review")

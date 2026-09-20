@@ -321,8 +321,11 @@ export default function FormPlanDetailView({
         activateMutation.mutate(
           { expectedRevision: plan.revision },
           {
-            onSuccess: () => {
+            onSuccess: (response) => {
               ui.alert.close();
+              if (response.data?.id && response.data.id !== plan.id) {
+                router.push(`/company/forms/plans/${response.data.id}`);
+              }
             },
             onError: (err) => {
               toast.error(getErrorMessage(err, 'ไม่สามารถเปิดใช้งานแผนได้'));
@@ -673,7 +676,7 @@ export default function FormPlanDetailView({
                       <span className="text-muted-foreground">
                         โหมดการตรวจรับ:
                       </span>
-                      <Badge variant="outline">{plan.reviewMode}</Badge>
+                      <Badge variant="outline">รอผู้ตรวจอนุมัติ</Badge>
                     </div>
                     <div className="flex justify-between pb-2 border-b">
                       <span className="text-muted-foreground">

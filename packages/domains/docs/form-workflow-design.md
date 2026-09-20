@@ -72,10 +72,10 @@ Permissions มี stable action codes ระบบรองรับ ผู้�
 | Plan schedule    | DAILY/WEEKLY/MONTHLY/YEARLY + interval; quarterly = MONTHLY interval 3; หรือ explicit periods |
 | Plan targets     | Role SHARED, Role PER_MEMBER, member                                                          |
 | Plan version     | FIXED version หรือ LATEST_PUBLISHED เมื่อเปิดรอบ                                              |
-| Plan review      | NONE / OVERALL / ALL_SECTIONS / ALL_ANSWERS                                                   |
+| Review           | ทุก submission รอ APPROVE/RETURN; ผลรายละเอียดเก็บราย answer เท่านั้น                         |
 | Plan timing      | timezone IANA, invalid-month-day SKIP/LAST_DAY, late ALLOW/DENY, missed run SKIP/CATCH_UP     |
 
-ค่าเสนอเริ่มต้น: review OVERALL, late DENY, missed SKIP, invalid-month-day LAST_DAY และไม่ให้ self-review permission โดยปริยาย ค่าเหล่านี้เป็น implementation defaults ที่ปรับได้ ไม่ใช่ข้อบังคับตายตัวของ tenant
+ค่าเสนอเริ่มต้น: late DENY, missed SKIP, invalid-month-day LAST_DAY และไม่ให้ self-review permission โดยปริยาย ค่าเหล่านี้เป็น implementation defaults ที่ปรับได้ ไม่ใช่ข้อบังคับตายตัวของ tenant
 
 ไม่มีตาราง tenant defaults ในรุ่นแรก หากเพิ่มภายหลังให้ใช้เติมตอนสร้าง plan ไม่เปลี่ยนงานเก่าตาม defaults โดยอัตโนมัติ
 
@@ -144,17 +144,17 @@ flowchart TD
 
 - ผู้ตรวจมาจาก Role permissions ปัจจุบัน ไม่ใช้ role_type/name/created_by หรือรายชื่อ reviewer ใน plan
 - self-review ตรวจตัวตน user ของผู้มีส่วนร่วมตลอด revision lineage เพื่อไม่หลุดจากการเปลี่ยน member record; ไม่มี permission เพิ่มนี้ให้ปฏิเสธ
-- answer_id XOR section_id หรือทั้งสอง null สำหรับทั้งชุด; ห้ามชี้เป้าต่าง submission/version/company
+- form_review_entry ต้องมี answer_id; form_submission_decision เก็บคำตัดสินทั้งชุดแยกตาราง; ห้ามชี้เป้าต่าง submission/version/company
 - NEEDS_CHANGES และ RETURN บังคับ note ที่ trim แล้วไม่ว่าง; PASS/APPROVE note optional
 - Comment เป็น note ของผลตรวจ ไม่เพิ่ม discussion table; รองรับภาพหลายรูปโดย note ระบุรูปได้ รุ่นแรก reject ทั้งคำตอบ ไม่เพิ่ม attachment-level review
 - ผู้ตรวจบันทึกผลรายข้อ/หมวดแล้วตรวจต่อได้ ยังไม่ส่งกลับจนกด RETURN ทั้งชุด
 - รายการที่บันทึกแล้วผู้กรอกดูได้แบบ read-only ระหว่างรอตรวจ; แก้คำตอบได้หลัง RETURN เท่านั้น
-- OVERALL ไม่บังคับ PASS ทุกเป้าหมาย; ALL_SECTIONS ต้องผ่านทุกหมวดที่มีข้อให้ตอบ; ALL_ANSWERS ต้องผ่านทุกข้อใน published version รวม optional ที่เว้นว่าง ผู้ตรวจประเมินความเหมาะสมของการเว้นว่างได้
+- APPROVE ไม่บังคับ PASS ทุกข้อ แต่ห้ามมี NEEDS_CHANGES ล่าสุดค้าง; ผู้ตรวจตัดสินใจเอง
 - ไม่รองรับ conditional visibility ในข้อเสนอนี้ ถ้าเพิ่มต้องกำหนด applicability inputs ก่อนคำนวณ review coverage
-- ทุก mode ห้าม APPROVE ขณะยังมี NEEDS_CHANGES ปัจจุบันไม่ว่าระดับใด PASS หมวดไม่ล้าง reject รายข้อ
-- RETURN ทำได้ด้วย summary note แม้ไม่ได้ทำเครื่องหมายรายข้อ เพื่อรองรับ OVERALL
+- ปุ่มผ่าน Section สร้าง PASS รายคำตอบแทน head เดิมใน transaction เดียว; สถานะ Section คำนวณจากผลรายคำตอบ ไม่มีแถวผลระดับ Section
+- RETURN ทำได้ด้วย summary note แม้ไม่ได้ทำเครื่องหมายรายข้อ
 - ผลตรวจ append-only เปลี่ยนผลโดย supersedes_entry_id ซึ่งต้องเป็น head เดิมของเป้าหมายเดียวกัน; unique successor และ expected concurrency token กัน overwrite/branch
-- Finalize lock submission ตรวจ entries/coverage ล่าสุด แล้วเพิ่ม final entry เพียงหนึ่งรายการต่อ submission ใน transaction เดียวกัน; detail review ที่มาชนต้อง fail หลัง finalize
+- Finalize lock submission ตรวจ entries ล่าสุด แล้วเพิ่ม form_submission_decision เพียงหนึ่งรายการต่อ submission ใน transaction เดียวกัน; detail review ที่มาชนต้อง fail หลัง finalize
 - ใช้ concurrency token ของ submission ครอบคลุม review mutations ด้วย; ไม่มี form_review 1:1 เพิ่ม
 
 ตัวอย่าง: ข้อภาพหน้าปัด NEEDS_CHANGES “ภาพไม่ชัด กรุณาถ่ายให้เห็นตัวเลข” → RETURN พร้อม summary → ผู้กรอกเห็นภาพเดิม/comment → clone revision → ถ่ายใหม่ → ส่ง → ตรวจ revision ใหม่และ APPROVE
@@ -188,5 +188,14 @@ Overdue เป็น badge แยกจาก lifecycle คำนวณ due + cu
 
 - ไม่เก็บ is_enabled ใน plan ใช้ effective interval; ไม่เก็บ version selection enum ซ้ำ ใช้ fixed_version_id มีค่า/ว่าง
 - หลัง activate ล็อก config/targets/periods; เปลี่ยนโดย successor ปิดช่วงเดิมด้วย effective_until และ closed_by
-- ก่อน submit สร้าง answer row ให้ครบทุก field รวม optional ว่างเป็น NULL เพื่อให้ ALL_ANSWERS ตรวจผ่าน answer_id ได้ โดยไม่แต่งคำตอบ
+- ก่อน submit สร้าง answer row ให้ครบทุก field รวม optional ว่างเป็น NULL เพื่อให้ตรวจรายข้อผ่าน answer_id ได้ โดยไม่แต่งคำตอบ
 - Key ซ้ำเพื่อ integrity และ partial unique ที่ DBML ไม่ครอบคลุมอธิบายในเอกสาร ERD ภาษาไทย
+
+## การปรับ relational schedule และ review (2026-09-20)
+
+- form_plan_recurring_schedule เป็น typed columns แบบหนึ่งต่อหนึ่งกับ plan; API ใช้ scheduleConfig เป็น object สำหรับรับส่งเท่านั้น
+- anchorLocalDate กำหนดวันเริ่มและจังหวะ; endLocalDate เป็นวันสิ้นสุดแบบรวมวันนี้ตาม timezone และเว้นว่างได้
+- ไม่เก็บ weekday/day_of_month; frequency + interval + anchor เพียงพอสำหรับหนึ่งจังหวะต่อแผน
+- effectiveFrom/effectiveUntil เก็บช่วงเปิดใช้จริง; แก้แผนที่เปิดแล้วหรือ resume สร้าง successor เพื่อคงประวัติ
+- ไม่มี review_mode; Section เป็น bulk review รายคำตอบ; APPROVE/RETURN เก็บแยกใน form_submission_decision
+- ยังไม่ apply initial migration และไม่ยืนยัน runtime; ตรวจเฉพาะ TypeScript/ESLint ตามคำขอ

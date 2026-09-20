@@ -441,9 +441,12 @@ export function useFormPlanUpdate(companyId: string, planId: string) {
 export function useFormPlanActivate(companyId: string, planId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (body: ActivatePlanRequest) => {
+    mutationFn: async ({
+      planId: targetPlanId,
+      ...body
+    }: ActivatePlanRequest & { planId?: string }) => {
       const res = await formServicesActivatePlan({
-        path: { id: planId },
+        path: { id: targetPlanId ?? planId },
         body,
         throwOnError: true,
       });

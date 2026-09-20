@@ -14,8 +14,8 @@ export type ScheduleConfig = {
   frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   interval: number;
   anchorLocalDate: string;
+  endLocalDate?: string | null;
   openLocalTime: string;
-  dayOfMonth?: number;
   invalidDayPolicy?: 'SKIP' | 'LAST_DAY';
   dueOffset: { amount: number; unit: 'ELAPSED_HOURS' | 'CALENDAR_DAYS' };
 };
@@ -144,7 +144,7 @@ export function calculateNextOccurrences(
       const totalMonths = anchorMonth - 1 + step * config.interval;
       year = anchorYear + Math.floor(totalMonths / 12);
       month = (totalMonths % 12) + 1;
-      const targetDay = config.dayOfMonth ?? anchorDay;
+      const targetDay = anchorDay;
       const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
       if (targetDay > daysInMonth) {
         if (config.invalidDayPolicy === 'SKIP') {
@@ -158,7 +158,7 @@ export function calculateNextOccurrences(
       }
     } else if (config.frequency === 'YEARLY') {
       year = anchorYear + step * config.interval;
-      const targetDay = config.dayOfMonth ?? anchorDay;
+      const targetDay = anchorDay;
       const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
       if (targetDay > daysInMonth && config.invalidDayPolicy === 'SKIP') {
         step++;
@@ -168,6 +168,7 @@ export function calculateNextOccurrences(
     }
 
     const dateStr = formatDateISO(year, month, day);
+    if (config.endLocalDate && dateStr > config.endLocalDate) break;
     const occurrenceDate = localToUtc(dateStr, timeStr, timezone);
 
     if (includePrevious || occurrenceDate >= fromDate)
@@ -247,9 +248,9 @@ export class PreviewScheduleUseCase implements IPreviewScheduleUseCase {
       return calculateNextOccurrences(
         plan.scheduleConfig as ScheduleConfig,
         plan.timezone,
-        new Date(),
+        new Date(Math.max(Date.now(), plan.effectiveFrom?.getTime() ?? 0)),
         10,
-      );
+      ).filter((date) => !plan.effectiveUntil || date < plan.effectiveUntil);
     }
 
     return [];

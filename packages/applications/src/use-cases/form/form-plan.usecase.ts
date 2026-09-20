@@ -233,7 +233,6 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
           context.data.fixedVersionId !== undefined
             ? context.data.fixedVersionId
             : plan.fixedVersionId,
-        reviewMode: context.data.reviewMode ?? plan.reviewMode,
         latePolicy: context.data.latePolicy ?? plan.latePolicy,
         missedPolicy: context.data.missedPolicy ?? plan.missedPolicy,
       };
@@ -264,6 +263,7 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
             schedule.error,
           );
         }
+        mergedData.scheduleConfig = schedule.data;
       } else if (mergedData.scheduleKind === 'EXPLICIT') {
         mergedData.scheduleConfig = null;
         if (context.periods) {
@@ -300,7 +300,6 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
           scheduleKind: mergedData.scheduleKind,
           scheduleConfig: mergedData.scheduleConfig,
           fixedVersionId: mergedData.fixedVersionId,
-          reviewMode: mergedData.reviewMode,
           latePolicy: mergedData.latePolicy,
           missedPolicy: mergedData.missedPolicy,
           revision: plan.revision + 1,
@@ -355,7 +354,6 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
           scheduleKind: mergedData.scheduleKind,
           scheduleConfig: mergedData.scheduleConfig,
           fixedVersionId: mergedData.fixedVersionId,
-          reviewMode: mergedData.reviewMode,
           latePolicy: mergedData.latePolicy,
           missedPolicy: mergedData.missedPolicy,
           effectiveFrom: wasActive ? now : null,
@@ -462,6 +460,7 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
     private readonly versionRepo: IFormVersionRepository,
     private readonly targetRepo: IFormPlanTargetRepository,
     private readonly periodRepo: IFormPlanPeriodRepository,
+    private readonly memberRepo: ICompanyMemberRepository,
   ) {}
 
   @RequirePermission('form_plan:manage')
@@ -504,6 +503,54 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
             'EXPLICIT plan must have at least one period',
           );
         }
+      }
+
+      if (plan.effectiveFrom !== null) {
+        const actor = context.memberId
+          ? await this.memberRepo.findById(context.memberId)
+          : null;
+        if (
+          !actor?.isActive ||
+          actor.companyId !== plan.companyId ||
+          actor.userId !== context.user?.id
+        ) {
+          throw new BadRequestError('Active company membership is required');
+        }
+        const successor = await this.planRepo.create({
+          companyId: plan.companyId,
+          formTemplateId: plan.formTemplateId,
+          name: plan.name,
+          scheduleKind: plan.scheduleKind,
+          scheduleConfig: plan.scheduleConfig,
+          timezone: plan.timezone,
+          fixedVersionId: plan.fixedVersionId,
+          latePolicy: plan.latePolicy,
+          missedPolicy: plan.missedPolicy,
+          supersedesPlanId: plan.id,
+          effectiveFrom: new Date(),
+          effectiveUntil: null,
+          createdBy: actor.id,
+          closedBy: null,
+          revision: 1,
+        });
+        for (const target of targets) {
+          await this.targetRepo.create({
+            companyId: plan.companyId,
+            planId: successor.id,
+            roleId: target.roleId,
+            companyMemberId: target.companyMemberId,
+            roleDistribution: target.roleDistribution,
+          });
+        }
+        for (const period of await this.periodRepo.findByPlanId(plan.id)) {
+          await this.periodRepo.create({
+            companyId: plan.companyId,
+            planId: successor.id,
+            opensAt: period.opensAt,
+            dueAt: period.dueAt,
+          });
+        }
+        return successor;
       }
 
       return this.planRepo.update(plan.id, {

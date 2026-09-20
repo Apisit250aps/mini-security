@@ -53,6 +53,8 @@ function tsTypeToTsp(typeName: string): string {
       return 'SubmissionReviewAction';
     case 'Record<string, unknown>':
       return 'Record<unknown>';
+    case 'FormFieldOptionEntity':
+      return 'FormFieldOption';
     case 'unknown':
       return 'unknown';
     default:
@@ -79,7 +81,10 @@ function buildModelBlock(
   }
 
   for (const prop of domainProps) {
-    const tspType = tsTypeToTsp(prop.typeText);
+    const tspType =
+      name === 'FormField' && (prop.name === 'min' || prop.name === 'max')
+        ? tsTypeToTsp(prop.typeText).replace('int32', 'float64')
+        : tsTypeToTsp(prop.typeText);
     lines.push(`    ${prop.name}${prop.optional ? '?' : ''}: ${tspType};`);
   }
 
@@ -240,12 +245,31 @@ const baseEntityTemplate = `  model BaseEntity {
 
   enum FormFieldType {
     TEXT: "TEXT",
+    TEXTAREA: "TEXTAREA",
     NUMBER: "NUMBER",
     SELECT: "SELECT",
+    RADIO: "RADIO",
+    CHECKBOX_GROUP: "CHECKBOX_GROUP",
     BOOLEAN: "BOOLEAN",
     DATE: "DATE",
+    EMAIL: "EMAIL",
     IMAGE: "IMAGE",
     FILE: "FILE",
+  }
+
+  enum FormScheduleKind { RECURRING, EXPLICIT }
+  enum FormLatePolicy { ALLOW, DENY }
+  enum FormMissedPolicy { SKIP, CATCH_UP }
+  enum FormRoleDistribution { SHARED, PER_MEMBER }
+  enum FormReviewAction { PASS, NEEDS_CHANGES, APPROVE, RETURN }
+  model FormScheduleConfig {
+    frequency: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
+    interval: int32;
+    anchorLocalDate: string;
+    endLocalDate?: string | null;
+    openLocalTime: string;
+    invalidDayPolicy: "SKIP" | "LAST_DAY";
+    dueOffset: { amount: int32; unit: "ELAPSED_HOURS" | "CALENDAR_DAYS"; };
   }
 
   enum FormSubmissionStatus {

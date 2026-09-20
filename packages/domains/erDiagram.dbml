@@ -682,17 +682,11 @@ Enum form_field_type {
 
 
 Enum form_schedule_kind {
-  RECURRING [note: 'เปิดรอบซ้ำตามความถี่ที่ตั้งใน schedule_config']
+  RECURRING [note: 'เปิดรอบซ้ำจาก form_plan_recurring_schedule']
   EXPLICIT [note: 'เปิดรอบตามช่วงเวลาที่ระบุเองใน form_plan_period']
 }
 
 
-Enum form_review_mode {
-  NONE [note: 'ไม่มีขั้นตอนตรวจ']
-  OVERALL [note: 'ตรวจและตัดสินทั้งชุดคำตอบครั้งเดียว']
-  ALL_SECTIONS [note: 'ต้องตรวจครบทุกหมวดก่อนตัดสินทั้งชุด']
-  ALL_ANSWERS [note: 'ต้องตรวจครบทุกคำตอบก่อนตัดสินทั้งชุด']
-}
 
 
 Enum form_role_distribution {
@@ -838,10 +832,8 @@ Table form_plan {
   supersedes_plan_id uuid [unique, note: 'ชุดการตั้งค่าก่อนหน้าในแผนเดียวกัน ไม่ใช่แผนใหม่ที่ผู้ใช้ต้องจัดการแยก']
   name text [not null]
   schedule_kind form_schedule_kind [not null]
-  schedule_config jsonb [note: 'RECURRING เท่านั้น: frequency, interval, local anchor, weekdays/day/month, invalid-day policy, due offset และหน่วย; ตรวจรูปแบบด้วย Zod']
   timezone text [not null, note: 'ชื่อเขตเวลา IANA ใช้ตีความปฏิทิน เช่น Asia/Bangkok']
   fixed_version_id uuid [note: 'มีค่า = ล็อกฉบับนี้; ไม่มีค่า = เลือกฉบับเผยแพร่ล่าสุดตอนเปิดรอบ ไม่เก็บ version_mode ซ้ำ']
-  review_mode form_review_mode [not null, default: 'OVERALL']
   late_policy form_late_policy [not null, default: 'DENY']
   missed_policy form_missed_policy [not null, default: 'SKIP']
   effective_from timestamptz [note: 'เริ่มช่วงเปิดใช้; null คือยังไม่เคยเปิดใช้งาน ไม่ต้องมี is_enabled ซ้ำ']
@@ -858,7 +850,6 @@ Table form_plan {
   }
 
   checks {
-    `(schedule_kind = 'RECURRING' AND schedule_config IS NOT NULL AND jsonb_typeof(schedule_config) = 'object') OR (schedule_kind = 'EXPLICIT' AND schedule_config IS NULL)` [name: 'form_plan_schedule_check']
     `effective_until IS NULL OR (effective_from IS NOT NULL AND effective_until > effective_from)` [name: 'form_plan_effective_check']
     `supersedes_plan_id IS NULL OR supersedes_plan_id <> id` [name: 'form_plan_no_self_check']
     `closed_by IS NULL OR effective_until IS NOT NULL` [name: 'form_plan_closed_actor_check']
@@ -1060,32 +1051,65 @@ Table form_answer_attachment {
 }
 
 Table form_review_entry {
-  id uuid [pk, note: 'UUIDv7']
-  company_id uuid [not null, note: 'FK -> company.id']
-  submission_id uuid [not null, note: 'FK -> form_submission.id ชุดคำตอบที่ถูกตรวจ']
-  form_version_id uuid [not null, note: 'บังคับเป้าหมายหมวดและ submission อยู่ฉบับเดียวกันด้วย composite FK']
-  answer_id uuid [note: 'มีค่าเมื่อตรวจคำตอบรายข้อ รวมข้อแนบภาพ']
-  section_id uuid [note: 'มีค่าเมื่อตรวจทั้งหมวด; ห้ามมีพร้อม answer_id']
-  action form_review_action [not null, note: 'ผลการตรวจ: PASS/NEEDS_CHANGES (รายข้อ/หมวด) หรือ APPROVE/RETURN (ทั้งชุด)']
-  note text [note: 'คำอธิบาย/คำแนะนำ บังคับเมื่อ NEEDS_CHANGES หรือ RETURN ไม่ใช่เธรดสนทนา']
-  reviewed_by uuid [not null, note: 'สมาชิกผู้ตรวจจริง ตรวจ Role permissions ปัจจุบัน ไม่บังคับ OWNER']
-  supersedes_entry_id uuid [unique, note: 'ผลตรวจรายละเอียดที่ถูกแทน ต้องเป็น head ของเป้าหมายเดิม ตรวจด้วย transaction']
+  id uuid [pk]
+  company_id uuid [not null]
+  submission_id uuid [not null]
+  form_version_id uuid [not null, note: 'Composite FK บังคับ submission version']
+  answer_id uuid [not null]
+  action form_review_action [not null]
+  note text
+  reviewed_by uuid [not null]
+  supersedes_entry_id uuid [unique]
   created_at timestamptz [not null, default: `now()`]
   Indexes {
     (id, company_id, submission_id) [unique]
     (submission_id, answer_id, created_at)
-    (submission_id, section_id, created_at)
     (company_id, reviewed_by, created_at)
   }
-
   checks {
-    `(num_nonnulls(answer_id, section_id) = 1 AND action IN ('PASS', 'NEEDS_CHANGES')) OR (answer_id IS NULL AND section_id IS NULL AND action IN ('APPROVE', 'RETURN') AND supersedes_entry_id IS NULL)` [name: 'form_review_target_action_check']
-    `action NOT IN ('NEEDS_CHANGES', 'RETURN') OR (note IS NOT NULL AND length(trim(note)) > 0)` [name: 'form_review_note_check']
+    `action IN ('PASS', 'NEEDS_CHANGES')` [name: 'form_review_target_action_check']
+    `action <> 'NEEDS_CHANGES' OR (note IS NOT NULL AND length(trim(note)) > 0)` [name: 'form_review_note_check']
     `supersedes_entry_id IS NULL OR supersedes_entry_id <> id` [name: 'form_review_no_self_check']
   }
-
-  Note: 'แบบเสนอ: ประวัติผลตรวจแบบเพิ่มอย่างเดียว รายข้อ/หมวดไม่ส่งงานกลับทันที ต้องมี RETURN ทั้งชุด ไม่มีตาราง review แบบหนึ่งต่อหนึ่ง ไม่มีสถานะตรวจซ้ำ ต้องเพิ่ม partial unique สำหรับ root ผลรายเป้าและคำตัดสินสุดท้ายใน migration; permission, coverage, head เป้าหมายเดิม และห้ามตรวจหลัง finalize บังคับใน use case'
+  Note: 'ผลตรวจรายคำตอบเท่านั้น; Section เป็น bulk action และคำนวณผลจากคำตอบ; root ต่อ answer มี partial unique ใน Drizzle; head และ revision ตรวจใน transaction'
 }
+
+Table form_plan_recurring_schedule {
+  plan_id uuid [pk]
+  company_id uuid [not null, note: 'Composite FK บังคับ tenant ของ plan']
+  frequency text [not null, check: `frequency IN ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY')`]
+  interval integer [not null, check: `interval BETWEEN 1 AND 100`]
+  anchor_local_date date [not null, note: 'วันเริ่มช่วงและจุดตั้งต้นการคำนวณ']
+  end_local_date date [note: 'วันสิ้นสุดรวมวันนี้ใน timezone ของ plan; null = ไม่จำกัด']
+  open_local_time text [not null, note: 'HH:mm']
+  invalid_day_policy text [not null, check: `invalid_day_policy IN ('SKIP', 'LAST_DAY')`]
+  due_offset_amount integer [not null, check: `due_offset_amount > 0`]
+  due_offset_unit text [not null, check: `due_offset_unit IN ('ELAPSED_HOURS', 'CALENDAR_DAYS')`]
+  checks {
+    `end_local_date IS NULL OR end_local_date >= anchor_local_date` [name: 'form_schedule_range_check']
+    `open_local_time ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'` [name: 'form_schedule_time_check']
+  }
+  Note: 'หนึ่งแถวต่อ RECURRING plan; application บังคับชนิด schedule; ไม่เก็บ weekday หรือ day_of_month ที่คำนวณจาก anchor ได้'
+}
+
+Table form_submission_decision {
+  id uuid [pk]
+  company_id uuid [not null]
+  submission_id uuid [not null, unique]
+  form_version_id uuid [not null, note: 'Composite FK บังคับ submission version']
+  action text [not null, check: `action IN ('APPROVE', 'RETURN')`]
+  note text
+  decided_by uuid [not null]
+  created_at timestamptz [not null, default: `now()`]
+  checks {
+    `action <> 'RETURN' OR (note IS NOT NULL AND length(trim(note)) > 0)` [name: 'form_decision_note_check']
+  }
+  Note: 'หนึ่งคำตัดสินต่อ submission; APPROVE ไม่บังคับ PASS ครบ แต่ห้ามมี NEEDS_CHANGES ล่าสุดค้าง; RETURN ต้องมีหมายเหตุ'
+}
+
+Ref: form_plan_recurring_schedule.(plan_id, company_id) > form_plan.(id, company_id) [delete: cascade]
+Ref: form_submission_decision.(submission_id, company_id, form_version_id) > form_submission.(id, company_id, form_version_id) [delete: restrict]
+Ref: form_submission_decision.(decided_by, company_id) > company_member.(id, company_id) [delete: restrict]
 
 
 Ref: form_template.company_id > company.id [delete: restrict]
@@ -1128,7 +1152,6 @@ Ref: form_answer.(field_id, company_id, form_version_id) > form_field.(id, compa
 Ref: form_answer_attachment.(answer_id, company_id) > form_answer.(id, company_id) [delete: restrict]
 Ref: form_review_entry.(submission_id, company_id, form_version_id) > form_submission.(id, company_id, form_version_id) [delete: restrict]
 Ref: form_review_entry.(answer_id, company_id, submission_id) > form_answer.(id, company_id, submission_id) [delete: restrict]
-Ref: form_review_entry.(section_id, company_id, form_version_id) > form_section.(id, company_id, form_version_id) [delete: restrict]
 Ref: form_review_entry.(supersedes_entry_id, company_id, submission_id) > form_review_entry.(id, company_id, submission_id) [delete: restrict]
 
 TableGroup form_definition {
@@ -1139,6 +1162,7 @@ TableGroup form_definition {
 }
 
 TableGroup form_planning {
+  form_plan_recurring_schedule
   form_plan
   form_plan_target
   form_plan_period
@@ -1152,4 +1176,5 @@ TableGroup form_response {
   form_answer
   form_answer_attachment
   form_review_entry
+  form_submission_decision
 }
