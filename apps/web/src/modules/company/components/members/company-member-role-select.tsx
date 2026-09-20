@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { OptionsSelect } from '@/shared/components/form/options-select';
+import { useForm } from 'react-hook-form';
+import { SelectField } from '@repo/ui/form';
 import { Badge } from '@repo/ui/components/badge';
 import { useCompanyMemberUpdate } from '../../hooks/company-mutations';
 import type { CompanyMember, Role } from '@repo/client';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
+
+type RoleFormValues = {
+  roleId: string;
+};
 
 export default function CompanyMemberRoleSelect({
   member,
@@ -38,17 +43,38 @@ export default function CompanyMemberRoleSelect({
     );
   }, [roles, companyId]);
 
-  const handleRoleChange = React.useCallback(
-    async (key: React.Key | null) => {
-      if (!key || key === member.roleId || isOwner) return;
-      await updateMutation.mutateAsync({
-        id: member.id,
-        data: {
-          roleId: key as string,
-        },
-      });
+  const methods = useForm<RoleFormValues>({
+    mode: 'onChange',
+    defaultValues: {
+      roleId: member.roleId || '',
     },
-    [member.roleId, isOwner, updateMutation, member.id],
+    values: {
+      roleId: member.roleId || '',
+    },
+  });
+
+  const onSubmit = React.useCallback(
+    async (data: RoleFormValues) => {
+      if (
+        !data.roleId ||
+        data.roleId === member.roleId ||
+        isOwner ||
+        updateMutation.isPending
+      ) {
+        return;
+      }
+      try {
+        await updateMutation.mutateAsync({
+          id: member.id,
+          data: {
+            roleId: data.roleId,
+          },
+        });
+      } catch {
+        methods.reset({ roleId: member.roleId || '' });
+      }
+    },
+    [member.id, member.roleId, isOwner, updateMutation, methods],
   );
 
   // If member is Owner, do not allow changing roles
@@ -64,16 +90,30 @@ export default function CompanyMemberRoleSelect({
   }
 
   return (
-    <OptionsSelect
-      value={member.roleId}
-      label="บทบาท"
-      onChange={handleRoleChange}
-      disabled={updateMutation.isPending}
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void methods.handleSubmit(onSubmit)(e);
+      }}
+      onChange={() => {
+        void methods.handleSubmit(onSubmit)();
+      }}
       className="w-44"
-      options={companyRoles.map((item) => ({
-        value: item.id,
-        label: item.name,
-      }))}
-    />
+    >
+      <SelectField
+        control={methods.control}
+        name="roleId"
+        label="บทบาท"
+        placeholder="เลือกบทบาท..."
+        disabled={updateMutation.isPending}
+        options={companyRoles.map((item) => ({
+          value: item.id,
+          label: item.name,
+        }))}
+        onValueChange={() => {
+          void methods.handleSubmit(onSubmit)();
+        }}
+      />
+    </form>
   );
 }
