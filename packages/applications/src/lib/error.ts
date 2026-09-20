@@ -78,7 +78,7 @@ export type ApiResponse<T = unknown> = {
   details?: unknown;
 };
 
-export const throwAppError = (error: unknown): never => {
+export const throwAppError = (error: unknown) => {
   if (error instanceof AppError) throw error;
   throw new InternalError(
     error instanceof Error ? error.message : 'Unknown error',

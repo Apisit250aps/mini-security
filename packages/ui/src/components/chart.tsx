@@ -16,8 +16,8 @@ type ChartConfig = Record<
     label?: React.ReactNode;
     icon?: React.ComponentType;
   } & (
-    | { color?: string; theme?: never }
-    | { color?: never; theme: Record<keyof typeof THEMES, string> }
+    | { color?: string; theme?: undefined }
+    | { color?: undefined; theme: Record<keyof typeof THEMES, string> }
   )
 >;
 

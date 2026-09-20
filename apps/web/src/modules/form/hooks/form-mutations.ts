@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { getErrorMessage } from '@/shared/utils';
-import { formKeys } from '@/shared/utils/query';
+import { toast } from '@repo/ui/components/sonner';
+import { formKeys, getErrorMessage } from '@/shared/utils';
 import {
   formServicesCreateTemplate,
   formServicesUpdateTemplate,
@@ -128,22 +127,18 @@ export function useFormSectionCreate(companyId: string, templateId: string) {
   });
 }
 
-function useFormItemsReorder(
-  companyId: string,
-  templateId: string,
-  kind: 'sections' | 'fields',
-) {
+export function useFormSectionReorder(companyId: string, templateId: string) {
   const queryClient = useQueryClient();
   const queryKey = formKeys.template(templateId);
   return useMutation({
-    mutationKey: ['FORM', 'REORDER', templateId],
+    mutationKey: ['FORM', 'REORDER', 'SECTIONS', templateId],
     mutationFn: async (body: ReorderFormItemsRequest) => {
-      const service =
-        kind === 'sections'
-          ? formServicesReorderSections
-          : formServicesReorderFields;
       return (
-        await service({ path: { id: templateId }, body, throwOnError: true })
+        await formServicesReorderSections({
+          path: { id: templateId },
+          body,
+          throwOnError: true,
+        })
       ).data;
     },
     onMutate: async (body) => {
@@ -161,7 +156,7 @@ function useFormItemsReorder(
             return detail;
           return {
             ...detail,
-            [kind]: detail[kind]
+            sections: detail.sections
               .map((item) => ({
                 ...item,
                 sortOrder: orders.get(item.id) ?? item.sortOrder,
@@ -171,6 +166,16 @@ function useFormItemsReorder(
         },
       );
       return { previous };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: formKeys.template(templateId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.templates(companyId),
+        }),
+      ]);
     },
     onError: (error, _body, context) => {
       if (context?.previous !== undefined)
@@ -190,12 +195,72 @@ function useFormItemsReorder(
   });
 }
 
-export function useFormSectionReorder(companyId: string, templateId: string) {
-  return useFormItemsReorder(companyId, templateId, 'sections');
-}
-
 export function useFormFieldReorder(companyId: string, templateId: string) {
-  return useFormItemsReorder(companyId, templateId, 'fields');
+  const queryClient = useQueryClient();
+  const queryKey = formKeys.template(templateId);
+  return useMutation({
+    mutationKey: ['FORM', 'REORDER', 'FIELDS', templateId],
+    mutationFn: async (body: ReorderFormItemsRequest) => {
+      return (
+        await formServicesReorderFields({
+          path: { id: templateId },
+          body,
+          throwOnError: true,
+        })
+      ).data;
+    },
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<FormTemplateDetail | null>(
+        queryKey,
+      );
+      const orders = new Map(
+        body.items.map((item) => [item.id, item.sortOrder]),
+      );
+      queryClient.setQueryData<FormTemplateDetail | null>(
+        queryKey,
+        (detail) => {
+          if (!detail || detail.draftVersion?.id !== body.formVersionId)
+            return detail;
+          return {
+            ...detail,
+            fields: detail.fields
+              .map((item) => ({
+                ...item,
+                sortOrder: orders.get(item.id) ?? item.sortOrder,
+              }))
+              .sort((a, b) => a.sortOrder - b.sortOrder),
+          };
+        },
+      );
+      return { previous };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: formKeys.template(templateId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.templates(companyId),
+        }),
+      ]);
+    },
+    onError: (error, _body, context) => {
+      if (context?.previous !== undefined)
+        queryClient.setQueryData(queryKey, context.previous);
+      toast.error(
+        getErrorMessage(error, 'บันทึกลำดับไม่สำเร็จ คืนค่าลำดับเดิมแล้ว'),
+      );
+    },
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.templates(companyId),
+        }),
+      ]);
+    },
+  });
 }
 
 export function useFormFieldCreate(templateId: string) {
@@ -330,9 +395,13 @@ export function useFormPlanCreate(companyId: string) {
       toast.success('สร้างแผนการทำงานสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: formKeys.plans(companyId) }),
-        queryClient.invalidateQueries({
-          queryKey: formKeys.template(variables.data.formTemplateId),
-        }),
+        ...(variables?.data?.formTemplateId
+          ? [
+              queryClient.invalidateQueries({
+                queryKey: formKeys.template(variables.data.formTemplateId),
+              }),
+            ]
+          : []),
       ]);
     },
     onError: (error) =>

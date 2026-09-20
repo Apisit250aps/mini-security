@@ -1,0 +1,78 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "ignorePatterns": [
+    "out/**",
+    "**/dist/**",
+    "**/*.gen.ts"
+  ],
+  "ignoreDependencies": [
+    "@typespec/*",
+    "@hey-api/*",
+    "eslint-plugin-only-warn",
+    "dependency-cruiser",
+    "lucide-react",
+    "pg",
+    "react-aria-components",
+    "zod"
+  ],
+  "ignoreExports": [
+    {
+      "file": "packages/client/src/api/client/types.gen.ts",
+      "exports": ["*"]
+    },
+    {
+      "file": "packages/client/src/api/core/types.gen.ts",
+      "exports": ["*"]
+    }
+  ],
+  "boundaries": {
+    "zones": [
+      {
+        "name": "domain",
+        "patterns": ["packages/domains/**"]
+      },
+      {
+        "name": "database",
+        "patterns": ["packages/database/**"]
+      },
+      {
+        "name": "application",
+        "patterns": ["packages/applications/**"]
+      },
+      {
+        "name": "infrastructure",
+        "patterns": ["packages/infrastructures/**"]
+      },
+      {
+        "name": "presentation",
+        "patterns": ["apps/**", "packages/ui/**"]
+      },
+      {
+        "name": "shared",
+        "patterns": ["packages/configs/**", "packages/client/**"]
+      }
+    ],
+    "rules": [
+      {
+        "from": "domain",
+        "allow": ["domain", "shared"]
+      },
+      {
+        "from": "database",
+        "allow": ["database", "domain", "shared"]
+      },
+      {
+        "from": "application",
+        "allow": ["application", "domain", "shared"]
+      },
+      {
+        "from": "infrastructure",
+        "allow": ["infrastructure", "application", "database", "domain", "shared"]
+      },
+      {
+        "from": "presentation",
+        "allow": ["presentation", "application", "infrastructure", "domain", "database", "shared"]
+      }
+    ]
+  }
+}

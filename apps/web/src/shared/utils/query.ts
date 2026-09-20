@@ -78,6 +78,13 @@ export const attendanceKeys = {
     ['ATTENDANCE', 'LOGS', 'COMPANY', companyId, filters] as const,
 };
 
+export const locationKeys = {
+  all: ['LOCATIONS'] as const,
+  company: (companyId: string) => ['LOCATIONS', companyId] as const,
+  assignments: (companyId: string, slotId: string) =>
+    ['LOCATIONS', companyId, 'SLOT', slotId] as const,
+};
+
 export const leaveKeys = {
   ...createQueryKeys('LEAVE'),
   typeLists: (companyId: string) => ['LEAVE', 'TYPES', companyId] as const,

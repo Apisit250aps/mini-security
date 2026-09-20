@@ -25,7 +25,6 @@ const data = {
   type: 'TEXT' as const,
   description: null,
   isRequired: false,
-  config: {},
 };
 function fixture(status = 'DRAFT') {
   let inside = false;

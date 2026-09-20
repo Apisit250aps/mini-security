@@ -46,7 +46,7 @@ for (const kind of ['sections', 'fields'] as const) {
         };
       if (name === '@repo/ui/components/sonner')
         return { toast: { error: (message: string) => notices.push(message) } };
-      if (name === '@/shared/utils')
+      if (name === '@/shared/utils' || name === '@/shared/utils/query')
         return { formKeys, getErrorMessage: (error: Error) => error.message };
       throw new Error(`Unexpected import ${name}`);
     };

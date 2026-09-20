@@ -1,10 +1,6 @@
 import type { IUnitOfWork } from '@repo/domains';
 import { RequirePermission } from '../../decorators/permission.decorator';
-import type {
-  FormPlan,
-  FormPlanTarget,
-  FormPlanPeriod,
-} from '@repo/domains/entities/form';
+import type { FormPlan } from '@repo/domains/entities/form';
 import type {
   IActivateFormPlanContext,
   IActivateFormPlanUseCase,

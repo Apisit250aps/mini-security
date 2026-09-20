@@ -4,12 +4,8 @@ import {
   locationServiceGetSlotLocationAssignments,
 } from '@repo/client';
 
-export const locationKeys = {
-  all: ['LOCATIONS'] as const,
-  company: (companyId: string) => ['LOCATIONS', companyId] as const,
-  assignments: (companyId: string, slotId: string) =>
-    ['LOCATIONS', companyId, 'SLOT', slotId] as const,
-};
+import { locationKeys } from '@/shared/utils/query';
+export { locationKeys };
 
 export function useCompanyLocations(companyId: string) {
   return useQuery({

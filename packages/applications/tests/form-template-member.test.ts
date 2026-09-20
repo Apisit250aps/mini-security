@@ -87,7 +87,7 @@ function fixture() {
           companyId,
           userId,
           isActive: true,
-        } as never;
+        } as unknown as Awaited<ReturnType<ICompanyMemberRepository['findById']>>;
       }
       return null;
     },
@@ -98,7 +98,7 @@ function fixture() {
           companyId,
           userId,
           isActive: true,
-        } as never;
+        } as unknown as Awaited<ReturnType<ICompanyMemberRepository['findByCompanyAndUser']>>;
       }
       return null;
     },
@@ -116,6 +116,14 @@ function fixture() {
         isRequired: false,
         config: {},
       } as FormField,
+    ],
+    findByVersionIdWithOptions: async () => [
+      {
+        id: 'field-1',
+        type: 'TEXT',
+        isRequired: false,
+        options: [],
+      } as unknown as FormField,
     ],
   } as unknown as IFormFieldRepository;
 

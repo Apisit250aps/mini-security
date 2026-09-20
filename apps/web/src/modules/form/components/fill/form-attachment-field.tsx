@@ -7,7 +7,7 @@ import {
 } from '@repo/client';
 import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
-import { toast } from 'sonner';
+import { toast } from '@repo/ui/components/sonner';
 import { useFormSubmissionQueries } from '../../hooks/form-queries';
 import { formKeys } from '@/shared/utils/query';
 import { getErrorMessage } from '@/shared/utils';

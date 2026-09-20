@@ -4,6 +4,7 @@ import type {
   FormAssignment,
   FormOccurrence,
   FormPlan,
+  FormTemplate,
   FormSubmission,
   FormReviewEntry,
 } from '@repo/domains/entities/form';
@@ -113,7 +114,8 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
   };
 
   const templateRepo: Partial<IFormTemplateRepository> = {
-    findById: async () => ({ id: 't1', name: 'Safety Checklist v1' }) as never,
+    findById: async () =>
+      ({ id: 't1', name: 'Safety Checklist v1' }) as unknown as FormTemplate,
   };
 
   const submissionRepo: Partial<IFormSubmissionRepository> = {
@@ -387,7 +389,7 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
         occurrenceId: 'occ1',
         companyMemberId: 'm1',
         roleId: null,
-      }) as never,
+      }) as unknown as FormAssignment,
   };
 
   const memRepo: Partial<ICompanyMemberRepository> = {
@@ -397,15 +399,17 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
 
   const occRepo: Partial<IFormOccurrenceRepository> = {
     findById: async () =>
-      ({ id: 'occ1', planId: 'p1', formTemplateId: 't1' }) as never,
+      ({ id: 'occ1', planId: 'p1', formTemplateId: 't1' }) as unknown as FormOccurrence,
   };
 
   const pRepo: Partial<IFormPlanRepository> = {
-    findById: async () => ({ id: 'p1', name: 'Monthly Audit' }) as never,
+    findById: async () =>
+      ({ id: 'p1', name: 'Monthly Audit' }) as unknown as FormPlan,
   };
 
   const tRepo: Partial<IFormTemplateRepository> = {
-    findById: async () => ({ id: 't1', name: 'Audit Checklist' }) as never,
+    findById: async () =>
+      ({ id: 't1', name: 'Audit Checklist' }) as unknown as FormTemplate,
   };
 
   const revEntryRepo: Partial<IFormReviewEntryRepository> = {

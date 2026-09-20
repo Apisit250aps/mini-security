@@ -4,7 +4,6 @@ import { RequirePermission } from '../../decorators/permission.decorator';
 import {
   FormSection,
   FormField,
-  FormFieldOption,
   FormTemplate,
   FormVersion,
 } from '@repo/domains/entities/form';

@@ -14,7 +14,7 @@ import {
   updatedAtTimestamp,
 } from '#lib/utils';
 import { company } from './company';
-import { role } from './permission';
+import { role } from './role';
 import { user } from './user';
 
 export const feature = pgTable(

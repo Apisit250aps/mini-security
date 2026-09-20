@@ -5,10 +5,15 @@ import { ValidationError } from '../../lib/error';
 export async function validateFormFieldConfig(
   field: Pick<FormField, 'type'> & {
     options?: Array<{ label: string; value: string }>;
+    config?: unknown;
   },
 ) {
   if (!['SELECT', 'RADIO', 'CHECKBOX_GROUP'].includes(field.type)) return;
-  const options = field.options || [];
+  const legacyOptions =
+    typeof field.config === 'object' && field.config !== null && 'options' in field.config
+      ? (field.config as { options?: Array<{ label: string; value: string }> }).options
+      : undefined;
+  const options = field.options || legacyOptions || [];
   if (options.length === 0) return;
 
   const values = options.map((o) => o.value);
@@ -18,7 +23,7 @@ export async function validateFormFieldConfig(
 }
 
 export async function validateFormAnswer(
-  field: FormField,
+  field: FormField & { config?: unknown },
   value: unknown,
   submitting = false,
 ) {
@@ -34,7 +39,22 @@ export async function validateFormAnswer(
       );
     return;
   }
-  const result = await formAnswerValueSchema(field).safeParseAsync(value);
+
+  // Attachments must not have persisted non-null values in form_answer.value
+  if (attachment) {
+    throw new ValidationError(`Invalid answer for "${field.label}"`);
+  }
+
+  const legacyOptions =
+    typeof field.config === 'object' && field.config !== null && 'options' in field.config
+      ? (field.config as { options?: Array<{ label: string; value: string }> }).options
+      : undefined;
+  const normalizedField = {
+    ...field,
+    options: field.options || legacyOptions,
+  };
+
+  const result = await formAnswerValueSchema(normalizedField).safeParseAsync(value);
   if (!result.success)
     throw new ValidationError(
       `Invalid answer for "${field.label}"`,

@@ -11,7 +11,6 @@ import {
   text,
   time,
   timestamp,
-  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';

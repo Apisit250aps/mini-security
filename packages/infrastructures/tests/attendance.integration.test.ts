@@ -32,29 +32,56 @@ test(
     try {
       await client.query(`CREATE SCHEMA "${schema}"`);
       await client.query(`SET search_path TO "${schema}"`);
-      await client.query(
-        'CREATE TABLE company (id uuid PRIMARY KEY); CREATE TABLE "user" (id uuid PRIMARY KEY); CREATE TABLE company_member (id uuid PRIMARY KEY); CREATE TABLE role (id uuid PRIMARY KEY, company_id uuid, is_system_default boolean NOT NULL DEFAULT false);',
-      );
-      const original = await readFile(
+      const migrationSql = await readFile(
         new URL(
-          '../../database/drizzle/20260906054008_add_attendance_and_leave_modules/migration.sql',
+          '../../database/migrations/20260919091959_initial_database/migration.sql',
           import.meta.url,
         ),
         'utf8',
       );
-      await client.query(original);
-      await client.query('INSERT INTO company VALUES ($1), ($2)', [
-        companyA,
-        companyB,
-      ]);
+      for (const statement of migrationSql
+        .split('--> statement-breakpoint')
+        .map((s) => s.trim())
+        .filter(Boolean)) {
+        await client.query(statement);
+      }
+      const userId = randomUUID();
       await client.query(
-        'INSERT INTO role (id,company_id) VALUES ($1,$2), ($3,$2), ($4,$5), ($6,NULL)',
-        [roleA, companyA, roleB, foreignRole, companyB, globalRole],
+        'INSERT INTO "user" (id, name, email) VALUES ($1, $2, $3)',
+        [userId, 'Test User', 'test@example.com'],
       );
-      await client.query('INSERT INTO company_member VALUES ($1)', [memberId]);
       await client.query(
-        "INSERT INTO check_in_schedules (id, company_id, role_id, name, is_active, updated_at) VALUES ($1,$2,$3,'Existing',false,now())",
-        [scheduleId, companyA, roleA],
+        'INSERT INTO company (id, name, slug) VALUES ($1, $2, $3), ($4, $5, $6)',
+        [companyA, 'Company A', 'comp-a', companyB, 'Company B', 'comp-b'],
+      );
+      await client.query(
+        'INSERT INTO role (id, company_id, name, role_type, is_system_default) VALUES ($1,$2,$3,$4,false), ($5,$2,$6,$4,false), ($7,$8,$9,$4,false), ($10,NULL,$11,$12,true)',
+        [
+          roleA,
+          companyA,
+          'Role A',
+          'CUSTOM',
+          roleB,
+          'Role B',
+          foreignRole,
+          companyB,
+          'Role Foreign',
+          globalRole,
+          'Global Role',
+          'SUPER_ADMIN',
+        ],
+      );
+      await client.query(
+        'INSERT INTO company_member (id, company_id, user_id) VALUES ($1, $2, $3)',
+        [memberId, companyA, userId],
+      );
+      await client.query(
+        "INSERT INTO check_in_schedules (id, company_id, name, is_active, updated_at) VALUES ($1,$2,'Existing',false,now())",
+        [scheduleId, companyA],
+      );
+      await client.query(
+        'INSERT INTO check_in_schedule_roles (id, company_id, check_in_schedule_id, role_id, updated_at) VALUES ($1,$2,$3,$4,now())',
+        [randomUUID(), companyA, scheduleId, globalRole],
       );
       await client.query(
         "INSERT INTO schedule_slots (id,check_in_schedule_id,slot_order,label,window_start,window_end,updated_at) VALUES ($1,$2,1,'Morning','08:00','09:00',now())",
@@ -64,32 +91,6 @@ test(
         "INSERT INTO attendance_logs (id,company_member_id,schedule_slot_id,work_date,status,updated_at) VALUES ($1,$2,$3,'2026-09-12','present',now())",
         [logId, memberId, slotId],
       );
-      const migration = await readFile(
-        new URL(
-          '../../database/drizzle/20260912040000_check_in_schedule_roles/migration.sql',
-          import.meta.url,
-        ),
-        'utf8',
-      );
-      // A foreign-company legacy role must stop the migration without partial changes.
-      await client.query('UPDATE check_in_schedules SET role_id=$1', [
-        foreignRole,
-      ]);
-      await client.query('BEGIN');
-      await assert.rejects(
-        client.query(migration),
-        /company roles or system default roles/,
-      );
-      await client.query('ROLLBACK');
-      await client.query('UPDATE role SET is_system_default=true WHERE id=$1', [
-        globalRole,
-      ]);
-      await client.query('UPDATE check_in_schedules SET role_id=$1', [
-        globalRole,
-      ]);
-      await client.query('BEGIN');
-      await client.query(migration);
-      await client.query('COMMIT');
       assert.equal(
         (await client.query('SELECT id FROM attendance_logs')).rows[0].id,
         logId,

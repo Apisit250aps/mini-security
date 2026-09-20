@@ -54,6 +54,24 @@ for (const moduleName of readdirSync(modules)) {
         keys.leaveKeys.types('company', true),
         keys.leaveKeys.types('company', false),
         keys.leaveKeys.quotas('member', 2026),
+        keys.locationKeys.company('company'),
+        keys.formKeys.templates('company'),
+        keys.formKeys.template('template'),
+        keys.formKeys.submissions('company'),
+        keys.formKeys.submission('submission'),
+        keys.formKeys.plans('company'),
+        keys.formKeys.plans('company', 'template'),
+        keys.formKeys.plan('plan'),
+        keys.formKeys.schedulePreview('plan'),
+        keys.formKeys.occurrences('company'),
+        keys.formKeys.occurrence('id'),
+        keys.formKeys.occurrenceAssignments('id'),
+        keys.formKeys.assignment('id'),
+        keys.formKeys.myAssignments('company'),
+        ['FORM', 'ASSIGNMENTS'],
+        ['FORM', 'OCCURRENCE'],
+        keys.formKeys.reviewQueue('company'),
+        keys.formKeys.reviewDetail('submission'),
       ];
       let refetched = 0;
       const disposers = candidates.map((queryKey) => {
@@ -71,12 +89,18 @@ for (const moduleName of readdirSync(modules)) {
       try {
         const env = {
           ...keys,
+          locationKeys: keys.locationKeys,
           queryClient: client,
-          toast: { success: () => {} },
+          client,
+          toast: { success: () => {}, error: () => {} },
           companyId: 'company',
           roleId: 'role',
           scheduleId: 'schedule',
           memberId: 'member',
+          submissionId: 'submission',
+          planId: 'plan',
+          templateId: 'template',
+          slotId: 'slot',
           year: 2026,
         };
         const js = ts.transpile(`const callback = ${success.getText(file)};`, {
@@ -88,7 +112,14 @@ for (const moduleName of readdirSync(modules)) {
         )(...Object.values(env));
         await callback(
           { data: { status: 'late' } },
-          { id: 'id', companyId: 'company', roleId: 'role', isEnabled: true },
+          {
+            id: 'id',
+            companyId: 'company',
+            roleId: 'role',
+            isEnabled: true,
+            assignmentId: 'id',
+            data: { formTemplateId: 'template' },
+          },
         );
         assert.ok(
           refetched > 0,

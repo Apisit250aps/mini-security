@@ -6,7 +6,6 @@ import type {
   FormPlanTarget,
   FormPlanPeriod,
   FormTemplate,
-  FormVersion,
 } from '@repo/domains/entities/form';
 import type { CompanyMember } from '@repo/domains/entities/company';
 import type {
@@ -23,10 +22,10 @@ import {
 } from '../src/use-cases/form/form-plan.usecase';
 
 function fixture() {
-  let insideTx = false;
+  let _insideTx = false;
   const uow: IUnitOfWork = {
     transaction: async (work) => {
-      insideTx = true;
+      _insideTx = true;
       try {
         return await work();
       } finally {

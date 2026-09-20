@@ -1,5 +1,4 @@
 import type { IUnitOfWork } from '@repo/domains';
-import type { ISecurityContext } from '@repo/domains/constants';
 import type {
   IFormAttachmentUseCase,
   IFormAttachmentUploadContext,

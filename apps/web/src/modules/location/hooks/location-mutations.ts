@@ -13,7 +13,7 @@ import { getErrorMessage } from '@/shared/utils';
 import { locationKeys } from './location-queries';
 
 export function useLocationSave(companyId: string) {
-  const client = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (
       input:
@@ -37,7 +37,7 @@ export function useLocationSave(companyId: string) {
       ).data.data;
     },
     onSuccess: async () => {
-      await client.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: locationKeys.company(companyId),
       });
       toast.success('บันทึกสถานที่สำเร็จ');
@@ -48,7 +48,7 @@ export function useLocationSave(companyId: string) {
 }
 
 export function useSlotLocationToggle(companyId: string, slotId: string) {
-  const client = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       locationId,
@@ -70,7 +70,7 @@ export function useSlotLocationToggle(companyId: string, slotId: string) {
       });
     },
     onSuccess: async () => {
-      await client.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: locationKeys.company(companyId),
       });
       toast.success('บันทึกตำแหน่งของรอบเวลาสำเร็จ');
