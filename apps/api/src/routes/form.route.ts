@@ -5,7 +5,7 @@ import {
   createFormTemplateUseCase,
   updateFormTemplateUseCase,
   getFormTemplateUseCase,
-  listFormTemplatesByCompanyUseCase,
+  listFormTemplatesByOrganizationUseCase,
   createFormSectionUseCase,
   createFormFieldUseCase,
   editFormFieldUseCase,
@@ -49,7 +49,7 @@ const formController = new FormController(
   createFormTemplateUseCase,
   updateFormTemplateUseCase,
   getFormTemplateUseCase,
-  listFormTemplatesByCompanyUseCase,
+  listFormTemplatesByOrganizationUseCase,
   createFormSectionUseCase,
   createFormFieldUseCase,
   editFormFieldUseCase,
@@ -95,8 +95,8 @@ formRoutes.post('/templates', formController.createTemplate);
 formRoutes.put('/templates/:id', formController.updateTemplate);
 formRoutes.get('/templates/:id', formController.getTemplate);
 formRoutes.get(
-  '/companies/:companyId/templates',
-  formController.listTemplatesByCompany,
+  '/organizations/:organizationId/templates',
+  formController.listTemplatesByOrganization,
 );
 formRoutes.post('/templates/:id/sections', formController.createSection);
 formRoutes.delete(

@@ -3,10 +3,10 @@ import {
   AccountRepository,
   AttendanceLogRepository,
   CheckInScheduleRepository,
-  CompanyBranchRepository,
-  CompanyFeatureRepository,
-  CompanyMemberRepository,
-  CompanyRepository,
+  SiteRepository,
+  OrganizationFeatureRepository,
+  OrganizationMemberRepository,
+  OrganizationRepository,
   FeatureRepository,
   FormAnswerAttachmentRepository,
   FormAnswerRepository,
@@ -39,12 +39,16 @@ import {
 
 export const userRepository = new UserRepository(db);
 
-export const companyRepository = new CompanyRepository(db);
-export const companyBranchRepository = new CompanyBranchRepository(db);
-export const companyMemberRepository = new CompanyMemberRepository(db);
+export const organizationRepository = new OrganizationRepository(db);
+export const siteRepository = new SiteRepository(db);
+export const organizationMemberRepository = new OrganizationMemberRepository(
+  db,
+);
 
 export const featureRepository = new FeatureRepository(db);
-export const companyFeatureRepository = new CompanyFeatureRepository(db);
+export const organizationFeatureRepository = new OrganizationFeatureRepository(
+  db,
+);
 export const roleFeatureRepository = new RoleFeatureRepository(db);
 
 export const roleRepository = new RoleRepository(db);

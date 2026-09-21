@@ -143,7 +143,7 @@ export abstract class Repository<
 
 ## 5. Drizzle Table Schemas (`packages/database/src/schema/`)
 
-### Multi-tenant Hierarchy (`packages/database/src/schema/company.ts`)
+### Multi-tenant Hierarchy (`packages/database/src/schema/organization.ts`)
 ```typescript
 import { pgTable, text, index, uuid } from 'drizzle-orm/pg-core';
 import {
@@ -153,8 +153,8 @@ import {
 } from '#lib/utils';
 import { user } from './auth';
 
-export const company = pgTable(
-  'company',
+export const organization = pgTable(
+  'organization',
   {
     id: primaryKeyUuid7('id'),
     ownerId: uuid('owner_id')
@@ -167,16 +167,16 @@ export const company = pgTable(
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('company_ownerId_idx').on(table.ownerId)],
+  (table) => [index('organization_ownerId_idx').on(table.ownerId)],
 );
 
 export const branch = pgTable(
   'branch',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     code: text('code').notNull(),
     address: text('address'),
@@ -184,21 +184,21 @@ export const branch = pgTable(
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('branch_companyId_idx').on(table.companyId)],
+  (table) => [index('branch_organizationId_idx').on(table.organizationId)],
 );
 
 export const department = pgTable(
   'department',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('department_companyId_idx').on(table.companyId)],
+  (table) => [index('department_organizationId_idx').on(table.organizationId)],
 );
 ```
 
@@ -210,59 +210,59 @@ import {
   updatedAtTimestamp,
   createdAtTimestamp,
 } from '#lib/utils';
-import { company } from './company';
+import { organization } from './organization';
 
 export const category = pgTable(
   'category',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     description: text('description'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('category_companyId_idx').on(table.companyId)],
+  (table) => [index('category_organizationId_idx').on(table.organizationId)],
 );
 
 export const brand = pgTable(
   'brand',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     description: text('description'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('brand_companyId_idx').on(table.companyId)],
+  (table) => [index('brand_organizationId_idx').on(table.organizationId)],
 );
 
 export const unit = pgTable(
   'unit',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('unit_companyId_idx').on(table.companyId)],
+  (table) => [index('unit_organizationId_idx').on(table.organizationId)],
 );
 
 export const product = pgTable(
   'product',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     categoryId: uuid('category_id').references(() => category.id, {
       onDelete: 'set null',
     }),
@@ -281,7 +281,7 @@ export const product = pgTable(
     updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
-    index('product_companyId_idx').on(table.companyId),
+    index('product_organizationId_idx').on(table.organizationId),
     index('product_categoryId_idx').on(table.categoryId),
     index('product_brandId_idx').on(table.brandId),
     index('product_unitId_idx').on(table.unitId),
@@ -292,7 +292,7 @@ export const product = pgTable(
 ### Barrel Export (`packages/database/src/schema/index.ts`)
 ```typescript
 export * from './auth';
-export * from './company';
+export * from './organization';
 export * from './product';
 ```
 
@@ -305,9 +305,9 @@ import { defineRelationsPart } from 'drizzle-orm';
 import * as schema from './schema';
 
 export const relations = defineRelationsPart(schema, (r) => ({
-  company: {
+  organization: {
     owner: r.one.user({
-      from: r.company.ownerId,
+      from: r.organization.ownerId,
       to: r.user.id,
     }),
     branches: r.many.branch(),
@@ -318,15 +318,15 @@ export const relations = defineRelationsPart(schema, (r) => ({
     products: r.many.product(),
   },
   branch: {
-    company: r.one.company({
-      from: r.branch.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.branch.organizationId,
+      to: r.organization.id,
     }),
   },
   product: {
-    company: r.one.company({
-      from: r.product.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.product.organizationId,
+      to: r.organization.id,
     }),
     category: r.one.category({
       from: r.product.categoryId,
@@ -374,8 +374,8 @@ export default class ProductRepository
     return (result as Product) || null;
   }
 
-  async findByCompanyAndCategory(
-    companyId: string,
+  async findByOrganizationAndCategory(
+    organizationId: string,
     categoryId: string,
   ): Promise<Product[]> {
     const results = await this.db
@@ -383,7 +383,7 @@ export default class ProductRepository
       .from(this.table)
       .where(
         and(
-          eq(product.companyId, companyId),
+          eq(product.organizationId, organizationId),
           eq(product.categoryId, categoryId),
         ),
       );

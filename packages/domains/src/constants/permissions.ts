@@ -5,11 +5,11 @@ export type PermissionAction = string;
  */
 export interface ISecurityContext {
   userId?: string;
-  companyId?: string;
+  organizationId?: string;
   memberId?: string | null;
   /** Trusted session snapshot; never populate from request input. */
   permissions?: string | null;
-  activeCompanyId?: string | null;
+  activeOrganizationId?: string | null;
   user?: {
     id: string;
     isAdmin?: boolean;
@@ -25,12 +25,12 @@ export type WithSecurityContext<T> = T & ISecurityContext;
 
 /**
  * System-level modules that represent platform infrastructure and catalog data.
- * These are not configurable by company/tenant roles.
+ * These are not configurable by organization/tenant roles.
  */
 export const SYSTEM_PERMISSION_MODULES = [
   'permission',
   'feature',
-  'company_feature',
+  'organization_feature',
   'role_feature',
 ] as const;
 
@@ -59,8 +59,8 @@ export type LegacyDeprecatedModule = (typeof LEGACY_DEPRECATED_MODULES)[number];
  * tenant-scoped resources.
  */
 export const SYSTEM_RESTRICTED_ACTIONS = [
-  'company:create',
-  'company:delete',
+  'organization:create',
+  'organization:delete',
   'user:create',
   'user:delete',
 ] as const;
@@ -68,7 +68,7 @@ export const SYSTEM_RESTRICTED_ACTIONS = [
 export type SystemRestrictedAction = (typeof SYSTEM_RESTRICTED_ACTIONS)[number];
 
 /**
- * Helper to check if a permission is tenant-configurable (can be managed by company roles)
+ * Helper to check if a permission is tenant-configurable (can be managed by organization roles)
  */
 export function isTenantConfigurablePermission(permission: {
   module?: string | null;

@@ -51,7 +51,7 @@ export default function PermissionForm({
             <InputField
               name="module"
               label="โมดูล (Module / Resource)"
-              placeholder="เช่น user, company, role"
+              placeholder="เช่น user, organization, role"
               control={methods.control}
               required
             />

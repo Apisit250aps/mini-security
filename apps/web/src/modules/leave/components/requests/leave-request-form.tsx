@@ -13,15 +13,15 @@ import {
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import {
-  CompanyMemberSelectField,
+  OrganizationMemberSelectField,
   LeaveTypeSelectField,
 } from '@/shared/components/form';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import type { FormProps } from '@/types';
 
 export const leaveRequestFormSchema = z.object({
-  companyMemberId: z.string().uuid('กรุณาเลือกพนักงาน'),
+  organizationMemberId: z.string().uuid('กรุณาเลือกพนักงาน'),
   leaveTypeId: z.string().uuid('กรุณาเลือกประเภทการลา'),
   startDate: z.string().min(1, 'กรุณาระบุวันเริ่มต้น'),
   endDate: z.string().min(1, 'กรุณาระบุวันสิ้นสุด'),
@@ -40,19 +40,20 @@ const UNIT_OPTIONS = [
 ];
 
 interface LeaveRequestFormProps extends FormProps<LeaveRequestFormValues> {
-  companyId: string;
+  organizationId?: string;
 }
 
 const getTodayString = () => new Date().toISOString().split('T')[0]!;
 
 export default function LeaveRequestForm({
-  companyId,
+  organizationId,
   onSubmit,
   defaultValues,
   isLoading,
 }: LeaveRequestFormProps) {
+  const activeOrgId = organizationId || '';
   const { data: session } = useSession();
-  const membersQuery = useCompanyMembersQueries(companyId);
+  const membersQuery = useOrganizationMembersQueries(activeOrgId);
 
   const currentMember = useMemo(() => {
     const userId = session?.user?.id;
@@ -65,7 +66,7 @@ export default function LeaveRequestForm({
   const methods = useForm<LeaveRequestFormValues>({
     resolver: zodResolver(leaveRequestFormSchema as never),
     defaultValues: defaultValues ?? {
-      companyMemberId: currentMember?.id || '',
+      organizationMemberId: currentMember?.id || '',
       leaveTypeId: '',
       startDate: todayStr,
       endDate: todayStr,
@@ -108,9 +109,9 @@ export default function LeaveRequestForm({
       className="flex flex-col gap-4"
     >
       <FieldGroup className="flex flex-col gap-3">
-        <CompanyMemberSelectField
-          companyId={companyId}
-          name="companyMemberId"
+        <OrganizationMemberSelectField
+          organizationId={activeOrgId}
+          name="organizationMemberId"
           label="พนักงานผู้ยื่นคำขอ"
           placeholder="เลือกพนักงาน..."
           control={methods.control}
@@ -118,7 +119,7 @@ export default function LeaveRequestForm({
         />
 
         <LeaveTypeSelectField
-          companyId={companyId}
+          organizationId={activeOrgId}
           name="leaveTypeId"
           label="ประเภทการลา"
           placeholder="เลือกประเภทการลา..."

@@ -31,7 +31,7 @@ Form Builder เพิ่ม/แก้/เรียงหมวดและค�
 
 ```mermaid
 erDiagram
-    company ||--o{ form_template : owns
+    organization ||--o{ form_template : owns
     form_template ||--o{ form_template_role : grants
     role ||--o{ form_template_role : accesses
     form_template_role ||--o{ form_submission : scopes
@@ -39,15 +39,15 @@ erDiagram
     form_version ||--o{ form_section : contains
     form_section ||--o{ form_field : contains
     form_version ||--o{ form_submission : defines
-    company_member ||--o{ form_submission : starts
-    company_member o|--o{ form_submission : submits
+    organization_member ||--o{ form_submission : starts
+    organization_member o|--o{ form_submission : submits
     form_submission ||--|{ form_submission_contributor : records
-    company_member ||--o{ form_submission_contributor : contributes
+    organization_member ||--o{ form_submission_contributor : contributes
     form_submission ||--o{ form_answer : contains
     form_field ||--o{ form_answer : answers
     form_answer ||--o{ form_answer_attachment : attaches
     form_submission ||--o| submission_review : receives
-    company_member ||--o{ submission_review : reviews
+    organization_member ||--o{ submission_review : reviews
     form_submission o|--o| form_submission : supersedes
 ```
 
@@ -70,11 +70,11 @@ Mermaid แสดง cardinality เชิงธุรกิจ: ผู้เร
 
 ## Role access และผู้ดำเนินการ
 
-สมาชิกใช้ `company_member.roleId` ปัจจุบัน **เทียบ role ID จริง** ไม่เทียบชื่อหรือ `roleType` เพราะ Role แม่บ้านกับ รปภ. อาจมี roleType เป็น MEMBER เหมือนกัน Schema ปัจจุบันมี roleId เดียวต่อ membership; ไม่เพิ่มระบบตำแหน่งหรือหลาย Role ต่อสมาชิก
+สมาชิกใช้ `organization_member.roleId` ปัจจุบัน **เทียบ role ID จริง** ไม่เทียบชื่อหรือ `roleType` เพราะ Role แม่บ้านกับ รปภ. อาจมี roleType เป็น MEMBER เหมือนกัน Schema ปัจจุบันมี roleId เดียวต่อ membership; ไม่เพิ่มระบบตำแหน่งหรือหลาย Role ต่อสมาชิก
 
-ข้อจำกัดฐานเดิม: `(company_id, user_id)` ยังไม่เป็น unique constraint แม้ use case ตรวจซ้ำก่อนสร้าง จึงห้ามถือว่าการค้นพบ membership หนึ่งแถวพิสูจน์ว่าไม่มีแถวอื่น หากพบ active membership ซ้ำของผู้ใช้ในบริษัทเดียวกันต้องปฏิเสธการตัดสิน Role ที่กำกวมและแก้ข้อมูลก่อน ไม่เลือก Role จากแถวแรกโดยพลการ
+ข้อจำกัดฐานเดิม: `(organization_id, user_id)` ยังไม่เป็น unique constraint แม้ use case ตรวจซ้ำก่อนสร้าง จึงห้ามถือว่าการค้นพบ membership หนึ่งแถวพิสูจน์ว่าไม่มีแถวอื่น หากพบ active membership ซ้ำของผู้ใช้ในบริษัทเดียวกันต้องปฏิเสธการตัดสิน Role ที่กำกวมและแก้ข้อมูลก่อน ไม่เลือก Role จากแถวแรกโดยพลการ
 
-`form_template_role` เป็นรายการอนุญาต: Owner เลือกได้เฉพาะ Role บริษัทเดียวกัน หรือ system default (`company_id IS NULL`, `is_system_default = true`) ที่ระบบเดิมใช้ได้; ไม่ให้ SUPER_ADMIN เป็นกลุ่มผู้กรอก ไม่มีรายการที่ enabled หมายถึงสมาชิกไม่มีสิทธิ์ทำฟอร์ม ไม่ได้หมายถึงเปิดทุก Role เงื่อนไขบริษัทของ Role ต้องตรวจใน use case เพราะ FK role_id อย่างเดียวไม่บังคับ tenant
+`form_template_role` เป็นรายการอนุญาต: Owner เลือกได้เฉพาะ Role บริษัทเดียวกัน หรือ system default (`organization_id IS NULL`, `is_system_default = true`) ที่ระบบเดิมใช้ได้; ไม่ให้ SUPER_ADMIN เป็นกลุ่มผู้กรอก ไม่มีรายการที่ enabled หมายถึงสมาชิกไม่มีสิทธิ์ทำฟอร์ม ไม่ได้หมายถึงเปิดทุก Role เงื่อนไขบริษัทของ Role ต้องตรวจใน use case เพราะ FK role_id อย่างเดียวไม่บังคับ tenant
 
 `form_submission.role_id` เป็นขอบเขตของชุดคำตอบและแก้ไม่ได้ สมาชิกต้อง active อยู่บริษัทเดียวกัน มี roleId ตรงชุดคำตอบ และยังมี form-template-role access ที่ enabled เพื่ออ่าน แก้ DRAFT หรือส่ง สมาชิกที่เปลี่ยน Role/ถูก deactivate จะเสียสิทธิ์เดิมทันที; สมาชิกใหม่ใน Role เดียวกันเข้าช่วยได้ตามสิทธิ์นี้ เป็น access ระดับ Role ภายในบริษัท ไม่เพิ่มขอบเขตแยกสาขาใน MVP
 
@@ -121,24 +121,24 @@ Review ใช้ expected_revision และ lock submission เช่นกั�
 
 ## Owner และสิทธิ์ในบริษัท
 
-ตรวจจากโค้ดปัจจุบัน: [`roleSchema`](../src/schema/permission.ts) มี `roleType = OWNER`; [`companyMemberSchema`](../src/schema/company.ts) ผูก `userId`, `companyId`, `roleId` และ `isActive` และ [CompanyMember use cases](../../applications/src/use-cases/company/company-member.usecase.ts) ใช้ `role.roleType` เพื่อตรวจ Owner โดยไม่อาศัยชื่อ Role
+ตรวจจากโค้ดปัจจุบัน: [`roleSchema`](../src/schema/permission.ts) มี `roleType = OWNER`; [`organizationMemberSchema`](../src/schema/organization.ts) ผูก `userId`, `organizationId`, `roleId` และ `isActive` และ [OrganizationMember use cases](../../applications/src/use-cases/organization/organization-member.usecase.ts) ใช้ `role.roleType` เพื่อตรวจ Owner โดยไม่อาศัยชื่อ Role
 
-**Owner ผู้อนุมัติคือสมาชิก active ของบริษัทใบคำตอบ ซึ่ง Role ที่สมาชิกอ้างมี `role_type = OWNER` ณ เวลาตัดสิน** Role ต้องอยู่บริษัทเดียวกัน หรือเป็น system default ที่ `company_id IS NULL` ซึ่งระบบเดิมมี [seed Owner ส่วนกลาง](../../database/drizzle/20260831082653_seed_auth_permissions/migration.sql) อยู่แล้ว ไม่บังคับว่าทุก Owner role ต้องมี company_id และไม่ตีความ `created_by` ว่าเป็น Owner หรือผู้มีสิทธิ์อนุมัติ
+**Owner ผู้อนุมัติคือสมาชิก active ของบริษัทใบคำตอบ ซึ่ง Role ที่สมาชิกอ้างมี `role_type = OWNER` ณ เวลาตัดสิน** Role ต้องอยู่บริษัทเดียวกัน หรือเป็น system default ที่ `organization_id IS NULL` ซึ่งระบบเดิมมี [seed Owner ส่วนกลาง](../../database/drizzle/20260831082653_seed_auth_permissions/migration.sql) อยู่แล้ว ไม่บังคับว่าทุก Owner role ต้องมี organization_id และไม่ตีความ `created_by` ว่าเป็น Owner หรือผู้มีสิทธิ์อนุมัติ
 
 ขอบเขตสิทธิ์ที่เสนอสำหรับ MVP:
 
 - Owner สร้าง/เผยแพร่/ปิดฟอร์ม ตั้ง Role access ดูคำตอบในบริษัท และ approve/reject ทั้งใบ สมาชิกอ่าน/ร่วมแก้/ส่งและดูผลชุดของ Role ตามเงื่อนไขข้างต้น ไม่ข้ามไปชุดของ Role อื่น
-- ใช้ company และ user จาก session ที่ตรวจแล้ว ตรวจ active user/company/membership และบริษัทของ resource จริงในทุก use case; `started_by`, `submitted_by`, `updated_by`, `created_by`, `published_by`, `uploaded_by`, `reviewed_by` รับจาก actor ที่ตรวจแล้ว ไม่เชื่อค่าจาก client
+- ใช้ organization และ user จาก session ที่ตรวจแล้ว ตรวจ active user/organization/membership และบริษัทของ resource จริงในทุก use case; `started_by`, `submitted_by`, `updated_by`, `created_by`, `published_by`, `uploaded_by`, `reviewed_by` รับจาก actor ที่ตรวจแล้ว ไม่เชื่อค่าจาก client
 - ใช้ Feature/RBAC เดิม กำหนด action สำหรับการจัดการฟอร์ม กรอก ดูคำตอบ และ review ตอน implement โดยไม่เพิ่มตารางสิทธิ์ใหม่ สิทธิ์ review ต้องผ่านเงื่อนไข Owner เพิ่มจาก action permission
-- [PermissionGuard ปัจจุบัน](../../applications/src/lib/guard.ts) มี `isAdmin` bypass จึงต้องตรวจ active membership/Owner/company ใน review use case โดยตรงด้วย Super Admin ไม่ถือเป็น Owner ของบริษัทอัตโนมัติ
-- ห้าม Owner approve/reject หากเคยเป็นผู้เริ่ม ผู้กดส่ง หรือ contributor ของชุดนั้นและสาย revision ก่อนหน้า ตรวจตัวตน `userId` ผ่าน company_member ไม่ใช่แค่ member ID/Role ปัจจุบัน การไม่ใช่คนกดส่ง การย้าย Role การถูกเขียนทับคำตอบ หรือ resubmit ไม่ทำให้อนุมัติผลงานตนเองได้ ต้องใช้ Owner ที่ไม่เกี่ยวข้อง; หากไม่มีให้คงรออนุมัติ ไม่เพิ่มผู้อนุมัติสำรองหรือข้อยกเว้นอัตโนมัติ
+- [PermissionGuard ปัจจุบัน](../../applications/src/lib/guard.ts) มี `isAdmin` bypass จึงต้องตรวจ active membership/Owner/organization ใน review use case โดยตรงด้วย Super Admin ไม่ถือเป็น Owner ของบริษัทอัตโนมัติ
+- ห้าม Owner approve/reject หากเคยเป็นผู้เริ่ม ผู้กดส่ง หรือ contributor ของชุดนั้นและสาย revision ก่อนหน้า ตรวจตัวตน `userId` ผ่าน organization_member ไม่ใช่แค่ member ID/Role ปัจจุบัน การไม่ใช่คนกดส่ง การย้าย Role การถูกเขียนทับคำตอบ หรือ resubmit ไม่ทำให้อนุมัติผลงานตนเองได้ ต้องใช้ Owner ที่ไม่เกี่ยวข้อง; หากไม่มีให้คงรออนุมัติ ไม่เพิ่มผู้อนุมัติสำรองหรือข้อยกเว้นอัตโนมัติ
 
 ไม่สมมติว่าบริษัทมี Owner เพียงคนเดียว และไม่สร้าง owner_id ใหม่ใน template ผู้สร้างฟอร์มเป็นข้อมูลผู้ดำเนินการในอดีต สิทธิ์ตรวจใช้ membership/role ปัจจุบัน
 
 ## ข้อกำหนดที่เหลือในฐานข้อมูล
 
-- ทุกตารางใหม่มี `company_id`; composite FK กันการเชื่อมคนละบริษัทและ answer คนละ version กับ submission; submission ระบุ template/version/role โดย FK บังคับ version และ role access ให้ตรง template เดียวกัน และ successor คง version/role เดิม ส่วน tenant ของ role และ role ปัจจุบันของ actor ตรวจใน use case
-- คงเฉพาะ proposed unique `(id, company_id)` บน `company_member` เพื่อรองรับ actor FK; ถอด proposed unique บน branch/role ที่ใช้เฉพาะ Inspection ออก ไม่เปลี่ยนตารางระบบเดิมอื่น
+- ทุกตารางใหม่มี `organization_id`; composite FK กันการเชื่อมคนละบริษัทและ answer คนละ version กับ submission; submission ระบุ template/version/role โดย FK บังคับ version และ role access ให้ตรง template เดียวกัน และ successor คง version/role เดิม ส่วน tenant ของ role และ role ปัจจุบันของ actor ตรวจใน use case
+- คงเฉพาะ proposed unique `(id, organization_id)` บน `organization_member` เพื่อรองรับ actor FK; ถอด proposed unique บน site/role ที่ใช้เฉพาะ Inspection ออก ไม่เปลี่ยนตารางระบบเดิมอื่น
 - Unique ป้องกัน form-role mapping, `(form_template_id, version)`, `(submission_id, field_id)`, `(submission_id, member_id)` ของ contributor, successor และ review ซ้ำ; `sort_order` เรียงด้วย `sort_order, id` ไม่ต้อง unique
 - UUIDv7 และ `created_at`/`updated_at` สำหรับตารางที่แก้ไขได้; แบบเสนอใหม่ยกเว้น contributor/review ที่ append-only; instant ใหม่ใช้ timestamptz โดยไม่เปลี่ยน timestamp ของตารางเดิม
 - เพิ่ม partial unique เมื่อเขียน migration จริง เพราะ note ใน DBML ไม่สร้าง constraint นี้ให้:
@@ -154,7 +154,7 @@ Publish/clone ต้อง lock template เพื่อจัดสรรเล
 
 ตัวอย่างขอบเขตการบังคับกฎ: FK ปฏิเสธ answer ที่อยู่คนละ version ได้ แต่ฐานข้อมูลตามแบบนี้เพียงอย่างเดียวยังรับ review ของ DRAFT หรือผู้ที่ไม่ใช่ Owner ได้ การเขียนผ่าน use case ที่ตรวจสถานะและสิทธิ์จึงเป็นข้อกำหนดของการ implement ไม่ใช่ความสามารถที่ DBML ทำให้แล้ว เช่นเดียวกับ revision ที่ CHECK บังคับแค่ค่าบวก ส่วน expected_revision ต้องตรวจในคำสั่งเขียนจริง
 
-FK ใหม่ใช้ RESTRICT เพื่อรักษาประวัติ ใช้ปิด template/deactivate member แทนลบเมื่อมีประวัติ; draft ที่ไม่ถูกใช้งานลบลูกก่อนแม่ได้ การ hard-delete user/company/branch เดิมที่ cascade ถึง member จะถูก restrict หากมีข้อมูลฟอร์มอ้างสมาชิกนั้น ต้องรองรับกรณีนี้เมื่อ implement deletion flow
+FK ใหม่ใช้ RESTRICT เพื่อรักษาประวัติ ใช้ปิด template/deactivate member แทนลบเมื่อมีประวัติ; draft ที่ไม่ถูกใช้งานลบลูกก่อนแม่ได้ การ hard-delete user/organization/site เดิมที่ cascade ถึง member จะถูก restrict หากมีข้อมูลฟอร์มอ้างสมาชิกนั้น ต้องรองรับกรณีนี้เมื่อ implement deletion flow
 
 ## สิ่งที่เลื่อนออก
 

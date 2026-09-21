@@ -4,11 +4,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
 import {
-  useCompanyFormTemplatesQueries,
+  useOrganizationFormTemplatesQueries,
   useFormTemplateQueries,
 } from '../hooks/form-queries';
 import {
@@ -59,7 +59,7 @@ type TargetItem =
     }
   | {
       type: 'MEMBER';
-      companyMemberId: string;
+      organizationMemberId: string;
     };
 
 type PeriodItem = {
@@ -83,13 +83,21 @@ export default function FormPlanWizardView() {
   const searchParams = useSearchParams();
   const preselectedTemplateId = searchParams.get('templateId') || '';
 
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
-  const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
-  const templatesQuery = useCompanyFormTemplatesQueries(activeCompanyId || '');
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
+  const rolesQuery = useGetOrganizationRoles(activeOrganizationId || '');
+  const membersQuery = useOrganizationMembersQueries(
+    activeOrganizationId || '',
+  );
+  const templatesQuery = useOrganizationFormTemplatesQueries(
+    activeOrganizationId || '',
+  );
 
-  const createPlanMutation = useFormPlanCreate(activeCompanyId || '');
-  const activatePlanMutation = useFormPlanActivate(activeCompanyId || '', '');
+  const createPlanMutation = useFormPlanCreate(activeOrganizationId || '');
+  const activatePlanMutation = useFormPlanActivate(
+    activeOrganizationId || '',
+    '',
+  );
 
   const [currentStep, setCurrentStep] = useState(1);
   // --- Step 1 State: Plan Info & Form ---
@@ -185,7 +193,7 @@ export default function FormPlanWizardView() {
         return;
       }
       const exists = targets.some(
-        (t) => t.type === 'MEMBER' && t.companyMemberId === newMemberId,
+        (t) => t.type === 'MEMBER' && t.organizationMemberId === newMemberId,
       );
       if (exists) {
         toast.error('พนักงานคนนี้ถูกเพิ่มในรายการมอบหมายแล้ว');
@@ -195,9 +203,10 @@ export default function FormPlanWizardView() {
         ...targets,
         {
           type: 'MEMBER',
-          companyMemberId: newMemberId,
+          organizationMemberId: newMemberId,
         },
       ]);
+      setNewMemberId('');
     }
   };
 
@@ -209,91 +218,87 @@ export default function FormPlanWizardView() {
     setPeriods([
       ...periods,
       {
-        opensAt: new Date(Date.now() + 86400000).toISOString().slice(0, 16),
-        dueAt: new Date(Date.now() + 86400000 + 28800000)
-          .toISOString()
-          .slice(0, 16),
+        opensAt: '',
+        dueAt: '',
       },
     ]);
   };
 
   const handleRemovePeriod = (index: number) => {
-    if (periods.length <= 1) {
-      toast.error('ต้องมีช่วงเวลากำหนดการอย่างน้อย 1 ช่วง');
-      return;
-    }
     setPeriods(periods.filter((_, i) => i !== index));
   };
 
-  // Validation before advancing steps
+  const handleUpdatePeriod = (
+    index: number,
+    field: 'opensAt' | 'dueAt',
+    value: string,
+  ) => {
+    setPeriods((current) =>
+      current.map((period, i) =>
+        i === index ? { ...period, [field]: value } : period,
+      ),
+    );
+  };
+
   const validateStep = (step: number): boolean => {
     if (step === 1) {
       if (!name.trim()) {
-        toast.error('กรุณาระบุชื่อแผนการตรวจ');
+        toast.error('กรุณากรอกชื่อแผนการตรวจ');
         return false;
       }
       if (!selectedTemplateId) {
-        toast.error('กรุณาเลือกแบบฟอร์ม');
-        return false;
-      }
-      if (!activeVersion) {
-        toast.error(
-          'แบบฟอร์มที่เลือกยังไม่มีเวอร์ชันเผยแพร่ (Published) ไม่สามารถเปิดแผนได้',
-        );
+        toast.error('กรุณาเลือกแม่แบบฟอร์ม');
         return false;
       }
       return true;
     }
-
     if (step === 2) {
       if (scheduleKind === 'RECURRING') {
         if (!anchorLocalDate) {
-          toast.error('กรุณาระบุวันที่เริ่มต้นรอบ');
+          toast.error('กรุณาระบุวันที่เริ่มต้นรอบแรก');
           return false;
         }
         if (!openLocalTime) {
           toast.error('กรุณาระบุเวลาเปิดรอบ');
           return false;
         }
-        if (dueAmount < 1) {
-          toast.error('กำหนดเวลาส่งต้องมากกว่า 0');
+        if (dueAmount <= 0) {
+          toast.error('ระยะเวลากำหนดส่งต้องมากกว่า 0');
           return false;
         }
       } else {
         if (periods.length === 0) {
-          toast.error('กรุณากำหนดช่วงเวลาอย่างน้อย 1 ช่วง');
+          toast.error('กรุณาเพิ่มช่วงเวลาการตรวจอย่างน้อย 1 ช่วง');
           return false;
         }
-        for (let i = 0; i < periods.length; i++) {
-          const p = periods[i]!;
+        for (const [i, p] of periods.entries()) {
           if (!p.opensAt || !p.dueAt) {
-            toast.error(`กรุณาระบุเวลาเปิดและกำหนดส่งให้ครบในแถวที่ ${i + 1}`);
+            toast.error(`กรุณากรอกวันเวลาช่วงที่ ${i + 1} ให้ครบถ้วน`);
             return false;
           }
-          if (new Date(p.dueAt) <= new Date(p.opensAt)) {
-            toast.error(`กำหนดส่งต้องอยู่หลังเวลาเปิดในแถวที่ ${i + 1}`);
+          if (new Date(p.opensAt) >= new Date(p.dueAt)) {
+            toast.error(
+              `ช่วงที่ ${i + 1}: เวลาเปิดรอบต้องเกิดขึ้นก่อนกำหนดส่ง`,
+            );
             return false;
           }
         }
       }
       return true;
     }
-
     if (step === 3) {
       if (targets.length === 0) {
-        toast.error('กรุณาเพิ่มผู้รับผิดชอบอย่างน้อย 1 รายการ');
+        toast.error('กรุณากำหนดผู้รับผิดชอบอย่างน้อย 1 รายการ');
         return false;
       }
       return true;
     }
-
     return true;
   };
 
   const handleNext = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 5));
-    }
+    if (!validateStep(currentStep)) return;
+    setCurrentStep((prev) => Math.min(prev + 1, 4));
   };
 
   const handleBack = () => {
@@ -303,20 +308,22 @@ export default function FormPlanWizardView() {
   // Build Request Payload
   const buildPlanPayload = (): CreateFormPlanRequest => {
     const fixedVersionId =
-      versionOption === 'LOCKED' && activeVersion ? activeVersion.id : null;
+      versionOption === 'LOCKED' && selectedTemplateDetail?.activeVersion?.id
+        ? selectedTemplateDetail.activeVersion.id
+        : undefined;
 
     const scheduleConfig =
       scheduleKind === 'RECURRING'
         ? {
             frequency,
-            interval: Number(interval) || 1,
-            anchorLocalDate: anchorLocalDate || '',
-            endLocalDate: endLocalDate || null,
+            interval,
+            anchorLocalDate,
             openLocalTime,
             dueOffset: {
-              amount: Number(dueAmount) || 8,
+              amount: dueAmount,
               unit: dueUnit,
             },
+            endLocalDate: endLocalDate || undefined,
             invalidDayPolicy,
           }
         : null;
@@ -329,7 +336,7 @@ export default function FormPlanWizardView() {
         };
       }
       return {
-        companyMemberId: t.companyMemberId,
+        organizationMemberId: t.organizationMemberId || '',
       };
     });
 
@@ -343,7 +350,7 @@ export default function FormPlanWizardView() {
 
     return {
       data: {
-        companyId: activeCompanyId || '',
+        organizationId: activeOrganizationId || '',
         formTemplateId: selectedTemplateId,
         name: name.trim(),
         scheduleKind,
@@ -379,19 +386,19 @@ export default function FormPlanWizardView() {
             expectedRevision: createdPlan.revision,
           });
           toast.success('สร้างและเปิดใช้งานแผนการตรวจเรียบร้อยแล้ว');
-          router.push(`/company/forms/plans/${createdPlan.id}`);
+          router.push(`/organization/forms/plans/${createdPlan.id}`);
           return;
         } catch (activateErr) {
           toast.warning(
             'บันทึกแผนงานสำเร็จ แต่ไม่สามารถเปิดใช้งานได้ในทันที กรุณากดเปิดใช้งานจากหน้ารายละเอียดแผน',
           );
-          router.push(`/company/forms/plans/${createdPlan.id}`);
+          router.push(`/organization/forms/plans/${createdPlan.id}`);
           return;
         }
       }
 
       toast.success('บันทึกแผนการตรวจเรียบร้อย');
-      router.push(`/company/forms/plans/${createdPlan.id}`);
+      router.push(`/organization/forms/plans/${createdPlan.id}`);
     } catch (err) {
       toast.error(getErrorMessage(err, 'ไม่สามารถบันทึกแผนงานได้'));
     } finally {
@@ -399,15 +406,15 @@ export default function FormPlanWizardView() {
     }
   };
 
-  const isPageLoading = isCompanyLoading || !activeCompanyId;
+  const isPageLoading = isOrganizationLoading || !activeOrganizationId;
 
   return (
     <PageLayout
-      pageId="companyFormPlanCreate"
+      pageId="organizationFormPlanCreate"
       isLoading={isPageLoading}
       loadingText="กำลังเตรียมข้อมูลสร้างแผน..."
       actions={
-        <Link href="/company/forms/plans">
+        <Link href="/organization/forms/plans">
           <Button variant="outline" size="sm">
             <ChevronLeft data-icon="inline-start" />
             กลับไปรายการแผน
@@ -548,7 +555,7 @@ export default function FormPlanWizardView() {
                         <span>
                           แบบฟอร์มนี้ยังไม่ได้รับการเผยแพร่ (Publish) กรุณาไปยัง
                           <Link
-                            href={`/company/forms/templates/${selectedTemplateId}`}
+                            href={`/organization/forms/templates/${selectedTemplateId}`}
                             className="underline font-semibold ml-1"
                           >
                             จัดการแม่แบบ
@@ -615,7 +622,7 @@ export default function FormPlanWizardView() {
               </FieldGroup>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
-              <Link href="/company/forms/plans">
+              <Link href="/organization/forms/plans">
                 <Button variant="ghost">ยกเลิก</Button>
               </Link>
               <Button
@@ -1030,8 +1037,9 @@ export default function FormPlanWizardView() {
                           <option value="">-- เลือกพนักงาน --</option>
                           {members.map((m) => (
                             <option key={m.id} value={m.id}>
-                              พนักงาน ID: {m.userId.slice(0, 8)} (
-                              {m.id.slice(0, 8)})
+                              พนักงาน ID:{' '}
+                              {m.userId?.slice(0, 8) || m.id?.slice(0, 8)} (
+                              {m.id?.slice(0, 8)})
                             </option>
                           ))}
                         </select>
@@ -1096,8 +1104,9 @@ export default function FormPlanWizardView() {
                           );
                         }
 
+                        const targetMemberId = target.organizationMemberId;
                         const member = members.find(
-                          (m) => m.id === target.companyMemberId,
+                          (m) => m.id === targetMemberId,
                         );
                         return (
                           <div
@@ -1110,8 +1119,8 @@ export default function FormPlanWizardView() {
                                 <span className="font-semibold text-sm">
                                   พนักงานรายบุคคล:{' '}
                                   {member
-                                    ? `ID: ${member.userId.slice(0, 8)}`
-                                    : target.companyMemberId}
+                                    ? `ID: ${member.userId?.slice(0, 8) || member.id?.slice(0, 8)}`
+                                    : targetMemberId}
                                 </span>
                                 <p className="text-xs text-muted-foreground">
                                   มอบหมายงานเฉพาะบุคคล 1 ชุดต่อรอบ
@@ -1296,9 +1305,10 @@ export default function FormPlanWizardView() {
                           </Badge>
                         );
                       }
+                      const memberId = t.organizationMemberId || '';
                       return (
                         <Badge key={i} variant="outline">
-                          พนักงาน: {t.companyMemberId.slice(0, 8)}
+                          พนักงาน: {memberId.slice(0, 8)}
                         </Badge>
                       );
                     })}

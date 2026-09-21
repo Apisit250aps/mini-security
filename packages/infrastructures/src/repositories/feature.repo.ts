@@ -1,18 +1,26 @@
 import { and, eq } from 'drizzle-orm';
 import type { Database } from '@repo/database/db';
 import { Repository } from '@repo/database/repository';
-import { companyFeature, feature, roleFeature } from '@repo/database/schema';
-import { CompanyFeature, Feature, RoleFeature } from '@repo/domains/entities';
+import {
+  organizationFeature,
+  feature,
+  roleFeature,
+} from '@repo/database/schema';
+import {
+  OrganizationFeature,
+  Feature,
+  RoleFeature,
+} from '@repo/domains/entities';
 import type {
-  ICompanyFeatureRepository,
+  IOrganizationFeatureRepository,
   IFeatureRepository,
   IRoleFeatureRepository,
 } from '@repo/domains/repositories/feature';
 import type {
-  CreateCompanyFeature,
+  CreateOrganizationFeature,
   CreateFeature,
   CreateRoleFeature,
-  UpdateCompanyFeature,
+  UpdateOrganizationFeature,
   UpdateFeature,
   UpdateRoleFeature,
 } from '@repo/domains/schema/feature';
@@ -50,96 +58,104 @@ export class FeatureRepository
   }
 }
 
-export class CompanyFeatureRepository
-  extends Repository<CompanyFeature, CreateCompanyFeature, UpdateCompanyFeature>
-  implements ICompanyFeatureRepository
+export class OrganizationFeatureRepository
+  extends Repository<
+    OrganizationFeature,
+    CreateOrganizationFeature,
+    UpdateOrganizationFeature
+  >
+  implements IOrganizationFeatureRepository
 {
   constructor(db: Database) {
-    super(db, companyFeature);
+    super(db, organizationFeature);
   }
 
-  async findByCompanyId(companyId: string): Promise<CompanyFeature[]> {
+  async findByOrganizationId(
+    organizationId: string,
+  ): Promise<OrganizationFeature[]> {
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(companyFeature.companyId, companyId));
+      .where(eq(organizationFeature.organizationId, organizationId));
     return results.map(
-      (r) => new CompanyFeature(r as unknown as CompanyFeature),
+      (r) => new OrganizationFeature(r as unknown as OrganizationFeature),
     );
   }
 
-  async findActiveByCompanyId(companyId: string): Promise<CompanyFeature[]> {
+  async findActiveByOrganizationId(
+    organizationId: string,
+  ): Promise<OrganizationFeature[]> {
     const results = await this.db
       .select()
       .from(this.table)
       .where(
         and(
-          eq(companyFeature.companyId, companyId),
-          eq(companyFeature.isEnabled, true),
+          eq(organizationFeature.organizationId, organizationId),
+          eq(organizationFeature.isEnabled, true),
         ),
       );
     return results.map(
-      (r) => new CompanyFeature(r as unknown as CompanyFeature),
+      (r) => new OrganizationFeature(r as unknown as OrganizationFeature),
     );
   }
 
-  async findByCompanyAndFeature(
-    companyId: string,
+  async findByOrganizationAndFeature(
+    organizationId: string,
     featureId: string,
-  ): Promise<CompanyFeature | null> {
+  ): Promise<OrganizationFeature | null> {
     const [result] = await this.db
       .select()
       .from(this.table)
       .where(
         and(
-          eq(companyFeature.companyId, companyId),
-          eq(companyFeature.featureId, featureId),
+          eq(organizationFeature.organizationId, organizationId),
+          eq(organizationFeature.featureId, featureId),
         ),
       );
     return result
-      ? new CompanyFeature(result as unknown as CompanyFeature)
+      ? new OrganizationFeature(result as unknown as OrganizationFeature)
       : null;
   }
 
-  async findByCompanyAndFeatureCode(
-    companyId: string,
+  async findByOrganizationAndFeatureCode(
+    organizationId: string,
     featureCode: string,
-  ): Promise<CompanyFeature | null> {
+  ): Promise<OrganizationFeature | null> {
     const [result] = await this.db
       .select({
-        id: companyFeature.id,
-        companyId: companyFeature.companyId,
-        featureId: companyFeature.featureId,
-        isEnabled: companyFeature.isEnabled,
-        assignedBy: companyFeature.assignedBy,
-        expiresAt: companyFeature.expiresAt,
-        createdAt: companyFeature.createdAt,
-        updatedAt: companyFeature.updatedAt,
+        id: organizationFeature.id,
+        organizationId: organizationFeature.organizationId,
+        featureId: organizationFeature.featureId,
+        isEnabled: organizationFeature.isEnabled,
+        assignedBy: organizationFeature.assignedBy,
+        expiresAt: organizationFeature.expiresAt,
+        createdAt: organizationFeature.createdAt,
+        updatedAt: organizationFeature.updatedAt,
       })
-      .from(companyFeature)
-      .innerJoin(feature, eq(companyFeature.featureId, feature.id))
+      .from(organizationFeature)
+      .innerJoin(feature, eq(organizationFeature.featureId, feature.id))
       .where(
         and(
-          eq(companyFeature.companyId, companyId),
+          eq(organizationFeature.organizationId, organizationId),
           eq(feature.code, featureCode),
         ),
       );
     return result
-      ? new CompanyFeature(result as unknown as CompanyFeature)
+      ? new OrganizationFeature(result as unknown as OrganizationFeature)
       : null;
   }
 
-  async findFeaturesByCompanyId(
-    companyId: string,
+  async findFeaturesByOrganizationId(
+    organizationId: string,
     onlyEnabled = true,
   ): Promise<Feature[]> {
     const condition = onlyEnabled
       ? and(
-          eq(companyFeature.companyId, companyId),
-          eq(companyFeature.isEnabled, true),
+          eq(organizationFeature.organizationId, organizationId),
+          eq(organizationFeature.isEnabled, true),
           eq(feature.isActive, true),
         )
-      : eq(companyFeature.companyId, companyId);
+      : eq(organizationFeature.organizationId, organizationId);
 
     const results = await this.db
       .select({
@@ -153,21 +169,27 @@ export class CompanyFeatureRepository
         updatedAt: feature.updatedAt,
       })
       .from(feature)
-      .innerJoin(companyFeature, eq(feature.id, companyFeature.featureId))
+      .innerJoin(
+        organizationFeature,
+        eq(feature.id, organizationFeature.featureId),
+      )
       .where(condition);
 
     return results.map((r) => new Feature(r as unknown as Feature));
   }
 
   async toggleFeature(
-    companyId: string,
+    organizationId: string,
     featureId: string,
     isEnabled: boolean,
-  ): Promise<CompanyFeature> {
-    const existing = await this.findByCompanyAndFeature(companyId, featureId);
+  ): Promise<OrganizationFeature> {
+    const existing = await this.findByOrganizationAndFeature(
+      organizationId,
+      featureId,
+    );
     if (!existing) {
       return this.create({
-        companyId,
+        organizationId,
         featureId,
         isEnabled,
       });
@@ -178,25 +200,25 @@ export class CompanyFeatureRepository
       .set({ isEnabled, updatedAt: new Date() })
       .where(
         and(
-          eq(companyFeature.companyId, companyId),
-          eq(companyFeature.featureId, featureId),
+          eq(organizationFeature.organizationId, organizationId),
+          eq(organizationFeature.featureId, featureId),
         ),
       )
       .returning();
 
-    return new CompanyFeature(updated as unknown as CompanyFeature);
+    return new OrganizationFeature(updated as unknown as OrganizationFeature);
   }
 
-  async deleteByCompanyAndFeature(
-    companyId: string,
+  async deleteByOrganizationAndFeature(
+    organizationId: string,
     featureId: string,
   ): Promise<void> {
     await this.db
       .delete(this.table)
       .where(
         and(
-          eq(companyFeature.companyId, companyId),
-          eq(companyFeature.featureId, featureId),
+          eq(organizationFeature.organizationId, organizationId),
+          eq(organizationFeature.featureId, featureId),
         ),
       );
   }
@@ -218,11 +240,11 @@ export class RoleFeatureRepository
     return results.map((r) => new RoleFeature(r as unknown as RoleFeature));
   }
 
-  async findByCompanyId(companyId: string): Promise<RoleFeature[]> {
+  async findByOrganizationId(organizationId: string): Promise<RoleFeature[]> {
     const results = await this.db
       .select()
       .from(this.table)
-      .where(eq(roleFeature.companyId, companyId));
+      .where(eq(roleFeature.organizationId, organizationId));
     return results.map((r) => new RoleFeature(r as unknown as RoleFeature));
   }
 

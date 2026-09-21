@@ -9,7 +9,7 @@ import type {
 export class CheckInSchedule implements CheckInScheduleEntity {
   id: string;
   roleIds: string[];
-  companyId: string;
+  organizationId: string;
   name: string;
   isActive: boolean;
   createdAt: Date;
@@ -18,7 +18,7 @@ export class CheckInSchedule implements CheckInScheduleEntity {
   constructor(data: CheckInScheduleEntity) {
     this.id = data.id;
     this.roleIds = data.roleIds;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.name = data.name;
     this.isActive = data.isActive;
     this.createdAt = data.createdAt;
@@ -28,7 +28,7 @@ export class CheckInSchedule implements CheckInScheduleEntity {
 
 export class ScheduleSlot implements ScheduleSlotEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   checkInScheduleId: string;
   slotOrder: number;
   label: string;
@@ -40,7 +40,7 @@ export class ScheduleSlot implements ScheduleSlotEntity {
 
   constructor(data: ScheduleSlotEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.checkInScheduleId = data.checkInScheduleId;
     this.slotOrder = data.slotOrder;
     this.label = data.label;
@@ -54,8 +54,8 @@ export class ScheduleSlot implements ScheduleSlotEntity {
 
 export class AttendanceLog implements AttendanceLogEntity {
   id: string;
-  companyId: string;
-  companyMemberId: string;
+  organizationId: string;
+  organizationMemberId: string;
   scheduleSlotId: string;
   workDate: string;
   checkedInAt?: Date | null;
@@ -74,8 +74,8 @@ export class AttendanceLog implements AttendanceLogEntity {
 
   constructor(data: AttendanceLogEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
-    this.companyMemberId = data.companyMemberId;
+    this.organizationId = data.organizationId;
+    this.organizationMemberId = data.organizationMemberId;
     this.scheduleSlotId = data.scheduleSlotId;
     this.workDate = data.workDate;
     this.checkedInAt = data.checkedInAt;
@@ -96,7 +96,7 @@ export class AttendanceLog implements AttendanceLogEntity {
 
 export class CheckInScheduleRole implements CheckInScheduleRoleEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   checkInScheduleId: string;
   roleId: string;
   isActive: boolean;
@@ -105,7 +105,7 @@ export class CheckInScheduleRole implements CheckInScheduleRoleEntity {
 
   constructor(data: CheckInScheduleRoleEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.checkInScheduleId = data.checkInScheduleId;
     this.roleId = data.roleId;
     this.isActive = data.isActive;

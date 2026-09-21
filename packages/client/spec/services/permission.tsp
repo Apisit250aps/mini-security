@@ -19,7 +19,7 @@ interface PermissionServices {
   @get
   @route("/me")
   @summary("Get current user permissions")
-  getMyPermissions(@query companyId?: string):
+  getMyPermissions(@query organizationId?: string):
     | ApiOkResponse<Permission[]>
     | ApiUnauthorizedResponse;
 
@@ -59,11 +59,11 @@ interface RoleServices {
   @summary("Get system default roles")
   getSystemDefaultRoles(): ApiOkResponse<Role[]> | ApiUnauthorizedResponse;
 
-  // ─── Roles by Company ─────────────────────────────────────────────────────
+  // ─── Roles by Organization ─────────────────────────────────────────────────
   @get
-  @route("/company/{companyId}")
-  @summary("Get roles by company")
-  getCompanyRoles(@path companyId: string):
+  @route("/organization/{organizationId}")
+  @summary("Get roles by organization")
+  getOrganizationRoles(@path organizationId: string):
     | ApiOkResponse<Role[]>
     | ApiUnauthorizedResponse;
 

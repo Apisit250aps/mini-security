@@ -1,6 +1,6 @@
 import {
   permission,
-  companyMember,
+  organizationMember,
   rolePermission,
   user,
 } from '@repo/database';
@@ -19,22 +19,25 @@ async function getAllPermissionActions(): Promise<string[]> {
 
 async function getUserPermissionActions(
   userId: string,
-  activeCompanyId?: string | null,
+  activeOrganizationId?: string | null,
 ): Promise<{
   actions: string[];
-  companyId: string | null;
+  organizationId: string | null;
   memberId: string | null;
 }> {
   const result = await db.transaction(async (tx) => {
     const [m] = await tx
-      .select({ id: companyMember.id, companyId: companyMember.companyId })
-      .from(companyMember)
+      .select({
+        id: organizationMember.id,
+        organizationId: organizationMember.organizationId,
+      })
+      .from(organizationMember)
       .where(
         and(
-          eq(companyMember.userId, userId),
-          eq(companyMember.isActive, true),
-          activeCompanyId
-            ? eq(companyMember.companyId, activeCompanyId)
+          eq(organizationMember.userId, userId),
+          eq(organizationMember.isActive, true),
+          activeOrganizationId
+            ? eq(organizationMember.organizationId, activeOrganizationId)
             : undefined,
         ),
       )
@@ -50,37 +53,41 @@ async function getUserPermissionActions(
   });
 
   if (!result.user?.isActive)
-    return { actions: [], companyId: null, memberId: null };
+    return { actions: [], organizationId: null, memberId: null };
 
   if (result.user?.isAdmin) {
     const allActions = await getAllPermissionActions();
     return {
       actions: allActions,
-      companyId: activeCompanyId ?? null,
+      organizationId: activeOrganizationId ?? null,
       memberId: result.member?.id ?? null,
     };
   }
 
-  if (!result.member) return { actions: [], companyId: null, memberId: null };
+  if (!result.member)
+    return { actions: [], organizationId: null, memberId: null };
 
   const actionsResult = await db
     .selectDistinct({
       action: permission.action,
     })
-    .from(companyMember)
-    .innerJoin(rolePermission, eq(companyMember.roleId, rolePermission.roleId))
+    .from(organizationMember)
+    .innerJoin(
+      rolePermission,
+      eq(organizationMember.roleId, rolePermission.roleId),
+    )
     .innerJoin(permission, eq(rolePermission.permissionId, permission.id))
     .where(
       and(
-        eq(companyMember.userId, userId),
-        eq(companyMember.companyId, result.member.companyId),
-        eq(companyMember.isActive, true),
+        eq(organizationMember.userId, userId),
+        eq(organizationMember.organizationId, result.member.organizationId),
+        eq(organizationMember.isActive, true),
       ),
     );
 
   return {
     actions: actionsResult.map((r) => r.action),
-    companyId: result.member?.companyId ?? null,
+    organizationId: result.member?.organizationId ?? null,
     memberId: result.member?.id ?? null,
   };
 }

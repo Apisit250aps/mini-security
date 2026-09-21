@@ -2,27 +2,28 @@
 
 import React, { useMemo } from 'react';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
-import { useCompanySchedulesQueries } from '../../hooks/attendance-queries';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useGetCheckInSchedulesByOrganization } from '../../hooks/attendance-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
 import scheduleDataColumns from './schedule-data-columns';
 
 interface ScheduleDataTableProps {
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function ScheduleDataTable({
-  companyId,
+  organizationId,
 }: ScheduleDataTableProps) {
-  const schedulesQuery = useCompanySchedulesQueries(companyId);
-  const rolesQuery = useCompanyRolesQueries(companyId);
+  const targetOrgId = organizationId || '';
+  const schedulesQuery = useGetCheckInSchedulesByOrganization(targetOrgId);
+  const rolesQuery = useGetOrganizationRoles(targetOrgId);
 
   const columns = useMemo(
     () =>
       scheduleDataColumns({
-        companyId,
+        organizationId: targetOrgId,
         roles: rolesQuery.data || [],
       }),
-    [companyId, rolesQuery.data],
+    [targetOrgId, rolesQuery.data],
   );
 
   const isLoading = schedulesQuery.isLoading || rolesQuery.isLoading;

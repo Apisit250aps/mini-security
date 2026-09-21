@@ -29,7 +29,7 @@ export function AppSidebar({
   const brandUrl =
     brandTitle === 'ผู้ดูแลระบบสูงสุด'
       ? buildPageUrl('adminDashboard')
-      : buildPageUrl('companyDashboard');
+      : buildPageUrl('organizationDashboard');
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

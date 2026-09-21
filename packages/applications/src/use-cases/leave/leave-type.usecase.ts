@@ -2,8 +2,8 @@ import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICreateLeaveTypeContext,
   ICreateLeaveTypeUseCase,
-  IGetLeaveTypesByCompanyContext,
-  IGetLeaveTypesByCompanyUseCase,
+  IGetLeaveTypesByOrganizationContext,
+  IGetLeaveTypesByOrganizationUseCase,
   IUpdateLeaveTypeContext,
   IUpdateLeaveTypeUseCase,
 } from '@repo/domains/applications/leave';
@@ -28,13 +28,13 @@ export class CreateLeaveTypeUseCase implements ICreateLeaveTypeUseCase {
       'Invalid leave type data',
     );
 
-    const existing = await this.leaveTypeRepository.findByNameAndCompany(
-      data.companyId,
+    const existing = await this.leaveTypeRepository.findByNameAndOrganization(
+      data.organizationId,
       data.name,
     );
     if (existing) {
       throw new DuplicateError(
-        `Leave type with name "${data.name}" already exists for this company`,
+        `Leave type with name "${data.name}" already exists for this organization`,
       );
     }
 
@@ -59,13 +59,14 @@ export class UpdateLeaveTypeUseCase implements IUpdateLeaveTypeUseCase {
     );
 
     if (data.name && data.name !== existing.name) {
-      const duplicate = await this.leaveTypeRepository.findByNameAndCompany(
-        existing.companyId,
-        data.name,
-      );
+      const duplicate =
+        await this.leaveTypeRepository.findByNameAndOrganization(
+          existing.organizationId,
+          data.name,
+        );
       if (duplicate) {
         throw new DuplicateError(
-          `Leave type with name "${data.name}" already exists for this company`,
+          `Leave type with name "${data.name}" already exists for this organization`,
         );
       }
     }
@@ -74,16 +75,22 @@ export class UpdateLeaveTypeUseCase implements IUpdateLeaveTypeUseCase {
   }
 }
 
-export class GetLeaveTypesByCompanyUseCase
-  implements IGetLeaveTypesByCompanyUseCase
+export class GetLeaveTypesByOrganizationUseCase
+  implements IGetLeaveTypesByOrganizationUseCase
 {
   constructor(private readonly leaveTypeRepository: ILeaveTypeRepository) {}
 
   @RequirePermission('leave_type:read')
-  async execute(context: IGetLeaveTypesByCompanyContext): Promise<LeaveType[]> {
+  async execute(
+    context: IGetLeaveTypesByOrganizationContext,
+  ): Promise<LeaveType[]> {
     if (context.onlyActive) {
-      return this.leaveTypeRepository.findActiveByCompanyId(context.companyId);
+      return this.leaveTypeRepository.findActiveByOrganizationId(
+        context.organizationId,
+      );
     }
-    return this.leaveTypeRepository.findByCompanyId(context.companyId);
+    return this.leaveTypeRepository.findByOrganizationId(
+      context.organizationId,
+    );
   }
 }

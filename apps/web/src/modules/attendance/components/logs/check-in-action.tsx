@@ -4,11 +4,13 @@ import { Button } from '@repo/ui/components/button';
 import { useOverlay } from '@repo/ui/hooks';
 import { LogIn } from 'lucide-react';
 import CheckInForm from './check-in-form';
+
 interface CheckInActionProps {
-  companyId: string;
+  organizationId?: string;
 }
 
-export default function CheckInAction({ companyId }: CheckInActionProps) {
+export default function CheckInAction({ organizationId }: CheckInActionProps) {
+  const targetOrgId = organizationId || '';
   const ui = useOverlay();
 
   const openDialog = useCallback(() => {
@@ -17,12 +19,12 @@ export default function CheckInAction({ companyId }: CheckInActionProps) {
       description: 'เลือกรอบเวลาและบันทึกเวลาเข้าทำงานประจำวัน',
       children: (
         <CheckInForm
-          companyId={companyId}
+          organizationId={targetOrgId}
           onSuccess={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, companyId]);
+  }, [ui.dialog, targetOrgId]);
 
   return (
     <Button onPress={openDialog}>

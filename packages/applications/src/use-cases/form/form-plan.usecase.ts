@@ -23,7 +23,7 @@ import type {
   IFormTemplateRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import {
   createFormPlanSchema,
   formScheduleConfigSchema,
@@ -43,54 +43,58 @@ export class CreateFormPlanUseCase implements ICreateFormPlanUseCase {
     private readonly periodRepo: IFormPlanPeriodRepository,
     private readonly templateRepo: IFormTemplateRepository,
     private readonly versionRepo: IFormVersionRepository,
-    private readonly memberRepo?: ICompanyMemberRepository,
+    private readonly memberRepo?: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_plan:manage')
   async execute(context: ICreateFormPlanContext): Promise<FormPlan> {
-    const companyId = context.companyId ?? context.activeCompanyId;
-    if (!companyId) throw new BadRequestError('companyId is required');
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (!organizationId)
+      throw new BadRequestError('organizationId is required');
     return this.unitOfWork.transaction(async () => {
       let member =
         context.memberId && this.memberRepo
           ? await this.memberRepo.findById(context.memberId)
           : null;
       if (
-        (!member || !member.isActive || member.companyId !== companyId) &&
+        (!member ||
+          !member.isActive ||
+          member.organizationId !== organizationId) &&
         context.user?.id &&
         this.memberRepo
       ) {
-        member = await this.memberRepo.findByCompanyAndUser(
-          companyId,
+        member = await this.memberRepo.findByOrganizationAndUser(
+          organizationId,
           context.user.id,
         );
       }
       if (
         !member ||
         !member.isActive ||
-        member.companyId !== companyId ||
+        member.organizationId !== organizationId ||
         (context.user?.id && member.userId !== context.user.id)
       ) {
-        throw new BadRequestError('Active company membership is required');
+        throw new BadRequestError('Active organization membership is required');
       }
       const createdBy = member.id;
 
       const parsed = await createFormPlanSchema.safeParseAsync({
         ...context.data,
-        companyId,
+        organizationId,
         createdBy,
       });
       if (!parsed.success) {
         throw new ValidationError('Invalid form plan data', parsed.error);
       }
 
-      const template = await this.templateRepo.findByIdAndCompany(
+      const template = await this.templateRepo.findByIdAndOrganization(
         parsed.data.formTemplateId!,
-        companyId,
+        organizationId,
       );
       if (!template) {
         throw new NotFoundError(
-          'Form template not found or does not belong to company',
+          'Form template not found or does not belong to organization',
         );
       }
 
@@ -147,10 +151,10 @@ export class CreateFormPlanUseCase implements ICreateFormPlanUseCase {
       for (const t of context.targets) {
         await this.targetRepo.create({
           roleId: t.roleId ?? null,
-          companyMemberId: t.companyMemberId ?? null,
+          organizationMemberId: t.organizationMemberId ?? null,
           roleDistribution: t.roleDistribution ?? null,
           planId: plan.id,
-          companyId,
+          organizationId,
         });
       }
 
@@ -160,7 +164,7 @@ export class CreateFormPlanUseCase implements ICreateFormPlanUseCase {
             opensAt: new Date(p.opensAt),
             dueAt: new Date(p.dueAt),
             planId: plan.id,
-            companyId,
+            organizationId,
           });
         }
       }
@@ -178,17 +182,19 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
     private readonly periodRepo: IFormPlanPeriodRepository,
     private readonly templateRepo: IFormTemplateRepository,
     private readonly versionRepo: IFormVersionRepository,
-    private readonly memberRepo?: ICompanyMemberRepository,
+    private readonly memberRepo?: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_plan:manage')
   async execute(context: IUpdateFormPlanContext): Promise<FormPlan> {
-    const companyId = context.companyId ?? context.activeCompanyId;
-    if (!companyId) throw new BadRequestError('companyId is required');
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (!organizationId)
+      throw new BadRequestError('organizationId is required');
 
     return this.unitOfWork.transaction(async () => {
       const plan = await this.planRepo.findById(context.id);
-      if (!plan || plan.companyId !== companyId) {
+      if (!plan || plan.organizationId !== organizationId) {
         throw new NotFoundError('Form plan not found');
       }
 
@@ -203,22 +209,24 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
           ? await this.memberRepo.findById(context.memberId)
           : null;
       if (
-        (!member || !member.isActive || member.companyId !== companyId) &&
+        (!member ||
+          !member.isActive ||
+          member.organizationId !== organizationId) &&
         context.user?.id &&
         this.memberRepo
       ) {
-        member = await this.memberRepo.findByCompanyAndUser(
-          companyId,
+        member = await this.memberRepo.findByOrganizationAndUser(
+          organizationId,
           context.user.id,
         );
       }
       if (
         !member ||
         !member.isActive ||
-        member.companyId !== companyId ||
+        member.organizationId !== organizationId ||
         (context.user?.id && member.userId !== context.user.id)
       ) {
-        throw new BadRequestError('Active company membership is required');
+        throw new BadRequestError('Active organization membership is required');
       }
 
       const mergedData = {
@@ -310,10 +318,10 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
           for (const t of context.targets) {
             await this.targetRepo.create({
               roleId: t.roleId ?? null,
-              companyMemberId: t.companyMemberId ?? null,
+              organizationMemberId: t.organizationMemberId ?? null,
               roleDistribution: t.roleDistribution ?? null,
               planId: plan.id,
-              companyId,
+              organizationId,
             });
           }
         }
@@ -328,7 +336,7 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
               opensAt: new Date(p.opensAt),
               dueAt: new Date(p.dueAt),
               planId: plan.id,
-              companyId,
+              organizationId,
             });
           }
         }
@@ -346,7 +354,7 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
         }
 
         const successorPlan = await this.planRepo.create({
-          companyId,
+          organizationId,
           formTemplateId: plan.formTemplateId,
           supersedesPlanId: plan.id,
           name: mergedData.name,
@@ -367,10 +375,10 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
           for (const t of context.targets) {
             await this.targetRepo.create({
               roleId: t.roleId ?? null,
-              companyMemberId: t.companyMemberId ?? null,
+              organizationMemberId: t.organizationMemberId ?? null,
               roleDistribution: t.roleDistribution ?? null,
               planId: successorPlan.id,
-              companyId,
+              organizationId,
             });
           }
         } else {
@@ -378,10 +386,10 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
           for (const t of oldTargets) {
             await this.targetRepo.create({
               roleId: t.roleId ?? null,
-              companyMemberId: t.companyMemberId ?? null,
+              organizationMemberId: t.organizationMemberId ?? null,
               roleDistribution: t.roleDistribution ?? null,
               planId: successorPlan.id,
-              companyId,
+              organizationId,
             });
           }
         }
@@ -393,7 +401,7 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
                 opensAt: new Date(p.opensAt),
                 dueAt: new Date(p.dueAt),
                 planId: successorPlan.id,
-                companyId,
+                organizationId,
               });
             }
           } else {
@@ -403,7 +411,7 @@ export class UpdateFormPlanUseCase implements IUpdateFormPlanUseCase {
                 opensAt: new Date(p.opensAt),
                 dueAt: new Date(p.dueAt),
                 planId: successorPlan.id,
-                companyId,
+                organizationId,
               });
             }
           }
@@ -425,8 +433,9 @@ export class GetFormPlanUseCase implements IGetFormPlanUseCase {
   @RequirePermission('form_plan:read')
   async execute(context: IGetFormPlanContext): Promise<FormPlanDetail> {
     const plan = await this.planRepo.findById(context.id);
-    const companyId = context.companyId ?? context.activeCompanyId;
-    if (!plan || (companyId && plan.companyId !== companyId)) {
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (!plan || (organizationId && plan.organizationId !== organizationId)) {
       throw new NotFoundError('Form plan not found');
     }
     const targets = this.targetRepo
@@ -448,7 +457,7 @@ export class ListFormPlansUseCase implements IListFormPlansUseCase {
 
   @RequirePermission('form_plan:read')
   async execute(context: IListFormPlansContext): Promise<FormPlan[]> {
-    return this.planRepo.listPlans(context.companyId, 1, 50);
+    return this.planRepo.listPlans(context.organizationId, 1, 50);
   }
 }
 
@@ -460,15 +469,16 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
     private readonly versionRepo: IFormVersionRepository,
     private readonly targetRepo: IFormPlanTargetRepository,
     private readonly periodRepo: IFormPlanPeriodRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_plan:manage')
   async execute(context: IActivateFormPlanContext): Promise<FormPlan> {
     return this.unitOfWork.transaction(async () => {
       const plan = await this.planRepo.findById(context.id);
-      const companyId = context.companyId ?? context.activeCompanyId;
-      if (!plan || (companyId && plan.companyId !== companyId)) {
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
+      if (!plan || (organizationId && plan.organizationId !== organizationId)) {
         throw new NotFoundError('Form plan not found');
       }
 
@@ -511,13 +521,15 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
           : null;
         if (
           !actor?.isActive ||
-          actor.companyId !== plan.companyId ||
+          actor.organizationId !== plan.organizationId ||
           actor.userId !== context.user?.id
         ) {
-          throw new BadRequestError('Active company membership is required');
+          throw new BadRequestError(
+            'Active organization membership is required',
+          );
         }
         const successor = await this.planRepo.create({
-          companyId: plan.companyId,
+          organizationId: plan.organizationId,
           formTemplateId: plan.formTemplateId,
           name: plan.name,
           scheduleKind: plan.scheduleKind,
@@ -535,16 +547,16 @@ export class ActivateFormPlanUseCase implements IActivateFormPlanUseCase {
         });
         for (const target of targets) {
           await this.targetRepo.create({
-            companyId: plan.companyId,
+            organizationId: plan.organizationId,
             planId: successor.id,
             roleId: target.roleId,
-            companyMemberId: target.companyMemberId,
+            organizationMemberId: target.organizationMemberId,
             roleDistribution: target.roleDistribution,
           });
         }
         for (const period of await this.periodRepo.findByPlanId(plan.id)) {
           await this.periodRepo.create({
-            companyId: plan.companyId,
+            organizationId: plan.organizationId,
             planId: successor.id,
             opensAt: period.opensAt,
             dueAt: period.dueAt,
@@ -567,15 +579,16 @@ export class PauseFormPlanUseCase implements IPauseFormPlanUseCase {
   constructor(
     private readonly unitOfWork: IUnitOfWork,
     private readonly planRepo: IFormPlanRepository,
-    private readonly memberRepo?: ICompanyMemberRepository,
+    private readonly memberRepo?: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_plan:manage')
   async execute(context: IPauseFormPlanContext): Promise<FormPlan> {
     return this.unitOfWork.transaction(async () => {
       const plan = await this.planRepo.findById(context.id);
-      const companyId = context.companyId ?? context.activeCompanyId;
-      if (!plan || (companyId && plan.companyId !== companyId)) {
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
+      if (!plan || (organizationId && plan.organizationId !== organizationId)) {
         throw new NotFoundError('Form plan not found');
       }
 
@@ -597,15 +610,19 @@ export class PauseFormPlanUseCase implements IPauseFormPlanUseCase {
         if (
           (!member ||
             !member.isActive ||
-            member.companyId !== plan.companyId) &&
+            member.organizationId !== plan.organizationId) &&
           context.user?.id
         ) {
-          member = await this.memberRepo.findByCompanyAndUser(
-            plan.companyId,
+          member = await this.memberRepo.findByOrganizationAndUser(
+            plan.organizationId,
             context.user.id,
           );
         }
-        if (member && member.isActive && member.companyId === plan.companyId) {
+        if (
+          member &&
+          member.isActive &&
+          member.organizationId === plan.organizationId
+        ) {
           closedBy = member.id;
         }
       } else {

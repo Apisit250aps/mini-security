@@ -20,7 +20,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@repo/ui/components/sonner';
 import { getErrorMessage, leaveKeys } from '@/shared/utils';
 
-export function useLeaveTypeCreate(companyId: string) {
+export function useLeaveTypeCreate(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateLeaveType) => {
@@ -30,7 +30,7 @@ export function useLeaveTypeCreate(companyId: string) {
     onSuccess: async () => {
       toast.success('สร้างประเภทการลาสำเร็จ');
       await queryClient.invalidateQueries({
-        queryKey: leaveKeys.typeLists(companyId),
+        queryKey: leaveKeys.typeLists(organizationId),
       });
     },
     onError: (error: unknown) => {
@@ -41,7 +41,7 @@ export function useLeaveTypeCreate(companyId: string) {
   });
 }
 
-export function useLeaveTypeUpdate(companyId: string) {
+export function useLeaveTypeUpdate(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateLeaveType }) => {
@@ -54,7 +54,7 @@ export function useLeaveTypeUpdate(companyId: string) {
     onSuccess: async () => {
       toast.success('อัปเดตประเภทการลาสำเร็จ');
       await queryClient.invalidateQueries({
-        queryKey: leaveKeys.typeLists(companyId),
+        queryKey: leaveKeys.typeLists(organizationId),
       });
     },
     onError: (error: unknown) => {
@@ -114,7 +114,7 @@ export function useLeaveQuotaUpdate(memberId: string, year: number) {
   });
 }
 
-export function useLeaveRequestSubmit(_companyId: string) {
+export function useLeaveRequestSubmit(_organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateLeaveRequest) => {
@@ -133,7 +133,7 @@ export function useLeaveRequestSubmit(_companyId: string) {
   });
 }
 
-export function useLeaveRequestReview(_companyId: string) {
+export function useLeaveRequestReview(_organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -164,7 +164,7 @@ export function useLeaveRequestReview(_companyId: string) {
   });
 }
 
-export function useLeaveRequestCancel(_companyId: string) {
+export function useLeaveRequestCancel(_organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {

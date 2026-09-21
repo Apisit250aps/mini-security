@@ -12,7 +12,7 @@ const sectionId = '11111111-1111-4111-8111-111111111111';
 const siblingSectionId = '22222222-2222-4222-8222-222222222222';
 const ctx = {
   user: { id: 'actor' },
-  activeCompanyId: 'company',
+  activeOrganizationId: 'organization',
   permissions: 'form_template:update',
   formTemplateId: 'template',
   sectionId,
@@ -24,7 +24,7 @@ function fixture(status = 'DRAFT') {
 
   const section = {
     id: sectionId,
-    companyId: 'company',
+    organizationId: 'organization',
     formVersionId: 'version',
     title: 'Section 1',
     sortOrder: 0,
@@ -32,7 +32,7 @@ function fixture(status = 'DRAFT') {
 
   const siblingSection = {
     id: siblingSectionId,
-    companyId: 'company',
+    organizationId: 'organization',
     formVersionId: 'version',
     title: 'Section 2',
     sortOrder: 1,
@@ -40,7 +40,7 @@ function fixture(status = 'DRAFT') {
 
   const field1 = {
     id: 'field-1',
-    companyId: 'company',
+    organizationId: 'organization',
     formVersionId: 'version',
     formSectionId: sectionId,
     sortOrder: 0,
@@ -48,7 +48,7 @@ function fixture(status = 'DRAFT') {
 
   const field2 = {
     id: 'field-2',
-    companyId: 'company',
+    organizationId: 'organization',
     formVersionId: 'version',
     formSectionId: sectionId,
     sortOrder: 1,
@@ -82,7 +82,11 @@ function fixture(status = 'DRAFT') {
     },
   } as unknown as IFormFieldRepository;
 
-  const version = { companyId: 'company', formTemplateId: 'template', status };
+  const version = {
+    organizationId: 'organization',
+    formTemplateId: 'template',
+    status,
+  };
   const versions = {
     findById: async () => version,
   } as unknown as IFormVersionRepository;
@@ -135,10 +139,11 @@ test('DeleteFormSectionUseCase: throws if section not found', async () => {
   );
 });
 
-test('DeleteFormSectionUseCase: throws if company scope does not match', async () => {
+test('DeleteFormSectionUseCase: throws if organization scope does not match', async () => {
   const { useCase } = fixture();
   await assert.rejects(
-    async () => useCase.execute({ ...ctx, activeCompanyId: 'other-company' }),
-    /Permission does not apply to this company/,
+    async () =>
+      useCase.execute({ ...ctx, activeOrganizationId: 'other-organization' }),
+    /Permission does not apply to this organization/,
   );
 });

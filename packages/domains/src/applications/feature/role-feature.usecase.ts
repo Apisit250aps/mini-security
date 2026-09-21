@@ -9,14 +9,14 @@ export type IAssignRoleFeatureContext = ISecurityContext & {
 };
 
 export type IToggleRoleFeatureContext = ISecurityContext & {
-  companyId: string;
+  organizationId: string;
   roleId: string;
   featureId: string;
   isEnabled: boolean;
 };
 
 export type IRevokeRoleFeatureContext = ISecurityContext & {
-  companyId: string;
+  organizationId: string;
   roleId: string;
   featureId: string;
 };
@@ -25,12 +25,12 @@ export type IGetRoleFeaturesContext = ISecurityContext & {
   roleId: string;
 };
 
-export type IGetCompanyRoleFeaturesContext = ISecurityContext & {
-  companyId: string;
+export type IGetOrganizationRoleFeaturesContext = ISecurityContext & {
+  organizationId: string;
 };
 
 export type ICheckRoleFeatureAccessContext = {
-  companyId: string;
+  organizationId: string;
   roleId: string;
   featureCode: string;
 };
@@ -56,8 +56,8 @@ export type IGetRoleFeaturesUseCase = BaseUseCase<
   Feature[]
 >;
 
-export type IGetCompanyRoleFeaturesUseCase = BaseUseCase<
-  IGetCompanyRoleFeaturesContext,
+export type IGetOrganizationRoleFeaturesUseCase = BaseUseCase<
+  IGetOrganizationRoleFeaturesContext,
   RoleFeature[]
 >;
 

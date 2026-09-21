@@ -7,14 +7,14 @@ import { Plus } from 'lucide-react';
 import { buildPageUrl } from '@/shared/utils';
 
 interface FormTemplateCreateActionProps {
-  companyId?: string;
+  organizationId?: string;
 }
 
 export default function FormTemplateCreateAction({
-  companyId: _companyId,
+  organizationId: _organizationId,
 }: FormTemplateCreateActionProps) {
   return (
-    <Link href={buildPageUrl('companyFormCreate')}>
+    <Link href={buildPageUrl('organizationFormCreate')}>
       <Button>
         <Plus className="w-4 h-4 mr-1" />
         สร้างแบบฟอร์มใหม่

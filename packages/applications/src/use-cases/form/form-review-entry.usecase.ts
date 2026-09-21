@@ -29,7 +29,7 @@ import type {
   IFormVersionRepository,
   IFormTemplateRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type { ISecurityContext } from '@repo/domains/constants';
 import {
   BadRequestError,
@@ -41,19 +41,19 @@ import {
 async function requireReviewActor(
   context: ISecurityContext,
   submission: FormSubmission,
-  members: ICompanyMemberRepository,
+  members: IOrganizationMemberRepository,
   contributors: IFormSubmissionContributorRepository,
 ) {
-  PermissionGuard.requireCompanyScope(context, submission.companyId);
+  PermissionGuard.requireOrganizationScope(context, submission.organizationId);
   const actor = context.memberId
     ? await members.findById(context.memberId)
     : null;
   if (
     !actor?.isActive ||
-    actor.companyId !== submission.companyId ||
+    actor.organizationId !== submission.organizationId ||
     actor.userId !== context.user?.id
   )
-    throw new ForbiddenError('Active company membership is required');
+    throw new ForbiddenError('Active organization membership is required');
   const ids = new Set(
     [
       ...(await contributors.findMemberIdsForRevisionLineage(submission.id)),
@@ -82,14 +82,14 @@ export class ListReviewQueueUseCase implements IListReviewQueueUseCase {
     private readonly planRepo: IFormPlanRepository,
     private readonly versionRepo?: IFormVersionRepository,
     private readonly templateRepo?: IFormTemplateRepository,
-    private readonly memberRepo?: ICompanyMemberRepository,
+    private readonly memberRepo?: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_review:read')
   async execute(
-    context: ISecurityContext & { companyId: string },
+    context: ISecurityContext & { organizationId: string },
   ): Promise<ReviewQueueItem[]> {
-    const allReviews = await this.reviewEntryRepo.list(context.companyId);
+    const allReviews = await this.reviewEntryRepo.list(context.organizationId);
     const finalReviewSubIds = new Set(
       allReviews
         .filter(
@@ -97,8 +97,8 @@ export class ListReviewQueueUseCase implements IListReviewQueueUseCase {
         )
         .map((r) => r.submissionId),
     );
-    const allSubs = await this.submissionRepo.findByCompanyId(
-      context.companyId,
+    const allSubs = await this.submissionRepo.findByOrganizationId(
+      context.organizationId,
     );
     const pendingSubs: FormSubmission[] = [];
     for (const sub of allSubs) {
@@ -176,7 +176,7 @@ export class GetReviewDetailUseCase implements IGetReviewDetailUseCase {
     private readonly reviewEntryRepo: IFormReviewEntryRepository,
     private readonly submissionRepo: IFormSubmissionRepository,
     private readonly assignmentRepo: IFormAssignmentRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
   ) {}
 
   async execute(
@@ -190,7 +190,10 @@ export class GetReviewDetailUseCase implements IGetReviewDetailUseCase {
     );
     const submission = await this.submissionRepo.findById(context.submissionId);
     if (!submission) throw new NotFoundError('Submission not found');
-    PermissionGuard.requireCompanyScope(context, submission.companyId);
+    PermissionGuard.requireOrganizationScope(
+      context,
+      submission.organizationId,
+    );
     if (!hasFormPermission(context, 'form_review:read')) {
       const assignment = await this.assignmentRepo.findById(
         submission.assignmentId,
@@ -214,7 +217,7 @@ export class RecordAnswerReviewUseCase implements IRecordAnswerReviewUseCase {
     private readonly answerRepo: IFormAnswerRepository,
     private readonly reviewEntryRepo: IFormReviewEntryRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_review:answer')
@@ -230,13 +233,13 @@ export class RecordAnswerReviewUseCase implements IRecordAnswerReviewUseCase {
   ): Promise<FormReviewEntry> {
     return this.unitOfWork.transaction(async () => {
       const memberId = context.memberId as string;
-      const companyId = context.companyId!;
+      const organizationId = context.organizationId!;
       const submission = await this.submissionRepo.findById(
         context.submissionId,
       );
       if (!submission) throw new NotFoundError('Submission not found');
-      if (submission.companyId !== companyId)
-        throw new ForbiddenError('Company mismatch');
+      if (submission.organizationId !== organizationId)
+        throw new ForbiddenError('Organization mismatch');
       if (!submission.submittedAt)
         throw new BadRequestError('Submission is not submitted');
       requireRevisionMatch(
@@ -288,7 +291,7 @@ export class RecordAnswerReviewUseCase implements IRecordAnswerReviewUseCase {
         revision: submission.revision + 1,
       });
       return await this.reviewEntryRepo.create({
-        companyId,
+        organizationId,
         submissionId: submission.id,
         formVersionId: submission.formVersionId,
         answerId: context.answerId,
@@ -309,7 +312,7 @@ export class RecordSectionReviewUseCase implements IRecordSectionReviewUseCase {
     private readonly sectionRepo: IFormSectionRepository,
     private readonly reviewEntryRepo: IFormReviewEntryRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly answerRepo: IFormAnswerRepository,
     private readonly fieldRepo: IFormFieldRepository,
   ) {}
@@ -367,7 +370,7 @@ export class RecordSectionReviewUseCase implements IRecordSectionReviewUseCase {
         );
         results.push(
           await this.reviewEntryRepo.create({
-            companyId: submission.companyId,
+            organizationId: submission.organizationId,
             submissionId: submission.id,
             formVersionId: submission.formVersionId,
             answerId: answer.id,
@@ -395,7 +398,7 @@ export class FinalizeSubmissionReviewUseCase
     private readonly submissionRepo: IFormSubmissionRepository,
     private readonly reviewEntryRepo: IFormReviewEntryRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly occurrenceRepo: IFormOccurrenceRepository,
     private readonly planRepo: IFormPlanRepository,
@@ -415,13 +418,13 @@ export class FinalizeSubmissionReviewUseCase
   ): Promise<FormReviewEntry> {
     return this.unitOfWork.transaction(async () => {
       const memberId = context.memberId as string;
-      const companyId = context.companyId!;
+      const organizationId = context.organizationId!;
       const submission = await this.submissionRepo.findById(
         context.submissionId,
       );
       if (!submission) throw new NotFoundError('Submission not found');
-      if (submission.companyId !== companyId)
-        throw new ForbiddenError('Company mismatch');
+      if (submission.organizationId !== organizationId)
+        throw new ForbiddenError('Organization mismatch');
       if (!submission.submittedAt)
         throw new BadRequestError('Submission is not submitted');
       requireRevisionMatch(
@@ -489,7 +492,7 @@ export class FinalizeSubmissionReviewUseCase
         revision: submission.revision + 1,
       });
       return await this.reviewEntryRepo.create({
-        companyId,
+        organizationId,
         submissionId: submission.id,
         formVersionId: submission.formVersionId,
         answerId: null,

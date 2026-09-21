@@ -29,10 +29,10 @@ interface LeaveServices {
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/types")
-  @summary("Get company leave types")
-  getTypesByCompany(
-    @path companyId: string,
+  @route("/organizations/{organizationId}/types")
+  @summary("Get organization leave types")
+  getTypesByOrganization(
+    @path organizationId: string,
     @query onlyActive?: boolean,
   ):
     | ApiOkResponse<LeaveType[]>
@@ -101,10 +101,10 @@ interface LeaveServices {
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/requests")
-  @summary("Get company leave requests")
-  getCompanyRequests(
-    @path companyId: string,
+  @route("/organizations/{organizationId}/requests")
+  @summary("Get organization leave requests")
+  getOrganizationRequests(
+    @path organizationId: string,
     @query status?: string,
   ):
     | ApiOkResponse<LeaveRequest[]>

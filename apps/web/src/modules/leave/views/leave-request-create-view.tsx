@@ -3,11 +3,11 @@
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import FormPageLayout from '@/shared/components/layouts/form-page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import {
-  useCompanyLeaveTypesQueries,
+  useOrganizationLeaveTypesQueries,
   useMemberLeaveQuotasQueries,
 } from '../hooks/leave-queries';
 import { useLeaveRequestSubmit } from '../hooks/leave-mutations';
@@ -27,26 +27,29 @@ import { CalendarCheck, ShieldAlert, CheckCircle2, Clock } from 'lucide-react';
 export default function LeaveRequestCreateView() {
   const router = useRouter();
   const { data: session } = useSession();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrgLoading } =
+    useActiveOrganization();
 
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
+  const membersQuery = useOrganizationMembersQueries(
+    activeOrganizationId || '',
+  );
   const currentMember = useMemo(() => {
     const userId = session?.user?.id;
     if (!userId || !membersQuery.data) return null;
     return membersQuery.data.find((m) => m.userId === userId) || null;
   }, [session?.user?.id, membersQuery.data]);
 
-  const leaveTypesQuery = useCompanyLeaveTypesQueries(
-    activeCompanyId || '',
+  const leaveTypesQuery = useOrganizationLeaveTypesQueries(
+    activeOrganizationId || '',
     true,
   );
   const quotasQuery = useMemberLeaveQuotasQueries(currentMember?.id);
-  const submitMutation = useLeaveRequestSubmit(activeCompanyId || '');
+  const submitMutation = useLeaveRequestSubmit(activeOrganizationId || '');
 
   const handleSubmit = (data: LeaveRequestFormValues) => {
     submitMutation.mutate(
       {
-        companyMemberId: data.companyMemberId,
+        organizationMemberId: data.organizationMemberId,
         leaveTypeId: data.leaveTypeId,
         startDate: data.startDate,
         endDate: data.endDate,
@@ -56,7 +59,7 @@ export default function LeaveRequestCreateView() {
       },
       {
         onSuccess: () => {
-          router.push('/company/leave/requests');
+          router.push('/organization/leave/requests');
         },
       },
     );
@@ -78,8 +81,8 @@ export default function LeaveRequestCreateView() {
     <FormPageLayout
       title="ยื่นคำขอลาหยุดงาน"
       description="ระบุประเภทวันลา ช่วงวันที่ และเหตุผลความจำเป็น พร้อมตรวจสอบโควต้าคงเหลือ"
-      backHref="/company/leave/requests"
-      isLoading={isCompanyLoading || !activeCompanyId}
+      backHref="/organization/leave/requests"
+      isLoading={isOrgLoading || !activeOrganizationId}
       maxWidth="3xl"
       sidebar={
         <div className="flex flex-col gap-4">
@@ -158,7 +161,7 @@ export default function LeaveRequestCreateView() {
       <Card>
         <CardContent className="p-6">
           <LeaveRequestForm
-            companyId={activeCompanyId || ''}
+            organizationId={activeOrganizationId || ''}
             isLoading={submitMutation.isPending}
             onSubmit={handleSubmit}
           />

@@ -8,7 +8,7 @@ export const sessionSchema = BaseEntity({
   expiresAt: DateField({ required: true }),
   ipAddress: StringField({ required: false, nullable: true }),
   userAgent: StringField({ required: false, nullable: true }),
-  activeCompanyId: UUIDField({ required: false, nullable: true }),
+  activeOrganizationId: UUIDField({ required: false, nullable: true }),
 });
 
 export const createSessionSchema = sessionSchema.omit({

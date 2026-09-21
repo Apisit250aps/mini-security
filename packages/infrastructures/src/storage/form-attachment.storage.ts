@@ -38,10 +38,10 @@ export class LocalFormAttachmentStorage implements IFormAttachmentStorage {
     return join(this.directory, key);
   }
 
-  async put(companyId: string, bytes: Uint8Array): Promise<string> {
-    const key = `${companyId}/${randomUUID()}`;
+  async put(organizationId: string, bytes: Uint8Array): Promise<string> {
+    const key = `${organizationId}/${randomUUID()}`;
     const path = this.path(key);
-    await mkdir(join(this.directory, companyId), { recursive: true });
+    await mkdir(join(this.directory, organizationId), { recursive: true });
     await writeFile(path, bytes, { flag: 'wx' });
     return key;
   }

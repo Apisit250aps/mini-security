@@ -9,7 +9,7 @@ import formSubmissionDataColumns from './form-submission-data-columns';
 import type { FormSubmissionItem } from '@repo/client';
 
 interface FormSubmissionDataTableProps {
-  companyId?: string;
+  organizationId?: string;
 }
 
 const STATUS_FILTERS = [
@@ -21,19 +21,19 @@ const STATUS_FILTERS = [
 ];
 
 export default function FormSubmissionDataTable({
-  companyId,
+  organizationId,
 }: FormSubmissionDataTableProps) {
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [onlyLatest, setOnlyLatest] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const submissionsQuery = useFormSubmissionsQueries(
-    companyId ? { companyId } : undefined,
+    organizationId ? { organizationId } : undefined,
   );
 
   const columns = useMemo(
-    () => formSubmissionDataColumns({ companyId: companyId ?? '' }),
-    [companyId],
+    () => formSubmissionDataColumns({ organizationId: organizationId ?? '' }),
+    [organizationId],
   );
 
   const rawData: FormSubmissionItem[] = useMemo(

@@ -57,7 +57,7 @@ export class EditFormFieldUseCase implements IEditFormFieldUseCase {
       if (
         !section ||
         section.formVersionId !== field.formVersionId ||
-        section.companyId !== field.companyId
+        section.organizationId !== field.organizationId
       )
         throw new BadRequestError(
           'Section must belong to the same draft version',
@@ -103,7 +103,7 @@ export class EditFormFieldUseCase implements IEditFormFieldUseCase {
         }
         savedOptions = await this.optionRepo.replaceOptions(
           field.id,
-          field.companyId,
+          field.organizationId,
           field.formVersionId,
           options,
         );

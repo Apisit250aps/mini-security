@@ -18,7 +18,7 @@ export const session = pgTable(
     expiresAt: timestamp('expires_at').notNull(),
     ipAddress: encryptedText('ip_address'),
     userAgent: encryptedText('user_agent'),
-    activeCompanyId: uuid('active_company_id'),
+    activeOrganizationId: uuid('active_organization_id'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },

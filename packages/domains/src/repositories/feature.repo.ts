@@ -1,10 +1,14 @@
 import type { BaseRepository } from '../index';
-import type { CompanyFeature, Feature, RoleFeature } from '#entities/feature';
 import type {
-  CreateCompanyFeature,
+  OrganizationFeature,
+  Feature,
+  RoleFeature,
+} from '#entities/feature';
+import type {
+  CreateOrganizationFeature,
   CreateFeature,
   CreateRoleFeature,
-  UpdateCompanyFeature,
+  UpdateOrganizationFeature,
   UpdateFeature,
   UpdateRoleFeature,
 } from '#schema/feature';
@@ -16,33 +20,35 @@ export interface IFeatureRepository
   findActiveFeatures(): Promise<Feature[]>;
 }
 
-export interface ICompanyFeatureRepository
+export interface IOrganizationFeatureRepository
   extends BaseRepository<
-    CompanyFeature,
-    CreateCompanyFeature,
-    UpdateCompanyFeature
+    OrganizationFeature,
+    CreateOrganizationFeature,
+    UpdateOrganizationFeature
   > {
-  findByCompanyId(companyId: string): Promise<CompanyFeature[]>;
-  findActiveByCompanyId(companyId: string): Promise<CompanyFeature[]>;
-  findByCompanyAndFeature(
-    companyId: string,
+  findByOrganizationId(organizationId: string): Promise<OrganizationFeature[]>;
+  findActiveByOrganizationId(
+    organizationId: string,
+  ): Promise<OrganizationFeature[]>;
+  findByOrganizationAndFeature(
+    organizationId: string,
     featureId: string,
-  ): Promise<CompanyFeature | null>;
-  findByCompanyAndFeatureCode(
-    companyId: string,
+  ): Promise<OrganizationFeature | null>;
+  findByOrganizationAndFeatureCode(
+    organizationId: string,
     featureCode: string,
-  ): Promise<CompanyFeature | null>;
-  findFeaturesByCompanyId(
-    companyId: string,
+  ): Promise<OrganizationFeature | null>;
+  findFeaturesByOrganizationId(
+    organizationId: string,
     onlyEnabled?: boolean,
   ): Promise<Feature[]>;
   toggleFeature(
-    companyId: string,
+    organizationId: string,
     featureId: string,
     isEnabled: boolean,
-  ): Promise<CompanyFeature>;
-  deleteByCompanyAndFeature(
-    companyId: string,
+  ): Promise<OrganizationFeature>;
+  deleteByOrganizationAndFeature(
+    organizationId: string,
     featureId: string,
   ): Promise<void>;
 }
@@ -50,7 +56,7 @@ export interface ICompanyFeatureRepository
 export interface IRoleFeatureRepository
   extends BaseRepository<RoleFeature, CreateRoleFeature, UpdateRoleFeature> {
   findByRoleId(roleId: string): Promise<RoleFeature[]>;
-  findByCompanyId(companyId: string): Promise<RoleFeature[]>;
+  findByOrganizationId(organizationId: string): Promise<RoleFeature[]>;
   findByRoleAndFeature(
     roleId: string,
     featureId: string,

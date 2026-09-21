@@ -3,33 +3,33 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createLocationSchema } from '@repo/domains/schema/location';
-import type { Location } from '@repo/client';
-import type { CreateLocation } from '@repo/domains/schema/location';
-import { InputField, SelectField, SwitchField } from '@repo/ui/form';
+import type { Location, CreateLocation } from '@repo/client';
+import { InputField, SwitchField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { useCompanyBranchesQueries } from '@/modules/company/hooks/company-queries';
-import { CompanyBranchSelectField } from '@/shared/components/form';
+import { useOrganizationSitesQueries } from '@/modules/organization/hooks/organization-queries';
+import { SiteSelectField } from '@/shared/components/form';
 import { useLocationSave } from '../hooks/location-mutations';
 
 export default function LocationForm({
-  companyId,
+  organizationId,
   location,
   onClose,
 }: {
-  companyId: string;
+  organizationId?: string;
   location?: Location;
   onClose: () => void;
 }) {
-  const branches = useCompanyBranchesQueries(companyId);
-  const mutation = useLocationSave(companyId);
+  const activeOrgId = organizationId || '';
+  const sites = useOrganizationSitesQueries(activeOrgId);
+  const mutation = useLocationSave(activeOrgId);
   const form = useForm<CreateLocation>({
     resolver: zodResolver(createLocationSchema),
     defaultValues: location
       ? {
-          companyId,
-          companyBranchId: location.companyBranchId,
+          organizationId: activeOrgId,
+          siteId: location.siteId,
           name: location.name,
           address: location.address ?? '',
           latitude: location.latitude,
@@ -39,13 +39,15 @@ export default function LocationForm({
           isPrimary: location.isPrimary,
         }
       : {
-          companyId,
-          companyBranchId: '',
+          organizationId: activeOrgId,
+          siteId: '',
           name: '',
           address: '',
           isActive: true,
           isPrimary: false,
           radiusMeters: 100,
+          latitude: 13.7563,
+          longitude: 100.5018,
         },
   });
 
@@ -56,8 +58,8 @@ export default function LocationForm({
         if (mutation.isPending) return;
         if (location) {
           const {
-            companyId: _companyId,
-            companyBranchId: _branchId,
+            organizationId: _organizationId,
+            siteId: _siteId,
             ...update
           } = data;
           mutation.mutate(
@@ -66,7 +68,7 @@ export default function LocationForm({
           );
         } else {
           mutation.mutate(
-            { data: { ...data, companyId } },
+            { data: { ...data, organizationId: activeOrgId } },
             { onSuccess: onClose },
           );
         }
@@ -79,17 +81,16 @@ export default function LocationForm({
       <FieldGroup>
         {location ? (
           <p>
-            สาขา:{' '}
-            {branches.data?.find(
-              (branch) => branch.id === location.companyBranchId,
-            )?.name ?? (location.companyBranchId ? 'สาขาหลัก' : '-')}
+            ไซต์/สาขา:{' '}
+            {sites.data?.find((site) => site.id === location.siteId)?.name ??
+              (location.siteId ? 'ไซต์หลัก' : '-')}
           </p>
         ) : (
-          <CompanyBranchSelectField
-            companyId={companyId}
+          <SiteSelectField
+            organizationId={activeOrgId}
             control={form.control}
-            name="companyBranchId"
-            label="สาขา"
+            name="siteId"
+            label="ไซต์ / สาขา"
             required
           />
         )}
@@ -142,7 +143,7 @@ export default function LocationForm({
         <SwitchField
           control={form.control}
           name="isPrimary"
-          label="สถานที่หลักของสาขา"
+          label="สถานที่หลักของไซต์"
         />
       </FieldGroup>
       <div className="flex justify-end gap-2">
@@ -156,7 +157,7 @@ export default function LocationForm({
         <ButtonLoading
           type="submit"
           isLoading={mutation.isPending}
-          isDisabled={branches.isError || branches.isLoading}
+          isDisabled={sites.isError || sites.isLoading}
         >
           บันทึกสถานที่
         </ButtonLoading>

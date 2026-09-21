@@ -2,7 +2,7 @@
 export const FEATURE_CODES = {
   ATTENDANCE_MANAGEMENT: 'ATTENDANCE_MANAGEMENT',
   LEAVE_MANAGEMENT: 'LEAVE_MANAGEMENT',
-  COMPANY_MANAGEMENT: 'COMPANY_MANAGEMENT',
+  ORGANIZATION_MANAGEMENT: 'ORGANIZATION_MANAGEMENT',
   ROLE_PERMISSION_MANAGEMENT: 'ROLE_PERMISSION_MANAGEMENT',
   EMPLOYEE_MANAGEMENT: 'EMPLOYEE_MANAGEMENT',
   FORM_MANAGEMENT: 'FORM_MANAGEMENT',
@@ -26,9 +26,9 @@ export const SYSTEM_FEATURES = [
     isActive: true,
   },
   {
-    code: FEATURE_CODES.COMPANY_MANAGEMENT,
-    name: 'Company Management',
-    description: 'Companies and branches',
+    code: FEATURE_CODES.ORGANIZATION_MANAGEMENT,
+    name: 'Organization Management',
+    description: 'Organizations and sites',
     category: 'ORGANIZATION',
     isActive: true,
   },
@@ -42,7 +42,7 @@ export const SYSTEM_FEATURES = [
   {
     code: FEATURE_CODES.EMPLOYEE_MANAGEMENT,
     name: 'Employee Directory',
-    description: 'Users and company members',
+    description: 'Users and organization members',
     category: 'HR',
     isActive: true,
   },

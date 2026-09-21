@@ -19,16 +19,14 @@ export const authMiddleware: MiddlewareHandler = createMiddleware(
     }
 
     const sessionObj = session.session as {
-      activeCompanyId?: string | null;
+      activeOrganizationId?: string | null;
       permissions?: string;
       memberId?: string | null;
     };
-    const { actions, companyId, memberId } = await getUserPermissionActions(
-      user.id,
-      sessionObj.activeCompanyId,
-    );
+    const { actions, organizationId, memberId } =
+      await getUserPermissionActions(user.id, sessionObj.activeOrganizationId);
     sessionObj.permissions = actions.join(',');
-    sessionObj.activeCompanyId = companyId;
+    sessionObj.activeOrganizationId = organizationId;
     sessionObj.memberId = memberId;
     c.set('user', session.user);
     c.set('session', session.session);

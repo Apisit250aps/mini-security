@@ -8,20 +8,21 @@ import { useLeaveTypeCreate } from '../../hooks/leave-mutations';
 import LeaveTypeForm, { LeaveTypeFormValues } from './leave-type-form';
 
 interface LeaveTypeCreateActionProps {
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function LeaveTypeCreateAction({
-  companyId,
+  organizationId,
 }: LeaveTypeCreateActionProps) {
+  const activeOrgId = organizationId || '';
   const ui = useOverlay();
-  const createMutation = useLeaveTypeCreate(companyId);
+  const createMutation = useLeaveTypeCreate(activeOrgId);
 
   const handleSubmit = useCallback(
     (data: LeaveTypeFormValues) => {
       createMutation.mutate(
         {
-          companyId,
+          organizationId: activeOrgId,
           name: data.name,
           description: data.description || null,
           unit: data.unit,
@@ -37,13 +38,13 @@ export default function LeaveTypeCreateAction({
         },
       );
     },
-    [createMutation, companyId, ui.dialog],
+    [createMutation, activeOrgId, ui.dialog],
   );
 
   const openCreateDialog = useCallback(() => {
     ui.dialog.open({
       title: 'เพิ่มประเภทการลาใหม่',
-      description: 'กำหนดเงื่อนไขและนโยบายสำหรับประเภทการลาของบริษัท',
+      description: 'กำหนดเงื่อนไขและนโยบายสำหรับประเภทการลาขององค์กร',
       size: 'lg',
       children: (
         <LeaveTypeForm

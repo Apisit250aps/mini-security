@@ -2,21 +2,21 @@
 
 import React, { useMemo } from 'react';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
-import { useCompanyLeaveTypesQueries } from '../../hooks/leave-queries';
+import { useOrganizationLeaveTypesQueries } from '../../hooks/leave-queries';
 import leaveTypeDataColumns from './leave-type-data-columns';
 
 interface LeaveTypeDataTableProps {
-  companyId: string;
+  organizationId: string;
 }
 
 export default function LeaveTypeDataTable({
-  companyId,
+  organizationId,
 }: LeaveTypeDataTableProps) {
-  const typesQuery = useCompanyLeaveTypesQueries(companyId);
+  const typesQuery = useOrganizationLeaveTypesQueries(organizationId);
 
   const columns = useMemo(
-    () => leaveTypeDataColumns({ companyId }),
-    [companyId],
+    () => leaveTypeDataColumns({ organizationId }),
+    [organizationId],
   );
 
   return (

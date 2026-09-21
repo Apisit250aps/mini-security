@@ -20,7 +20,7 @@ import { getFormSubmissionStatus } from '../../lib/submission-status';
 
 interface FormFillerModalProps {
   submissionId: string;
-  companyId: string;
+  organizationId: string;
   memberId: string;
   onClose: () => void;
 }
@@ -40,14 +40,14 @@ const STATUS_MAP: Record<
 
 export default function FormFillerModal({
   submissionId,
-  companyId,
+  organizationId,
   memberId,
   onClose,
 }: FormFillerModalProps) {
   const { data: detail, isLoading } = useFormSubmissionQueries(submissionId);
 
   const saveDraftMutation = useFormSubmissionSaveDraft(submissionId);
-  const submitMutation = useFormSubmissionSubmit(submissionId, companyId);
+  const submitMutation = useFormSubmissionSubmit(submissionId, organizationId);
 
   const attachmentPending =
     useIsMutating({ mutationKey: ['FORM', 'ATTACHMENT', submissionId] }) > 0;

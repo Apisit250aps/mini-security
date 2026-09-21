@@ -17,13 +17,13 @@ function usePermissionListQueries() {
   return query;
 }
 
-function useMyPermissionsQueries(companyId?: string, enabled = true) {
+function useMyPermissionsQueries(organizationId?: string, enabled = true) {
   const query = useQuery({
-    queryKey: permissionKeys.my(companyId),
+    queryKey: permissionKeys.my(organizationId),
     queryFn: async ({ signal }) => {
       const response = await permissionServicesGetMyPermissions({
         signal,
-        query: companyId ? { companyId } : undefined,
+        query: organizationId ? { organizationId } : undefined,
       });
       if (response.data) return response.data.data;
       throw new Error(

@@ -26,7 +26,7 @@ import type {
 
 export class FormTemplate implements FormTemplateEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   name: string;
   description?: string | null;
   isActive: boolean;
@@ -35,7 +35,7 @@ export class FormTemplate implements FormTemplateEntity {
   updatedAt: Date;
   constructor(data: FormTemplateEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.name = data.name;
     this.description = data.description;
     this.isActive = data.isActive;
@@ -47,7 +47,7 @@ export class FormTemplate implements FormTemplateEntity {
 
 export class FormVersion implements FormVersionEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   formTemplateId: string;
   version: number;
   status: FormVersionStatus;
@@ -60,7 +60,7 @@ export class FormVersion implements FormVersionEntity {
   updatedAt: Date;
   constructor(data: FormVersionEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.formTemplateId = data.formTemplateId;
     this.version = data.version;
     this.status = data.status;
@@ -76,7 +76,7 @@ export class FormVersion implements FormVersionEntity {
 
 export class FormSection implements FormSectionEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   formVersionId: string;
   title: string;
   description?: string | null;
@@ -85,7 +85,7 @@ export class FormSection implements FormSectionEntity {
   updatedAt: Date;
   constructor(data: FormSectionEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.formVersionId = data.formVersionId;
     this.title = data.title;
     this.description = data.description;
@@ -97,7 +97,7 @@ export class FormSection implements FormSectionEntity {
 
 export class FormField implements FormFieldEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   formVersionId: string;
   formSectionId: string;
   name: string;
@@ -116,7 +116,7 @@ export class FormField implements FormFieldEntity {
   updatedAt: Date;
   constructor(data: FormFieldEntity & { options?: FormFieldOptionEntity[] }) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.formVersionId = data.formVersionId;
     this.formSectionId = data.formSectionId;
     this.name = data.name;
@@ -138,7 +138,7 @@ export class FormField implements FormFieldEntity {
 
 export class FormFieldOption implements FormFieldOptionEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   formVersionId: string;
   fieldId: string;
   label: string;
@@ -148,7 +148,7 @@ export class FormFieldOption implements FormFieldOptionEntity {
   updatedAt: Date;
   constructor(data: FormFieldOptionEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.formVersionId = data.formVersionId;
     this.fieldId = data.fieldId;
     this.label = data.label;
@@ -161,7 +161,7 @@ export class FormFieldOption implements FormFieldOptionEntity {
 
 export class FormPlan implements FormPlanEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   formTemplateId: string;
   supersedesPlanId?: string | null;
   name: string;
@@ -180,7 +180,7 @@ export class FormPlan implements FormPlanEntity {
   updatedAt: Date;
   constructor(data: FormPlanEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.formTemplateId = data.formTemplateId;
     this.supersedesPlanId = data.supersedesPlanId;
     this.name = data.name;
@@ -202,18 +202,18 @@ export class FormPlan implements FormPlanEntity {
 
 export class FormPlanTarget implements FormPlanTargetEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   planId: string;
   roleId?: string | null;
-  companyMemberId?: string | null;
+  organizationMemberId?: string | null;
   roleDistribution?: FormRoleDistribution | null;
   createdAt: Date;
   constructor(data: FormPlanTargetEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.planId = data.planId;
     this.roleId = data.roleId;
-    this.companyMemberId = data.companyMemberId;
+    this.organizationMemberId = data.organizationMemberId;
     this.roleDistribution = data.roleDistribution;
     this.createdAt = data.createdAt;
   }
@@ -221,14 +221,14 @@ export class FormPlanTarget implements FormPlanTargetEntity {
 
 export class FormPlanPeriod implements FormPlanPeriodEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   planId: string;
   opensAt: Date;
   dueAt: Date;
   createdAt: Date;
   constructor(data: FormPlanPeriodEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.planId = data.planId;
     this.opensAt = data.opensAt;
     this.dueAt = data.dueAt;
@@ -238,7 +238,7 @@ export class FormPlanPeriod implements FormPlanPeriodEntity {
 
 export class FormOccurrence implements FormOccurrenceEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   planId: string;
   formTemplateId: string;
   formVersionId: string;
@@ -253,7 +253,7 @@ export class FormOccurrence implements FormOccurrenceEntity {
   createdAt: Date;
   constructor(data: FormOccurrenceEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.planId = data.planId;
     this.formTemplateId = data.formTemplateId;
     this.formVersionId = data.formVersionId;
@@ -271,11 +271,11 @@ export class FormOccurrence implements FormOccurrenceEntity {
 
 export class FormAssignment implements FormAssignmentEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   occurrenceId: string;
   formVersionId: string;
   roleId?: string | null;
-  companyMemberId?: string | null;
+  organizationMemberId?: string | null;
   replacesAssignmentId?: string | null;
   assignedBy?: string | null;
   cancelledAt?: Date | null;
@@ -285,11 +285,11 @@ export class FormAssignment implements FormAssignmentEntity {
   createdAt: Date;
   constructor(data: FormAssignmentEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.occurrenceId = data.occurrenceId;
     this.formVersionId = data.formVersionId;
     this.roleId = data.roleId;
-    this.companyMemberId = data.companyMemberId;
+    this.organizationMemberId = data.organizationMemberId;
     this.replacesAssignmentId = data.replacesAssignmentId;
     this.assignedBy = data.assignedBy;
     this.cancelledAt = data.cancelledAt;
@@ -302,7 +302,7 @@ export class FormAssignment implements FormAssignmentEntity {
 
 export class FormSubmission implements FormSubmissionEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   assignmentId: string;
   formVersionId: string;
   startedBy: string;
@@ -314,7 +314,7 @@ export class FormSubmission implements FormSubmissionEntity {
   updatedAt: Date;
   constructor(data: FormSubmissionEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.assignmentId = data.assignmentId;
     this.formVersionId = data.formVersionId;
     this.startedBy = data.startedBy;
@@ -331,13 +331,13 @@ export class FormSubmissionContributor
   implements FormSubmissionContributorEntity
 {
   id: string;
-  companyId: string;
+  organizationId: string;
   submissionId: string;
   memberId: string;
   createdAt: Date;
   constructor(data: FormSubmissionContributorEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.submissionId = data.submissionId;
     this.memberId = data.memberId;
     this.createdAt = data.createdAt;
@@ -346,7 +346,7 @@ export class FormSubmissionContributor
 
 export class FormAnswer implements FormAnswerEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   formVersionId: string;
   submissionId: string;
   fieldId: string;
@@ -356,7 +356,7 @@ export class FormAnswer implements FormAnswerEntity {
   updatedAt: Date;
   constructor(data: FormAnswerEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.formVersionId = data.formVersionId;
     this.submissionId = data.submissionId;
     this.fieldId = data.fieldId;
@@ -369,7 +369,7 @@ export class FormAnswer implements FormAnswerEntity {
 
 export class FormAnswerAttachment implements FormAnswerAttachmentEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   answerId: string;
   storageKey: string;
   originalName: string;
@@ -381,7 +381,7 @@ export class FormAnswerAttachment implements FormAnswerAttachmentEntity {
   updatedAt: Date;
   constructor(data: FormAnswerAttachmentEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.answerId = data.answerId;
     this.storageKey = data.storageKey;
     this.originalName = data.originalName;
@@ -397,7 +397,7 @@ export class FormAnswerAttachment implements FormAnswerAttachmentEntity {
 /** API history read model combining answer reviews and submission decisions. */
 export class FormReviewEntry implements FormReviewEntryEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   submissionId: string;
   formVersionId: string;
   answerId?: string | null;
@@ -408,7 +408,7 @@ export class FormReviewEntry implements FormReviewEntryEntity {
   createdAt: Date;
   constructor(data: FormReviewEntryEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.submissionId = data.submissionId;
     this.formVersionId = data.formVersionId;
     this.answerId = data.answerId;

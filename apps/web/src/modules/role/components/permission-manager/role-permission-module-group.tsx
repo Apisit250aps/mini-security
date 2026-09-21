@@ -14,9 +14,9 @@ interface RolePermissionModuleGroupProps {
 }
 
 const MODULE_DISPLAY_NAMES: Record<string, string> = {
-  company: 'ข้อมูลองค์กร (Company)',
-  company_branch: 'สาขาองค์กร (Branches)',
-  company_member: 'สมาชิกและพนักงาน (Members)',
+  organization: 'ข้อมูลองค์กร (Organization)',
+  site: 'สาขาองค์กร (Sites)',
+  organization_member: 'สมาชิกและพนักงาน (Members)',
   role: 'บทบาทหน้าที่ (Roles)',
   attendance: 'การลงเวลาเข้างาน (Attendance)',
   attendance_schedule: 'ตารางเวลาและกะงาน (Schedules)',

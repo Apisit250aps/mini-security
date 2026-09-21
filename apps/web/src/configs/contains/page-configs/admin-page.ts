@@ -13,11 +13,11 @@ export const adminPageConfigs: PageConfigs = {
     description: 'จัดการบัญชีผู้ใช้',
     url: '/admin/user',
   },
-  company: {
-    name: 'บริษัท',
-    title: 'บริษัท',
-    description: 'จัดการข้อมูลบริษัท',
-    url: '/admin/company',
+  organization: {
+    name: 'องค์กร',
+    title: 'องค์กร',
+    description: 'จัดการข้อมูลองค์กร',
+    url: '/admin/organization',
   },
   role: {
     name: 'บทบาท',

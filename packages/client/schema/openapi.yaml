@@ -4,7 +4,7 @@ info:
   version: 0.0.0
 tags:
   - name: User
-  - name: Company
+  - name: Organization
   - name: Permission
   - name: Role
   - name: Feature
@@ -55,143 +55,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CheckInRequest'
-  /attendances/companies/{companyId}/logs:
-    get:
-      operationId: AttendanceServices_getCompanyLogs
-      summary: Get company attendance logs by date range
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: startDate
-          in: query
-          required: true
-          schema:
-            type: string
-          explode: false
-        - name: endDate
-          in: query
-          required: true
-          schema:
-            type: string
-          explode: false
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/AttendanceLog'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
-  /attendances/companies/{companyId}/roles/{roleId}/schedules:
-    get:
-      operationId: AttendanceServices_getSchedulesByRole
-      summary: Get active check-in schedules assigned to a role in a company
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: roleId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CheckInSchedule'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
-  /attendances/companies/{companyId}/schedules:
-    get:
-      operationId: AttendanceServices_getSchedulesByCompany
-      summary: Get check-in schedules by company
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CheckInSchedule'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Attendance
   /attendances/manual-check-in:
     post:
       operationId: AttendanceServices_manualCheckIn
@@ -282,6 +145,143 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/AttendanceLog'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendances/organizations/{organizationId}/logs:
+    get:
+      operationId: AttendanceServices_getOrganizationLogs
+      summary: Get organization attendance logs by date range
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceLog'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendances/organizations/{organizationId}/roles/{roleId}/schedules:
+    get:
+      operationId: AttendanceServices_getSchedulesByRole
+      summary: Get active check-in schedules assigned to a role in an organization
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CheckInSchedule'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Attendance
+  /attendances/organizations/{organizationId}/schedules:
+    get:
+      operationId: AttendanceServices_getSchedulesByOrganization
+      summary: Get check-in schedules by organization
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CheckInSchedule'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -557,685 +557,6 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Attendance
-  /companies/:
-    get:
-      operationId: CompanyServices_getCompanies
-      summary: Get all companies
-      parameters: []
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Company'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-    post:
-      operationId: CompanyServices_createCompany
-      summary: Create new company
-      parameters: []
-      responses:
-        '201':
-          description: 201 Created with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Company'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCompany'
-  /companies/branches:
-    post:
-      operationId: CompanyServices_createCompanyBranch
-      summary: Create company branch
-      parameters: []
-      responses:
-        '201':
-          description: 201 Created with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/CompanyBranch'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCompanyBranch'
-  /companies/branches/{id}:
-    get:
-      operationId: CompanyServices_getCompanyBranch
-      summary: Get company branch by ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/CompanyBranch'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-    put:
-      operationId: CompanyServices_updateCompanyBranch
-      summary: Update company branch
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/CompanyBranch'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateCompanyBranch'
-    delete:
-      operationId: CompanyServices_deleteCompanyBranch
-      summary: Delete company branch
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: companyId
-          in: query
-          required: false
-          schema:
-            type: string
-          explode: false
-      responses:
-        '200':
-          description: 200 OK without data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicResponse'
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-  /companies/members:
-    post:
-      operationId: CompanyServices_addCompanyMember
-      summary: Add company member
-      parameters: []
-      responses:
-        '201':
-          description: 201 Created with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/CompanyMember'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCompanyMember'
-  /companies/members/{id}:
-    put:
-      operationId: CompanyServices_updateCompanyMember
-      summary: Update company member
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/CompanyMember'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateCompanyMember'
-    delete:
-      operationId: CompanyServices_removeCompanyMember
-      summary: Remove company member
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK without data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-  /companies/slug/{slug}:
-    get:
-      operationId: CompanyServices_getCompanyBySlug
-      summary: Get company by slug
-      parameters:
-        - name: slug
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Company'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-  /companies/{companyId}/branches:
-    get:
-      operationId: CompanyServices_getCompanyBranches
-      summary: Get company branches
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CompanyBranch'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-  /companies/{companyId}/members:
-    get:
-      operationId: CompanyServices_getCompanyMembers
-      summary: Get company members
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CompanyMember'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-  /companies/{id}:
-    get:
-      operationId: CompanyServices_getCompany
-      summary: Get company by ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Company'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-    put:
-      operationId: CompanyServices_updateCompany
-      summary: Update company
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Company'
-                description: Successful response wrapping data payload
-        '400':
-          description: 400 Bad Request — INVALID_DATA
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateCompany'
-    delete:
-      operationId: CompanyServices_deleteCompany
-      summary: Delete company
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK without data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicResponse'
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
-  /companies/{id}/switch:
-    post:
-      operationId: CompanyServices_switchActiveCompany
-      summary: Switch active company for the current session
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/SwitchActiveCompanyResponse'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-        '404':
-          description: 404 Not Found — NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Company
   /features/:
     get:
       operationId: FeatureServices_getFeatures
@@ -1323,12 +644,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateFeature'
-  /features/companies/{companyId}:
+  /features/organizations/{organizationId}:
     get:
-      operationId: FeatureServices_getCompanyFeatures
-      summary: Get company features
+      operationId: FeatureServices_getOrganizationFeatures
+      summary: Get organization features
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -1357,7 +678,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/CompanyFeature'
+                      $ref: '#/components/schemas/OrganizationFeature'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -1367,12 +688,12 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Feature
-  /features/companies/{companyId}/assign:
+  /features/organizations/{organizationId}/assign:
     post:
-      operationId: FeatureServices_assignCompanyFeature
-      summary: Assign feature to company
+      operationId: FeatureServices_assignOrganizationFeature
+      summary: Assign feature to organization
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -1393,7 +714,7 @@ paths:
                   message:
                     type: string
                   data:
-                    $ref: '#/components/schemas/CompanyFeature'
+                    $ref: '#/components/schemas/OrganizationFeature'
                 description: Successful response wrapping data payload
         '400':
           description: 400 Bad Request — INVALID_DATA
@@ -1414,13 +735,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCompanyFeature'
-  /features/companies/{companyId}/available:
+              $ref: '#/components/schemas/CreateOrganizationFeature'
+  /features/organizations/{organizationId}/available:
     get:
-      operationId: FeatureServices_getCompanyAvailableFeatures
-      summary: Get available features for company
+      operationId: FeatureServices_getOrganizationAvailableFeatures
+      summary: Get available features for organization
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -1453,12 +774,12 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Feature
-  /features/companies/{companyId}/features/{featureId}:
+  /features/organizations/{organizationId}/features/{featureId}:
     delete:
-      operationId: FeatureServices_removeCompanyFeature
-      summary: Remove feature from company
+      operationId: FeatureServices_removeOrganizationFeature
+      summary: Remove feature from organization
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -1483,12 +804,12 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Feature
-  /features/companies/{companyId}/roles:
+  /features/organizations/{organizationId}/roles:
     get:
-      operationId: FeatureServices_getCompanyRoleFeatures
-      summary: Get role features for company
+      operationId: FeatureServices_getOrganizationRoleFeatures
+      summary: Get role features for organization
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -1521,12 +842,12 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Feature
-  /features/companies/{companyId}/roles/{roleId}/access/{featureCode}:
+  /features/organizations/{organizationId}/roles/{roleId}/access/{featureCode}:
     get:
       operationId: FeatureServices_checkRoleFeatureAccess
       summary: Check role feature access
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -1567,12 +888,12 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Feature
-  /features/companies/{companyId}/toggle:
+  /features/organizations/{organizationId}/toggle:
     put:
-      operationId: FeatureServices_toggleCompanyFeature
-      summary: Toggle company feature
+      operationId: FeatureServices_toggleOrganizationFeature
+      summary: Toggle organization feature
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -1593,7 +914,7 @@ paths:
                   message:
                     type: string
                   data:
-                    $ref: '#/components/schemas/CompanyFeature'
+                    $ref: '#/components/schemas/OrganizationFeature'
                 description: Successful response wrapping data payload
         '400':
           description: 400 Bad Request — INVALID_DATA
@@ -1614,7 +935,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CompanyToggleFeatureRequest'
+              $ref: '#/components/schemas/OrganizationToggleFeatureRequest'
   /features/roles/{roleId}:
     get:
       operationId: FeatureServices_getRoleFeatures
@@ -1716,7 +1037,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: companyId
+        - name: organizationId
           in: query
           required: false
           schema:
@@ -1933,7 +1254,7 @@ paths:
       operationId: FormServices_listMyAssignments
       summary: List my assignments
       parameters:
-        - name: companyId
+        - name: organizationId
           in: query
           required: false
           schema:
@@ -2188,50 +1509,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SubmitFormSubmissionRequest'
-  /forms/companies/{companyId}/templates:
-    get:
-      operationId: FormServices_listTemplatesByCompany
-      summary: List company form templates
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/FormTemplate'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Form
   /forms/occurrences:
     get:
       operationId: FormServices_listOccurrences
       summary: List form occurrences
       parameters:
-        - name: companyId
+        - name: organizationId
           in: query
           required: true
           schema:
@@ -2420,6 +1703,44 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CancelOccurrenceRequest'
+  /forms/organizations/{organizationId}/templates:
+    get:
+      operationId: FormServices_listTemplatesByOrganization
+      summary: List organization form templates
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormTemplate'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Form
   /forms/plans:
     post:
       operationId: FormServices_createPlan
@@ -2467,7 +1788,7 @@ paths:
       operationId: FormServices_listPlans
       summary: List form plans
       parameters:
-        - name: companyId
+        - name: organizationId
           in: query
           required: true
           schema:
@@ -2754,7 +2075,7 @@ paths:
       operationId: FormServices_listReviewQueue
       summary: List review queue
       parameters:
-        - name: companyId
+        - name: organizationId
           in: query
           required: true
           schema:
@@ -2835,7 +2156,7 @@ paths:
       operationId: FormServices_listSubmissions
       summary: List form submissions
       parameters:
-        - name: companyId
+        - name: organizationId
           in: query
           required: false
           schema:
@@ -3956,94 +3277,6 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
       tags:
         - Form
-  /leaves/companies/{companyId}/requests:
-    get:
-      operationId: LeaveServices_getCompanyRequests
-      summary: Get company leave requests
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: status
-          in: query
-          required: false
-          schema:
-            type: string
-          explode: false
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/LeaveRequest'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Leave
-  /leaves/companies/{companyId}/types:
-    get:
-      operationId: LeaveServices_getTypesByCompany
-      summary: Get company leave types
-      parameters:
-        - name: companyId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: onlyActive
-          in: query
-          required: false
-          schema:
-            type: boolean
-          explode: false
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/LeaveType'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-      tags:
-        - Leave
   /leaves/members/{memberId}/quotas/{year}:
     get:
       operationId: LeaveServices_getQuotasByMember
@@ -4117,6 +3350,94 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/LeaveRequest'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Leave
+  /leaves/organizations/{organizationId}/requests:
+    get:
+      operationId: LeaveServices_getOrganizationRequests
+      summary: Get organization leave requests
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LeaveRequest'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Leave
+  /leaves/organizations/{organizationId}/types:
+    get:
+      operationId: LeaveServices_getTypesByOrganization
+      summary: Get organization leave types
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: onlyActive
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LeaveType'
                 description: Successful response wrapping data payload
         '401':
           description: 401 Unauthorized — UNAUTHORIZED
@@ -4467,10 +3788,10 @@ paths:
               $ref: '#/components/schemas/UpdateLeaveType'
   /locations:
     get:
-      operationId: LocationService_listLocationsByCompany
-      summary: Get locations by company
+      operationId: LocationService_listLocationsByOrganization
+      summary: Get locations by organization
       parameters:
-        - name: companyId
+        - name: organizationId
           in: query
           required: true
           schema:
@@ -4542,46 +3863,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateLocation'
-  /locations/branch/{branchId}:
-    get:
-      operationId: LocationService_listLocationsByBranch
-      summary: Get active locations by branch
-      parameters:
-        - name: branchId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 200 OK with data
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - success
-                  - message
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Location'
-                description: Successful response wrapping data payload
-        '401':
-          description: 401 Unauthorized — UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
   /locations/set-primary:
     post:
       operationId: LocationService_setPrimaryLocation
-      summary: Set branch primary location
+      summary: Set site primary location
       parameters: []
       responses:
         '200':
@@ -4619,6 +3904,42 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SetPrimaryLocationRequest'
+  /locations/site/{siteId}:
+    get:
+      operationId: LocationService_listLocationsBySite
+      summary: Get active locations by site
+      parameters:
+        - name: siteId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /locations/slots:
     post:
       operationId: LocationService_assignSlotLocation
@@ -4888,7 +4209,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: companyId
+        - name: organizationId
           in: query
           required: true
           schema:
@@ -4913,6 +4234,685 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /organizations/:
+    get:
+      operationId: OrganizationServices_getOrganizations
+      summary: Get all organizations
+      parameters: []
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Organization'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+    post:
+      operationId: OrganizationServices_createOrganization
+      summary: Create new organization
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganization'
+  /organizations/members:
+    post:
+      operationId: OrganizationServices_addOrganizationMember
+      summary: Add organization member
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/OrganizationMember'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganizationMember'
+  /organizations/members/{id}:
+    put:
+      operationId: OrganizationServices_updateOrganizationMember
+      summary: Update organization member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/OrganizationMember'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganizationMember'
+    delete:
+      operationId: OrganizationServices_removeOrganizationMember
+      summary: Remove organization member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+  /organizations/sites:
+    post:
+      operationId: OrganizationServices_createSite
+      summary: Create site
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Site'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSite'
+  /organizations/sites/{id}:
+    get:
+      operationId: OrganizationServices_getSite
+      summary: Get site by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Site'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+    put:
+      operationId: OrganizationServices_updateSite
+      summary: Update site
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Site'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSite'
+    delete:
+      operationId: OrganizationServices_deleteSite
+      summary: Delete site
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: organizationId
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+  /organizations/slug/{slug}:
+    get:
+      operationId: OrganizationServices_getOrganizationBySlug
+      summary: Get organization by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+  /organizations/{id}:
+    get:
+      operationId: OrganizationServices_getOrganization
+      summary: Get organization by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+    put:
+      operationId: OrganizationServices_updateOrganization
+      summary: Update organization
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Organization'
+                description: Successful response wrapping data payload
+        '400':
+          description: 400 Bad Request — INVALID_DATA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrganization'
+    delete:
+      operationId: OrganizationServices_deleteOrganization
+      summary: Delete organization
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK without data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicResponse'
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+  /organizations/{id}/switch:
+    post:
+      operationId: OrganizationServices_switchActiveOrganization
+      summary: Switch active organization for the current session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/SwitchActiveOrganizationResponse'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+  /organizations/{organizationId}/members:
+    get:
+      operationId: OrganizationServices_getOrganizationMembers
+      summary: Get organization members
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganizationMember'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
+  /organizations/{organizationId}/sites:
+    get:
+      operationId: OrganizationServices_getSites
+      summary: Get organization sites
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK with data
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Site'
+                description: Successful response wrapping data payload
+        '401':
+          description: 401 Unauthorized — UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: 404 Not Found — NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+      tags:
+        - Organization
   /permissions/:
     get:
       operationId: PermissionServices_getPermissions
@@ -4993,7 +4993,7 @@ paths:
       operationId: PermissionServices_getMyPermissions
       summary: Get current user permissions
       parameters:
-        - name: companyId
+        - name: organizationId
           in: query
           required: false
           schema:
@@ -5070,12 +5070,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateRole'
-  /permissions/roles/company/{companyId}:
+  /permissions/roles/organization/{organizationId}:
     get:
-      operationId: RoleServices_getCompanyRoles
-      summary: Get roles by company
+      operationId: RoleServices_getOrganizationRoles
+      summary: Get roles by organization
       parameters:
-        - name: companyId
+        - name: organizationId
           in: path
           required: true
           schema:
@@ -5718,8 +5718,8 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
-        - companyMemberId
+        - organizationId
+        - organizationMemberId
         - scheduleSlotId
         - workDate
         - status
@@ -5732,9 +5732,9 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
-        companyMemberId:
+        organizationMemberId:
           type: string
         scheduleSlotId:
           type: string
@@ -5824,10 +5824,10 @@ components:
     CheckInRequest:
       type: object
       required:
-        - companyMemberId
+        - organizationMemberId
         - scheduleSlotId
       properties:
-        companyMemberId:
+        organizationMemberId:
           type: string
         scheduleSlotId:
           type: string
@@ -5848,7 +5848,7 @@ components:
         - createdAt
         - updatedAt
         - roleIds
-        - companyId
+        - organizationId
         - name
         - isActive
       properties:
@@ -5864,154 +5864,24 @@ components:
           type: array
           items:
             type: string
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
         isActive:
           type: boolean
-    Company:
-      type: object
-      required:
-        - id
-        - createdAt
-        - updatedAt
-        - name
-        - slug
-        - isActive
-      properties:
-        id:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        name:
-          type: string
-        slug:
-          type: string
-        logo:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isActive:
-          type: boolean
-    CompanyBranch:
-      type: object
-      required:
-        - id
-        - createdAt
-        - updatedAt
-        - companyId
-        - name
-        - isActive
-      properties:
-        id:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        companyId:
-          type: string
-        name:
-          type: string
-        address:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isActive:
-          type: boolean
-    CompanyFeature:
-      type: object
-      required:
-        - id
-        - createdAt
-        - updatedAt
-        - companyId
-        - featureId
-        - isEnabled
-      properties:
-        id:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        companyId:
-          type: string
-        featureId:
-          type: string
-        isEnabled:
-          type: boolean
-        assignedBy:
-          anyOf:
-            - type: string
-            - type: 'null'
-        expiresAt:
-          anyOf:
-            - type: string
-              format: date-time
-            - type: 'null'
-    CompanyMember:
-      type: object
-      required:
-        - id
-        - createdAt
-        - updatedAt
-        - companyBranchId
-        - companyId
-        - userId
-        - roleId
-        - isActive
-      properties:
-        id:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        companyBranchId:
-          type: string
-        companyId:
-          type: string
-        userId:
-          type: string
-        roleId:
-          type: string
-        isActive:
-          type: boolean
-    CompanyToggleFeatureRequest:
-      type: object
-      required:
-        - featureId
-        - isEnabled
-      properties:
-        featureId:
-          type: string
-        isEnabled:
-          type: boolean
-      description: The template for picking properties.
     CreateAttendanceLog:
       type: object
       required:
-        - companyId
-        - companyMemberId
+        - organizationId
+        - organizationMemberId
         - scheduleSlotId
         - workDate
         - status
       properties:
-        companyId:
+        organizationId:
           type: string
-        companyMemberId:
+        organizationMemberId:
           type: string
         scheduleSlotId:
           type: string
@@ -6070,7 +5940,7 @@ components:
       type: object
       required:
         - roleIds
-        - companyId
+        - organizationId
         - name
         - isActive
       properties:
@@ -6078,93 +5948,13 @@ components:
           type: array
           items:
             type: string
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
         isActive:
           type: boolean
       description: The template for omitting properties.
-    CreateCompany:
-      type: object
-      required:
-        - name
-        - slug
-        - isActive
-      properties:
-        name:
-          type: string
-        slug:
-          type: string
-        logo:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isActive:
-          type: boolean
-      description: The template for omitting properties.
-    CreateCompanyBranch:
-      type: object
-      required:
-        - companyId
-        - name
-        - isActive
-      properties:
-        companyId:
-          type: string
-        name:
-          type: string
-        address:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isActive:
-          type: boolean
-      description: The template for omitting properties.
-    CreateCompanyFeature:
-      type: object
-      required:
-        - companyId
-        - featureId
-        - isEnabled
-      properties:
-        companyId:
-          type: string
-        featureId:
-          type: string
-        isEnabled:
-          type: boolean
-        assignedBy:
-          anyOf:
-            - type: string
-            - type: 'null'
-        expiresAt:
-          anyOf:
-            - type: string
-              format: date-time
-            - type: 'null'
-      description: The template for omitting properties.
-    CreateCompanyMember:
-      type: object
-      required:
-        - companyId
-        - userId
-        - roleId
-        - isActive
-      properties:
-        companyId:
-          type: string
-        userId:
-          type: string
-        roleId:
-          type: string
-        isActive:
-          type: boolean
-        companyBranchId:
-          anyOf:
-            - type: string
-            - type: 'null'
-          format: uuid
     CreateFeature:
       type: object
       required:
@@ -6196,7 +5986,7 @@ components:
       allOf:
         - type: object
           required:
-            - companyId
+            - organizationId
             - formVersionId
             - formSectionId
             - name
@@ -6205,7 +5995,7 @@ components:
             - isRequired
             - sortOrder
           properties:
-            companyId:
+            organizationId:
               type: string
             formVersionId:
               type: string
@@ -6272,7 +6062,7 @@ components:
         data:
           type: object
           required:
-            - companyId
+            - organizationId
             - formTemplateId
             - name
             - scheduleKind
@@ -6281,7 +6071,7 @@ components:
             - latePolicy
             - missedPolicy
           properties:
-            companyId:
+            organizationId:
               type: string
             formTemplateId:
               type: string
@@ -6317,19 +6107,19 @@ components:
       properties:
         roleId:
           type: string
-        companyMemberId:
+        organizationMemberId:
           type: string
         roleDistribution:
           $ref: '#/components/schemas/Domain.Entity.FormRoleDistribution'
     CreateFormSection:
       type: object
       required:
-        - companyId
+        - organizationId
         - formVersionId
         - title
         - sortOrder
       properties:
-        companyId:
+        organizationId:
           type: string
         formVersionId:
           type: string
@@ -6346,12 +6136,12 @@ components:
     CreateFormTemplate:
       type: object
       required:
-        - companyId
+        - organizationId
         - name
         - isActive
         - createdBy
       properties:
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
@@ -6367,12 +6157,12 @@ components:
     CreateLeaveQuota:
       type: object
       required:
-        - companyMemberId
+        - organizationMemberId
         - leaveTypeId
         - year
         - totalDays
       properties:
-        companyMemberId:
+        organizationMemberId:
           type: string
         leaveTypeId:
           type: string
@@ -6386,14 +6176,14 @@ components:
     CreateLeaveRequest:
       type: object
       required:
-        - companyMemberId
+        - organizationMemberId
         - leaveTypeId
         - startDate
         - endDate
         - unit
         - reason
       properties:
-        companyMemberId:
+        organizationMemberId:
           type: string
         leaveTypeId:
           type: string
@@ -6426,14 +6216,14 @@ components:
     CreateLeaveType:
       type: object
       required:
-        - companyId
+        - organizationId
         - name
         - unit
         - requiresProof
         - isPaid
         - isActive
       properties:
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
@@ -6458,8 +6248,8 @@ components:
     CreateLocation:
       type: object
       required:
-        - companyId
-        - companyBranchId
+        - organizationId
+        - siteId
         - isPrimary
         - isActive
         - name
@@ -6468,9 +6258,9 @@ components:
         - longitude
         - radiusMeters
       properties:
-        companyId:
+        organizationId:
           type: string
-        companyBranchId:
+        siteId:
           type: string
         isPrimary:
           type: boolean
@@ -6490,6 +6280,68 @@ components:
           type: integer
           format: int32
       description: The template for omitting properties.
+    CreateOrganization:
+      type: object
+      required:
+        - name
+        - slug
+        - isActive
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        logo:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreateOrganizationFeature:
+      type: object
+      required:
+        - organizationId
+        - featureId
+        - isEnabled
+      properties:
+        organizationId:
+          type: string
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
+        assignedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        expiresAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      description: The template for omitting properties.
+    CreateOrganizationMember:
+      type: object
+      required:
+        - organizationId
+        - userId
+        - roleId
+        - isActive
+      properties:
+        organizationId:
+          type: string
+        userId:
+          type: string
+        roleId:
+          type: string
+        isActive:
+          type: boolean
+        siteId:
+          anyOf:
+            - type: string
+            - type: 'null'
+          format: uuid
     CreatePermission:
       type: object
       required:
@@ -6516,7 +6368,7 @@ components:
         - roleType
         - isSystemDefault
       properties:
-        companyId:
+        organizationId:
           anyOf:
             - type: string
             - type: 'null'
@@ -6534,12 +6386,12 @@ components:
     CreateRoleFeature:
       type: object
       required:
-        - companyId
+        - organizationId
         - roleId
         - featureId
         - isEnabled
       properties:
-        companyId:
+        organizationId:
           type: string
         roleId:
           type: string
@@ -6562,14 +6414,14 @@ components:
     CreateScheduleSlot:
       type: object
       required:
-        - companyId
+        - organizationId
         - slotOrder
         - label
         - windowStart
         - windowEnd
         - isRequired
       properties:
-        companyId:
+        organizationId:
           type: string
         slotOrder:
           type: integer
@@ -6586,17 +6438,35 @@ components:
     CreateScheduleSlotLocation:
       type: object
       required:
-        - companyId
+        - organizationId
         - scheduleSlotId
         - locationId
         - isActive
       properties:
-        companyId:
+        organizationId:
           type: string
         scheduleSlotId:
           type: string
         locationId:
           type: string
+        isActive:
+          type: boolean
+      description: The template for omitting properties.
+    CreateSite:
+      type: object
+      required:
+        - organizationId
+        - name
+        - isActive
+      properties:
+        organizationId:
+          type: string
+        name:
+          type: string
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
         isActive:
           type: boolean
       description: The template for omitting properties.
@@ -6640,7 +6510,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - occurrenceId
         - formVersionId
         - revision
@@ -6653,7 +6523,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         occurrenceId:
           type: string
@@ -6663,7 +6533,7 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-        companyMemberId:
+        organizationMemberId:
           anyOf:
             - type: string
             - type: 'null'
@@ -6697,7 +6567,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - formVersionId
         - fieldId
         - label
@@ -6712,7 +6582,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         formVersionId:
           type: string
@@ -6755,7 +6625,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - planId
         - formTemplateId
         - formVersionId
@@ -6772,7 +6642,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         planId:
           type: string
@@ -6814,7 +6684,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - formTemplateId
         - name
         - scheduleKind
@@ -6833,7 +6703,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         formTemplateId:
           type: string
@@ -6884,7 +6754,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - planId
         - opensAt
         - dueAt
@@ -6897,7 +6767,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         planId:
           type: string
@@ -6913,7 +6783,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - planId
       properties:
         id:
@@ -6924,7 +6794,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         planId:
           type: string
@@ -6932,7 +6802,7 @@ components:
           anyOf:
             - type: string
             - type: 'null'
-        companyMemberId:
+        organizationMemberId:
           anyOf:
             - type: string
             - type: 'null'
@@ -6953,7 +6823,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - submissionId
         - formVersionId
         - action
@@ -6967,7 +6837,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         submissionId:
           type: string
@@ -7052,7 +6922,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - assignmentId
         - formVersionId
         - startedBy
@@ -7066,7 +6936,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         assignmentId:
           type: string
@@ -7229,7 +7099,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - formVersionId
         - submissionId
         - fieldId
@@ -7243,7 +7113,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         formVersionId:
           type: string
@@ -7260,7 +7130,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - answerId
         - storageKey
         - originalName
@@ -7277,7 +7147,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         answerId:
           type: string
@@ -7345,7 +7215,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - formVersionId
         - formSectionId
         - name
@@ -7362,7 +7232,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         formVersionId:
           type: string
@@ -7417,7 +7287,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - formVersionId
         - fieldId
         - label
@@ -7432,7 +7302,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         formVersionId:
           type: string
@@ -7493,7 +7363,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - formVersionId
         - title
         - sortOrder
@@ -7506,7 +7376,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         formVersionId:
           type: string
@@ -7525,7 +7395,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - assignmentId
         - formVersionId
         - startedBy
@@ -7539,7 +7409,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         assignmentId:
           type: string
@@ -7569,7 +7439,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - submissionId
         - memberId
       properties:
@@ -7581,7 +7451,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         submissionId:
           type: string
@@ -7705,7 +7575,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - name
         - isActive
         - createdBy
@@ -7718,7 +7588,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
@@ -7763,7 +7633,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - formTemplateId
         - version
         - status
@@ -7778,7 +7648,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         formTemplateId:
           type: string
@@ -7810,7 +7680,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyMemberId
+        - organizationMemberId
         - leaveTypeId
         - year
         - totalDays
@@ -7823,7 +7693,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyMemberId:
+        organizationMemberId:
           type: string
         leaveTypeId:
           type: string
@@ -7839,7 +7709,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyMemberId
+        - organizationMemberId
         - leaveTypeId
         - startDate
         - endDate
@@ -7855,7 +7725,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyMemberId:
+        organizationMemberId:
           type: string
         leaveTypeId:
           type: string
@@ -7905,7 +7775,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - name
         - unit
         - requiresProof
@@ -7920,7 +7790,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
@@ -7947,8 +7817,8 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
-        - companyBranchId
+        - organizationId
+        - siteId
         - isPrimary
         - isActive
         - name
@@ -7965,9 +7835,9 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
-        companyBranchId:
+        siteId:
           type: string
         isPrimary:
           type: boolean
@@ -7992,7 +7862,7 @@ components:
         - id
         - assignmentId
         - occurrenceId
-        - companyId
+        - organizationId
         - formVersionId
         - assignmentType
         - recipientLabel
@@ -8010,13 +7880,13 @@ components:
           type: string
         occurrenceId:
           type: string
-        companyId:
+        organizationId:
           type: string
         formVersionId:
           type: string
         roleId:
           type: string
-        companyMemberId:
+        organizationMemberId:
           type: string
         roleName:
           type: string
@@ -8049,10 +7919,112 @@ components:
     OpenOccurrencesRequest:
       type: object
       required:
-        - companyId
+        - organizationId
       properties:
-        companyId:
+        organizationId:
           type: string
+    Organization:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - name
+        - slug
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        slug:
+          type: string
+        logo:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+    OrganizationFeature:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - organizationId
+        - featureId
+        - isEnabled
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        organizationId:
+          type: string
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
+        assignedBy:
+          anyOf:
+            - type: string
+            - type: 'null'
+        expiresAt:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+    OrganizationMember:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - siteId
+        - organizationId
+        - userId
+        - roleId
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        siteId:
+          type: string
+        organizationId:
+          type: string
+        userId:
+          type: string
+        roleId:
+          type: string
+        isActive:
+          type: boolean
+    OrganizationToggleFeatureRequest:
+      type: object
+      required:
+        - featureId
+        - isEnabled
+      properties:
+        featureId:
+          type: string
+        isEnabled:
+          type: boolean
+      description: The template for picking properties.
     PausePlanRequest:
       type: object
       required:
@@ -8132,7 +8104,7 @@ components:
       properties:
         cancelReason:
           type: string
-        newCompanyMemberId:
+        newOrganizationMemberId:
           type: string
         newRoleId:
           type: string
@@ -8175,7 +8147,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           anyOf:
             - type: string
             - type: 'null'
@@ -8195,7 +8167,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - roleId
         - featureId
         - isEnabled
@@ -8208,7 +8180,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         roleId:
           type: string
@@ -8240,11 +8212,11 @@ components:
     RoleToggleFeatureRequest:
       type: object
       required:
-        - companyId
+        - organizationId
         - featureId
         - isEnabled
       properties:
-        companyId:
+        organizationId:
           type: string
         featureId:
           type: string
@@ -8270,7 +8242,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - checkInScheduleId
         - slotOrder
         - label
@@ -8286,7 +8258,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         checkInScheduleId:
           type: string
@@ -8307,7 +8279,7 @@ components:
         - id
         - createdAt
         - updatedAt
-        - companyId
+        - organizationId
         - scheduleSlotId
         - locationId
         - isActive
@@ -8320,7 +8292,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        companyId:
+        organizationId:
           type: string
         scheduleSlotId:
           type: string
@@ -8332,12 +8304,40 @@ components:
       type: object
       required:
         - locationId
-        - companyBranchId
+        - siteId
       properties:
         locationId:
           type: string
-        companyBranchId:
+        siteId:
           type: string
+    Site:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - organizationId
+        - name
+        - isActive
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        organizationId:
+          type: string
+        name:
+          type: string
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
     StartFormSubmissionRequest:
       type: object
       required:
@@ -8353,16 +8353,16 @@ components:
         expectedRevision:
           type: integer
           format: int32
-    SwitchActiveCompanyResponse:
+    SwitchActiveOrganizationResponse:
       type: object
       required:
-        - activeCompanyId
-        - company
+        - activeOrganizationId
+        - organization
       properties:
-        activeCompanyId:
+        activeOrganizationId:
           type: string
-        company:
-          $ref: '#/components/schemas/Company'
+        organization:
+          $ref: '#/components/schemas/Organization'
     ToggleFeatureRequest:
       type: object
       required:
@@ -8374,9 +8374,9 @@ components:
     UpdateAttendanceLog:
       type: object
       properties:
-        companyId:
+        organizationId:
           type: string
-        companyMemberId:
+        organizationMemberId:
           type: string
         scheduleSlotId:
           type: string
@@ -8443,48 +8443,6 @@ components:
         isActive:
           type: boolean
       description: The template for adding optional properties.
-    UpdateCompany:
-      type: object
-      properties:
-        name:
-          type: string
-        slug:
-          type: string
-        logo:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isActive:
-          type: boolean
-      description: The template for adding optional properties.
-    UpdateCompanyBranch:
-      type: object
-      properties:
-        companyId:
-          type: string
-        name:
-          type: string
-        address:
-          anyOf:
-            - type: string
-            - type: 'null'
-        isActive:
-          type: boolean
-      description: The template for adding optional properties.
-    UpdateCompanyMember:
-      type: object
-      properties:
-        companyBranchId:
-          type: string
-        companyId:
-          type: string
-        userId:
-          type: string
-        roleId:
-          type: string
-        isActive:
-          type: boolean
-      description: The template for adding optional properties.
     UpdateFeature:
       type: object
       properties:
@@ -8543,7 +8501,7 @@ components:
     UpdateFormTemplate:
       type: object
       properties:
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
@@ -8559,7 +8517,7 @@ components:
     UpdateLeaveQuota:
       type: object
       properties:
-        companyMemberId:
+        organizationMemberId:
           type: string
         leaveTypeId:
           type: string
@@ -8573,7 +8531,7 @@ components:
     UpdateLeaveType:
       type: object
       properties:
-        companyId:
+        organizationId:
           type: string
         name:
           type: string
@@ -8616,6 +8574,34 @@ components:
           type: integer
           format: int32
       description: The template for adding optional properties.
+    UpdateOrganization:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        logo:
+          anyOf:
+            - type: string
+            - type: 'null'
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateOrganizationMember:
+      type: object
+      properties:
+        siteId:
+          type: string
+        organizationId:
+          type: string
+        userId:
+          type: string
+        roleId:
+          type: string
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
     UpdatePermission:
       type: object
       properties:
@@ -8635,7 +8621,7 @@ components:
     UpdateRole:
       type: object
       properties:
-        companyId:
+        organizationId:
           anyOf:
             - type: string
             - type: 'null'
@@ -8653,7 +8639,7 @@ components:
     UpdateScheduleSlot:
       type: object
       properties:
-        companyId:
+        organizationId:
           type: string
         slotOrder:
           type: integer
@@ -8670,6 +8656,20 @@ components:
     UpdateScheduleSlotLocation:
       type: object
       properties:
+        isActive:
+          type: boolean
+      description: The template for adding optional properties.
+    UpdateSite:
+      type: object
+      properties:
+        organizationId:
+          type: string
+        name:
+          type: string
+        address:
+          anyOf:
+            - type: string
+            - type: 'null'
         isActive:
           type: boolean
       description: The template for adding optional properties.

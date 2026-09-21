@@ -11,10 +11,10 @@ import type {
 
 export interface ILeaveTypeRepository
   extends BaseRepository<LeaveType, CreateLeaveType, UpdateLeaveType> {
-  findByCompanyId(companyId: string): Promise<LeaveType[]>;
-  findActiveByCompanyId(companyId: string): Promise<LeaveType[]>;
-  findByNameAndCompany(
-    companyId: string,
+  findByOrganizationId(organizationId: string): Promise<LeaveType[]>;
+  findActiveByOrganizationId(organizationId: string): Promise<LeaveType[]>;
+  findByNameAndOrganization(
+    organizationId: string,
     name: string,
   ): Promise<LeaveType | null>;
 }
@@ -37,7 +37,10 @@ export interface ILeaveQuotaRepository
 export interface ILeaveRequestRepository
   extends BaseRepository<LeaveRequest, CreateLeaveRequest, UpdateLeaveRequest> {
   findByMemberId(memberId: string): Promise<LeaveRequest[]>;
-  findByCompanyId(companyId: string, status?: string): Promise<LeaveRequest[]>;
+  findByOrganizationId(
+    organizationId: string,
+    status?: string,
+  ): Promise<LeaveRequest[]>;
   findByMemberAndDateRange(
     memberId: string,
     startDate: string,

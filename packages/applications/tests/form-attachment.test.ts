@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   IFormSubmissionRepository,
   IFormAssignmentRepository,
@@ -14,8 +14,8 @@ import type {
 import { FormAttachmentUseCase } from '../src/use-cases/form/form-attachment.usecase';
 const ctx = {
   user: { id: 'user' },
-  activeCompanyId: 'company',
-  companyId: 'company',
+  activeOrganizationId: 'organization',
+  organizationId: 'organization',
   memberId: 'member',
   permissions: 'form_submission:update,form_submission:read',
   submissionId: 'submission',
@@ -27,7 +27,7 @@ const ctx = {
 function fixture() {
   const submission = {
     id: 'submission',
-    companyId: 'company',
+    organizationId: 'organization',
     assignmentId: 'assignment',
     formVersionId: 'version',
     revision: 1,
@@ -35,7 +35,7 @@ function fixture() {
   };
   const attachment = {
     id: 'attachment',
-    companyId: 'company',
+    organizationId: 'organization',
     answerId: 'answer',
     storageKey: 'old-object',
   };
@@ -73,15 +73,15 @@ function fixture() {
     {
       findById: async () => ({
         id: 'assignment',
-        companyId: 'company',
-        companyMemberId: 'member',
+        organizationId: 'organization',
+        organizationMemberId: 'member',
         occurrenceId: 'occurrence',
         cancelledAt: null,
       }),
     } as IFormAssignmentRepository,
     {
       findById: async () => ({
-        companyId: 'company',
+        organizationId: 'organization',
         opensAt: new Date(0),
         cancelledAt: null,
       }),
@@ -89,11 +89,11 @@ function fixture() {
     {
       findById: async () => ({
         id: 'member',
-        companyId: 'company',
+        organizationId: 'organization',
         userId: 'user',
         isActive: true,
       }),
-    } as ICompanyMemberRepository,
+    } as IOrganizationMemberRepository,
     {
       findById: async () => ({
         id: 'field',
@@ -176,11 +176,11 @@ test('removing a draft reference retains historical immutable object', async () 
   assert.equal(f.removed(), 0);
   assert.equal(f.submission.revision, 2);
 });
-test('download rejects cross-company attachment', async () => {
+test('download rejects cross-organization attachment', async () => {
   const f = fixture();
-  f.attachment.companyId = 'foreign';
+  f.attachment.organizationId = 'foreign';
   await assert.rejects(
     f.usecase.download({ ...ctx, attachmentId: 'attachment' }),
-    /company/,
+    /organization/,
   );
 });

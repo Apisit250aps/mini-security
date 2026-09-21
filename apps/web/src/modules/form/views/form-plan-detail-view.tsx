@@ -4,9 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import FormPlanEditDialog from '../components/plan/form-plan-edit-dialog';
 import {
   useFormPlanDetailQueries,
@@ -67,15 +67,16 @@ interface FormPlanDetailViewProps {
 
 function OccurrenceAssignmentsList({
   occurrenceId,
-  companyId,
+  organizationId,
 }: {
   occurrenceId: string;
-  companyId: string;
+  organizationId?: string;
 }) {
+  const effectiveOrgId = organizationId || '';
   const router = useRouter();
   const assignmentsQuery = useOccurrenceAssignmentsQueries(occurrenceId);
   const assignments = assignmentsQuery.data || [];
-  const startMutation = useFormSubmissionStart(companyId);
+  const startMutation = useFormSubmissionStart(effectiveOrgId);
 
   if (assignmentsQuery.isLoading) {
     return (
@@ -194,7 +195,9 @@ function OccurrenceAssignmentsList({
                         onSuccess: (res) => {
                           const sub = res?.data;
                           if (sub?.id) {
-                            router.push(`/company/forms/submissions/${sub.id}`);
+                            router.push(
+                              `/organization/forms/submissions/${sub.id}`,
+                            );
                           }
                         },
                         onError: (err) => {
@@ -221,7 +224,7 @@ function OccurrenceAssignmentsList({
                   className="h-7 text-xs px-2.5"
                   onClick={() =>
                     router.push(
-                      `/company/forms/submissions/${item.latestSubmissionId}`,
+                      `/organization/forms/submissions/${item.latestSubmissionId}`,
                     )
                   }
                 >
@@ -237,7 +240,7 @@ function OccurrenceAssignmentsList({
                   className="h-7 text-xs px-2.5"
                   onClick={() =>
                     router.push(
-                      `/company/forms/submissions/${item.latestSubmissionId}`,
+                      `/organization/forms/submissions/${item.latestSubmissionId}`,
                     )
                   }
                 >
@@ -258,7 +261,8 @@ export default function FormPlanDetailView({
 }: FormPlanDetailViewProps) {
   const router = useRouter();
   const ui = useOverlay();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
 
   const planQuery = useFormPlanDetailQueries(planId);
   const planDetail = planQuery.data;
@@ -272,8 +276,10 @@ export default function FormPlanDetailView({
     [planDetail?.periods],
   );
 
-  const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
+  const rolesQuery = useGetOrganizationRoles(activeOrganizationId || '');
+  const membersQuery = useOrganizationMembersQueries(
+    activeOrganizationId || '',
+  );
   const roles = useMemo(() => rolesQuery.data || [], [rolesQuery.data]);
   const members = useMemo(() => membersQuery.data || [], [membersQuery.data]);
 
@@ -287,16 +293,21 @@ export default function FormPlanDetailView({
   const previewTimes = previewQuery.data || [];
 
   const occurrencesQuery = useFormOccurrencesQueries({
-    companyId: activeCompanyId || '',
+    organizationId: activeOrganizationId || '',
     planId,
   });
   const occurrences = occurrencesQuery.data || [];
 
-  const activateMutation = useFormPlanActivate(activeCompanyId || '', planId);
-  const pauseMutation = useFormPlanPause(activeCompanyId || '', planId);
-  const openOccurrencesMutation = useFormOccurrencesOpen(activeCompanyId || '');
+  const activateMutation = useFormPlanActivate(
+    activeOrganizationId || '',
+    planId,
+  );
+  const pauseMutation = useFormPlanPause(activeOrganizationId || '', planId);
+  const openOccurrencesMutation = useFormOccurrencesOpen(
+    activeOrganizationId || '',
+  );
   const cancelOccurrenceMutation = useFormOccurrenceCancel(
-    activeCompanyId || '',
+    activeOrganizationId || '',
   );
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -324,7 +335,7 @@ export default function FormPlanDetailView({
             onSuccess: (response) => {
               ui.alert.close();
               if (response.data?.id && response.data.id !== plan.id) {
-                router.push(`/company/forms/plans/${response.data.id}`);
+                router.push(`/organization/forms/plans/${response.data.id}`);
               }
             },
             onError: (err) => {
@@ -359,7 +370,7 @@ export default function FormPlanDetailView({
   };
 
   const handleTriggerOccurrences = () => {
-    if (!activeCompanyId) return;
+    if (!activeOrganizationId) return;
 
     ui.alert.open({
       title: 'ประมวลผลเปิดรอบงานที่ถึงเวลา',
@@ -367,7 +378,7 @@ export default function FormPlanDetailView({
         'ระบบจะตรวจสอบและสร้างรอบงาน (Occurrences) สำหรับทุกแผนงานที่เปิดใช้งานในบริษัทที่มีรอบถึงเวลาเปิด ณ ตอนนี้ คุณต้องการดำเนินการหรือไม่?',
       onConfirm: () => {
         openOccurrencesMutation.mutate(
-          { companyId: activeCompanyId },
+          { organizationId: activeOrganizationId },
           {
             onSuccess: (res) => {
               const count = res?.data?.length || 0;
@@ -403,7 +414,7 @@ export default function FormPlanDetailView({
       },
       {
         onSuccess: () => {
-          toast.success('ยกเลิกรอบงานเรียบร้อย');
+          toast.success('ยกเลิกรอบงานเรียบร้อยแล้ว');
           setCancellingOccurrenceId(null);
           setCancelReason('');
         },
@@ -415,18 +426,18 @@ export default function FormPlanDetailView({
   };
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || planQuery.isLoading;
+    isOrganizationLoading || !activeOrganizationId || planQuery.isLoading;
 
   if (!isPageLoading && !plan) {
     return (
-      <PageLayout pageId="companyFormPlanDetail" title="ไม่พบแผนการตรวจ">
+      <PageLayout pageId="organizationFormPlanDetail" title="ไม่พบแผนการตรวจ">
         <div className="py-20 text-center border rounded-xl border-dashed">
           <CalendarClock className="size-10 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium">ไม่พบแผนการตรวจที่คุณค้นหา</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-4">
             แผนการตรวจอาจถูกลบหรือไม่มีอยู่ในระบบ
           </p>
-          <Link href="/company/forms/plans">
+          <Link href="/organization/forms/plans">
             <Button variant="outline">
               <ChevronLeft data-icon="inline-start" />
               กลับไปหน้ารายการแผน
@@ -447,7 +458,7 @@ export default function FormPlanDetailView({
 
   return (
     <PageLayout
-      pageId="companyFormPlanDetail"
+      pageId="organizationFormPlanDetail"
       title={plan?.name || 'แผนการตรวจ'}
       description={
         templateDetail
@@ -458,7 +469,7 @@ export default function FormPlanDetailView({
       loadingText="กำลังโหลดรายละเอียดแผนการตรวจ..."
       actions={
         <div className="flex items-center gap-2">
-          <Link href="/company/forms/plans">
+          <Link href="/organization/forms/plans">
             <Button variant="outline" size="sm">
               <ChevronLeft data-icon="inline-start" />
               กลับ
@@ -543,7 +554,7 @@ export default function FormPlanDetailView({
                   <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
                     <span>แม่แบบฟอร์ม:</span>
                     <Link
-                      href={`/company/forms/templates/${templateDetail.template.id}`}
+                      href={`/organization/forms/templates/${templateDetail.template.id}`}
                       className="font-medium text-primary hover:underline flex items-center gap-1"
                     >
                       {templateDetail.template.name}
@@ -745,8 +756,9 @@ export default function FormPlanDetailView({
                             ? roles.find((r) => r.id === t.roleId)?.name ||
                               `ตำแหน่ง: ${t.roleId.slice(0, 8)}`
                             : null;
-                          const memberName = t.companyMemberId
-                            ? `พนักงาน: ${t.companyMemberId.slice(0, 8)}`
+                          const memberId = t.organizationMemberId;
+                          const memberName = memberId
+                            ? `พนักงาน: ${memberId.slice(0, 8)}`
                             : null;
                           return (
                             <div
@@ -834,115 +846,82 @@ export default function FormPlanDetailView({
             </TabsContent>
 
             {/* Tab 3: Occurrences */}
-            <TabsContent id="occurrences" className="mt-4 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+            <TabsContent id="occurrences" className="mt-0">
+              <div className="flex items-center justify-between gap-3 mb-4">
                 <div>
                   <h3 className="font-semibold text-base">
-                    รอบงานที่เปิดแล้ว (Occurrences)
+                    รอบงานตรวจ (Occurrences)
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    รายการรอบงานที่ถูกสร้างจริง
-                    พร้อมให้ผู้รับผิดชอบเริ่มบันทึกแบบฟอร์ม
+                    รอบงานที่เปิดขึ้นโดยอัตโนมัติหรือเปิดโดยผู้ดูแล
+                    เพื่อให้พนักงานเริ่มกรอก
                   </p>
                 </div>
                 {isActive && (
                   <ButtonLoading
-                    variant="outline"
                     size="sm"
+                    variant="outline"
                     onPress={handleTriggerOccurrences}
                     isLoading={openOccurrencesMutation.isPending}
                   >
-                    <Zap data-icon="inline-start" className="text-amber-500" />
-                    ประมวลผลรอบที่ถึงเวลา
+                    <Zap className="size-3.5 mr-1" />
+                    เปิดรอบใหม่ทันที
                   </ButtonLoading>
                 )}
               </div>
 
               {occurrences.length === 0 ? (
-                <div className="py-16 text-center border rounded-xl border-dashed bg-muted/10">
-                  <CalendarDays className="size-10 text-muted-foreground mx-auto mb-3" />
-                  <h4 className="font-medium text-sm">ยังไม่มีรอบงานที่เปิด</h4>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto mb-4">
-                    เมื่อถึงเวลาเปิดรอบ
-                    ระบบจะสร้างรอบงานและงานที่มอบหมายให้ผู้ปฏิบัติงานโดยอัตโนมัติ
-                    หรือสามารถกด &quot;ประมวลผลรอบที่ถึงเวลา&quot;
-                    เพื่อสร้างรอบที่ถึงกำหนด
-                  </p>
+                <div className="py-12 text-center text-xs text-muted-foreground border rounded-lg border-dashed">
+                  ยังไม่มีรอบงานตรวจที่เปิดในขณะนี้
                 </div>
               ) : (
-                <div className="flex flex-col gap-3">
+                <div className="space-y-4">
                   {occurrences.map((occ) => {
                     const isCancelled = Boolean(occ.cancelledAt);
-                    const isExpired =
-                      !isCancelled && new Date(occ.dueAt).getTime() < now;
                     const isCancellingThis = cancellingOccurrenceId === occ.id;
 
                     return (
                       <div
                         key={occ.id}
-                        className="p-4 border rounded-xl bg-card flex flex-col gap-3"
+                        className="p-4 border rounded-xl bg-card space-y-3"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
-                          <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
                             <CalendarDays className="size-4 text-primary" />
                             <span className="font-semibold text-sm">
-                              รอบงาน #{occ.id.slice(0, 8)}
+                              รอบงาน: #{occ.id.slice(0, 8)}
                             </span>
                             {isCancelled ? (
                               <Badge variant="destructive" className="text-xs">
                                 ยกเลิกแล้ว
-                              </Badge>
-                            ) : isExpired ? (
-                              <Badge
-                                variant={
-                                  plan?.latePolicy === 'DENY'
-                                    ? 'destructive'
-                                    : 'secondary'
-                                }
-                                className="text-xs"
-                              >
-                                {plan?.latePolicy === 'DENY'
-                                  ? 'หมดเวลากรอก (ปิดรับ)'
-                                  : 'เลยกำหนดส่ง (อนุญาตส่งช้า)'}
                               </Badge>
                             ) : (
                               <Badge
                                 variant="default"
                                 className="text-xs bg-emerald-600"
                               >
-                                กำลังเปิดรับคำตอบ
+                                เปิดรอบปกติ
                               </Badge>
                             )}
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-mono"
-                            >
-                              v{occ.revision}
-                            </Badge>
                           </div>
 
                           {!isCancelled && (
                             <Button
-                              variant="ghost"
                               size="sm"
-                              className="text-destructive self-end sm:self-center"
-                              onClick={() => {
-                                setCancellingOccurrenceId(
-                                  isCancellingThis ? null : occ.id,
-                                );
-                                setCancelReason('');
-                              }}
+                              variant="ghost"
+                              className="text-destructive h-7 text-xs px-2"
+                              onClick={() => setCancellingOccurrenceId(occ.id)}
                             >
-                              <Trash2 className="size-3.5 mr-1" />
+                              <Trash2 className="size-3 mr-1" />
                               ยกเลิกรอบนี้
                             </Button>
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs text-muted-foreground">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-muted-foreground">
                           <div>
                             <span className="font-medium text-foreground block">
-                              เวลาเปิดรอบ:
+                              เปิดให้ตรวจ:
                             </span>
                             {formatDateTime(occ.opensAt)}
                           </div>
@@ -962,7 +941,7 @@ export default function FormPlanDetailView({
 
                         <OccurrenceAssignmentsList
                           occurrenceId={occ.id}
-                          companyId={activeCompanyId || ''}
+                          organizationId={activeOrganizationId || ''}
                         />
 
                         {occ.cancelReason && (
@@ -1025,7 +1004,7 @@ export default function FormPlanDetailView({
           plan={plan}
           initialTargets={planTargets}
           initialPeriods={planPeriods}
-          companyId={activeCompanyId || ''}
+          organizationId={activeOrganizationId || ''}
           templateDetail={templateDetail}
         />
       )}

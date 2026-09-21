@@ -8,7 +8,7 @@ import LeaveTypeForm, { LeaveTypeFormValues } from './leave-type-form';
 import LeaveTypeColumnActions from './leave-type-column-actions';
 
 interface LeaveTypeColumnsOptions {
-  companyId: string;
+  organizationId: string;
 }
 
 const UNIT_LABELS: Record<string, string> = {
@@ -19,13 +19,13 @@ const UNIT_LABELS: Record<string, string> = {
 
 function LeaveTypeNameCell({
   leaveType,
-  companyId,
+  organizationId,
 }: {
   leaveType: LeaveType;
-  companyId: string;
+  organizationId: string;
 }) {
   const ui = useOverlay();
-  const updateMutation = useLeaveTypeUpdate(companyId);
+  const updateMutation = useLeaveTypeUpdate(organizationId);
 
   const handleEdit = () => {
     ui.dialog.open({
@@ -89,14 +89,17 @@ function LeaveTypeNameCell({
 }
 
 export const leaveTypeDataColumns = ({
-  companyId,
+  organizationId,
 }: LeaveTypeColumnsOptions): ColumnDef<LeaveType>[] => {
   return [
     {
       accessorKey: 'name',
       header: 'ประเภทการลา',
       cell: ({ row }) => (
-        <LeaveTypeNameCell leaveType={row.original} companyId={companyId} />
+        <LeaveTypeNameCell
+          leaveType={row.original}
+          organizationId={organizationId}
+        />
       ),
     },
     {
@@ -153,7 +156,7 @@ export const leaveTypeDataColumns = ({
       id: 'actions',
       header: 'จัดการ',
       cell: (cell) => (
-        <LeaveTypeColumnActions cell={cell} companyId={companyId} />
+        <LeaveTypeColumnActions cell={cell} organizationId={organizationId} />
       ),
     },
   ];

@@ -155,15 +155,15 @@ import {
   updatedAtTimestamp,
   createdAtTimestamp,
 } from '../lib/utils';
-import { company } from './company';
+import { organization } from './organization';
 
 export const product = pgTable(
   'product',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     sku: text('sku').notNull(),
     description: text('description'),
@@ -173,7 +173,7 @@ export const product = pgTable(
     updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
-    index('product_companyId_idx').on(table.companyId),
+    index('product_organizationId_idx').on(table.organizationId),
   ],
 );
 ```
@@ -197,10 +197,10 @@ import * as schema from './schema';
 
 export const relations = defineRelationsPart(schema, (r) => ({
   product: {
-    company: r.one.company({ from: r.product.companyId, to: r.company.id }),
+    organization: r.one.organization({ from: r.product.organizationId, to: r.organization.id }),
     category: r.one.category({ from: r.product.categoryId, to: r.category.id }),
   },
-  company: {
+  organization: {
     products: r.many.product(),
   },
   // ... add all relations here

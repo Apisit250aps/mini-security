@@ -15,19 +15,19 @@ import {
 
 interface FormPlanColumnActionsProps<T extends FormPlan> {
   cell: CellContext<T, unknown>;
-  companyId: string;
+  organizationId: string;
 }
 
 export default function FormPlanColumnActions<T extends FormPlan>({
   cell,
-  companyId,
+  organizationId,
 }: FormPlanColumnActionsProps<T>) {
   const router = useRouter();
   const ui = useOverlay();
   const plan = cell.row.original;
 
-  const activateMutation = useFormPlanActivate(companyId, plan.id);
-  const pauseMutation = useFormPlanPause(companyId, plan.id);
+  const activateMutation = useFormPlanActivate(organizationId, plan.id);
+  const pauseMutation = useFormPlanPause(organizationId, plan.id);
 
   const isActive = Boolean(plan.effectiveFrom && !plan.effectiveUntil);
 
@@ -78,7 +78,7 @@ export default function FormPlanColumnActions<T extends FormPlan>({
     { onAction: () => void; isDestructive?: boolean }
   > = {
     ดูรายละเอียดและการตั้งค่าแผน: {
-      onAction: () => router.push(`/company/forms/plans/${plan.id}`),
+      onAction: () => router.push(`/organization/forms/plans/${plan.id}`),
     },
   };
 
@@ -94,7 +94,7 @@ export default function FormPlanColumnActions<T extends FormPlan>({
   }
 
   actions['ดูประวัติรอบงาน'] = {
-    onAction: () => router.push(`/company/forms/plans/${plan.id}`),
+    onAction: () => router.push(`/organization/forms/plans/${plan.id}`),
   };
 
   return <ColumnActions actions={actions} />;

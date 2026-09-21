@@ -1,6 +1,6 @@
 import type { ISecurityContext } from '@repo/domains/constants';
 import type { FormAssignment } from '@repo/domains/entities/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   IFormAssignmentRepository,
   IFormOccurrenceRepository,
@@ -32,22 +32,22 @@ export function hasFormPermission(
 export async function requireAssignmentMember(
   context: ISecurityContext,
   assignment: FormAssignment,
-  memberRepo: ICompanyMemberRepository,
+  memberRepo: IOrganizationMemberRepository,
 ): Promise<string> {
-  PermissionGuard.requireCompanyScope(context, assignment.companyId);
+  PermissionGuard.requireOrganizationScope(context, assignment.organizationId);
   if (!context.memberId)
-    throw new ForbiddenError('Active company membership is required');
+    throw new ForbiddenError('Active organization membership is required');
   const member = await memberRepo.findById(context.memberId);
   if (
     !member ||
     !member.isActive ||
-    member.companyId !== assignment.companyId ||
+    member.organizationId !== assignment.organizationId ||
     member.userId !== context.user?.id
   ) {
-    throw new ForbiddenError('Active company membership is required');
+    throw new ForbiddenError('Active organization membership is required');
   }
   if (
-    assignment.companyMemberId !== member.id &&
+    assignment.organizationMemberId !== member.id &&
     !(assignment.roleId && assignment.roleId === member.roleId)
   ) {
     throw new ForbiddenError('You are not assigned to this form');
@@ -60,7 +60,7 @@ export async function requireWritableAssignment(
   assignmentId: string,
   assignmentRepo: IFormAssignmentRepository,
   occurrenceRepo: IFormOccurrenceRepository,
-  memberRepo: ICompanyMemberRepository,
+  memberRepo: IOrganizationMemberRepository,
   planRepo?: IFormPlanRepository,
 ) {
   const assignment = await assignmentRepo.findById(assignmentId);
@@ -71,7 +71,7 @@ export async function requireWritableAssignment(
     memberRepo,
   );
   const occurrence = await occurrenceRepo.findById(assignment.occurrenceId);
-  if (!occurrence || occurrence.companyId !== assignment.companyId)
+  if (!occurrence || occurrence.organizationId !== assignment.organizationId)
     throw new NotFoundError('Occurrence not found');
   if (assignment.cancelledAt != null || occurrence.cancelledAt != null)
     throw new BadRequestError('Assignment or occurrence is cancelled');

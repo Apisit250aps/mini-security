@@ -4,8 +4,8 @@ import type {
   IAssignRoleFeatureUseCase,
   ICheckRoleFeatureAccessContext,
   ICheckRoleFeatureAccessUseCase,
-  IGetCompanyRoleFeaturesContext,
-  IGetCompanyRoleFeaturesUseCase,
+  IGetOrganizationRoleFeaturesContext,
+  IGetOrganizationRoleFeaturesUseCase,
   IGetRoleFeaturesContext,
   IGetRoleFeaturesUseCase,
   IRevokeRoleFeatureContext,
@@ -15,7 +15,7 @@ import type {
 } from '@repo/domains/applications/feature';
 import type { Feature, RoleFeature } from '@repo/domains/entities/feature';
 import type {
-  ICompanyFeatureRepository,
+  IOrganizationFeatureRepository,
   IFeatureRepository,
   IRoleFeatureRepository,
 } from '@repo/domains/repositories/feature';
@@ -30,7 +30,7 @@ import {
 export class AssignRoleFeatureUseCase implements IAssignRoleFeatureUseCase {
   constructor(
     private readonly roleFeatureRepository: IRoleFeatureRepository,
-    private readonly companyFeatureRepository: ICompanyFeatureRepository,
+    private readonly organizationFeatureRepository: IOrganizationFeatureRepository,
     private readonly featureRepository: IFeatureRepository,
   ) {}
 
@@ -54,16 +54,16 @@ export class AssignRoleFeatureUseCase implements IAssignRoleFeatureUseCase {
       );
     }
 
-    // 2. Domain Invariant: Company must have an active entitlement for this feature
-    const companyFeature =
-      await this.companyFeatureRepository.findByCompanyAndFeature(
-        parsed.data.companyId,
+    // 2. Domain Invariant: Organization must have an active entitlement for this feature
+    const organizationFeature =
+      await this.organizationFeatureRepository.findByOrganizationAndFeature(
+        parsed.data.organizationId,
         parsed.data.featureId,
       );
 
-    if (!companyFeature || !companyFeature.isEnabled) {
+    if (!organizationFeature || !organizationFeature.isEnabled) {
       throw new ForbiddenError(
-        'Cannot assign feature: This company does not have an active entitlement for this feature',
+        'Cannot assign feature: This organization does not have an active entitlement for this feature',
       );
     }
 
@@ -92,7 +92,7 @@ export class ToggleRoleFeatureUseCase implements IToggleRoleFeatureUseCase {
 
     if (!existing) {
       return this.roleFeatureRepository.create({
-        companyId: context.companyId,
+        organizationId: context.organizationId,
         roleId: context.roleId,
         featureId: context.featureId,
         isEnabled: context.isEnabled,
@@ -126,16 +126,18 @@ export class GetRoleFeaturesUseCase implements IGetRoleFeaturesUseCase {
   }
 }
 
-export class GetCompanyRoleFeaturesUseCase
-  implements IGetCompanyRoleFeaturesUseCase
+export class GetOrganizationRoleFeaturesUseCase
+  implements IGetOrganizationRoleFeaturesUseCase
 {
   constructor(private readonly roleFeatureRepository: IRoleFeatureRepository) {}
 
   @RequirePermission('role_feature:read')
   async execute(
-    context: IGetCompanyRoleFeaturesContext,
+    context: IGetOrganizationRoleFeaturesContext,
   ): Promise<RoleFeature[]> {
-    return this.roleFeatureRepository.findByCompanyId(context.companyId);
+    return this.roleFeatureRepository.findByOrganizationId(
+      context.organizationId,
+    );
   }
 }
 
@@ -143,7 +145,7 @@ export class CheckRoleFeatureAccessUseCase
   implements ICheckRoleFeatureAccessUseCase
 {
   constructor(
-    private readonly companyFeatureRepository: ICompanyFeatureRepository,
+    private readonly organizationFeatureRepository: IOrganizationFeatureRepository,
     private readonly roleFeatureRepository: IRoleFeatureRepository,
     private readonly featureRepository: IFeatureRepository,
   ) {}
@@ -156,13 +158,13 @@ export class CheckRoleFeatureAccessUseCase
     );
     if (!feature || !feature.isActive) return false;
 
-    // 2. Check company entitlement
-    const companyFeature =
-      await this.companyFeatureRepository.findByCompanyAndFeature(
-        context.companyId,
+    // 2. Check organization entitlement
+    const organizationFeature =
+      await this.organizationFeatureRepository.findByOrganizationAndFeature(
+        context.organizationId,
         feature.id,
       );
-    if (!companyFeature || !companyFeature.isEnabled) return false;
+    if (!organizationFeature || !organizationFeature.isEnabled) return false;
 
     // 3. Check role assignment
     const roleFeature = await this.roleFeatureRepository.findByRoleAndFeature(

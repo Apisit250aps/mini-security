@@ -7,12 +7,13 @@ import { Plus } from 'lucide-react';
 import ScheduleCreateForm from './schedule-create-form';
 
 interface ScheduleCreateActionProps {
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function ScheduleCreateAction({
-  companyId,
+  organizationId,
 }: ScheduleCreateActionProps) {
+  const targetOrgId = organizationId || '';
   const ui = useOverlay();
   const openCreateDialog = useCallback(() => {
     ui.dialog.open({
@@ -22,12 +23,12 @@ export default function ScheduleCreateAction({
       size: 'lg',
       children: (
         <ScheduleCreateForm
-          companyId={companyId}
+          organizationId={targetOrgId}
           onSuccess={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, companyId]);
+  }, [ui.dialog, targetOrgId]);
 
   return (
     <Button onPress={openCreateDialog}>

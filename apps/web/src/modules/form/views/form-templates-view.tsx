@@ -2,19 +2,21 @@
 
 import React, { useMemo } from 'react';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import {
   MetricCard,
   DashboardStatsGrid,
 } from '@repo/ui/components/shared/dashboard';
 import { FileSpreadsheet, CheckCircle2, FileEdit } from 'lucide-react';
-import { useCompanyFormTemplatesQueries } from '../hooks/form-queries';
+import { useOrganizationFormTemplatesQueries } from '../hooks/form-queries';
 import FormTemplateDataTable from '../components/template/form-template-data-table';
 import FormTemplateCreateAction from '../components/template/form-template-create-action';
 
 export default function FormTemplatesView() {
-  const { activeCompanyId, isLoading } = useActiveCompany();
-  const templatesQuery = useCompanyFormTemplatesQueries(activeCompanyId || '');
+  const { activeOrganizationId, isLoading } = useActiveOrganization();
+  const templatesQuery = useOrganizationFormTemplatesQueries(
+    activeOrganizationId || '',
+  );
   const templates = useMemo(
     () => templatesQuery.data || [],
     [templatesQuery.data],
@@ -29,16 +31,16 @@ export default function FormTemplatesView() {
     [templates],
   );
 
-  const isPageLoading = isLoading || !activeCompanyId;
+  const isPageLoading = isLoading || !activeOrganizationId;
 
   return (
     <PageLayout
-      pageId="companyFormTemplates"
+      pageId="organizationFormTemplates"
       isLoading={isPageLoading}
       loadingText="กำลังโหลดข้อมูลองค์กร..."
       actions={
         !isPageLoading ? (
-          <FormTemplateCreateAction companyId={activeCompanyId} />
+          <FormTemplateCreateAction organizationId={activeOrganizationId} />
         ) : null
       }
     >
@@ -69,7 +71,7 @@ export default function FormTemplatesView() {
           />
         </DashboardStatsGrid>
 
-        <FormTemplateDataTable companyId={activeCompanyId} />
+        <FormTemplateDataTable organizationId={activeOrganizationId} />
       </div>
     </PageLayout>
   );

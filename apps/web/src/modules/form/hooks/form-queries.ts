@@ -2,7 +2,7 @@ import {
   formServicesGetSubmission,
   formServicesGetTemplate,
   formServicesListSubmissions,
-  formServicesListTemplatesByCompany,
+  formServicesListTemplatesByOrganization,
   formServicesListMyAssignments,
   formServicesListOccurrenceAssignments,
   formServicesListReviewQueue,
@@ -15,17 +15,17 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { formKeys } from '@/shared/utils';
 
-export function useCompanyFormTemplatesQueries(companyId: string) {
+export function useOrganizationFormTemplatesQueries(organizationId: string) {
   return useQuery({
-    queryKey: formKeys.templates(companyId),
+    queryKey: formKeys.templates(organizationId),
     queryFn: async ({ signal }) => {
-      const response = await formServicesListTemplatesByCompany({
+      const response = await formServicesListTemplatesByOrganization({
         signal,
-        path: { companyId },
+        path: { organizationId },
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }
 
@@ -45,17 +45,21 @@ export function useFormTemplateQueries(id?: string) {
 }
 
 export function useFormSubmissionsQueries(filters?: {
-  companyId?: string;
+  organizationId?: string;
   assignmentId?: string;
 }) {
+  const targetOrgId = filters?.organizationId;
   const cleanFilters = filters
     ? Object.fromEntries(
-        Object.entries(filters).filter(([_, v]) => v !== undefined && v !== ''),
+        Object.entries({
+          ...filters,
+          organizationId: targetOrgId,
+        }).filter(([_, v]) => v !== undefined && v !== ''),
       )
     : undefined;
 
   return useQuery({
-    queryKey: formKeys.submissions(filters?.companyId, filters),
+    queryKey: formKeys.submissions(targetOrgId, cleanFilters),
     queryFn: async ({ signal }) => {
       const response = await formServicesListSubmissions({
         signal,
@@ -63,7 +67,7 @@ export function useFormSubmissionsQueries(filters?: {
       });
       return response.data?.data || [];
     },
-    enabled: filters?.companyId === undefined || Boolean(filters.companyId),
+    enabled: targetOrgId === undefined || Boolean(targetOrgId),
   });
 }
 
@@ -83,22 +87,23 @@ export function useFormSubmissionQueries(id?: string) {
 }
 
 export function useMyAssignmentsQueries(filters: {
-  companyId: string;
+  organizationId?: string;
   memberId?: string;
 }) {
+  const targetOrgId = filters.organizationId || '';
   return useQuery({
-    queryKey: formKeys.myAssignments(filters.companyId, filters.memberId),
+    queryKey: formKeys.myAssignments(targetOrgId, filters.memberId),
     queryFn: async ({ signal }) => {
       const response = await formServicesListMyAssignments({
         signal,
         query: {
-          companyId: filters.companyId,
+          organizationId: targetOrgId,
           memberId: filters.memberId,
         },
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(filters.companyId),
+    enabled: Boolean(targetOrgId),
   });
 }
 
@@ -119,19 +124,20 @@ export function useOccurrenceAssignmentsQueries(occurrenceId?: string) {
   });
 }
 
-export function useReviewQueueQueries(filters: { companyId: string }) {
+export function useReviewQueueQueries(filters: { organizationId?: string }) {
+  const targetOrgId = filters.organizationId || '';
   return useQuery({
-    queryKey: ['FORM', 'REVIEW_QUEUE', filters.companyId, filters],
+    queryKey: ['FORM', 'REVIEW_QUEUE', targetOrgId, filters],
     queryFn: async ({ signal }) => {
       const response = await formServicesListReviewQueue({
         signal,
         query: {
-          companyId: filters.companyId,
+          organizationId: targetOrgId,
         },
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(filters.companyId),
+    enabled: Boolean(targetOrgId),
   });
 }
 
@@ -149,13 +155,16 @@ export function useReviewDetailQueries(submissionId: string) {
   });
 }
 
-export function useFormPlansQueries(companyId: string, templateId?: string) {
+export function useFormPlansQueries(
+  organizationId: string,
+  templateId?: string,
+) {
   return useQuery({
-    queryKey: formKeys.plans(companyId, templateId),
+    queryKey: formKeys.plans(organizationId, templateId),
     queryFn: async ({ signal }) => {
       const response = await formServicesListPlans({
         signal,
-        query: { companyId },
+        query: { organizationId },
       });
       const allPlans = response.data?.data || [];
       if (templateId) {
@@ -163,7 +172,7 @@ export function useFormPlansQueries(companyId: string, templateId?: string) {
       }
       return allPlans;
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }
 
@@ -182,20 +191,25 @@ export function useFormPlanDetailQueries(planId: string) {
 }
 
 export function useFormOccurrencesQueries(filters: {
-  companyId: string;
+  organizationId?: string;
   formTemplateId?: string;
   planId?: string;
 }) {
+  const targetOrgId = filters.organizationId || '';
   return useQuery({
-    queryKey: formKeys.occurrences(filters.companyId, filters.formTemplateId),
+    queryKey: formKeys.occurrences(targetOrgId, filters.formTemplateId),
     queryFn: async ({ signal }) => {
       const response = await formServicesListOccurrences({
         signal,
-        query: filters,
+        query: {
+          organizationId: targetOrgId,
+          formTemplateId: filters.formTemplateId,
+          planId: filters.planId,
+        },
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(filters.companyId),
+    enabled: Boolean(targetOrgId),
   });
 }
 

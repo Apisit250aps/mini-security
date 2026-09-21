@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
-import { Role } from '@repo/domains/entities';
+import { Role } from '@repo/client';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useCallback } from 'react';
 import { useRoleDelete } from '../../hooks/role-mutations';
@@ -10,13 +10,14 @@ import RoleEditForm from '../form/role-edit-form';
 
 interface RoleColumnActionsProps<T extends Role> {
   cell: CellContext<T, unknown>;
-  companyId?: string;
+  organizationId?: string;
 }
 
 function RoleColumnActions<T extends Role>({
   cell,
-  companyId,
+  organizationId,
 }: RoleColumnActionsProps<T>) {
+  const orgId = organizationId;
   const router = useRouter();
   const ui = useOverlay();
   const { isSuperAdmin } = usePermission();
@@ -24,10 +25,10 @@ function RoleColumnActions<T extends Role>({
   const role = cell.row.original;
   const isSystemDefault = role.isSystemDefault;
 
-  const basePath = companyId
-    ? '/company/role'
-    : role.companyId
-      ? '/company/role'
+  const basePath = orgId
+    ? '/organization/role'
+    : role.organizationId
+      ? '/organization/role'
       : '/admin/role';
 
   const handleDelete = useCallback(

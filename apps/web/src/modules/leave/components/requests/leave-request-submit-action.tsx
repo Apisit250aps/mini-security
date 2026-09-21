@@ -5,16 +5,16 @@ import { Button } from '@repo/ui/components/button';
 import { FilePlus2 } from 'lucide-react';
 
 interface LeaveRequestSubmitActionProps {
-  companyId?: string;
+  organizationId?: string;
 }
 
 export default function LeaveRequestSubmitAction({
-  companyId: _companyId,
+  organizationId: _organizationId,
 }: LeaveRequestSubmitActionProps) {
   const router = useRouter();
 
   const handleNavigate = () => {
-    router.push('/company/leave/requests/new');
+    router.push('/organization/leave/requests/new');
   };
 
   return (

@@ -180,7 +180,7 @@ export default function Forbidden() {
               ย้อนกลับ
             </button>
             <Link
-              href={buildPageUrl('companyDashboard')}
+              href={buildPageUrl('organizationDashboard')}
               style={{
                 flex: 1,
                 display: 'inline-flex',
@@ -205,7 +205,7 @@ export default function Forbidden() {
                 (e.currentTarget as HTMLElement).style.background = '#111111';
               }}
             >
-              แดชบอร์ดบริษัท
+              แดชบอร์ดองค์กร
               <svg
                 width="14"
                 height="14"

@@ -25,7 +25,7 @@ import {
 
 interface LeaveRequestDetailSheetProps {
   request: LeaveRequest;
-  companyId: string;
+  organizationId: string;
   leaveTypeName?: string;
   memberName?: string;
   onClose: () => void;
@@ -33,13 +33,13 @@ interface LeaveRequestDetailSheetProps {
 
 export default function LeaveRequestDetailSheet({
   request,
-  companyId,
+  organizationId,
   leaveTypeName = 'การลา',
   memberName,
   onClose,
 }: LeaveRequestDetailSheetProps) {
   const [reviewNote, setReviewNote] = useState('');
-  const reviewMutation = useLeaveRequestReview(companyId);
+  const reviewMutation = useLeaveRequestReview(organizationId);
 
   const daysCount = calculateLeaveDays({
     startDate: request.startDate,

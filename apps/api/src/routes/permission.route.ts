@@ -8,7 +8,7 @@ import {
   getMyPermissionsUseCase,
   getPermissionsUseCase,
   getRolePermissionsUseCase,
-  getRolesByCompanyUseCase,
+  getRolesByOrganizationUseCase,
   getRoleUseCase,
   getSystemDefaultRolesUseCase,
   revokePermissionFromRoleUseCase,
@@ -23,7 +23,7 @@ const permissionController = new PermissionController(
   updateRoleUseCase,
   deleteRoleUseCase,
   getRoleUseCase,
-  getRolesByCompanyUseCase,
+  getRolesByOrganizationUseCase,
   getSystemDefaultRolesUseCase,
   createPermissionUseCase,
   updatePermissionUseCase,
@@ -48,8 +48,8 @@ permissionRoutes.get(
   permissionController.getSystemDefaultRoles,
 );
 permissionRoutes.get(
-  '/roles/company/:companyId',
-  permissionController.getCompanyRoles,
+  '/roles/organization/:organizationId',
+  permissionController.getOrganizationRoles,
 );
 permissionRoutes.get('/roles/:id', permissionController.getRole);
 permissionRoutes.post('/roles', permissionController.createRole);

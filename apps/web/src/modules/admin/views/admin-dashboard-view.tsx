@@ -3,25 +3,17 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
-import { useCompanyListQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationListQueries } from '@/modules/organization/hooks/organization-queries';
 import { useRoleListQueries } from '@/modules/role/hooks/role-queries';
 import { usePermissionListQueries } from '@/modules/permission/hooks/permission-queries';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@repo/ui/components/card';
+import { Card, CardContent } from '@repo/ui/components/card';
 import {
   MetricCard,
   DashboardStatsGrid,
   RecentActivityCard,
 } from '@repo/ui/components/shared/dashboard';
 import { Button } from '@repo/ui/components/button';
-import { Badge } from '@repo/ui/components/badge';
 import {
   Building2,
   Users,
@@ -36,7 +28,7 @@ import {
   buildPageUrl,
   roleKeys,
   userKeys,
-  companyKeys,
+  organizationKeys,
   permissionKeys,
 } from '@/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
@@ -46,22 +38,22 @@ export default function AdminDashboardView() {
 
   const usersQuery = useUserListQueries();
   const rolesQuery = useRoleListQueries();
-  const companiesQuery = useCompanyListQueries();
+  const organizationsQuery = useOrganizationListQueries();
   const permissionsQuery = usePermissionListQueries();
   const isLoading =
     client.isFetching({
       queryKey: [
         ...userKeys.lists(),
         ...roleKeys.lists(),
-        ...companyKeys.lists(),
+        ...organizationKeys.lists(),
         ...permissionKeys.lists(),
       ],
     }) > 0;
 
   const users = useMemo(() => usersQuery.data || [], [usersQuery.data]);
-  const companies = useMemo(
-    () => companiesQuery.data || [],
-    [companiesQuery.data],
+  const organizations = useMemo(
+    () => organizationsQuery.data || [],
+    [organizationsQuery.data],
   );
   const roles = useMemo(() => rolesQuery.data || [], [rolesQuery.data]);
   const permissions = useMemo(
@@ -77,9 +69,9 @@ export default function AdminDashboardView() {
     () => users.filter((u) => u.isAdmin).length,
     [users],
   );
-  const activeCompaniesCount = useMemo(
-    () => companies.filter((c) => c.isActive).length,
-    [companies],
+  const activeOrganizationsCount = useMemo(
+    () => organizations.filter((c) => c.isActive).length,
+    [organizations],
   );
 
   const permissionModulesCount = useMemo(() => {
@@ -87,21 +79,21 @@ export default function AdminDashboardView() {
     return modules.size;
   }, [permissions]);
 
-  const recentCompanies = useMemo(() => {
-    return [...companies].slice(0, 5);
-  }, [companies]);
+  const recentOrganizations = useMemo(() => {
+    return [...organizations].slice(0, 5);
+  }, [organizations]);
 
   const recentUsers = useMemo(() => {
     return [...users].slice(0, 5);
   }, [users]);
 
-  const companyActivityItems = useMemo(
+  const organizationActivityItems = useMemo(
     () =>
-      recentCompanies.map((c) => ({
+      recentOrganizations.map((c) => ({
         id: c.id,
         title: (
           <Link
-            href={buildPageUrl('company', [c.id])}
+            href={buildPageUrl('organization', [c.id])}
             className="hover:text-primary hover:underline transition-colors"
           >
             {c.name}
@@ -117,7 +109,7 @@ export default function AdminDashboardView() {
           className: 'text-[11px]',
         },
       })),
-    [recentCompanies],
+    [recentOrganizations],
   );
 
   const userActivityItems = useMemo(
@@ -154,10 +146,10 @@ export default function AdminDashboardView() {
       pageId="adminDashboard"
       isLoading={isLoading}
       actions={
-        <Link href={buildPageUrl('companyDashboard')}>
+        <Link href={buildPageUrl('organizationDashboard')}>
           <Button variant="outline" className="gap-2">
             <Building2 className="size-4" />
-            <span>Company Workspace</span>
+            <span>Organization Workspace</span>
             <ExternalLink className="size-3.5 text-muted-foreground" />
           </Button>
         </Link>
@@ -183,16 +175,16 @@ export default function AdminDashboardView() {
           />
 
           <MetricCard
-            title="บริษัททั้งหมด (Companies)"
-            value={companies.length}
+            title="องค์กรทั้งหมด (Organizations)"
+            value={organizations.length}
             icon={Building2}
-            description={`เปิดใช้งาน ${activeCompaniesCount} บริษัท`}
+            description={`เปิดใช้งาน ${activeOrganizationsCount} องค์กร`}
             footerAction={
               <Link
-                href={buildPageUrl('company')}
+                href={buildPageUrl('organization')}
                 className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline pt-1"
               >
-                จัดการบริษัท
+                จัดการองค์กร
                 <ArrowRight className="size-3" />
               </Link>
             }
@@ -234,12 +226,12 @@ export default function AdminDashboardView() {
         {/* Overview Lists / Activity */}
         <div className="grid gap-4 lg:grid-cols-2">
           <RecentActivityCard
-            title="บริษัทในระบบ (Companies)"
+            title="องค์กรในระบบ (Organizations)"
             description="รายชื่อองค์กรและบริษัทที่ลงทะเบียนล่าสุด"
-            items={companyActivityItems}
-            emptyMessage="ยังไม่มีข้อมูลบริษัท"
+            items={organizationActivityItems}
+            emptyMessage="ยังไม่มีข้อมูลองค์กร"
             headerAction={
-              <Link href={buildPageUrl('company')}>
+              <Link href={buildPageUrl('organization')}>
                 <Button variant="ghost" size="sm" className="gap-1 text-xs">
                   ดูทั้งหมด
                   <ArrowRight className="size-3.5" />

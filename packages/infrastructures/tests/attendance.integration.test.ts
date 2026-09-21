@@ -18,8 +18,8 @@ test(
       max: 1,
       options: `-c search_path=${schema}`,
     });
-    const companyA = randomUUID(),
-      companyB = randomUUID(),
+    const organizationA = randomUUID(),
+      organizationB = randomUUID(),
       roleA = randomUUID(),
       roleB = randomUUID(),
       foreignRole = randomUUID(),
@@ -51,20 +51,27 @@ test(
         [userId, 'Test User', 'test@example.com'],
       );
       await client.query(
-        'INSERT INTO company (id, name, slug) VALUES ($1, $2, $3), ($4, $5, $6)',
-        [companyA, 'Company A', 'comp-a', companyB, 'Company B', 'comp-b'],
+        'INSERT INTO organization (id, name, slug) VALUES ($1, $2, $3), ($4, $5, $6)',
+        [
+          organizationA,
+          'Organization A',
+          'comp-a',
+          organizationB,
+          'Organization B',
+          'comp-b',
+        ],
       );
       await client.query(
-        'INSERT INTO role (id, company_id, name, role_type, is_system_default) VALUES ($1,$2,$3,$4,false), ($5,$2,$6,$4,false), ($7,$8,$9,$4,false), ($10,NULL,$11,$12,true)',
+        'INSERT INTO role (id, organization_id, name, role_type, is_system_default) VALUES ($1,$2,$3,$4,false), ($5,$2,$6,$4,false), ($7,$8,$9,$4,false), ($10,NULL,$11,$12,true)',
         [
           roleA,
-          companyA,
+          organizationA,
           'Role A',
           'CUSTOM',
           roleB,
           'Role B',
           foreignRole,
-          companyB,
+          organizationB,
           'Role Foreign',
           globalRole,
           'Global Role',
@@ -72,23 +79,23 @@ test(
         ],
       );
       await client.query(
-        'INSERT INTO company_member (id, company_id, user_id) VALUES ($1, $2, $3)',
-        [memberId, companyA, userId],
+        'INSERT INTO organization_member (id, organization_id, user_id) VALUES ($1, $2, $3)',
+        [memberId, organizationA, userId],
       );
       await client.query(
-        "INSERT INTO check_in_schedules (id, company_id, name, is_active, updated_at) VALUES ($1,$2,'Existing',false,now())",
-        [scheduleId, companyA],
+        "INSERT INTO check_in_schedules (id, organization_id, name, is_active, updated_at) VALUES ($1,$2,'Existing',false,now())",
+        [scheduleId, organizationA],
       );
       await client.query(
-        'INSERT INTO check_in_schedule_roles (id, company_id, check_in_schedule_id, role_id, updated_at) VALUES ($1,$2,$3,$4,now())',
-        [randomUUID(), companyA, scheduleId, globalRole],
+        'INSERT INTO check_in_schedule_roles (id, organization_id, check_in_schedule_id, role_id, updated_at) VALUES ($1,$2,$3,$4,now())',
+        [randomUUID(), organizationA, scheduleId, globalRole],
       );
       await client.query(
         "INSERT INTO schedule_slots (id,check_in_schedule_id,slot_order,label,window_start,window_end,updated_at) VALUES ($1,$2,1,'Morning','08:00','09:00',now())",
         [slotId, scheduleId],
       );
       await client.query(
-        "INSERT INTO attendance_logs (id,company_member_id,schedule_slot_id,work_date,status,updated_at) VALUES ($1,$2,$3,'2026-09-12','present',now())",
+        "INSERT INTO attendance_logs (id,organization_member_id,schedule_slot_id,work_date,status,updated_at) VALUES ($1,$2,$3,'2026-09-12','present',now())",
         [logId, memberId, slotId],
       );
       assert.equal(
@@ -106,20 +113,20 @@ test(
       const migrated = await repo.findById(scheduleId);
       assert.deepEqual(migrated?.roleIds, [globalRole]);
       assert.equal(migrated?.isActive, false);
-      assert.equal((await repo.findByRoleId(companyA, roleA)).length, 0);
+      assert.equal((await repo.findByRoleId(organizationA, roleA)).length, 0);
       await repo.update(scheduleId, {
         isActive: true,
         roleIds: [roleA, roleB],
       });
       const second = await repo.create({
-        companyId: companyA,
+        organizationId: organizationA,
         name: 'Evening',
         isActive: true,
         roleIds: [roleA],
       });
-      assert.equal((await repo.findByRoleId(companyA, roleA)).length, 2);
-      assert.equal((await repo.findByRoleId(companyA, roleB)).length, 1);
-      assert.equal((await repo.findByRoleId(companyB, roleA)).length, 0);
+      assert.equal((await repo.findByRoleId(organizationA, roleA)).length, 2);
+      assert.equal((await repo.findByRoleId(organizationA, roleB)).length, 1);
+      assert.equal((await repo.findByRoleId(organizationB, roleA)).length, 0);
       const assignmentId = (
         await client.query(
           'SELECT id FROM check_in_schedule_roles WHERE check_in_schedule_id=$1 AND role_id=$2',
@@ -128,7 +135,7 @@ test(
       ).rows[0].id;
       await repo.update(scheduleId, { roleIds: [roleB] });
       assert.deepEqual(
-        (await repo.findByRoleId(companyA, roleA)).map(
+        (await repo.findByRoleId(organizationA, roleA)).map(
           (schedule) => schedule.id,
         ),
         [second.id],
@@ -153,17 +160,17 @@ test(
       assert.equal((await repo.findById(scheduleId))?.roleIds.length, 2);
       await assert.rejects(
         repo.create({
-          companyId: companyA,
+          organizationId: organizationA,
           name: 'Invalid duplicate',
           isActive: true,
           roleIds: [roleA, roleA],
         }),
       );
-      assert.equal((await repo.findByCompanyId(companyA)).length, 2);
+      assert.equal((await repo.findByOrganizationId(organizationA)).length, 2);
       await assert.rejects(
         client.query(
-          'INSERT INTO check_in_schedule_roles (id,company_id,check_in_schedule_id,role_id,updated_at) VALUES ($1,$2,$3,$4,now())',
-          [randomUUID(), companyB, scheduleId, foreignRole],
+          'INSERT INTO check_in_schedule_roles (id,organization_id,check_in_schedule_id,role_id,updated_at) VALUES ($1,$2,$3,$4,now())',
+          [randomUUID(), organizationB, scheduleId, foreignRole],
         ),
       );
       await assert.rejects(repo.delete(scheduleId)); // Existing logs restrict deleting slots.

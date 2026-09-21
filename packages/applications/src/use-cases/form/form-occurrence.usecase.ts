@@ -17,7 +17,7 @@ import type {
   IFormPlanTargetRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import { BadRequestError, NotFoundError } from '../../lib/error';
 import {
   calculateDueDate,
@@ -36,7 +36,7 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
     private readonly targetRepo: IFormPlanTargetRepository,
     private readonly versionRepo: IFormVersionRepository,
     private readonly periodRepo: IFormPlanPeriodRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_plan:manage')
@@ -45,7 +45,11 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
   ): Promise<FormOccurrence[]> {
     const createdOccurrences: FormOccurrence[] = [];
     const now = new Date();
-    const plans = await this.planRepo.listPlans(context.companyId, 1, 1000);
+    const plans = await this.planRepo.listPlans(
+      context.organizationId,
+      1,
+      1000,
+    );
     for (const candidate of plans) {
       const opened = await this.unitOfWork.transaction(async () => {
         // Read the plan inside the same serializable transaction as its occurrences.
@@ -313,7 +317,7 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
         if (!rounds.length) return [];
         const targets = await this.targetRepo.findByPlanId(plan.id);
         const members = (
-          await this.memberRepo!.findByCompanyId(context.companyId)
+          await this.memberRepo!.findByOrganizationId(context.organizationId)
         ).filter((member) => member.isActive);
         const memberIds = new Set<string>();
         const roleIds = new Set<string>();
@@ -329,10 +333,14 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
                 'PER_MEMBER target has no active recipients',
               );
             for (const member of recipients) memberIds.add(member.id);
-          } else if (target.companyMemberId) {
-            if (!members.some((member) => member.id === target.companyMemberId))
+          } else if (target.organizationMemberId) {
+            if (
+              !members.some(
+                (member) => member.id === target.organizationMemberId,
+              )
+            )
               throw new BadRequestError('Assigned member is inactive');
-            memberIds.add(target.companyMemberId);
+            memberIds.add(target.organizationMemberId);
           }
         }
         if (!roleIds.size && !memberIds.size)
@@ -340,7 +348,7 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
         const result: FormOccurrence[] = [];
         for (const round of rounds) {
           const occurrence = await this.occurrenceRepo.create({
-            companyId: context.companyId,
+            organizationId: context.organizationId,
             planId: plan.id,
             formTemplateId: plan.formTemplateId,
             formVersionId: version.id,
@@ -359,14 +367,14 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
           );
           const activeMemberAssignments = new Set(
             existingAssignments
-              .filter((a) => !a.cancelledAt && a.companyMemberId)
-              .map((a) => a.companyMemberId!),
+              .filter((a) => !a.cancelledAt && a.organizationMemberId)
+              .map((a) => a.organizationMemberId!),
           );
 
           for (const roleId of roleIds) {
             if (!activeRoleAssignments.has(roleId)) {
               await this.assignmentRepo.create({
-                companyId: context.companyId,
+                organizationId: context.organizationId,
                 occurrenceId: occurrence.id,
                 formVersionId: version.id,
                 roleId,
@@ -375,16 +383,16 @@ export class OpenDueOccurrencesUseCase implements IOpenDueOccurrencesUseCase {
               activeRoleAssignments.add(roleId);
             }
           }
-          for (const companyMemberId of memberIds) {
-            if (!activeMemberAssignments.has(companyMemberId)) {
+          for (const organizationMemberId of memberIds) {
+            if (!activeMemberAssignments.has(organizationMemberId)) {
               await this.assignmentRepo.create({
-                companyId: context.companyId,
+                organizationId: context.organizationId,
                 occurrenceId: occurrence.id,
                 formVersionId: version.id,
-                companyMemberId,
+                organizationMemberId,
                 revision: 1,
               });
-              activeMemberAssignments.add(companyMemberId);
+              activeMemberAssignments.add(organizationMemberId);
             }
           }
           result.push(occurrence);
@@ -404,8 +412,12 @@ export class CancelOccurrenceUseCase implements ICancelOccurrenceUseCase {
   @RequirePermission('form_plan:manage')
   async execute(context: ICancelOccurrenceContext): Promise<FormOccurrence> {
     const occurrence = await this.occurrenceRepo.findById(context.occurrenceId);
-    const companyId = context.companyId ?? context.activeCompanyId;
-    if (!occurrence || (companyId && occurrence.companyId !== companyId)) {
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (
+      !occurrence ||
+      (organizationId && occurrence.organizationId !== organizationId)
+    ) {
       throw new NotFoundError('Occurrence not found');
     }
 
@@ -435,7 +447,7 @@ export class ListOccurrencesUseCase implements IListOccurrencesUseCase {
   @RequirePermission('form_plan:read')
   async execute(context: IListOccurrencesContext): Promise<FormOccurrence[]> {
     return this.occurrenceRepo.list(
-      context.companyId,
+      context.organizationId,
       context.formTemplateId,
       context.planId,
     );

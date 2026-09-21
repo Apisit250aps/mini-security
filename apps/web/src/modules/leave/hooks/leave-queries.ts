@@ -1,28 +1,28 @@
 import {
-  leaveServicesGetCompanyRequests,
+  leaveServicesGetOrganizationRequests,
   leaveServicesGetMemberRequests,
   leaveServicesGetQuotasByMember,
-  leaveServicesGetTypesByCompany,
+  leaveServicesGetTypesByOrganization,
 } from '@repo/client';
 import type { LeaveRequestStatus } from '@repo/domains/schema/leave';
 import { useQuery } from '@tanstack/react-query';
 import { leaveKeys } from '@/shared/utils';
 
-export function useCompanyLeaveTypesQueries(
-  companyId: string,
+export function useOrganizationLeaveTypesQueries(
+  organizationId: string,
   onlyActive?: boolean,
 ) {
   return useQuery({
-    queryKey: leaveKeys.types(companyId, onlyActive),
+    queryKey: leaveKeys.types(organizationId, onlyActive),
     queryFn: async ({ signal }) => {
-      const response = await leaveServicesGetTypesByCompany({
+      const response = await leaveServicesGetTypesByOrganization({
         signal,
-        path: { companyId },
+        path: { organizationId },
         query: onlyActive !== undefined ? { onlyActive } : undefined,
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }
 
@@ -46,8 +46,8 @@ export function useMemberLeaveQuotasQueries(
   });
 }
 
-export function useCompanyLeaveRequestsQueries(
-  companyId: string,
+export function useOrganizationLeaveRequestsQueries(
+  organizationId: string,
   filters?: {
     status?: LeaveRequestStatus;
     startDate?: string;
@@ -55,16 +55,16 @@ export function useCompanyLeaveRequestsQueries(
   },
 ) {
   return useQuery({
-    queryKey: leaveKeys.companyRequests(companyId, filters),
+    queryKey: leaveKeys.organizationRequests(organizationId, filters),
     queryFn: async ({ signal }) => {
-      const response = await leaveServicesGetCompanyRequests({
+      const response = await leaveServicesGetOrganizationRequests({
         signal,
-        path: { companyId },
+        path: { organizationId },
         query: filters,
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }
 

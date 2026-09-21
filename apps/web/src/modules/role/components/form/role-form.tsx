@@ -16,7 +16,7 @@ import { z } from 'zod';
 
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { CompanySelectField } from '@/shared/components/form';
+import { OrganizationSelectField } from '@/shared/components/form';
 
 export type RoleFormValues = z.infer<typeof createRoleSchema>;
 
@@ -52,7 +52,7 @@ export default function RoleForm({
     defaultValues: defaultValues ?? {
       name: '',
       description: '',
-      companyId: null,
+      organizationId: null,
       roleType: 'MEMBER',
       isSystemDefault: false,
     },
@@ -118,9 +118,9 @@ export default function RoleForm({
         )}
 
         {!hideSystemDefault && !isSystemDefault && (
-          <CompanySelectField
-            name="companyId"
-            label="สังกัดองค์กร (Company)"
+          <OrganizationSelectField<RoleFormValues>
+            name="organizationId"
+            label="สังกัดองค์กร (Organization)"
             placeholder="เลือกองค์กรสำหรับบทบาทนี้..."
             control={methods.control}
             disabled={readOnly}

@@ -1,6 +1,6 @@
 export interface FormSubmissionReviewDialogProps {
   submissionId?: string;
-  companyId?: string;
+  organizationId?: string;
   reviewerMemberId?: string;
   onClose?: () => void;
 }

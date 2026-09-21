@@ -34,37 +34,43 @@ export type CreateFeature = z.infer<typeof createFeatureSchema>;
 export type UpdateFeature = z.infer<typeof updateFeatureSchema>;
 
 /**
- * 2. Company Feature Schema (Entitlement & Toggle)
+ * 2. Organization Feature Schema (Entitlement & Toggle)
  */
 
-export const companyFeatureSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+export const organizationFeatureSchema = BaseEntity({
+  organizationId: UUIDField({ required: true }),
   featureId: UUIDField({ required: true }),
   isEnabled: BooleanField({ default: () => true }),
   assignedBy: UUIDField({ required: false, nullable: true }),
   expiresAt: DateField({ required: false, nullable: true }),
 });
 
-export const createCompanyFeatureSchema = companyFeatureSchema.omit({
+export const createOrganizationFeatureSchema = organizationFeatureSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const updateCompanyFeatureSchema = companyFeatureSchema
+export const updateOrganizationFeatureSchema = organizationFeatureSchema
   .partial()
   .omit({ id: true, createdAt: true, updatedAt: true });
 
-export type CompanyFeatureEntity = z.infer<typeof companyFeatureSchema>;
-export type CreateCompanyFeature = z.infer<typeof createCompanyFeatureSchema>;
-export type UpdateCompanyFeature = z.infer<typeof updateCompanyFeatureSchema>;
+export type OrganizationFeatureEntity = z.infer<
+  typeof organizationFeatureSchema
+>;
+export type CreateOrganizationFeature = z.infer<
+  typeof createOrganizationFeatureSchema
+>;
+export type UpdateOrganizationFeature = z.infer<
+  typeof updateOrganizationFeatureSchema
+>;
 
 /**
  * 3. Role Feature Schema (Delegation)
  */
 
 export const roleFeatureSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   roleId: UUIDField({ required: true }),
   featureId: UUIDField({ required: true }),
   isEnabled: BooleanField({ default: () => true }),

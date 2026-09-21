@@ -104,24 +104,27 @@ export class FormTemplateRepository
     super(db, formTemplate);
   }
 
-  async findByCompanyId(companyId: string): Promise<FormTemplate[]> {
+  async findByOrganizationId(organizationId: string): Promise<FormTemplate[]> {
     const results = await this.db
       .select()
       .from(formTemplate)
-      .where(eq(formTemplate.companyId, companyId))
+      .where(eq(formTemplate.organizationId, organizationId))
       .orderBy(desc(formTemplate.createdAt));
     return results.map((r) => new FormTemplate(r as FormTemplate));
   }
 
-  async findByIdAndCompany(
+  async findByIdAndOrganization(
     id: string,
-    companyId: string,
+    organizationId: string,
   ): Promise<FormTemplate | null> {
     const [result] = await this.db
       .select()
       .from(formTemplate)
       .where(
-        and(eq(formTemplate.id, id), eq(formTemplate.companyId, companyId)),
+        and(
+          eq(formTemplate.id, id),
+          eq(formTemplate.organizationId, organizationId),
+        ),
       );
     return result ? new FormTemplate(result as FormTemplate) : null;
   }
@@ -371,7 +374,7 @@ export class FormFieldOptionRepository
 
   async replaceOptions(
     fieldId: string,
-    companyId: string,
+    organizationId: string,
     formVersionId: string,
     options: Array<{ label: string; value: string; sortOrder?: number }>,
   ): Promise<FormFieldOption[]> {
@@ -383,7 +386,7 @@ export class FormFieldOptionRepository
       const opt = options[i];
       if (!opt) continue;
       const res = await this.create({
-        companyId,
+        organizationId,
         formVersionId,
         fieldId,
         label: opt.label,
@@ -445,7 +448,7 @@ export class FormPlanRepository
 
   private async saveSchedule(
     planId: string,
-    companyId: string,
+    organizationId: string,
     config: CreateFormPlan['scheduleConfig'],
   ) {
     if (!config) {
@@ -456,7 +459,7 @@ export class FormPlanRepository
     }
     const values = {
       planId,
-      companyId,
+      organizationId,
       frequency: config.frequency,
       interval: config.interval,
       anchorLocalDate: config.anchorLocalDate,
@@ -480,7 +483,7 @@ export class FormPlanRepository
       const { scheduleConfig, ...values } = entity;
       const [row] = await this.db.insert(formPlan).values(values).returning();
       if (!row) throw new Error('Plan insert returned no row');
-      await this.saveSchedule(row.id, row.companyId, scheduleConfig);
+      await this.saveSchedule(row.id, row.organizationId, scheduleConfig);
       return (await this.hydrate([row]))[0]!;
     });
   }
@@ -495,7 +498,7 @@ export class FormPlanRepository
         .returning();
       if (!row) throw new Error('Plan not found');
       if (scheduleConfig !== undefined)
-        await this.saveSchedule(row.id, row.companyId, scheduleConfig);
+        await this.saveSchedule(row.id, row.organizationId, scheduleConfig);
       return (await this.hydrate([row]))[0]!;
     });
   }
@@ -516,7 +519,7 @@ export class FormPlanRepository
 
   async findByTemplateId(
     templateId: string,
-    companyId: string,
+    organizationId: string,
   ): Promise<FormPlan[]> {
     const results = await this.db
       .select()
@@ -524,7 +527,7 @@ export class FormPlanRepository
       .where(
         and(
           eq(formPlan.formTemplateId, templateId),
-          eq(formPlan.companyId, companyId),
+          eq(formPlan.organizationId, organizationId),
         ),
       )
       .orderBy(desc(formPlan.createdAt));
@@ -532,7 +535,7 @@ export class FormPlanRepository
   }
 
   async findActive(
-    companyId: string,
+    organizationId: string,
     templateId: string,
   ): Promise<FormPlan | null> {
     const [result] = await this.db
@@ -540,7 +543,7 @@ export class FormPlanRepository
       .from(formPlan)
       .where(
         and(
-          eq(formPlan.companyId, companyId),
+          eq(formPlan.organizationId, organizationId),
           eq(formPlan.formTemplateId, templateId),
           isNotNull(formPlan.effectiveFrom),
           sql`(${formPlan.effectiveUntil} IS NULL OR ${formPlan.effectiveUntil} > now())`,
@@ -551,7 +554,7 @@ export class FormPlanRepository
   }
 
   async listPlans(
-    companyId: string,
+    organizationId: string,
     page: number,
     limit: number,
   ): Promise<FormPlan[]> {
@@ -559,7 +562,7 @@ export class FormPlanRepository
     const results = await this.db
       .select()
       .from(formPlan)
-      .where(eq(formPlan.companyId, companyId))
+      .where(eq(formPlan.organizationId, organizationId))
       .orderBy(desc(formPlan.createdAt))
       .limit(limit)
       .offset(offset);
@@ -721,11 +724,11 @@ export class FormOccurrenceRepository implements IFormOccurrenceRepository {
   }
 
   async list(
-    companyId: string,
+    organizationId: string,
     formTemplateId?: string,
     planId?: string,
   ): Promise<FormOccurrence[]> {
-    const conditions = [eq(formOccurrence.companyId, companyId)];
+    const conditions = [eq(formOccurrence.organizationId, organizationId)];
     if (formTemplateId) {
       conditions.push(eq(formOccurrence.formTemplateId, formTemplateId));
     }
@@ -775,7 +778,7 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
   }
 
   async findByMemberId(
-    companyId: string,
+    organizationId: string,
     memberId: string,
   ): Promise<FormAssignment[]> {
     const results = await this.db
@@ -783,8 +786,8 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
       .from(formAssignment)
       .where(
         and(
-          eq(formAssignment.companyId, companyId),
-          eq(formAssignment.companyMemberId, memberId),
+          eq(formAssignment.organizationId, organizationId),
+          eq(formAssignment.organizationMemberId, memberId),
         ),
       )
       .orderBy(desc(formAssignment.createdAt));
@@ -794,7 +797,7 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
   }
 
   async findByRoleId(
-    companyId: string,
+    organizationId: string,
     roleId: string,
   ): Promise<FormAssignment[]> {
     const results = await this.db
@@ -802,7 +805,7 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
       .from(formAssignment)
       .where(
         and(
-          eq(formAssignment.companyId, companyId),
+          eq(formAssignment.organizationId, organizationId),
           eq(formAssignment.roleId, roleId),
         ),
       )
@@ -842,7 +845,7 @@ export class FormAssignmentRepository implements IFormAssignmentRepository {
       .where(
         and(
           eq(formAssignment.occurrenceId, occurrenceId),
-          eq(formAssignment.companyMemberId, memberId),
+          eq(formAssignment.organizationMemberId, memberId),
           isNull(formAssignment.cancelledAt),
         ),
       )
@@ -890,11 +893,13 @@ export class FormSubmissionRepository
     super(db, formSubmission);
   }
 
-  async findByCompanyId(companyId: string): Promise<FormSubmission[]> {
+  async findByOrganizationId(
+    organizationId: string,
+  ): Promise<FormSubmission[]> {
     const results = await this.db
       .select()
       .from(formSubmission)
-      .where(eq(formSubmission.companyId, companyId))
+      .where(eq(formSubmission.organizationId, organizationId))
       .orderBy(desc(formSubmission.createdAt));
     return results.map(
       (r) => new FormSubmission(r as unknown as FormSubmission),
@@ -903,7 +908,7 @@ export class FormSubmissionRepository
 
   async findByAssignmentId(
     assignmentId: string,
-    companyId: string,
+    organizationId: string,
   ): Promise<FormSubmission[]> {
     const results = await this.db
       .select()
@@ -911,7 +916,7 @@ export class FormSubmissionRepository
       .where(
         and(
           eq(formSubmission.assignmentId, assignmentId),
-          eq(formSubmission.companyId, companyId),
+          eq(formSubmission.organizationId, organizationId),
         ),
       )
       .orderBy(desc(formSubmission.createdAt));
@@ -922,7 +927,7 @@ export class FormSubmissionRepository
 
   async findByAssignmentIds(
     assignmentIds: string[],
-    companyId: string,
+    organizationId: string,
   ): Promise<FormSubmission[]> {
     if (assignmentIds.length === 0) return [];
     const results = await this.db
@@ -931,7 +936,7 @@ export class FormSubmissionRepository
       .where(
         and(
           inArray(formSubmission.assignmentId, assignmentIds),
-          eq(formSubmission.companyId, companyId),
+          eq(formSubmission.organizationId, organizationId),
         ),
       )
       .orderBy(desc(formSubmission.createdAt));
@@ -942,7 +947,7 @@ export class FormSubmissionRepository
 
   async findDraftByAssignmentId(
     assignmentId: string,
-    companyId: string,
+    organizationId: string,
   ): Promise<FormSubmission | null> {
     const [result] = await this.db
       .select()
@@ -950,7 +955,7 @@ export class FormSubmissionRepository
       .where(
         and(
           eq(formSubmission.assignmentId, assignmentId),
-          eq(formSubmission.companyId, companyId),
+          eq(formSubmission.organizationId, organizationId),
           isNull(formSubmission.submittedAt),
         ),
       )
@@ -1248,7 +1253,7 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
       const [row] = await this.db
         .insert(formSubmissionDecision)
         .values({
-          companyId: entry.companyId,
+          organizationId: entry.organizationId,
           submissionId: entry.submissionId,
           formVersionId: entry.formVersionId,
           action: entry.action,
@@ -1268,15 +1273,15 @@ export class FormReviewEntryRepository implements IFormReviewEntryRepository {
     return new FormReviewEntry(row);
   }
 
-  async list(companyId: string): Promise<FormReviewEntry[]> {
+  async list(organizationId: string): Promise<FormReviewEntry[]> {
     const answers = await this.db
       .select()
       .from(formReviewEntry)
-      .where(eq(formReviewEntry.companyId, companyId));
+      .where(eq(formReviewEntry.organizationId, organizationId));
     const decisions = await this.db
       .select()
       .from(formSubmissionDecision)
-      .where(eq(formSubmissionDecision.companyId, companyId));
+      .where(eq(formSubmissionDecision.organizationId, organizationId));
     return [
       ...answers.map((r) => new FormReviewEntry(r)),
       ...decisions.map((r) => this.decision(r)),

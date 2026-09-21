@@ -8,25 +8,22 @@ import { Badge } from '@repo/ui/components/badge';
 
 export default function LocationTable({
   locations,
-  branches,
+  sites,
   actions,
 }: {
   locations: Location[];
-  branches: { id: string; name: string }[];
+  sites?: { id: string; name: string }[];
   actions?: (location: Location) => ReactNode;
 }) {
+  const siteList = sites ?? [];
   const columns: ColumnDef<Location>[] = [
     { accessorKey: 'name', header: 'สถานที่' },
     {
-      id: 'branch',
-      header: 'สาขา',
+      id: 'site',
+      header: 'ไซต์ / สาขา',
       cell: ({ row }) => {
-        const branch = branches.find(
-          (b) => b.id === row.original.companyBranchId,
-        );
-        return (
-          branch?.name ?? (row.original.companyBranchId ? 'สาขาหลัก' : '-')
-        );
+        const site = siteList.find((b) => b.id === row.original.siteId);
+        return site?.name ?? (row.original.siteId ? 'ไซต์หลัก' : '-');
       },
     },
     { accessorKey: 'address', header: 'ที่อยู่' },

@@ -22,7 +22,7 @@ export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 
 interface LeaveRequestReviewModalProps {
   request: LeaveRequest;
-  companyId: string;
+  organizationId: string;
   leaveTypeName?: string;
   memberName?: string;
   onSuccess: () => void;
@@ -30,12 +30,12 @@ interface LeaveRequestReviewModalProps {
 
 export default function LeaveRequestReviewModal({
   request,
-  companyId,
+  organizationId,
   leaveTypeName = 'การลา',
   memberName,
   onSuccess,
 }: LeaveRequestReviewModalProps) {
-  const reviewMutation = useLeaveRequestReview(companyId);
+  const reviewMutation = useLeaveRequestReview(organizationId);
 
   const methods = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),

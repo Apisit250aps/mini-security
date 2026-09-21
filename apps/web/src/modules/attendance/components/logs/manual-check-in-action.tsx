@@ -7,12 +7,13 @@ import { UserCheck } from 'lucide-react';
 import ManualCheckInDialog from './manual-check-in-dialog';
 
 interface ManualCheckInActionProps {
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function ManualCheckInAction({
-  companyId,
+  organizationId,
 }: ManualCheckInActionProps) {
+  const targetOrgId = organizationId || '';
   const ui = useOverlay();
   const openDialog = useCallback(() => {
     ui.dialog.open({
@@ -22,12 +23,12 @@ export default function ManualCheckInAction({
       size: 'lg',
       children: (
         <ManualCheckInDialog
-          companyId={companyId}
+          organizationId={targetOrgId}
           onSuccess={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, companyId]);
+  }, [ui.dialog, targetOrgId]);
 
   return (
     <Button variant="outline" onPress={openDialog}>

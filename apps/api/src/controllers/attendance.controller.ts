@@ -4,10 +4,10 @@ import {
   CreateCheckInScheduleUseCase,
   CreateScheduleSlotUseCase,
   DeleteScheduleSlotUseCase,
-  GetAttendanceLogsByCompanyUseCase,
+  GetAttendanceLogsByOrganizationUseCase,
   GetAttendanceLogsByMemberUseCase,
   GetCheckInSchedulesByRoleUseCase,
-  GetCheckInSchedulesByCompanyUseCase,
+  GetCheckInSchedulesByOrganizationUseCase,
   GetScheduleSlotsByScheduleUseCase,
   ManualCheckInAttendanceUseCase,
   UpdateCheckInScheduleUseCase,
@@ -24,15 +24,17 @@ import Controller from './base.controller';
 
 const idParamSchema = z.object({ id: z.string().uuid() });
 const roleIdParamSchema = z.object({
-  companyId: z.string().uuid(),
+  organizationId: z.string().uuid(),
   roleId: z.string().uuid(),
 });
-const companyIdParamSchema = z.object({ companyId: z.string().uuid() });
+const organizationIdParamSchema = z.object({
+  organizationId: z.string().uuid(),
+});
 const scheduleIdParamSchema = z.object({ scheduleId: z.string().uuid() });
 const memberIdParamSchema = z.object({ memberId: z.string().uuid() });
 
 const checkInBodySchema = z.object({
-  companyMemberId: z.string().uuid(),
+  organizationMemberId: z.string().uuid(),
   scheduleSlotId: z.string().uuid(),
   note: z.string().optional(),
   latitude: z.number().optional(),
@@ -46,7 +48,7 @@ const memberLogsQuerySchema = z.object({
   endDate: z.string().optional(),
 });
 
-const companyLogsQuerySchema = z.object({
+const organizationLogsQuerySchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
 });
@@ -56,7 +58,7 @@ export class AttendanceController extends Controller {
     private readonly createCheckInScheduleUseCase: CreateCheckInScheduleUseCase,
     private readonly updateCheckInScheduleUseCase: UpdateCheckInScheduleUseCase,
     private readonly getCheckInSchedulesByRoleUseCase: GetCheckInSchedulesByRoleUseCase,
-    private readonly getCheckInSchedulesByCompanyUseCase: GetCheckInSchedulesByCompanyUseCase,
+    private readonly getCheckInSchedulesByOrganizationUseCase: GetCheckInSchedulesByOrganizationUseCase,
     private readonly createScheduleSlotUseCase: CreateScheduleSlotUseCase,
     private readonly updateScheduleSlotUseCase: UpdateScheduleSlotUseCase,
     private readonly deleteScheduleSlotUseCase: DeleteScheduleSlotUseCase,
@@ -64,7 +66,7 @@ export class AttendanceController extends Controller {
     private readonly checkInAttendanceUseCase: CheckInAttendanceUseCase,
     private readonly manualCheckInAttendanceUseCase: ManualCheckInAttendanceUseCase,
     private readonly getAttendanceLogsByMemberUseCase: GetAttendanceLogsByMemberUseCase,
-    private readonly getAttendanceLogsByCompanyUseCase: GetAttendanceLogsByCompanyUseCase,
+    private readonly getAttendanceLogsByOrganizationUseCase: GetAttendanceLogsByOrganizationUseCase,
   ) {
     super();
   }
@@ -100,24 +102,25 @@ export class AttendanceController extends Controller {
   public getSchedulesByRole = this.validator(
     { params: roleIdParamSchema },
     async (c) => {
-      const { companyId, roleId } = c.get('params');
+      const { organizationId, roleId } = c.get('params');
       const schedule = await this.getCheckInSchedulesByRoleUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         roleId,
       });
       return this.success(c, 'Schedule retrieved successfully', schedule);
     },
   );
 
-  public getSchedulesByCompany = this.validator(
-    { params: companyIdParamSchema },
+  public getSchedulesByOrganization = this.validator(
+    { params: organizationIdParamSchema },
     async (c) => {
-      const { companyId } = c.get('params');
-      const schedules = await this.getCheckInSchedulesByCompanyUseCase.execute({
-        ...this.securityContext(c),
-        companyId,
-      });
+      const { organizationId } = c.get('params');
+      const schedules =
+        await this.getCheckInSchedulesByOrganizationUseCase.execute({
+          ...this.securityContext(c),
+          organizationId,
+        });
       return this.success(c, 'Schedules retrieved successfully', schedules);
     },
   );
@@ -184,7 +187,7 @@ export class AttendanceController extends Controller {
     const body = c.get('body');
     const log = await this.checkInAttendanceUseCase.execute({
       ...this.securityContext(c),
-      companyMemberId: body.companyMemberId,
+      organizationMemberId: body.organizationMemberId,
       scheduleSlotId: body.scheduleSlotId,
       note: body.note,
       latitude: body.latitude,
@@ -213,7 +216,7 @@ export class AttendanceController extends Controller {
       const query = c.get('query');
       const logs = await this.getAttendanceLogsByMemberUseCase.execute({
         ...this.securityContext(c),
-        companyMemberId: memberId,
+        organizationMemberId: memberId,
         workDate: query?.workDate,
         startDate: query?.startDate,
         endDate: query?.endDate,
@@ -222,20 +225,20 @@ export class AttendanceController extends Controller {
     },
   );
 
-  public getCompanyLogs = this.validator(
-    { params: companyIdParamSchema, query: companyLogsQuerySchema },
+  public getOrganizationLogs = this.validator(
+    { params: organizationIdParamSchema, query: organizationLogsQuerySchema },
     async (c) => {
-      const { companyId } = c.get('params');
+      const { organizationId } = c.get('params');
       const query = c.get('query');
-      const logs = await this.getAttendanceLogsByCompanyUseCase.execute({
+      const logs = await this.getAttendanceLogsByOrganizationUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         startDate: query.startDate,
         endDate: query.endDate,
       });
       return this.success(
         c,
-        'Company attendance logs retrieved successfully',
+        'Organization attendance logs retrieved successfully',
         logs,
       );
     },

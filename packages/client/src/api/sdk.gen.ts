@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { AttendanceServicesCheckInData, AttendanceServicesCheckInErrors, AttendanceServicesCheckInResponses, AttendanceServicesCreateScheduleData, AttendanceServicesCreateScheduleErrors, AttendanceServicesCreateScheduleResponses, AttendanceServicesCreateSlotData, AttendanceServicesCreateSlotErrors, AttendanceServicesCreateSlotResponses, AttendanceServicesDeleteSlotData, AttendanceServicesDeleteSlotErrors, AttendanceServicesDeleteSlotResponses, AttendanceServicesGetCompanyLogsData, AttendanceServicesGetCompanyLogsErrors, AttendanceServicesGetCompanyLogsResponses, AttendanceServicesGetMemberLogsData, AttendanceServicesGetMemberLogsErrors, AttendanceServicesGetMemberLogsResponses, AttendanceServicesGetSchedulesByCompanyData, AttendanceServicesGetSchedulesByCompanyErrors, AttendanceServicesGetSchedulesByCompanyResponses, AttendanceServicesGetSchedulesByRoleData, AttendanceServicesGetSchedulesByRoleErrors, AttendanceServicesGetSchedulesByRoleResponses, AttendanceServicesGetSlotsByScheduleData, AttendanceServicesGetSlotsByScheduleErrors, AttendanceServicesGetSlotsByScheduleResponses, AttendanceServicesManualCheckInData, AttendanceServicesManualCheckInErrors, AttendanceServicesManualCheckInResponses, AttendanceServicesUpdateScheduleData, AttendanceServicesUpdateScheduleErrors, AttendanceServicesUpdateScheduleResponses, AttendanceServicesUpdateSlotData, AttendanceServicesUpdateSlotErrors, AttendanceServicesUpdateSlotResponses, CompanyServicesAddCompanyMemberData, CompanyServicesAddCompanyMemberErrors, CompanyServicesAddCompanyMemberResponses, CompanyServicesCreateCompanyBranchData, CompanyServicesCreateCompanyBranchErrors, CompanyServicesCreateCompanyBranchResponses, CompanyServicesCreateCompanyData, CompanyServicesCreateCompanyErrors, CompanyServicesCreateCompanyResponses, CompanyServicesDeleteCompanyBranchData, CompanyServicesDeleteCompanyBranchErrors, CompanyServicesDeleteCompanyBranchResponses, CompanyServicesDeleteCompanyData, CompanyServicesDeleteCompanyErrors, CompanyServicesDeleteCompanyResponses, CompanyServicesGetCompaniesData, CompanyServicesGetCompaniesErrors, CompanyServicesGetCompaniesResponses, CompanyServicesGetCompanyBranchData, CompanyServicesGetCompanyBranchErrors, CompanyServicesGetCompanyBranchesData, CompanyServicesGetCompanyBranchesErrors, CompanyServicesGetCompanyBranchesResponses, CompanyServicesGetCompanyBranchResponses, CompanyServicesGetCompanyBySlugData, CompanyServicesGetCompanyBySlugErrors, CompanyServicesGetCompanyBySlugResponses, CompanyServicesGetCompanyData, CompanyServicesGetCompanyErrors, CompanyServicesGetCompanyMembersData, CompanyServicesGetCompanyMembersErrors, CompanyServicesGetCompanyMembersResponses, CompanyServicesGetCompanyResponses, CompanyServicesRemoveCompanyMemberData, CompanyServicesRemoveCompanyMemberErrors, CompanyServicesRemoveCompanyMemberResponses, CompanyServicesSwitchActiveCompanyData, CompanyServicesSwitchActiveCompanyErrors, CompanyServicesSwitchActiveCompanyResponses, CompanyServicesUpdateCompanyBranchData, CompanyServicesUpdateCompanyBranchErrors, CompanyServicesUpdateCompanyBranchResponses, CompanyServicesUpdateCompanyData, CompanyServicesUpdateCompanyErrors, CompanyServicesUpdateCompanyMemberData, CompanyServicesUpdateCompanyMemberErrors, CompanyServicesUpdateCompanyMemberResponses, CompanyServicesUpdateCompanyResponses, FeatureServicesAssignCompanyFeatureData, FeatureServicesAssignCompanyFeatureErrors, FeatureServicesAssignCompanyFeatureResponses, FeatureServicesAssignRoleFeatureData, FeatureServicesAssignRoleFeatureErrors, FeatureServicesAssignRoleFeatureResponses, FeatureServicesCheckRoleFeatureAccessData, FeatureServicesCheckRoleFeatureAccessErrors, FeatureServicesCheckRoleFeatureAccessResponses, FeatureServicesCreateFeatureData, FeatureServicesCreateFeatureErrors, FeatureServicesCreateFeatureResponses, FeatureServicesGetCompanyAvailableFeaturesData, FeatureServicesGetCompanyAvailableFeaturesErrors, FeatureServicesGetCompanyAvailableFeaturesResponses, FeatureServicesGetCompanyFeaturesData, FeatureServicesGetCompanyFeaturesErrors, FeatureServicesGetCompanyFeaturesResponses, FeatureServicesGetCompanyRoleFeaturesData, FeatureServicesGetCompanyRoleFeaturesErrors, FeatureServicesGetCompanyRoleFeaturesResponses, FeatureServicesGetFeatureData, FeatureServicesGetFeatureErrors, FeatureServicesGetFeatureResponses, FeatureServicesGetFeaturesData, FeatureServicesGetFeaturesErrors, FeatureServicesGetFeaturesResponses, FeatureServicesGetRoleFeaturesData, FeatureServicesGetRoleFeaturesErrors, FeatureServicesGetRoleFeaturesResponses, FeatureServicesRemoveCompanyFeatureData, FeatureServicesRemoveCompanyFeatureErrors, FeatureServicesRemoveCompanyFeatureResponses, FeatureServicesRevokeRoleFeatureData, FeatureServicesRevokeRoleFeatureErrors, FeatureServicesRevokeRoleFeatureResponses, FeatureServicesToggleCompanyFeatureData, FeatureServicesToggleCompanyFeatureErrors, FeatureServicesToggleCompanyFeatureResponses, FeatureServicesToggleFeatureData, FeatureServicesToggleFeatureErrors, FeatureServicesToggleFeatureResponses, FeatureServicesToggleRoleFeatureData, FeatureServicesToggleRoleFeatureErrors, FeatureServicesToggleRoleFeatureResponses, FeatureServicesUpdateFeatureData, FeatureServicesUpdateFeatureErrors, FeatureServicesUpdateFeatureResponses, FormServicesActivatePlanData, FormServicesActivatePlanErrors, FormServicesActivatePlanResponses, FormServicesCancelAssignmentData, FormServicesCancelAssignmentErrors, FormServicesCancelAssignmentResponses, FormServicesCancelOccurrenceData, FormServicesCancelOccurrenceErrors, FormServicesCancelOccurrenceResponses, FormServicesCreateCorrectionData, FormServicesCreateCorrectionErrors, FormServicesCreateCorrectionResponses, FormServicesCreateFieldData, FormServicesCreateFieldErrors, FormServicesCreateFieldResponses, FormServicesCreatePlanData, FormServicesCreatePlanErrors, FormServicesCreatePlanResponses, FormServicesCreateSectionData, FormServicesCreateSectionErrors, FormServicesCreateSectionResponses, FormServicesCreateTemplateData, FormServicesCreateTemplateErrors, FormServicesCreateTemplateResponses, FormServicesDeleteAttachmentData, FormServicesDeleteAttachmentErrors, FormServicesDeleteAttachmentResponses, FormServicesDeleteFieldData, FormServicesDeleteFieldErrors, FormServicesDeleteFieldResponses, FormServicesDeleteSectionData, FormServicesDeleteSectionErrors, FormServicesDeleteSectionResponses, FormServicesDownloadAttachmentData, FormServicesDownloadAttachmentErrors, FormServicesDownloadAttachmentResponses, FormServicesEditFieldData, FormServicesEditFieldErrors, FormServicesEditFieldResponses, FormServicesFinalizeReviewData, FormServicesFinalizeReviewErrors, FormServicesFinalizeReviewResponses, FormServicesGetAssignmentData, FormServicesGetAssignmentErrors, FormServicesGetAssignmentResponses, FormServicesGetPlanData, FormServicesGetPlanErrors, FormServicesGetPlanResponses, FormServicesGetReviewDetailData, FormServicesGetReviewDetailErrors, FormServicesGetReviewDetailResponses, FormServicesGetSubmissionData, FormServicesGetSubmissionErrors, FormServicesGetSubmissionResponses, FormServicesGetTemplateData, FormServicesGetTemplateErrors, FormServicesGetTemplateResponses, FormServicesListMyAssignmentsData, FormServicesListMyAssignmentsErrors, FormServicesListMyAssignmentsResponses, FormServicesListOccurrenceAssignmentsData, FormServicesListOccurrenceAssignmentsErrors, FormServicesListOccurrenceAssignmentsResponses, FormServicesListOccurrencesData, FormServicesListOccurrencesErrors, FormServicesListOccurrencesResponses, FormServicesListPlansData, FormServicesListPlansErrors, FormServicesListPlansResponses, FormServicesListReviewQueueData, FormServicesListReviewQueueErrors, FormServicesListReviewQueueResponses, FormServicesListSubmissionsData, FormServicesListSubmissionsErrors, FormServicesListSubmissionsResponses, FormServicesListTemplatesByCompanyData, FormServicesListTemplatesByCompanyErrors, FormServicesListTemplatesByCompanyResponses, FormServicesOpenOccurrencesData, FormServicesOpenOccurrencesErrors, FormServicesOpenOccurrencesResponses, FormServicesPausePlanData, FormServicesPausePlanErrors, FormServicesPausePlanResponses, FormServicesPreviewScheduleData, FormServicesPreviewScheduleErrors, FormServicesPreviewScheduleResponses, FormServicesPublishVersionData, FormServicesPublishVersionErrors, FormServicesPublishVersionResponses, FormServicesRecordAnswerReviewData, FormServicesRecordAnswerReviewErrors, FormServicesRecordAnswerReviewResponses, FormServicesRecordSectionReviewData, FormServicesRecordSectionReviewErrors, FormServicesRecordSectionReviewResponses, FormServicesReorderFieldsData, FormServicesReorderFieldsErrors, FormServicesReorderFieldsResponses, FormServicesReorderSectionsData, FormServicesReorderSectionsErrors, FormServicesReorderSectionsResponses, FormServicesReplaceAssignmentData, FormServicesReplaceAssignmentErrors, FormServicesReplaceAssignmentResponses, FormServicesSaveDraftData, FormServicesSaveDraftErrors, FormServicesSaveDraftResponses, FormServicesStartSubmissionData, FormServicesStartSubmissionErrors, FormServicesStartSubmissionResponses, FormServicesSubmitData, FormServicesSubmitErrors, FormServicesSubmitResponses, FormServicesUpdatePlanData, FormServicesUpdatePlanErrors, FormServicesUpdatePlanResponses, FormServicesUpdateTemplateData, FormServicesUpdateTemplateErrors, FormServicesUpdateTemplateResponses, FormServicesUploadAttachmentData, FormServicesUploadAttachmentErrors, FormServicesUploadAttachmentResponses, LeaveServicesCancelRequestData, LeaveServicesCancelRequestErrors, LeaveServicesCancelRequestResponses, LeaveServicesCreateQuotaData, LeaveServicesCreateQuotaErrors, LeaveServicesCreateQuotaResponses, LeaveServicesCreateTypeData, LeaveServicesCreateTypeErrors, LeaveServicesCreateTypeResponses, LeaveServicesGetCompanyRequestsData, LeaveServicesGetCompanyRequestsErrors, LeaveServicesGetCompanyRequestsResponses, LeaveServicesGetMemberRequestsData, LeaveServicesGetMemberRequestsErrors, LeaveServicesGetMemberRequestsResponses, LeaveServicesGetQuotasByMemberData, LeaveServicesGetQuotasByMemberErrors, LeaveServicesGetQuotasByMemberResponses, LeaveServicesGetTypesByCompanyData, LeaveServicesGetTypesByCompanyErrors, LeaveServicesGetTypesByCompanyResponses, LeaveServicesReviewRequestData, LeaveServicesReviewRequestErrors, LeaveServicesReviewRequestResponses, LeaveServicesSubmitRequestData, LeaveServicesSubmitRequestErrors, LeaveServicesSubmitRequestResponses, LeaveServicesUpdateQuotaData, LeaveServicesUpdateQuotaErrors, LeaveServicesUpdateQuotaResponses, LeaveServicesUpdateTypeData, LeaveServicesUpdateTypeErrors, LeaveServicesUpdateTypeResponses, LocationServiceAssignSlotLocationData, LocationServiceAssignSlotLocationErrors, LocationServiceAssignSlotLocationResponses, LocationServiceCreateLocationData, LocationServiceCreateLocationErrors, LocationServiceCreateLocationResponses, LocationServiceDeleteLocationData, LocationServiceDeleteLocationErrors, LocationServiceDeleteLocationResponses, LocationServiceGetLocationData, LocationServiceGetLocationErrors, LocationServiceGetLocationResponses, LocationServiceGetSlotLocationAssignmentsData, LocationServiceGetSlotLocationAssignmentsErrors, LocationServiceGetSlotLocationAssignmentsResponses, LocationServiceGetSlotLocationsData, LocationServiceGetSlotLocationsErrors, LocationServiceGetSlotLocationsResponses, LocationServiceListLocationsByBranchData, LocationServiceListLocationsByBranchErrors, LocationServiceListLocationsByBranchResponses, LocationServiceListLocationsByCompanyData, LocationServiceListLocationsByCompanyErrors, LocationServiceListLocationsByCompanyResponses, LocationServiceSetPrimaryLocationData, LocationServiceSetPrimaryLocationErrors, LocationServiceSetPrimaryLocationResponses, LocationServiceUpdateLocationData, LocationServiceUpdateLocationErrors, LocationServiceUpdateLocationResponses, LocationServiceUpdateSlotLocationData, LocationServiceUpdateSlotLocationErrors, LocationServiceUpdateSlotLocationResponses, PermissionServicesCreatePermissionData, PermissionServicesCreatePermissionErrors, PermissionServicesCreatePermissionResponses, PermissionServicesDeletePermissionData, PermissionServicesDeletePermissionErrors, PermissionServicesDeletePermissionResponses, PermissionServicesGetMyPermissionsData, PermissionServicesGetMyPermissionsErrors, PermissionServicesGetMyPermissionsResponses, PermissionServicesGetPermissionsData, PermissionServicesGetPermissionsErrors, PermissionServicesGetPermissionsResponses, PermissionServicesUpdatePermissionData, PermissionServicesUpdatePermissionErrors, PermissionServicesUpdatePermissionResponses, RoleServicesAssignPermissionToRoleData, RoleServicesAssignPermissionToRoleErrors, RoleServicesAssignPermissionToRoleResponses, RoleServicesCreateRoleData, RoleServicesCreateRoleErrors, RoleServicesCreateRoleResponses, RoleServicesDeleteRoleData, RoleServicesDeleteRoleErrors, RoleServicesDeleteRoleResponses, RoleServicesGetCompanyRolesData, RoleServicesGetCompanyRolesErrors, RoleServicesGetCompanyRolesResponses, RoleServicesGetRoleData, RoleServicesGetRoleErrors, RoleServicesGetRolePermissionsData, RoleServicesGetRolePermissionsErrors, RoleServicesGetRolePermissionsResponses, RoleServicesGetRoleResponses, RoleServicesGetSystemDefaultRolesData, RoleServicesGetSystemDefaultRolesErrors, RoleServicesGetSystemDefaultRolesResponses, RoleServicesRevokePermissionFromRoleData, RoleServicesRevokePermissionFromRoleErrors, RoleServicesRevokePermissionFromRoleResponses, RoleServicesUpdateRoleData, RoleServicesUpdateRoleErrors, RoleServicesUpdateRoleResponses, UserServicesCreateUserData, UserServicesCreateUserErrors, UserServicesCreateUserResponses, UserServicesDeleteUserData, UserServicesDeleteUserErrors, UserServicesDeleteUserResponses, UserServicesGetUserData, UserServicesGetUserErrors, UserServicesGetUserResponses, UserServicesGetUsersData, UserServicesGetUsersErrors, UserServicesGetUsersResponses, UserServicesUpdateUserData, UserServicesUpdateUserErrors, UserServicesUpdateUserResponses } from './types.gen';
+import type { AttendanceServicesCheckInData, AttendanceServicesCheckInErrors, AttendanceServicesCheckInResponses, AttendanceServicesCreateScheduleData, AttendanceServicesCreateScheduleErrors, AttendanceServicesCreateScheduleResponses, AttendanceServicesCreateSlotData, AttendanceServicesCreateSlotErrors, AttendanceServicesCreateSlotResponses, AttendanceServicesDeleteSlotData, AttendanceServicesDeleteSlotErrors, AttendanceServicesDeleteSlotResponses, AttendanceServicesGetMemberLogsData, AttendanceServicesGetMemberLogsErrors, AttendanceServicesGetMemberLogsResponses, AttendanceServicesGetOrganizationLogsData, AttendanceServicesGetOrganizationLogsErrors, AttendanceServicesGetOrganizationLogsResponses, AttendanceServicesGetSchedulesByOrganizationData, AttendanceServicesGetSchedulesByOrganizationErrors, AttendanceServicesGetSchedulesByOrganizationResponses, AttendanceServicesGetSchedulesByRoleData, AttendanceServicesGetSchedulesByRoleErrors, AttendanceServicesGetSchedulesByRoleResponses, AttendanceServicesGetSlotsByScheduleData, AttendanceServicesGetSlotsByScheduleErrors, AttendanceServicesGetSlotsByScheduleResponses, AttendanceServicesManualCheckInData, AttendanceServicesManualCheckInErrors, AttendanceServicesManualCheckInResponses, AttendanceServicesUpdateScheduleData, AttendanceServicesUpdateScheduleErrors, AttendanceServicesUpdateScheduleResponses, AttendanceServicesUpdateSlotData, AttendanceServicesUpdateSlotErrors, AttendanceServicesUpdateSlotResponses, FeatureServicesAssignOrganizationFeatureData, FeatureServicesAssignOrganizationFeatureErrors, FeatureServicesAssignOrganizationFeatureResponses, FeatureServicesAssignRoleFeatureData, FeatureServicesAssignRoleFeatureErrors, FeatureServicesAssignRoleFeatureResponses, FeatureServicesCheckRoleFeatureAccessData, FeatureServicesCheckRoleFeatureAccessErrors, FeatureServicesCheckRoleFeatureAccessResponses, FeatureServicesCreateFeatureData, FeatureServicesCreateFeatureErrors, FeatureServicesCreateFeatureResponses, FeatureServicesGetFeatureData, FeatureServicesGetFeatureErrors, FeatureServicesGetFeatureResponses, FeatureServicesGetFeaturesData, FeatureServicesGetFeaturesErrors, FeatureServicesGetFeaturesResponses, FeatureServicesGetOrganizationAvailableFeaturesData, FeatureServicesGetOrganizationAvailableFeaturesErrors, FeatureServicesGetOrganizationAvailableFeaturesResponses, FeatureServicesGetOrganizationFeaturesData, FeatureServicesGetOrganizationFeaturesErrors, FeatureServicesGetOrganizationFeaturesResponses, FeatureServicesGetOrganizationRoleFeaturesData, FeatureServicesGetOrganizationRoleFeaturesErrors, FeatureServicesGetOrganizationRoleFeaturesResponses, FeatureServicesGetRoleFeaturesData, FeatureServicesGetRoleFeaturesErrors, FeatureServicesGetRoleFeaturesResponses, FeatureServicesRemoveOrganizationFeatureData, FeatureServicesRemoveOrganizationFeatureErrors, FeatureServicesRemoveOrganizationFeatureResponses, FeatureServicesRevokeRoleFeatureData, FeatureServicesRevokeRoleFeatureErrors, FeatureServicesRevokeRoleFeatureResponses, FeatureServicesToggleFeatureData, FeatureServicesToggleFeatureErrors, FeatureServicesToggleFeatureResponses, FeatureServicesToggleOrganizationFeatureData, FeatureServicesToggleOrganizationFeatureErrors, FeatureServicesToggleOrganizationFeatureResponses, FeatureServicesToggleRoleFeatureData, FeatureServicesToggleRoleFeatureErrors, FeatureServicesToggleRoleFeatureResponses, FeatureServicesUpdateFeatureData, FeatureServicesUpdateFeatureErrors, FeatureServicesUpdateFeatureResponses, FormServicesActivatePlanData, FormServicesActivatePlanErrors, FormServicesActivatePlanResponses, FormServicesCancelAssignmentData, FormServicesCancelAssignmentErrors, FormServicesCancelAssignmentResponses, FormServicesCancelOccurrenceData, FormServicesCancelOccurrenceErrors, FormServicesCancelOccurrenceResponses, FormServicesCreateCorrectionData, FormServicesCreateCorrectionErrors, FormServicesCreateCorrectionResponses, FormServicesCreateFieldData, FormServicesCreateFieldErrors, FormServicesCreateFieldResponses, FormServicesCreatePlanData, FormServicesCreatePlanErrors, FormServicesCreatePlanResponses, FormServicesCreateSectionData, FormServicesCreateSectionErrors, FormServicesCreateSectionResponses, FormServicesCreateTemplateData, FormServicesCreateTemplateErrors, FormServicesCreateTemplateResponses, FormServicesDeleteAttachmentData, FormServicesDeleteAttachmentErrors, FormServicesDeleteAttachmentResponses, FormServicesDeleteFieldData, FormServicesDeleteFieldErrors, FormServicesDeleteFieldResponses, FormServicesDeleteSectionData, FormServicesDeleteSectionErrors, FormServicesDeleteSectionResponses, FormServicesDownloadAttachmentData, FormServicesDownloadAttachmentErrors, FormServicesDownloadAttachmentResponses, FormServicesEditFieldData, FormServicesEditFieldErrors, FormServicesEditFieldResponses, FormServicesFinalizeReviewData, FormServicesFinalizeReviewErrors, FormServicesFinalizeReviewResponses, FormServicesGetAssignmentData, FormServicesGetAssignmentErrors, FormServicesGetAssignmentResponses, FormServicesGetPlanData, FormServicesGetPlanErrors, FormServicesGetPlanResponses, FormServicesGetReviewDetailData, FormServicesGetReviewDetailErrors, FormServicesGetReviewDetailResponses, FormServicesGetSubmissionData, FormServicesGetSubmissionErrors, FormServicesGetSubmissionResponses, FormServicesGetTemplateData, FormServicesGetTemplateErrors, FormServicesGetTemplateResponses, FormServicesListMyAssignmentsData, FormServicesListMyAssignmentsErrors, FormServicesListMyAssignmentsResponses, FormServicesListOccurrenceAssignmentsData, FormServicesListOccurrenceAssignmentsErrors, FormServicesListOccurrenceAssignmentsResponses, FormServicesListOccurrencesData, FormServicesListOccurrencesErrors, FormServicesListOccurrencesResponses, FormServicesListPlansData, FormServicesListPlansErrors, FormServicesListPlansResponses, FormServicesListReviewQueueData, FormServicesListReviewQueueErrors, FormServicesListReviewQueueResponses, FormServicesListSubmissionsData, FormServicesListSubmissionsErrors, FormServicesListSubmissionsResponses, FormServicesListTemplatesByOrganizationData, FormServicesListTemplatesByOrganizationErrors, FormServicesListTemplatesByOrganizationResponses, FormServicesOpenOccurrencesData, FormServicesOpenOccurrencesErrors, FormServicesOpenOccurrencesResponses, FormServicesPausePlanData, FormServicesPausePlanErrors, FormServicesPausePlanResponses, FormServicesPreviewScheduleData, FormServicesPreviewScheduleErrors, FormServicesPreviewScheduleResponses, FormServicesPublishVersionData, FormServicesPublishVersionErrors, FormServicesPublishVersionResponses, FormServicesRecordAnswerReviewData, FormServicesRecordAnswerReviewErrors, FormServicesRecordAnswerReviewResponses, FormServicesRecordSectionReviewData, FormServicesRecordSectionReviewErrors, FormServicesRecordSectionReviewResponses, FormServicesReorderFieldsData, FormServicesReorderFieldsErrors, FormServicesReorderFieldsResponses, FormServicesReorderSectionsData, FormServicesReorderSectionsErrors, FormServicesReorderSectionsResponses, FormServicesReplaceAssignmentData, FormServicesReplaceAssignmentErrors, FormServicesReplaceAssignmentResponses, FormServicesSaveDraftData, FormServicesSaveDraftErrors, FormServicesSaveDraftResponses, FormServicesStartSubmissionData, FormServicesStartSubmissionErrors, FormServicesStartSubmissionResponses, FormServicesSubmitData, FormServicesSubmitErrors, FormServicesSubmitResponses, FormServicesUpdatePlanData, FormServicesUpdatePlanErrors, FormServicesUpdatePlanResponses, FormServicesUpdateTemplateData, FormServicesUpdateTemplateErrors, FormServicesUpdateTemplateResponses, FormServicesUploadAttachmentData, FormServicesUploadAttachmentErrors, FormServicesUploadAttachmentResponses, LeaveServicesCancelRequestData, LeaveServicesCancelRequestErrors, LeaveServicesCancelRequestResponses, LeaveServicesCreateQuotaData, LeaveServicesCreateQuotaErrors, LeaveServicesCreateQuotaResponses, LeaveServicesCreateTypeData, LeaveServicesCreateTypeErrors, LeaveServicesCreateTypeResponses, LeaveServicesGetMemberRequestsData, LeaveServicesGetMemberRequestsErrors, LeaveServicesGetMemberRequestsResponses, LeaveServicesGetOrganizationRequestsData, LeaveServicesGetOrganizationRequestsErrors, LeaveServicesGetOrganizationRequestsResponses, LeaveServicesGetQuotasByMemberData, LeaveServicesGetQuotasByMemberErrors, LeaveServicesGetQuotasByMemberResponses, LeaveServicesGetTypesByOrganizationData, LeaveServicesGetTypesByOrganizationErrors, LeaveServicesGetTypesByOrganizationResponses, LeaveServicesReviewRequestData, LeaveServicesReviewRequestErrors, LeaveServicesReviewRequestResponses, LeaveServicesSubmitRequestData, LeaveServicesSubmitRequestErrors, LeaveServicesSubmitRequestResponses, LeaveServicesUpdateQuotaData, LeaveServicesUpdateQuotaErrors, LeaveServicesUpdateQuotaResponses, LeaveServicesUpdateTypeData, LeaveServicesUpdateTypeErrors, LeaveServicesUpdateTypeResponses, LocationServiceAssignSlotLocationData, LocationServiceAssignSlotLocationErrors, LocationServiceAssignSlotLocationResponses, LocationServiceCreateLocationData, LocationServiceCreateLocationErrors, LocationServiceCreateLocationResponses, LocationServiceDeleteLocationData, LocationServiceDeleteLocationErrors, LocationServiceDeleteLocationResponses, LocationServiceGetLocationData, LocationServiceGetLocationErrors, LocationServiceGetLocationResponses, LocationServiceGetSlotLocationAssignmentsData, LocationServiceGetSlotLocationAssignmentsErrors, LocationServiceGetSlotLocationAssignmentsResponses, LocationServiceGetSlotLocationsData, LocationServiceGetSlotLocationsErrors, LocationServiceGetSlotLocationsResponses, LocationServiceListLocationsByOrganizationData, LocationServiceListLocationsByOrganizationErrors, LocationServiceListLocationsByOrganizationResponses, LocationServiceListLocationsBySiteData, LocationServiceListLocationsBySiteErrors, LocationServiceListLocationsBySiteResponses, LocationServiceSetPrimaryLocationData, LocationServiceSetPrimaryLocationErrors, LocationServiceSetPrimaryLocationResponses, LocationServiceUpdateLocationData, LocationServiceUpdateLocationErrors, LocationServiceUpdateLocationResponses, LocationServiceUpdateSlotLocationData, LocationServiceUpdateSlotLocationErrors, LocationServiceUpdateSlotLocationResponses, OrganizationServicesAddOrganizationMemberData, OrganizationServicesAddOrganizationMemberErrors, OrganizationServicesAddOrganizationMemberResponses, OrganizationServicesCreateOrganizationData, OrganizationServicesCreateOrganizationErrors, OrganizationServicesCreateOrganizationResponses, OrganizationServicesCreateSiteData, OrganizationServicesCreateSiteErrors, OrganizationServicesCreateSiteResponses, OrganizationServicesDeleteOrganizationData, OrganizationServicesDeleteOrganizationErrors, OrganizationServicesDeleteOrganizationResponses, OrganizationServicesDeleteSiteData, OrganizationServicesDeleteSiteErrors, OrganizationServicesDeleteSiteResponses, OrganizationServicesGetOrganizationBySlugData, OrganizationServicesGetOrganizationBySlugErrors, OrganizationServicesGetOrganizationBySlugResponses, OrganizationServicesGetOrganizationData, OrganizationServicesGetOrganizationErrors, OrganizationServicesGetOrganizationMembersData, OrganizationServicesGetOrganizationMembersErrors, OrganizationServicesGetOrganizationMembersResponses, OrganizationServicesGetOrganizationResponses, OrganizationServicesGetOrganizationsData, OrganizationServicesGetOrganizationsErrors, OrganizationServicesGetOrganizationsResponses, OrganizationServicesGetSiteData, OrganizationServicesGetSiteErrors, OrganizationServicesGetSiteResponses, OrganizationServicesGetSitesData, OrganizationServicesGetSitesErrors, OrganizationServicesGetSitesResponses, OrganizationServicesRemoveOrganizationMemberData, OrganizationServicesRemoveOrganizationMemberErrors, OrganizationServicesRemoveOrganizationMemberResponses, OrganizationServicesSwitchActiveOrganizationData, OrganizationServicesSwitchActiveOrganizationErrors, OrganizationServicesSwitchActiveOrganizationResponses, OrganizationServicesUpdateOrganizationData, OrganizationServicesUpdateOrganizationErrors, OrganizationServicesUpdateOrganizationMemberData, OrganizationServicesUpdateOrganizationMemberErrors, OrganizationServicesUpdateOrganizationMemberResponses, OrganizationServicesUpdateOrganizationResponses, OrganizationServicesUpdateSiteData, OrganizationServicesUpdateSiteErrors, OrganizationServicesUpdateSiteResponses, PermissionServicesCreatePermissionData, PermissionServicesCreatePermissionErrors, PermissionServicesCreatePermissionResponses, PermissionServicesDeletePermissionData, PermissionServicesDeletePermissionErrors, PermissionServicesDeletePermissionResponses, PermissionServicesGetMyPermissionsData, PermissionServicesGetMyPermissionsErrors, PermissionServicesGetMyPermissionsResponses, PermissionServicesGetPermissionsData, PermissionServicesGetPermissionsErrors, PermissionServicesGetPermissionsResponses, PermissionServicesUpdatePermissionData, PermissionServicesUpdatePermissionErrors, PermissionServicesUpdatePermissionResponses, RoleServicesAssignPermissionToRoleData, RoleServicesAssignPermissionToRoleErrors, RoleServicesAssignPermissionToRoleResponses, RoleServicesCreateRoleData, RoleServicesCreateRoleErrors, RoleServicesCreateRoleResponses, RoleServicesDeleteRoleData, RoleServicesDeleteRoleErrors, RoleServicesDeleteRoleResponses, RoleServicesGetOrganizationRolesData, RoleServicesGetOrganizationRolesErrors, RoleServicesGetOrganizationRolesResponses, RoleServicesGetRoleData, RoleServicesGetRoleErrors, RoleServicesGetRolePermissionsData, RoleServicesGetRolePermissionsErrors, RoleServicesGetRolePermissionsResponses, RoleServicesGetRoleResponses, RoleServicesGetSystemDefaultRolesData, RoleServicesGetSystemDefaultRolesErrors, RoleServicesGetSystemDefaultRolesResponses, RoleServicesRevokePermissionFromRoleData, RoleServicesRevokePermissionFromRoleErrors, RoleServicesRevokePermissionFromRoleResponses, RoleServicesUpdateRoleData, RoleServicesUpdateRoleErrors, RoleServicesUpdateRoleResponses, UserServicesCreateUserData, UserServicesCreateUserErrors, UserServicesCreateUserResponses, UserServicesDeleteUserData, UserServicesDeleteUserErrors, UserServicesDeleteUserResponses, UserServicesGetUserData, UserServicesGetUserErrors, UserServicesGetUserResponses, UserServicesGetUsersData, UserServicesGetUsersErrors, UserServicesGetUsersResponses, UserServicesUpdateUserData, UserServicesUpdateUserErrors, UserServicesUpdateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -32,33 +32,6 @@ export const attendanceServicesCheckIn = <ThrowOnError extends boolean = false>(
 });
 
 /**
- * Get company attendance logs by date range
- */
-export const attendanceServicesGetCompanyLogs = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesGetCompanyLogsData, ThrowOnError>): RequestResult<AttendanceServicesGetCompanyLogsResponses, AttendanceServicesGetCompanyLogsErrors, ThrowOnError> => (options.client ?? client).get<AttendanceServicesGetCompanyLogsResponses, AttendanceServicesGetCompanyLogsErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/attendances/companies/{companyId}/logs',
-    ...options
-});
-
-/**
- * Get active check-in schedules assigned to a role in a company
- */
-export const attendanceServicesGetSchedulesByRole = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesGetSchedulesByRoleData, ThrowOnError>): RequestResult<AttendanceServicesGetSchedulesByRoleResponses, AttendanceServicesGetSchedulesByRoleErrors, ThrowOnError> => (options.client ?? client).get<AttendanceServicesGetSchedulesByRoleResponses, AttendanceServicesGetSchedulesByRoleErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/attendances/companies/{companyId}/roles/{roleId}/schedules',
-    ...options
-});
-
-/**
- * Get check-in schedules by company
- */
-export const attendanceServicesGetSchedulesByCompany = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesGetSchedulesByCompanyData, ThrowOnError>): RequestResult<AttendanceServicesGetSchedulesByCompanyResponses, AttendanceServicesGetSchedulesByCompanyErrors, ThrowOnError> => (options.client ?? client).get<AttendanceServicesGetSchedulesByCompanyResponses, AttendanceServicesGetSchedulesByCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/attendances/companies/{companyId}/schedules',
-    ...options
-});
-
-/**
  * Manual check in attendance by supervisor/admin
  */
 export const attendanceServicesManualCheckIn = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesManualCheckInData, ThrowOnError>): RequestResult<AttendanceServicesManualCheckInResponses, AttendanceServicesManualCheckInErrors, ThrowOnError> => (options.client ?? client).post<AttendanceServicesManualCheckInResponses, AttendanceServicesManualCheckInErrors, ThrowOnError>({
@@ -77,6 +50,33 @@ export const attendanceServicesManualCheckIn = <ThrowOnError extends boolean = f
 export const attendanceServicesGetMemberLogs = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesGetMemberLogsData, ThrowOnError>): RequestResult<AttendanceServicesGetMemberLogsResponses, AttendanceServicesGetMemberLogsErrors, ThrowOnError> => (options.client ?? client).get<AttendanceServicesGetMemberLogsResponses, AttendanceServicesGetMemberLogsErrors, ThrowOnError>({
     responseType: 'json',
     url: '/attendances/members/{memberId}/logs',
+    ...options
+});
+
+/**
+ * Get organization attendance logs by date range
+ */
+export const attendanceServicesGetOrganizationLogs = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesGetOrganizationLogsData, ThrowOnError>): RequestResult<AttendanceServicesGetOrganizationLogsResponses, AttendanceServicesGetOrganizationLogsErrors, ThrowOnError> => (options.client ?? client).get<AttendanceServicesGetOrganizationLogsResponses, AttendanceServicesGetOrganizationLogsErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/attendances/organizations/{organizationId}/logs',
+    ...options
+});
+
+/**
+ * Get active check-in schedules assigned to a role in an organization
+ */
+export const attendanceServicesGetSchedulesByRole = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesGetSchedulesByRoleData, ThrowOnError>): RequestResult<AttendanceServicesGetSchedulesByRoleResponses, AttendanceServicesGetSchedulesByRoleErrors, ThrowOnError> => (options.client ?? client).get<AttendanceServicesGetSchedulesByRoleResponses, AttendanceServicesGetSchedulesByRoleErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/attendances/organizations/{organizationId}/roles/{roleId}/schedules',
+    ...options
+});
+
+/**
+ * Get check-in schedules by organization
+ */
+export const attendanceServicesGetSchedulesByOrganization = <ThrowOnError extends boolean = false>(options: Options<AttendanceServicesGetSchedulesByOrganizationData, ThrowOnError>): RequestResult<AttendanceServicesGetSchedulesByOrganizationResponses, AttendanceServicesGetSchedulesByOrganizationErrors, ThrowOnError> => (options.client ?? client).get<AttendanceServicesGetSchedulesByOrganizationResponses, AttendanceServicesGetSchedulesByOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/attendances/organizations/{organizationId}/schedules',
     ...options
 });
 
@@ -151,174 +151,6 @@ export const attendanceServicesUpdateSlot = <ThrowOnError extends boolean = fals
 });
 
 /**
- * Get all companies
- */
-export const companyServicesGetCompanies = <ThrowOnError extends boolean = false>(options?: Options<CompanyServicesGetCompaniesData, ThrowOnError>): RequestResult<CompanyServicesGetCompaniesResponses, CompanyServicesGetCompaniesErrors, ThrowOnError> => (options?.client ?? client).get<CompanyServicesGetCompaniesResponses, CompanyServicesGetCompaniesErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/',
-    ...options
-});
-
-/**
- * Create new company
- */
-export const companyServicesCreateCompany = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesCreateCompanyData, ThrowOnError>): RequestResult<CompanyServicesCreateCompanyResponses, CompanyServicesCreateCompanyErrors, ThrowOnError> => (options.client ?? client).post<CompanyServicesCreateCompanyResponses, CompanyServicesCreateCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Create company branch
- */
-export const companyServicesCreateCompanyBranch = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesCreateCompanyBranchData, ThrowOnError>): RequestResult<CompanyServicesCreateCompanyBranchResponses, CompanyServicesCreateCompanyBranchErrors, ThrowOnError> => (options.client ?? client).post<CompanyServicesCreateCompanyBranchResponses, CompanyServicesCreateCompanyBranchErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/branches',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Delete company branch
- */
-export const companyServicesDeleteCompanyBranch = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesDeleteCompanyBranchData, ThrowOnError>): RequestResult<CompanyServicesDeleteCompanyBranchResponses, CompanyServicesDeleteCompanyBranchErrors, ThrowOnError> => (options.client ?? client).delete<CompanyServicesDeleteCompanyBranchResponses, CompanyServicesDeleteCompanyBranchErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/branches/{id}',
-    ...options
-});
-
-/**
- * Get company branch by ID
- */
-export const companyServicesGetCompanyBranch = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesGetCompanyBranchData, ThrowOnError>): RequestResult<CompanyServicesGetCompanyBranchResponses, CompanyServicesGetCompanyBranchErrors, ThrowOnError> => (options.client ?? client).get<CompanyServicesGetCompanyBranchResponses, CompanyServicesGetCompanyBranchErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/branches/{id}',
-    ...options
-});
-
-/**
- * Update company branch
- */
-export const companyServicesUpdateCompanyBranch = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesUpdateCompanyBranchData, ThrowOnError>): RequestResult<CompanyServicesUpdateCompanyBranchResponses, CompanyServicesUpdateCompanyBranchErrors, ThrowOnError> => (options.client ?? client).put<CompanyServicesUpdateCompanyBranchResponses, CompanyServicesUpdateCompanyBranchErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/branches/{id}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Add company member
- */
-export const companyServicesAddCompanyMember = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesAddCompanyMemberData, ThrowOnError>): RequestResult<CompanyServicesAddCompanyMemberResponses, CompanyServicesAddCompanyMemberErrors, ThrowOnError> => (options.client ?? client).post<CompanyServicesAddCompanyMemberResponses, CompanyServicesAddCompanyMemberErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/members',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Remove company member
- */
-export const companyServicesRemoveCompanyMember = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesRemoveCompanyMemberData, ThrowOnError>): RequestResult<CompanyServicesRemoveCompanyMemberResponses, CompanyServicesRemoveCompanyMemberErrors, ThrowOnError> => (options.client ?? client).delete<CompanyServicesRemoveCompanyMemberResponses, CompanyServicesRemoveCompanyMemberErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/members/{id}',
-    ...options
-});
-
-/**
- * Update company member
- */
-export const companyServicesUpdateCompanyMember = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesUpdateCompanyMemberData, ThrowOnError>): RequestResult<CompanyServicesUpdateCompanyMemberResponses, CompanyServicesUpdateCompanyMemberErrors, ThrowOnError> => (options.client ?? client).put<CompanyServicesUpdateCompanyMemberResponses, CompanyServicesUpdateCompanyMemberErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/members/{id}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get company by slug
- */
-export const companyServicesGetCompanyBySlug = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesGetCompanyBySlugData, ThrowOnError>): RequestResult<CompanyServicesGetCompanyBySlugResponses, CompanyServicesGetCompanyBySlugErrors, ThrowOnError> => (options.client ?? client).get<CompanyServicesGetCompanyBySlugResponses, CompanyServicesGetCompanyBySlugErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/slug/{slug}',
-    ...options
-});
-
-/**
- * Get company branches
- */
-export const companyServicesGetCompanyBranches = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesGetCompanyBranchesData, ThrowOnError>): RequestResult<CompanyServicesGetCompanyBranchesResponses, CompanyServicesGetCompanyBranchesErrors, ThrowOnError> => (options.client ?? client).get<CompanyServicesGetCompanyBranchesResponses, CompanyServicesGetCompanyBranchesErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/{companyId}/branches',
-    ...options
-});
-
-/**
- * Get company members
- */
-export const companyServicesGetCompanyMembers = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesGetCompanyMembersData, ThrowOnError>): RequestResult<CompanyServicesGetCompanyMembersResponses, CompanyServicesGetCompanyMembersErrors, ThrowOnError> => (options.client ?? client).get<CompanyServicesGetCompanyMembersResponses, CompanyServicesGetCompanyMembersErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/{companyId}/members',
-    ...options
-});
-
-/**
- * Delete company
- */
-export const companyServicesDeleteCompany = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesDeleteCompanyData, ThrowOnError>): RequestResult<CompanyServicesDeleteCompanyResponses, CompanyServicesDeleteCompanyErrors, ThrowOnError> => (options.client ?? client).delete<CompanyServicesDeleteCompanyResponses, CompanyServicesDeleteCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/{id}',
-    ...options
-});
-
-/**
- * Get company by ID
- */
-export const companyServicesGetCompany = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesGetCompanyData, ThrowOnError>): RequestResult<CompanyServicesGetCompanyResponses, CompanyServicesGetCompanyErrors, ThrowOnError> => (options.client ?? client).get<CompanyServicesGetCompanyResponses, CompanyServicesGetCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/{id}',
-    ...options
-});
-
-/**
- * Update company
- */
-export const companyServicesUpdateCompany = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesUpdateCompanyData, ThrowOnError>): RequestResult<CompanyServicesUpdateCompanyResponses, CompanyServicesUpdateCompanyErrors, ThrowOnError> => (options.client ?? client).put<CompanyServicesUpdateCompanyResponses, CompanyServicesUpdateCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/{id}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Switch active company for the current session
- */
-export const companyServicesSwitchActiveCompany = <ThrowOnError extends boolean = false>(options: Options<CompanyServicesSwitchActiveCompanyData, ThrowOnError>): RequestResult<CompanyServicesSwitchActiveCompanyResponses, CompanyServicesSwitchActiveCompanyErrors, ThrowOnError> => (options.client ?? client).post<CompanyServicesSwitchActiveCompanyResponses, CompanyServicesSwitchActiveCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/companies/{id}/switch',
-    ...options
-});
-
-/**
  * Get all features
  */
 export const featureServicesGetFeatures = <ThrowOnError extends boolean = false>(options?: Options<FeatureServicesGetFeaturesData, ThrowOnError>): RequestResult<FeatureServicesGetFeaturesResponses, FeatureServicesGetFeaturesErrors, ThrowOnError> => (options?.client ?? client).get<FeatureServicesGetFeaturesResponses, FeatureServicesGetFeaturesErrors, ThrowOnError>({
@@ -341,20 +173,20 @@ export const featureServicesCreateFeature = <ThrowOnError extends boolean = fals
 });
 
 /**
- * Get company features
+ * Get organization features
  */
-export const featureServicesGetCompanyFeatures = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesGetCompanyFeaturesData, ThrowOnError>): RequestResult<FeatureServicesGetCompanyFeaturesResponses, FeatureServicesGetCompanyFeaturesErrors, ThrowOnError> => (options.client ?? client).get<FeatureServicesGetCompanyFeaturesResponses, FeatureServicesGetCompanyFeaturesErrors, ThrowOnError>({
+export const featureServicesGetOrganizationFeatures = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesGetOrganizationFeaturesData, ThrowOnError>): RequestResult<FeatureServicesGetOrganizationFeaturesResponses, FeatureServicesGetOrganizationFeaturesErrors, ThrowOnError> => (options.client ?? client).get<FeatureServicesGetOrganizationFeaturesResponses, FeatureServicesGetOrganizationFeaturesErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/features/companies/{companyId}',
+    url: '/features/organizations/{organizationId}',
     ...options
 });
 
 /**
- * Assign feature to company
+ * Assign feature to organization
  */
-export const featureServicesAssignCompanyFeature = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesAssignCompanyFeatureData, ThrowOnError>): RequestResult<FeatureServicesAssignCompanyFeatureResponses, FeatureServicesAssignCompanyFeatureErrors, ThrowOnError> => (options.client ?? client).post<FeatureServicesAssignCompanyFeatureResponses, FeatureServicesAssignCompanyFeatureErrors, ThrowOnError>({
+export const featureServicesAssignOrganizationFeature = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesAssignOrganizationFeatureData, ThrowOnError>): RequestResult<FeatureServicesAssignOrganizationFeatureResponses, FeatureServicesAssignOrganizationFeatureErrors, ThrowOnError> => (options.client ?? client).post<FeatureServicesAssignOrganizationFeatureResponses, FeatureServicesAssignOrganizationFeatureErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/features/companies/{companyId}/assign',
+    url: '/features/organizations/{organizationId}/assign',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -363,29 +195,29 @@ export const featureServicesAssignCompanyFeature = <ThrowOnError extends boolean
 });
 
 /**
- * Get available features for company
+ * Get available features for organization
  */
-export const featureServicesGetCompanyAvailableFeatures = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesGetCompanyAvailableFeaturesData, ThrowOnError>): RequestResult<FeatureServicesGetCompanyAvailableFeaturesResponses, FeatureServicesGetCompanyAvailableFeaturesErrors, ThrowOnError> => (options.client ?? client).get<FeatureServicesGetCompanyAvailableFeaturesResponses, FeatureServicesGetCompanyAvailableFeaturesErrors, ThrowOnError>({
+export const featureServicesGetOrganizationAvailableFeatures = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesGetOrganizationAvailableFeaturesData, ThrowOnError>): RequestResult<FeatureServicesGetOrganizationAvailableFeaturesResponses, FeatureServicesGetOrganizationAvailableFeaturesErrors, ThrowOnError> => (options.client ?? client).get<FeatureServicesGetOrganizationAvailableFeaturesResponses, FeatureServicesGetOrganizationAvailableFeaturesErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/features/companies/{companyId}/available',
+    url: '/features/organizations/{organizationId}/available',
     ...options
 });
 
 /**
- * Remove feature from company
+ * Remove feature from organization
  */
-export const featureServicesRemoveCompanyFeature = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesRemoveCompanyFeatureData, ThrowOnError>): RequestResult<FeatureServicesRemoveCompanyFeatureResponses, FeatureServicesRemoveCompanyFeatureErrors, ThrowOnError> => (options.client ?? client).delete<FeatureServicesRemoveCompanyFeatureResponses, FeatureServicesRemoveCompanyFeatureErrors, ThrowOnError>({
+export const featureServicesRemoveOrganizationFeature = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesRemoveOrganizationFeatureData, ThrowOnError>): RequestResult<FeatureServicesRemoveOrganizationFeatureResponses, FeatureServicesRemoveOrganizationFeatureErrors, ThrowOnError> => (options.client ?? client).delete<FeatureServicesRemoveOrganizationFeatureResponses, FeatureServicesRemoveOrganizationFeatureErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/features/companies/{companyId}/features/{featureId}',
+    url: '/features/organizations/{organizationId}/features/{featureId}',
     ...options
 });
 
 /**
- * Get role features for company
+ * Get role features for organization
  */
-export const featureServicesGetCompanyRoleFeatures = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesGetCompanyRoleFeaturesData, ThrowOnError>): RequestResult<FeatureServicesGetCompanyRoleFeaturesResponses, FeatureServicesGetCompanyRoleFeaturesErrors, ThrowOnError> => (options.client ?? client).get<FeatureServicesGetCompanyRoleFeaturesResponses, FeatureServicesGetCompanyRoleFeaturesErrors, ThrowOnError>({
+export const featureServicesGetOrganizationRoleFeatures = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesGetOrganizationRoleFeaturesData, ThrowOnError>): RequestResult<FeatureServicesGetOrganizationRoleFeaturesResponses, FeatureServicesGetOrganizationRoleFeaturesErrors, ThrowOnError> => (options.client ?? client).get<FeatureServicesGetOrganizationRoleFeaturesResponses, FeatureServicesGetOrganizationRoleFeaturesErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/features/companies/{companyId}/roles',
+    url: '/features/organizations/{organizationId}/roles',
     ...options
 });
 
@@ -394,16 +226,16 @@ export const featureServicesGetCompanyRoleFeatures = <ThrowOnError extends boole
  */
 export const featureServicesCheckRoleFeatureAccess = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesCheckRoleFeatureAccessData, ThrowOnError>): RequestResult<FeatureServicesCheckRoleFeatureAccessResponses, FeatureServicesCheckRoleFeatureAccessErrors, ThrowOnError> => (options.client ?? client).get<FeatureServicesCheckRoleFeatureAccessResponses, FeatureServicesCheckRoleFeatureAccessErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/features/companies/{companyId}/roles/{roleId}/access/{featureCode}',
+    url: '/features/organizations/{organizationId}/roles/{roleId}/access/{featureCode}',
     ...options
 });
 
 /**
- * Toggle company feature
+ * Toggle organization feature
  */
-export const featureServicesToggleCompanyFeature = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesToggleCompanyFeatureData, ThrowOnError>): RequestResult<FeatureServicesToggleCompanyFeatureResponses, FeatureServicesToggleCompanyFeatureErrors, ThrowOnError> => (options.client ?? client).put<FeatureServicesToggleCompanyFeatureResponses, FeatureServicesToggleCompanyFeatureErrors, ThrowOnError>({
+export const featureServicesToggleOrganizationFeature = <ThrowOnError extends boolean = false>(options: Options<FeatureServicesToggleOrganizationFeatureData, ThrowOnError>): RequestResult<FeatureServicesToggleOrganizationFeatureResponses, FeatureServicesToggleOrganizationFeatureErrors, ThrowOnError> => (options.client ?? client).put<FeatureServicesToggleOrganizationFeatureResponses, FeatureServicesToggleOrganizationFeatureErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/features/companies/{companyId}/toggle',
+    url: '/features/organizations/{organizationId}/toggle',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -547,15 +379,6 @@ export const formServicesDeleteAttachment = <ThrowOnError extends boolean = fals
 export const formServicesDownloadAttachment = <ThrowOnError extends boolean = false>(options: Options<FormServicesDownloadAttachmentData, ThrowOnError>): RequestResult<FormServicesDownloadAttachmentResponses, FormServicesDownloadAttachmentErrors, ThrowOnError> => (options.client ?? client).get<FormServicesDownloadAttachmentResponses, FormServicesDownloadAttachmentErrors, ThrowOnError>({ url: '/forms/attachments/{attachmentId}', ...options });
 
 /**
- * List company form templates
- */
-export const formServicesListTemplatesByCompany = <ThrowOnError extends boolean = false>(options: Options<FormServicesListTemplatesByCompanyData, ThrowOnError>): RequestResult<FormServicesListTemplatesByCompanyResponses, FormServicesListTemplatesByCompanyErrors, ThrowOnError> => (options.client ?? client).get<FormServicesListTemplatesByCompanyResponses, FormServicesListTemplatesByCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/forms/companies/{companyId}/templates',
-    ...options
-});
-
-/**
  * List form occurrences
  */
 export const formServicesListOccurrences = <ThrowOnError extends boolean = false>(options: Options<FormServicesListOccurrencesData, ThrowOnError>): RequestResult<FormServicesListOccurrencesResponses, FormServicesListOccurrencesErrors, ThrowOnError> => (options.client ?? client).get<FormServicesListOccurrencesResponses, FormServicesListOccurrencesErrors, ThrowOnError>({
@@ -597,6 +420,15 @@ export const formServicesCancelOccurrence = <ThrowOnError extends boolean = fals
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * List organization form templates
+ */
+export const formServicesListTemplatesByOrganization = <ThrowOnError extends boolean = false>(options: Options<FormServicesListTemplatesByOrganizationData, ThrowOnError>): RequestResult<FormServicesListTemplatesByOrganizationResponses, FormServicesListTemplatesByOrganizationErrors, ThrowOnError> => (options.client ?? client).get<FormServicesListTemplatesByOrganizationResponses, FormServicesListTemplatesByOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/forms/organizations/{organizationId}/templates',
+    ...options
 });
 
 /**
@@ -938,24 +770,6 @@ export const formServicesDeleteSection = <ThrowOnError extends boolean = false>(
 });
 
 /**
- * Get company leave requests
- */
-export const leaveServicesGetCompanyRequests = <ThrowOnError extends boolean = false>(options: Options<LeaveServicesGetCompanyRequestsData, ThrowOnError>): RequestResult<LeaveServicesGetCompanyRequestsResponses, LeaveServicesGetCompanyRequestsErrors, ThrowOnError> => (options.client ?? client).get<LeaveServicesGetCompanyRequestsResponses, LeaveServicesGetCompanyRequestsErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/leaves/companies/{companyId}/requests',
-    ...options
-});
-
-/**
- * Get company leave types
- */
-export const leaveServicesGetTypesByCompany = <ThrowOnError extends boolean = false>(options: Options<LeaveServicesGetTypesByCompanyData, ThrowOnError>): RequestResult<LeaveServicesGetTypesByCompanyResponses, LeaveServicesGetTypesByCompanyErrors, ThrowOnError> => (options.client ?? client).get<LeaveServicesGetTypesByCompanyResponses, LeaveServicesGetTypesByCompanyErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/leaves/companies/{companyId}/types',
-    ...options
-});
-
-/**
  * Get member leave quotas for year
  */
 export const leaveServicesGetQuotasByMember = <ThrowOnError extends boolean = false>(options: Options<LeaveServicesGetQuotasByMemberData, ThrowOnError>): RequestResult<LeaveServicesGetQuotasByMemberResponses, LeaveServicesGetQuotasByMemberErrors, ThrowOnError> => (options.client ?? client).get<LeaveServicesGetQuotasByMemberResponses, LeaveServicesGetQuotasByMemberErrors, ThrowOnError>({
@@ -970,6 +784,24 @@ export const leaveServicesGetQuotasByMember = <ThrowOnError extends boolean = fa
 export const leaveServicesGetMemberRequests = <ThrowOnError extends boolean = false>(options: Options<LeaveServicesGetMemberRequestsData, ThrowOnError>): RequestResult<LeaveServicesGetMemberRequestsResponses, LeaveServicesGetMemberRequestsErrors, ThrowOnError> => (options.client ?? client).get<LeaveServicesGetMemberRequestsResponses, LeaveServicesGetMemberRequestsErrors, ThrowOnError>({
     responseType: 'json',
     url: '/leaves/members/{memberId}/requests',
+    ...options
+});
+
+/**
+ * Get organization leave requests
+ */
+export const leaveServicesGetOrganizationRequests = <ThrowOnError extends boolean = false>(options: Options<LeaveServicesGetOrganizationRequestsData, ThrowOnError>): RequestResult<LeaveServicesGetOrganizationRequestsResponses, LeaveServicesGetOrganizationRequestsErrors, ThrowOnError> => (options.client ?? client).get<LeaveServicesGetOrganizationRequestsResponses, LeaveServicesGetOrganizationRequestsErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/leaves/organizations/{organizationId}/requests',
+    ...options
+});
+
+/**
+ * Get organization leave types
+ */
+export const leaveServicesGetTypesByOrganization = <ThrowOnError extends boolean = false>(options: Options<LeaveServicesGetTypesByOrganizationData, ThrowOnError>): RequestResult<LeaveServicesGetTypesByOrganizationResponses, LeaveServicesGetTypesByOrganizationErrors, ThrowOnError> => (options.client ?? client).get<LeaveServicesGetTypesByOrganizationResponses, LeaveServicesGetTypesByOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/leaves/organizations/{organizationId}/types',
     ...options
 });
 
@@ -1061,9 +893,9 @@ export const leaveServicesUpdateType = <ThrowOnError extends boolean = false>(op
 });
 
 /**
- * Get locations by company
+ * Get locations by organization
  */
-export const locationServiceListLocationsByCompany = <ThrowOnError extends boolean = false>(options: Options<LocationServiceListLocationsByCompanyData, ThrowOnError>): RequestResult<LocationServiceListLocationsByCompanyResponses, LocationServiceListLocationsByCompanyErrors, ThrowOnError> => (options.client ?? client).get<LocationServiceListLocationsByCompanyResponses, LocationServiceListLocationsByCompanyErrors, ThrowOnError>({
+export const locationServiceListLocationsByOrganization = <ThrowOnError extends boolean = false>(options: Options<LocationServiceListLocationsByOrganizationData, ThrowOnError>): RequestResult<LocationServiceListLocationsByOrganizationResponses, LocationServiceListLocationsByOrganizationErrors, ThrowOnError> => (options.client ?? client).get<LocationServiceListLocationsByOrganizationResponses, LocationServiceListLocationsByOrganizationErrors, ThrowOnError>({
     responseType: 'json',
     url: '/locations',
     ...options
@@ -1083,16 +915,7 @@ export const locationServiceCreateLocation = <ThrowOnError extends boolean = fal
 });
 
 /**
- * Get active locations by branch
- */
-export const locationServiceListLocationsByBranch = <ThrowOnError extends boolean = false>(options: Options<LocationServiceListLocationsByBranchData, ThrowOnError>): RequestResult<LocationServiceListLocationsByBranchResponses, LocationServiceListLocationsByBranchErrors, ThrowOnError> => (options.client ?? client).get<LocationServiceListLocationsByBranchResponses, LocationServiceListLocationsByBranchErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/locations/branch/{branchId}',
-    ...options
-});
-
-/**
- * Set branch primary location
+ * Set site primary location
  */
 export const locationServiceSetPrimaryLocation = <ThrowOnError extends boolean = false>(options: Options<LocationServiceSetPrimaryLocationData, ThrowOnError>): RequestResult<LocationServiceSetPrimaryLocationResponses, LocationServiceSetPrimaryLocationErrors, ThrowOnError> => (options.client ?? client).post<LocationServiceSetPrimaryLocationResponses, LocationServiceSetPrimaryLocationErrors, ThrowOnError>({
     responseType: 'json',
@@ -1102,6 +925,15 @@ export const locationServiceSetPrimaryLocation = <ThrowOnError extends boolean =
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Get active locations by site
+ */
+export const locationServiceListLocationsBySite = <ThrowOnError extends boolean = false>(options: Options<LocationServiceListLocationsBySiteData, ThrowOnError>): RequestResult<LocationServiceListLocationsBySiteResponses, LocationServiceListLocationsBySiteErrors, ThrowOnError> => (options.client ?? client).get<LocationServiceListLocationsBySiteResponses, LocationServiceListLocationsBySiteErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/locations/site/{siteId}',
+    ...options
 });
 
 /**
@@ -1174,6 +1006,174 @@ export const locationServiceUpdateLocation = <ThrowOnError extends boolean = fal
 });
 
 /**
+ * Get all organizations
+ */
+export const organizationServicesGetOrganizations = <ThrowOnError extends boolean = false>(options?: Options<OrganizationServicesGetOrganizationsData, ThrowOnError>): RequestResult<OrganizationServicesGetOrganizationsResponses, OrganizationServicesGetOrganizationsErrors, ThrowOnError> => (options?.client ?? client).get<OrganizationServicesGetOrganizationsResponses, OrganizationServicesGetOrganizationsErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/',
+    ...options
+});
+
+/**
+ * Create new organization
+ */
+export const organizationServicesCreateOrganization = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesCreateOrganizationData, ThrowOnError>): RequestResult<OrganizationServicesCreateOrganizationResponses, OrganizationServicesCreateOrganizationErrors, ThrowOnError> => (options.client ?? client).post<OrganizationServicesCreateOrganizationResponses, OrganizationServicesCreateOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Add organization member
+ */
+export const organizationServicesAddOrganizationMember = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesAddOrganizationMemberData, ThrowOnError>): RequestResult<OrganizationServicesAddOrganizationMemberResponses, OrganizationServicesAddOrganizationMemberErrors, ThrowOnError> => (options.client ?? client).post<OrganizationServicesAddOrganizationMemberResponses, OrganizationServicesAddOrganizationMemberErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/members',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Remove organization member
+ */
+export const organizationServicesRemoveOrganizationMember = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesRemoveOrganizationMemberData, ThrowOnError>): RequestResult<OrganizationServicesRemoveOrganizationMemberResponses, OrganizationServicesRemoveOrganizationMemberErrors, ThrowOnError> => (options.client ?? client).delete<OrganizationServicesRemoveOrganizationMemberResponses, OrganizationServicesRemoveOrganizationMemberErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/members/{id}',
+    ...options
+});
+
+/**
+ * Update organization member
+ */
+export const organizationServicesUpdateOrganizationMember = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesUpdateOrganizationMemberData, ThrowOnError>): RequestResult<OrganizationServicesUpdateOrganizationMemberResponses, OrganizationServicesUpdateOrganizationMemberErrors, ThrowOnError> => (options.client ?? client).put<OrganizationServicesUpdateOrganizationMemberResponses, OrganizationServicesUpdateOrganizationMemberErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/members/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Create site
+ */
+export const organizationServicesCreateSite = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesCreateSiteData, ThrowOnError>): RequestResult<OrganizationServicesCreateSiteResponses, OrganizationServicesCreateSiteErrors, ThrowOnError> => (options.client ?? client).post<OrganizationServicesCreateSiteResponses, OrganizationServicesCreateSiteErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/sites',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete site
+ */
+export const organizationServicesDeleteSite = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesDeleteSiteData, ThrowOnError>): RequestResult<OrganizationServicesDeleteSiteResponses, OrganizationServicesDeleteSiteErrors, ThrowOnError> => (options.client ?? client).delete<OrganizationServicesDeleteSiteResponses, OrganizationServicesDeleteSiteErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/sites/{id}',
+    ...options
+});
+
+/**
+ * Get site by ID
+ */
+export const organizationServicesGetSite = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesGetSiteData, ThrowOnError>): RequestResult<OrganizationServicesGetSiteResponses, OrganizationServicesGetSiteErrors, ThrowOnError> => (options.client ?? client).get<OrganizationServicesGetSiteResponses, OrganizationServicesGetSiteErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/sites/{id}',
+    ...options
+});
+
+/**
+ * Update site
+ */
+export const organizationServicesUpdateSite = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesUpdateSiteData, ThrowOnError>): RequestResult<OrganizationServicesUpdateSiteResponses, OrganizationServicesUpdateSiteErrors, ThrowOnError> => (options.client ?? client).put<OrganizationServicesUpdateSiteResponses, OrganizationServicesUpdateSiteErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/sites/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get organization by slug
+ */
+export const organizationServicesGetOrganizationBySlug = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesGetOrganizationBySlugData, ThrowOnError>): RequestResult<OrganizationServicesGetOrganizationBySlugResponses, OrganizationServicesGetOrganizationBySlugErrors, ThrowOnError> => (options.client ?? client).get<OrganizationServicesGetOrganizationBySlugResponses, OrganizationServicesGetOrganizationBySlugErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/slug/{slug}',
+    ...options
+});
+
+/**
+ * Delete organization
+ */
+export const organizationServicesDeleteOrganization = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesDeleteOrganizationData, ThrowOnError>): RequestResult<OrganizationServicesDeleteOrganizationResponses, OrganizationServicesDeleteOrganizationErrors, ThrowOnError> => (options.client ?? client).delete<OrganizationServicesDeleteOrganizationResponses, OrganizationServicesDeleteOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/{id}',
+    ...options
+});
+
+/**
+ * Get organization by ID
+ */
+export const organizationServicesGetOrganization = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesGetOrganizationData, ThrowOnError>): RequestResult<OrganizationServicesGetOrganizationResponses, OrganizationServicesGetOrganizationErrors, ThrowOnError> => (options.client ?? client).get<OrganizationServicesGetOrganizationResponses, OrganizationServicesGetOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/{id}',
+    ...options
+});
+
+/**
+ * Update organization
+ */
+export const organizationServicesUpdateOrganization = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesUpdateOrganizationData, ThrowOnError>): RequestResult<OrganizationServicesUpdateOrganizationResponses, OrganizationServicesUpdateOrganizationErrors, ThrowOnError> => (options.client ?? client).put<OrganizationServicesUpdateOrganizationResponses, OrganizationServicesUpdateOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Switch active organization for the current session
+ */
+export const organizationServicesSwitchActiveOrganization = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesSwitchActiveOrganizationData, ThrowOnError>): RequestResult<OrganizationServicesSwitchActiveOrganizationResponses, OrganizationServicesSwitchActiveOrganizationErrors, ThrowOnError> => (options.client ?? client).post<OrganizationServicesSwitchActiveOrganizationResponses, OrganizationServicesSwitchActiveOrganizationErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/{id}/switch',
+    ...options
+});
+
+/**
+ * Get organization members
+ */
+export const organizationServicesGetOrganizationMembers = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesGetOrganizationMembersData, ThrowOnError>): RequestResult<OrganizationServicesGetOrganizationMembersResponses, OrganizationServicesGetOrganizationMembersErrors, ThrowOnError> => (options.client ?? client).get<OrganizationServicesGetOrganizationMembersResponses, OrganizationServicesGetOrganizationMembersErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/{organizationId}/members',
+    ...options
+});
+
+/**
+ * Get organization sites
+ */
+export const organizationServicesGetSites = <ThrowOnError extends boolean = false>(options: Options<OrganizationServicesGetSitesData, ThrowOnError>): RequestResult<OrganizationServicesGetSitesResponses, OrganizationServicesGetSitesErrors, ThrowOnError> => (options.client ?? client).get<OrganizationServicesGetSitesResponses, OrganizationServicesGetSitesErrors, ThrowOnError>({
+    responseType: 'json',
+    url: '/organizations/{organizationId}/sites',
+    ...options
+});
+
+/**
  * Get all permissions
  */
 export const permissionServicesGetPermissions = <ThrowOnError extends boolean = false>(options?: Options<PermissionServicesGetPermissionsData, ThrowOnError>): RequestResult<PermissionServicesGetPermissionsResponses, PermissionServicesGetPermissionsErrors, ThrowOnError> => (options?.client ?? client).get<PermissionServicesGetPermissionsResponses, PermissionServicesGetPermissionsErrors, ThrowOnError>({
@@ -1218,11 +1218,11 @@ export const roleServicesCreateRole = <ThrowOnError extends boolean = false>(opt
 });
 
 /**
- * Get roles by company
+ * Get roles by organization
  */
-export const roleServicesGetCompanyRoles = <ThrowOnError extends boolean = false>(options: Options<RoleServicesGetCompanyRolesData, ThrowOnError>): RequestResult<RoleServicesGetCompanyRolesResponses, RoleServicesGetCompanyRolesErrors, ThrowOnError> => (options.client ?? client).get<RoleServicesGetCompanyRolesResponses, RoleServicesGetCompanyRolesErrors, ThrowOnError>({
+export const roleServicesGetOrganizationRoles = <ThrowOnError extends boolean = false>(options: Options<RoleServicesGetOrganizationRolesData, ThrowOnError>): RequestResult<RoleServicesGetOrganizationRolesResponses, RoleServicesGetOrganizationRolesErrors, ThrowOnError> => (options.client ?? client).get<RoleServicesGetOrganizationRolesResponses, RoleServicesGetOrganizationRolesErrors, ThrowOnError>({
     responseType: 'json',
-    url: '/permissions/roles/company/{companyId}',
+    url: '/permissions/roles/organization/{organizationId}',
     ...options
 });
 

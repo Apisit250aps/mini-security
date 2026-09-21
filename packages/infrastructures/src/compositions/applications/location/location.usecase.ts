@@ -2,8 +2,8 @@ import {
   AssignSlotLocationUseCase,
   CreateLocationUseCase,
   DeleteLocationUseCase,
-  GetLocationsByBranchUseCase,
-  GetLocationsByCompanyUseCase,
+  GetLocationsBySiteUseCase,
+  GetLocationsByOrganizationUseCase,
   GetLocationUseCase,
   GetSlotLocationsUseCase,
   GetSlotLocationAssignmentsUseCase,
@@ -31,13 +31,12 @@ export const deleteLocationUseCase = new DeleteLocationUseCase(
 
 export const getLocationUseCase = new GetLocationUseCase(locationRepository);
 
-export const getLocationsByBranchUseCase = new GetLocationsByBranchUseCase(
+export const getLocationsBySiteUseCase = new GetLocationsBySiteUseCase(
   locationRepository,
 );
 
-export const getLocationsByCompanyUseCase = new GetLocationsByCompanyUseCase(
-  locationRepository,
-);
+export const getLocationsByOrganizationUseCase =
+  new GetLocationsByOrganizationUseCase(locationRepository);
 
 export const setPrimaryLocationUseCase = new SetPrimaryLocationUseCase(
   locationRepository,

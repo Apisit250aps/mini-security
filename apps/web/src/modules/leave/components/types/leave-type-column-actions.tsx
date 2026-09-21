@@ -10,15 +10,15 @@ import LeaveTypeForm, { LeaveTypeFormValues } from './leave-type-form';
 
 interface LeaveTypeColumnActionsProps<T extends LeaveType> {
   cell: CellContext<T, unknown>;
-  companyId: string;
+  organizationId: string;
 }
 
 export default function LeaveTypeColumnActions<T extends LeaveType>({
   cell,
-  companyId,
+  organizationId,
 }: LeaveTypeColumnActionsProps<T>) {
   const ui = useOverlay();
-  const updateMutation = useLeaveTypeUpdate(companyId);
+  const updateMutation = useLeaveTypeUpdate(organizationId);
   const leaveType = cell.row.original;
 
   const handleUpdate = useCallback(

@@ -1,6 +1,6 @@
 export * from './user';
 export * from './auth';
-export * from './company';
+export * from './organization';
 export * from './permission';
 export * from './feature';
 export * from './attendance';

@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DetailPageLayout from '@/shared/components/layouts/detail-page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import {
   useRoleDetailQueries,
@@ -36,9 +36,9 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
   const initialTab = searchParams.get('tab') || 'general';
   const [activeTab, setActiveTab] = useState<string>(initialTab);
 
-  const { activeCompanyId } = useActiveCompany();
+  const { activeOrganizationId } = useActiveOrganization();
   const { isSuperAdmin } = usePermission();
-  const basePath = activeCompanyId ? '/company/role' : '/admin/role';
+  const basePath = activeOrganizationId ? '/organization/role' : '/admin/role';
 
   const roleQuery = useRoleDetailQueries(roleId);
   const permissionsQuery = useRolePermissionsQueries(roleId);
@@ -239,8 +239,10 @@ export default function RoleDetailView({ roleId }: RoleDetailViewProps) {
                 </div>
                 <RoleFeatureManager
                   role={role}
-                  companyId={role.companyId || activeCompanyId || ''}
-                  readOnly={!activeCompanyId && !isSuperAdmin}
+                  organizationId={
+                    role.organizationId || activeOrganizationId || ''
+                  }
+                  readOnly={!activeOrganizationId && !isSuperAdmin}
                 />
               </CardContent>
             </Card>

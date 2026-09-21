@@ -10,7 +10,7 @@ import { formServicesGetTemplate } from '@repo/client';
 import { toast } from '@repo/ui/components/sonner';
 import { getErrorMessage } from '@/shared/utils';
 import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useFormVersionPublish } from '../../hooks/form-mutations';
 import FormTemplateEditDialog from './form-template-edit-dialog';
 import FormTemplateSectionDialog from './form-template-section-dialog';
@@ -19,20 +19,21 @@ import FormTemplatePreviewDialog from './form-template-preview-dialog';
 
 interface FormTemplateColumnActionsProps<T extends FormTemplate> {
   cell: CellContext<T, unknown>;
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function FormTemplateColumnActions<T extends FormTemplate>({
   cell,
-  companyId,
+  organizationId,
 }: FormTemplateColumnActionsProps<T>) {
+  const activeOrgId = organizationId || '';
   const router = useRouter();
   const ui = useOverlay();
   const template = cell.row.original;
-  const publishMutation = useFormVersionPublish(companyId, template.id);
+  const publishMutation = useFormVersionPublish(activeOrgId, template.id);
 
   const { data: session } = useSession();
-  const membersQuery = useCompanyMembersQueries(companyId);
+  const membersQuery = useOrganizationMembersQueries(activeOrgId);
   const currentMember = membersQuery.data?.find(
     (m) => m.userId === session?.user.id && m.isActive,
   );
@@ -59,13 +60,13 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
       size: 'lg',
       children: (
         <FormTemplateEditDialog
-          companyId={companyId}
+          organizationId={activeOrgId}
           template={template}
           onClose={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, companyId, template]);
+  }, [ui.dialog, activeOrgId, template]);
 
   const actionAddSection = useCallback(async () => {
     const res = await formServicesGetTemplate({ path: { id: template.id } });
@@ -85,7 +86,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
       size: 'md',
       children: (
         <FormTemplateSectionDialog
-          companyId={companyId}
+          organizationId={activeOrgId}
           templateId={template.id}
           formVersionId={formVersionId}
           currentSectionsCount={sectionsCount}
@@ -93,7 +94,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
         />
       ),
     });
-  }, [ui.dialog, companyId, template]);
+  }, [ui.dialog, activeOrgId, template]);
 
   const actionAddField = useCallback(async () => {
     const res = await formServicesGetTemplate({ path: { id: template.id } });
@@ -116,7 +117,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
       size: 'lg',
       children: (
         <FormTemplateFieldDialog
-          companyId={companyId}
+          organizationId={activeOrgId}
           templateId={template.id}
           formVersionId={formVersionId}
           sections={detail.sections}
@@ -125,7 +126,7 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
         />
       ),
     });
-  }, [ui.dialog, companyId, template]);
+  }, [ui.dialog, activeOrgId, template]);
 
   const actionPublish = useCallback(async () => {
     const res = await formServicesGetTemplate({ path: { id: template.id } });
@@ -167,11 +168,13 @@ export default function FormTemplateColumnActions<T extends FormTemplate>({
       actions={{
         'รายละเอียด (Detail View)': {
           onAction: () =>
-            router.push(`/company/forms/templates/${template.id}`),
+            router.push(`/organization/forms/templates/${template.id}`),
         },
         สร้างแผนจากแม่แบบนี้: {
           onAction: () =>
-            router.push(`/company/forms/plans/new?templateId=${template.id}`),
+            router.push(
+              `/organization/forms/plans/new?templateId=${template.id}`,
+            ),
         },
         ดูตัวอย่างแบบฟอร์ม: {
           onAction: actionPreview,

@@ -20,7 +20,7 @@ export type RoleType = (typeof ROLE_TYPES)[number];
 
 // --- Role Schema ---
 export const roleSchema = BaseEntity({
-  companyId: UUIDField({ required: false, nullable: true }),
+  organizationId: UUIDField({ required: false, nullable: true }),
   name: StringField({ required: true }),
   description: StringField({ required: false, nullable: true }),
   roleType: EnumField(ROLE_TYPES, { default: () => 'MEMBER' as RoleType }),

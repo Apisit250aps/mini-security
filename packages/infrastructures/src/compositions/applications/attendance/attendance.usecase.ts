@@ -3,10 +3,10 @@ import {
   CreateCheckInScheduleUseCase,
   CreateScheduleSlotUseCase,
   DeleteScheduleSlotUseCase,
-  GetAttendanceLogsByCompanyUseCase,
+  GetAttendanceLogsByOrganizationUseCase,
   GetAttendanceLogsByMemberUseCase,
   GetCheckInSchedulesByRoleUseCase,
-  GetCheckInSchedulesByCompanyUseCase,
+  GetCheckInSchedulesByOrganizationUseCase,
   GetScheduleSlotsByScheduleUseCase,
   ManualCheckInAttendanceUseCase,
   UpdateCheckInScheduleUseCase,
@@ -15,7 +15,7 @@ import {
 import {
   attendanceLogRepository,
   checkInScheduleRepository,
-  companyMemberRepository,
+  organizationMemberRepository,
   roleRepository,
   scheduleSlotLocationRepository,
   scheduleSlotRepository,
@@ -34,8 +34,8 @@ export const updateCheckInScheduleUseCase = new UpdateCheckInScheduleUseCase(
 export const getCheckInSchedulesByRoleUseCase =
   new GetCheckInSchedulesByRoleUseCase(checkInScheduleRepository);
 
-export const getCheckInSchedulesByCompanyUseCase =
-  new GetCheckInSchedulesByCompanyUseCase(checkInScheduleRepository);
+export const getCheckInSchedulesByOrganizationUseCase =
+  new GetCheckInSchedulesByOrganizationUseCase(checkInScheduleRepository);
 
 export const createScheduleSlotUseCase = new CreateScheduleSlotUseCase(
   scheduleSlotRepository,
@@ -62,14 +62,14 @@ export const checkInAttendanceUseCase = new CheckInAttendanceUseCase(
   attendanceLogRepository,
   scheduleSlotRepository,
   checkInScheduleRepository,
-  companyMemberRepository,
+  organizationMemberRepository,
   scheduleSlotLocationRepository,
 );
 
 export const manualCheckInAttendanceUseCase =
   new ManualCheckInAttendanceUseCase(
     attendanceLogRepository,
-    companyMemberRepository,
+    organizationMemberRepository,
     scheduleSlotRepository,
     checkInScheduleRepository,
   );
@@ -77,8 +77,8 @@ export const manualCheckInAttendanceUseCase =
 export const getAttendanceLogsByMemberUseCase =
   new GetAttendanceLogsByMemberUseCase(
     attendanceLogRepository,
-    companyMemberRepository,
+    organizationMemberRepository,
   );
 
-export const getAttendanceLogsByCompanyUseCase =
-  new GetAttendanceLogsByCompanyUseCase(attendanceLogRepository);
+export const getAttendanceLogsByOrganizationUseCase =
+  new GetAttendanceLogsByOrganizationUseCase(attendanceLogRepository);

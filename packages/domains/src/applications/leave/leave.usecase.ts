@@ -22,8 +22,8 @@ export type IUpdateLeaveTypeContext = ISecurityContext & {
   data: UpdateLeaveType;
 };
 
-export type IGetLeaveTypesByCompanyContext = ISecurityContext & {
-  companyId: string;
+export type IGetLeaveTypesByOrganizationContext = ISecurityContext & {
+  organizationId: string;
   onlyActive?: boolean;
 };
 
@@ -37,8 +37,8 @@ export type IUpdateLeaveTypeUseCase = BaseUseCase<
   LeaveType
 >;
 
-export type IGetLeaveTypesByCompanyUseCase = BaseUseCase<
-  IGetLeaveTypesByCompanyContext,
+export type IGetLeaveTypesByOrganizationUseCase = BaseUseCase<
+  IGetLeaveTypesByOrganizationContext,
   LeaveType[]
 >;
 
@@ -56,7 +56,7 @@ export type IUpdateLeaveQuotaContext = ISecurityContext & {
 };
 
 export type IGetLeaveQuotasByMemberContext = ISecurityContext & {
-  companyMemberId: string;
+  organizationMemberId: string;
   year: number;
 };
 
@@ -94,11 +94,11 @@ export type ICancelLeaveRequestContext = ISecurityContext & {
 };
 
 export type IGetLeaveRequestsByMemberContext = ISecurityContext & {
-  companyMemberId: string;
+  organizationMemberId: string;
 };
 
-export type IGetLeaveRequestsByCompanyContext = ISecurityContext & {
-  companyId: string;
+export type IGetLeaveRequestsByOrganizationContext = ISecurityContext & {
+  organizationId: string;
   status?: string;
 };
 
@@ -122,7 +122,7 @@ export type IGetLeaveRequestsByMemberUseCase = BaseUseCase<
   LeaveRequest[]
 >;
 
-export type IGetLeaveRequestsByCompanyUseCase = BaseUseCase<
-  IGetLeaveRequestsByCompanyContext,
+export type IGetLeaveRequestsByOrganizationUseCase = BaseUseCase<
+  IGetLeaveRequestsByOrganizationContext,
   LeaveRequest[]
 >;

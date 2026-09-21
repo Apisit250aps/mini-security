@@ -8,45 +8,45 @@
 
 ```mermaid
 erDiagram
-    company o|--o{ role : owns_company_roles
-    company ||--o{ check_in_schedules : owns
+    organization o|--o{ role : owns_organization_roles
+    organization ||--o{ check_in_schedules : owns
     role ||--o{ check_in_schedule_roles : receives
     check_in_schedules ||--o{ check_in_schedule_roles : assigns
-    role ||--o{ company_member : groups
+    role ||--o{ organization_member : groups
     check_in_schedules ||--o{ schedule_slots : contains
-    company_member ||--o{ attendance_logs : records
+    organization_member ||--o{ attendance_logs : records
     schedule_slots ||--o{ attendance_logs : identifies
 
     check_in_schedules {
         uuid id PK
-        uuid company_id FK
+        uuid organization_id FK
         text name
         boolean is_active
     }
     check_in_schedule_roles {
         uuid id PK
-        uuid company_id FK
+        uuid organization_id FK
         uuid check_in_schedule_id FK
         uuid role_id FK
         boolean is_active
     }
 ```
 
-Role ของบริษัทอ้างอิง company ส่วน Role กลางมี company_id เป็น NULL; ผู้ใช้ยืนยันให้คงการใช้งาน system default Role เดิมเมื่อ 2026-09-12
+Role ของบริษัทอ้างอิง organization ส่วน Role กลางมี organization_id เป็น NULL; ผู้ใช้ยืนยันให้คงการใช้งาน system default Role เดิมเมื่อ 2026-09-12
 
 ## ตารางและข้อบังคับ
 
-| ตาราง                     | การเปลี่ยนแปลง                                                                                                          |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `check_in_schedules`      | เอา `role_id` และ unique เดิมออก เก็บบริษัท ชื่อ และสถานะเปิดใช้งาน เพิ่ม unique `(id, company_id)` สำหรับ composite FK |
-| `check_in_schedule_roles` | เพิ่ม `id`, `company_id`, `check_in_schedule_id`, `role_id`, `is_active`, `created_at`, `updated_at`                    |
-| `role`                    | ใช้โครงสร้างเดิม รองรับ Role ของบริษัทและ system default Role กลาง; สมาชิกยังมี Role เดียว                              |
-| `schedule_slots`          | ใช้โครงสร้างเดิม ลำดับ Slot ไม่ซ้ำภายใน Schedule                                                                        |
-| `attendance_logs`         | ใช้โครงสร้างเดิม unique `(company_member_id, schedule_slot_id, work_date)` กันเช็คซ้ำต่อ Slot ต่อวัน                    |
+| ตาราง                     | การเปลี่ยนแปลง                                                                                                               |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `check_in_schedules`      | เอา `role_id` และ unique เดิมออก เก็บบริษัท ชื่อ และสถานะเปิดใช้งาน เพิ่ม unique `(id, organization_id)` สำหรับ composite FK |
+| `check_in_schedule_roles` | เพิ่ม `id`, `organization_id`, `check_in_schedule_id`, `role_id`, `is_active`, `created_at`, `updated_at`                    |
+| `role`                    | ใช้โครงสร้างเดิม รองรับ Role ของบริษัทและ system default Role กลาง; สมาชิกยังมี Role เดียว                                   |
+| `schedule_slots`          | ใช้โครงสร้างเดิม ลำดับ Slot ไม่ซ้ำภายใน Schedule                                                                             |
+| `attendance_logs`         | ใช้โครงสร้างเดิม unique `(organization_member_id, schedule_slot_id, work_date)` กันเช็คซ้ำต่อ Slot ต่อวัน                    |
 
 - Unique `(check_in_schedule_id, role_id)` กันมอบหมายคู่เดิมซ้ำ รวมแถวที่ปิดใช้งานแล้วด้วย หากต้องการใช้ใหม่ให้เปิดแถวเดิม
-- Composite FK `(check_in_schedule_id, company_id)` บังคับ assignment ให้เป็นของบริษัทเดียวกับ Schedule โดย `company_id` ในตารางกลางห้ามเป็น NULL
-- FK `role_id → role.id` รองรับ Role กลางที่ `company_id IS NULL`; use case อนุญาตเฉพาะ Role บริษัทเดียวกัน หรือ Role กลางที่ `is_system_default = true` ห้าม Role ของบริษัทอื่น ข้อนี้ตรวจใน application เพราะ FK เดี่ยวไม่บังคับบริษัทของ Role
+- Composite FK `(check_in_schedule_id, organization_id)` บังคับ assignment ให้เป็นของบริษัทเดียวกับ Schedule โดย `organization_id` ในตารางกลางห้ามเป็น NULL
+- FK `role_id → role.id` รองรับ Role กลางที่ `organization_id IS NULL`; use case อนุญาตเฉพาะ Role บริษัทเดียวกัน หรือ Role กลางที่ `is_system_default = true` ห้าม Role ของบริษัทอื่น ข้อนี้ตรวจใน application เพราะ FK เดี่ยวไม่บังคับบริษัทของ Role
 - การอ่าน Schedule ตาม Role ต้องระบุบริษัท และการเช็คอินอิงบริษัท/Role ของสมาชิกจริง จึงไม่เปิด Schedule ข้ามบริษัทแม้ใช้ Role กลางเดียวกัน
 - Schedule สร้างไว้ก่อนโดยยังไม่มอบหมาย Role ได้ การปิด Schedule มีผลต่อทุก Role; การปิด assignment มีผลเฉพาะคู่ที่เลือก
 
@@ -64,7 +64,7 @@ Role รปภ. ได้ 2 Schedules และ Schedule รอบประจ�
 
 **สมมติฐาน: ทุก Schedule ที่เปิดใช้งานและมอบหมายให้ Role มีผลร่วมกันทุกวัน** การมีหลาย Schedule ไม่ได้หมายถึงเลือกทำเพียง Schedule เดียว หากต้องการสลับกะตามวันจะต้องออกแบบกติกาวันที่เพิ่มเติม
 
-1. อ่านสมาชิก active ในบริษัทที่เลือก แล้วค้นหา assignments ของ `company_id + member.role_id` ที่เปิดใช้งาน พร้อม Schedule ที่เปิดใช้งาน
+1. อ่านสมาชิก active ในบริษัทที่เลือก แล้วค้นหา assignments ของ `organization_id + member.role_id` ที่เปิดใช้งาน พร้อม Schedule ที่เปิดใช้งาน
 2. แสดง Schedules ทั้งหมดพร้อม Slots โดยจัดกลุ่มตามชื่อ Schedule; สมาชิกเช็คอินแยกแต่ละ Slot ตาม `is_required` เดิม
 3. ส่ง `scheduleSlotId` ที่เลือกอย่างชัดเจน หากมีหลายรอบที่เลือกได้ ห้ามเลือก Schedule แรกโดยอัตโนมัติ
 4. ฝั่ง server ตรวจว่า Slot อยู่ใน Schedule ที่ active และยังมอบหมายให้ Role ปัจจุบันในบริษัทเดียวกันก่อนบันทึก รวมถึงเส้นทางบันทึกแทนโดยผู้มีสิทธิ์
@@ -94,9 +94,9 @@ Migration: `packages/database/drizzle/20260912040000_check_in_schedule_roles/mig
 
 รัน `npm run db:migrate --workspace @repo/database` ระหว่างหยุดการเขียนของ API รุ่นเดิม แล้วเปิด API/UI รุ่นใหม่พร้อมกัน เพราะ endpoint และ payload เปลี่ยนแบบ breaking change:
 
-- `GET /attendances/companies/{companyId}/roles/{roleId}/schedules` คืน array ของ Schedule ที่ active และ assignment active
+- `GET /attendances/organizations/{organizationId}/roles/{roleId}/schedules` คืน array ของ Schedule ที่ active และ assignment active
 - Create/Update Schedule ใช้ `roleIds: string[]` เป็นชุด Role ที่เปิดใช้งาน; `[]` ปิดทุก assignment, ไม่ส่ง `roleIds` ใน Update หมายถึงไม่แก้การมอบหมาย
-- Update Schedule ไม่รับ `companyId`; Update Slot ไม่รับ `checkInScheduleId`
+- Update Schedule ไม่รับ `organizationId`; Update Slot ไม่รับ `checkInScheduleId`
 - `POST /attendances/check-in` ต้องส่ง `scheduleSlotId`; บันทึกแทนผ่าน manual-check-in เท่านั้น
 - อนุมัติการลาจะสร้างสถานะ excused ครบทุกรอบของทุก Schedule ที่ได้รับมอบหมาย
 

@@ -6,7 +6,7 @@ import {
   RevokePermissionFromRoleUseCase,
 } from '@repo/applications';
 import {
-  companyMemberRepository,
+  organizationMemberRepository,
   permissionRepository,
   rolePermissionRepository,
   roleRepository,
@@ -33,7 +33,7 @@ export const getRolePermissionsUseCase = new GetRolePermissionsUseCase(
 
 export const getMyPermissionsUseCase = new GetMyPermissionsUseCase(
   userRepository,
-  companyMemberRepository,
+  organizationMemberRepository,
   rolePermissionRepository,
   permissionRepository,
 );
@@ -42,5 +42,5 @@ export const checkUserPermissionUseCase = new CheckUserPermissionUseCase(
   rolePermissionRepository,
   permissionRepository,
   userRepository,
-  companyMemberRepository,
+  organizationMemberRepository,
 );

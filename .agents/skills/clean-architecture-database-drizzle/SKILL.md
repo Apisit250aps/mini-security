@@ -49,7 +49,7 @@ packages/database/
     └── schema/
         ├── index.ts           # Barrel export for all Drizzle table schemas
         ├── auth.ts            # Authentication tables (user, session, account)
-        ├── company.ts         # Multi-tenant tables (company, branch, department)
+        ├── organization.ts         # Multi-tenant tables (organization, branch, department)
         └── product.ts         # Domain tables (category, brand, unit, product)
 ```
 
@@ -188,24 +188,24 @@ import { defineRelationsPart } from 'drizzle-orm';
 import * as schema from './schema';
 
 export const relations = defineRelationsPart(schema, (r) => ({
-  company: {
+  organization: {
     owner: r.one.user({
-      from: r.company.ownerId,
+      from: r.organization.ownerId,
       to: r.user.id,
     }),
     branches: r.many.branch(),
     products: r.many.product(),
   },
   branch: {
-    company: r.one.company({
-      from: r.branch.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.branch.organizationId,
+      to: r.organization.id,
     }),
   },
   product: {
-    company: r.one.company({
-      from: r.product.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.product.organizationId,
+      to: r.organization.id,
     }),
     category: r.one.category({
       from: r.product.categoryId,
@@ -288,30 +288,30 @@ import {
   updatedAtTimestamp,
   createdAtTimestamp,
 } from '#lib/utils';
-import { company } from './company';
+import { organization } from './organization';
 
 export const category = pgTable(
   'category',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     description: text('description'),
     createdAt: createdAtTimestamp('created_at'),
     updatedAt: updatedAtTimestamp('updated_at'),
   },
-  (table) => [index('category_companyId_idx').on(table.companyId)],
+  (table) => [index('category_organizationId_idx').on(table.organizationId)],
 );
 
 export const product = pgTable(
   'product',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     categoryId: uuid('category_id').references(() => category.id, {
       onDelete: 'set null',
     }),
@@ -324,7 +324,7 @@ export const product = pgTable(
     updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
-    index('product_companyId_idx').on(table.companyId),
+    index('product_organizationId_idx').on(table.organizationId),
     index('product_categoryId_idx').on(table.categoryId),
   ],
 );
@@ -333,7 +333,7 @@ export const product = pgTable(
 #### Barrel Export (`src/schema/index.ts`):
 ```typescript
 export * from './auth';
-export * from './company';
+export * from './organization';
 export * from './product';
 ```
 

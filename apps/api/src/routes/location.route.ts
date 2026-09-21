@@ -4,8 +4,8 @@ import {
   createLocationUseCase,
   deleteLocationUseCase,
   getLocationUseCase,
-  getLocationsByBranchUseCase,
-  getLocationsByCompanyUseCase,
+  getLocationsBySiteUseCase,
+  getLocationsByOrganizationUseCase,
   getSlotLocationsUseCase,
   getSlotLocationAssignmentsUseCase,
   setPrimaryLocationUseCase,
@@ -20,8 +20,8 @@ const locationController = new LocationController(
   updateLocationUseCase,
   deleteLocationUseCase,
   getLocationUseCase,
-  getLocationsByBranchUseCase,
-  getLocationsByCompanyUseCase,
+  getLocationsBySiteUseCase,
+  getLocationsByOrganizationUseCase,
   setPrimaryLocationUseCase,
   assignSlotLocationUseCase,
   updateSlotLocationUseCase,
@@ -33,11 +33,8 @@ const locationRoutes = new Hono();
 
 locationRoutes.use('*', authMiddleware);
 
-locationRoutes.get('/', locationController.listLocationsByCompany);
-locationRoutes.get(
-  '/branch/:branchId',
-  locationController.listLocationsByBranch,
-);
+locationRoutes.get('/', locationController.listLocationsByOrganization);
+locationRoutes.get('/site/:siteId', locationController.listLocationsBySite);
 locationRoutes.get('/:id', locationController.getLocation);
 locationRoutes.post('/', locationController.createLocation);
 locationRoutes.put('/:id', locationController.updateLocation);

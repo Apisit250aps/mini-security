@@ -31,7 +31,7 @@ export type LeaveUnit = (typeof LeaveUnitValues)[number];
  */
 
 export const leaveTypeSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   name: StringField({ required: true }),
   description: StringField({ required: false, nullable: true, max: 1000 }),
   unit: EnumField(LeaveUnitValues, { default: () => 'day' }),
@@ -60,7 +60,7 @@ export type UpdateLeaveType = z.infer<typeof updateLeaveTypeSchema>;
  */
 
 export const leaveQuotaSchema = BaseEntity({
-  companyMemberId: UUIDField({ required: true }),
+  organizationMemberId: UUIDField({ required: true }),
   leaveTypeId: UUIDField({ required: true }),
   year: NumberField({ required: true }),
   totalDays: NumberField({ required: true }).refine(
@@ -79,7 +79,7 @@ export const updateLeaveQuotaSchema = leaveQuotaSchema
   .partial()
   .omit({
     id: true,
-    companyMemberId: true,
+    organizationMemberId: true,
     leaveTypeId: true,
     year: true,
     createdAt: true,
@@ -96,7 +96,7 @@ export type UpdateLeaveQuota = z.infer<typeof updateLeaveQuotaSchema>;
  */
 
 export const leaveRequestSchema = BaseEntity({
-  companyMemberId: UUIDField({ required: true }),
+  organizationMemberId: UUIDField({ required: true }),
   leaveTypeId: UUIDField({ required: true }),
   startDate: StringField({ required: true, max: 10 }), // "YYYY-MM-DD"
   endDate: StringField({ required: true, max: 10 }), // "YYYY-MM-DD"
@@ -158,7 +158,7 @@ export const leaveRequestSchema = BaseEntity({
   );
 
 export const createLeaveRequestSchema = BaseEntity({
-  companyMemberId: UUIDField({ required: true }),
+  organizationMemberId: UUIDField({ required: true }),
   leaveTypeId: UUIDField({ required: true }),
   startDate: StringField({ required: true, max: 10 }),
   endDate: StringField({ required: true, max: 10 }),

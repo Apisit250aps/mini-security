@@ -42,7 +42,7 @@ import type {
   IFormTemplateRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type { IUserRepository } from '@repo/domains/repositories/user';
 import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import {
@@ -64,7 +64,7 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
     private readonly occurrenceRepo: IFormOccurrenceRepository,
     private readonly submissionRepo: IFormSubmissionRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly planRepo?: IFormPlanRepository,
   ) {}
 
@@ -89,7 +89,7 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
 
       const draft = await this.submissionRepo.findDraftByAssignmentId(
         context.assignmentId,
-        assignment.companyId,
+        assignment.organizationId,
       );
 
       if (draft) {
@@ -100,7 +100,7 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
           );
           if (!isContributor) {
             await this.contributorRepo.create({
-              companyId: draft.companyId,
+              organizationId: draft.organizationId,
               submissionId: draft.id,
               memberId,
             });
@@ -111,14 +111,14 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
 
       const previous = await this.submissionRepo.findByAssignmentId(
         assignment.id,
-        assignment.companyId,
+        assignment.organizationId,
       );
       if (previous.length)
         throw new BadRequestError(
           'This assignment already has a submitted response. Open it to create a correction if returned.',
         );
       const submission = await this.submissionRepo.create({
-        companyId: assignment.companyId,
+        organizationId: assignment.organizationId,
         assignmentId: assignment.id,
         formVersionId: assignment.formVersionId,
         startedBy: memberId,
@@ -129,7 +129,7 @@ export class StartFormSubmissionUseCase implements IStartFormSubmissionUseCase {
       });
 
       await this.contributorRepo.create({
-        companyId: submission.companyId,
+        organizationId: submission.organizationId,
         submissionId: submission.id,
         memberId,
       });
@@ -152,7 +152,7 @@ export class SaveFormSubmissionDraftUseCase
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly answerRepo: IFormAnswerRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly occurrenceRepo: IFormOccurrenceRepository,
     private readonly fieldRepo: IFormFieldRepository,
     private readonly planRepo?: IFormPlanRepository,
@@ -163,7 +163,8 @@ export class SaveFormSubmissionDraftUseCase
     context: ISaveFormSubmissionDraftContext,
   ): Promise<FormSubmission> {
     return this.unitOfWork.transaction(async () => {
-      const companyId = context.companyId ?? context.activeCompanyId;
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
       if (!context.memberId) {
         throw new BadRequestError('Member ID is required');
       }
@@ -172,7 +173,10 @@ export class SaveFormSubmissionDraftUseCase
       const submission = await this.submissionRepo.findById(
         context.submissionId,
       );
-      if (!submission || (companyId && submission.companyId !== companyId)) {
+      if (
+        !submission ||
+        (organizationId && submission.organizationId !== organizationId)
+      ) {
         throw new NotFoundError('Form submission not found');
       }
       if (submission.submittedAt != null) {
@@ -221,7 +225,7 @@ export class SaveFormSubmissionDraftUseCase
 
       for (const ans of context.answers) {
         await this.answerRepo.upsertAnswer({
-          companyId: submission.companyId,
+          organizationId: submission.organizationId,
           formVersionId: submission.formVersionId,
           submissionId: submission.id,
           fieldId: ans.fieldId,
@@ -232,7 +236,7 @@ export class SaveFormSubmissionDraftUseCase
 
       if (!isContributor) {
         await this.contributorRepo.create({
-          companyId: submission.companyId,
+          organizationId: submission.organizationId,
           submissionId: submission.id,
           memberId,
         });
@@ -262,7 +266,7 @@ export class SubmitFormSubmissionUseCase
     private readonly answerRepo: IFormAnswerRepository,
     private readonly attachmentRepo: IFormAnswerAttachmentRepository,
     private readonly contributorRepo: IFormSubmissionContributorRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_submission:submit')
@@ -270,7 +274,8 @@ export class SubmitFormSubmissionUseCase
     context: ISubmitFormSubmissionContext,
   ): Promise<FormSubmission> {
     return this.unitOfWork.transaction(async () => {
-      const companyId = context.companyId ?? context.activeCompanyId;
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
       if (!context.memberId) {
         throw new BadRequestError('Member ID is required');
       }
@@ -279,7 +284,10 @@ export class SubmitFormSubmissionUseCase
       const submission = await this.submissionRepo.findById(
         context.submissionId,
       );
-      if (!submission || (companyId && submission.companyId !== companyId)) {
+      if (
+        !submission ||
+        (organizationId && submission.organizationId !== organizationId)
+      ) {
         throw new NotFoundError('Form submission not found');
       }
       if (submission.submittedAt != null) {
@@ -356,7 +364,7 @@ export class SubmitFormSubmissionUseCase
         } else {
           if (!answer) {
             await this.answerRepo.upsertAnswer({
-              companyId: submission.companyId,
+              organizationId: submission.organizationId,
               formVersionId: submission.formVersionId,
               submissionId: submission.id,
               fieldId: field.id,
@@ -369,7 +377,7 @@ export class SubmitFormSubmissionUseCase
 
       if (!isContributor) {
         await this.contributorRepo.create({
-          companyId: submission.companyId,
+          organizationId: submission.organizationId,
           submissionId: submission.id,
           memberId,
         });
@@ -404,21 +412,25 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
     private readonly contributorRepo: IFormSubmissionContributorRepository,
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly occurrenceRepo: IFormOccurrenceRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly planRepo?: IFormPlanRepository,
   ) {}
 
   @RequirePermission('form_submission:create')
   async execute(context: ICreateCorrectionContext): Promise<FormSubmission> {
     return this.unitOfWork.transaction(async () => {
-      const companyId = context.companyId ?? context.activeCompanyId;
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
       if (!context.memberId) {
         throw new BadRequestError('Member ID is required');
       }
       const memberId = context.memberId;
 
       const original = await this.submissionRepo.findById(context.submissionId);
-      if (!original || (companyId && original.companyId !== companyId)) {
+      if (
+        !original ||
+        (organizationId && original.organizationId !== organizationId)
+      ) {
         throw new NotFoundError('Original submission not found');
       }
       if (original.submittedAt == null) {
@@ -451,7 +463,7 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
       }
 
       const clone = await this.submissionRepo.create({
-        companyId: original.companyId,
+        organizationId: original.organizationId,
         assignmentId: original.assignmentId,
         formVersionId: original.formVersionId,
         startedBy: memberId,
@@ -466,7 +478,7 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
       );
       for (const ans of originalAnswers) {
         const newAnswer = await this.answerRepo.create({
-          companyId: original.companyId,
+          organizationId: original.organizationId,
           formVersionId: original.formVersionId,
           submissionId: clone.id,
           fieldId: ans.fieldId,
@@ -477,7 +489,7 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
         const attachments = await this.attachmentRepo.findByAnswerId(ans.id);
         for (const att of attachments) {
           await this.attachmentRepo.create({
-            companyId: original.companyId,
+            organizationId: original.organizationId,
             answerId: newAnswer.id,
             storageKey: att.storageKey,
             originalName: att.originalName,
@@ -496,7 +508,7 @@ export class CreateCorrectionUseCase implements ICreateCorrectionUseCase {
 
       for (const mId of memberIdSet) {
         await this.contributorRepo.create({
-          companyId: original.companyId,
+          organizationId: original.organizationId,
           submissionId: clone.id,
           memberId: mId,
         });
@@ -523,7 +535,7 @@ export class GetFormSubmissionUseCase implements IGetFormSubmissionUseCase {
     private readonly contributorRepo: IFormSubmissionContributorRepository,
     private readonly attachmentRepo: IFormAnswerAttachmentRepository,
     private readonly assignmentRepo: IFormAssignmentRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
   ) {}
 
   async execute(
@@ -536,12 +548,19 @@ export class GetFormSubmissionUseCase implements IGetFormSubmissionUseCase {
       context,
     );
     return this.unitOfWork.transaction(async () => {
-      const companyId = context.companyId ?? context.activeCompanyId;
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
       const submission = await this.submissionRepo.findById(context.id);
-      if (!submission || (companyId && submission.companyId !== companyId))
+      if (
+        !submission ||
+        (organizationId && submission.organizationId !== organizationId)
+      )
         return null;
 
-      PermissionGuard.requireCompanyScope(context, submission.companyId);
+      PermissionGuard.requireOrganizationScope(
+        context,
+        submission.organizationId,
+      );
       if (
         !hasFormPermission(context, 'form_review:read') &&
         !hasFormPermission(context, 'form_plan:manage')
@@ -589,7 +608,7 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
   constructor(
     private readonly submissionRepo: IFormSubmissionRepository,
     private readonly assignmentRepo: IFormAssignmentRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly occurrenceRepo?: IFormOccurrenceRepository,
     private readonly planRepo?: IFormPlanRepository,
     private readonly templateRepo?: IFormTemplateRepository,
@@ -602,15 +621,16 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
   async execute(
     context: IListFormSubmissionsContext,
   ): Promise<FormSubmissionItem[]> {
-    const companyId = context.companyId ?? context.activeCompanyId;
-    if (!companyId) throw new BadRequestError('Company is required');
-    PermissionGuard.requireCompanyScope(context, companyId);
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (!organizationId) throw new BadRequestError('Organization is required');
+    PermissionGuard.requireOrganizationScope(context, organizationId);
     const submissions = context.assignmentId
       ? await this.submissionRepo.findByAssignmentId(
           context.assignmentId,
-          companyId,
+          organizationId,
         )
-      : await this.submissionRepo.findByCompanyId(companyId);
+      : await this.submissionRepo.findByOrganizationId(organizationId);
 
     let allowed: FormSubmission[] = [];
     if (
@@ -624,17 +644,17 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
         : null;
       if (
         !member?.isActive ||
-        member.companyId !== companyId ||
+        member.organizationId !== organizationId ||
         member.userId !== context.user?.id
       )
-        throw new ForbiddenError('Active company membership is required');
+        throw new ForbiddenError('Active organization membership is required');
       for (const submission of submissions) {
         const assignment = await this.assignmentRepo.findById(
           submission.assignmentId,
         );
         if (
           assignment &&
-          (assignment.companyMemberId === member.id ||
+          (assignment.organizationMemberId === member.id ||
             (assignment.roleId && assignment.roleId === member.roleId))
         )
           allowed.push(submission);
@@ -772,7 +792,7 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
       if (r.reviewedBy) memberIds.add(r.reviewedBy);
     }
     for (const a of assignmentMap.values()) {
-      if (a.companyMemberId) memberIds.add(a.companyMemberId);
+      if (a.organizationMemberId) memberIds.add(a.organizationMemberId);
     }
 
     const members = await Promise.all(
@@ -832,14 +852,14 @@ export class ListFormSubmissionsUseCase implements IListFormSubmissionsUseCase {
         ? templateMap.get(occurrence.formTemplateId)
         : null;
       const role = assignment?.roleId ? roleMap.get(assignment.roleId) : null;
-      const assignMember = assignment?.companyMemberId
-        ? memberMap.get(assignment.companyMemberId)
+      const assignMember = assignment?.organizationMemberId
+        ? memberMap.get(assignment.organizationMemberId)
         : null;
       const assignUser = assignMember ? userMap.get(assignMember.userId) : null;
 
       const finalReview = finalReviewMap.get(sub.id);
 
-      const isPersonal = Boolean(assignment?.companyMemberId);
+      const isPersonal = Boolean(assignment?.organizationMemberId);
       const recipientLabel = isPersonal
         ? `งานส่วนตัว (${assignUser?.name ?? 'สมาชิก'})`
         : role?.name

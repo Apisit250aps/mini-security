@@ -37,9 +37,9 @@ interface FormServices {
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/templates")
-  @summary("List company form templates")
-  listTemplatesByCompany(@path companyId: string):
+  @route("/organizations/{organizationId}/templates")
+  @summary("List organization form templates")
+  listTemplatesByOrganization(@path organizationId: string):
     | ApiOkResponse<FormTemplate[]>
     | ApiUnauthorizedResponse;
 
@@ -111,7 +111,7 @@ interface FormServices {
   @get
   @route("/plans")
   @summary("List form plans")
-  listPlans(@query companyId: string): ApiOkResponse<Domain.Entity.FormPlan[]> | ApiUnauthorizedResponse;
+  listPlans(@query organizationId: string): ApiOkResponse<Domain.Entity.FormPlan[]> | ApiUnauthorizedResponse;
 
   @get
   @route("/plans/{id}")
@@ -143,7 +143,7 @@ interface FormServices {
   @route("/occurrences")
   @summary("List form occurrences")
   listOccurrences(
-    @query companyId: string,
+    @query organizationId: string,
     @query formTemplateId?: string,
     @query planId?: string
   ): ApiOkResponse<Domain.Entity.FormOccurrence[]> | ApiUnauthorizedResponse;
@@ -167,7 +167,7 @@ interface FormServices {
   @get
   @route("/assignments")
   @summary("List my assignments")
-  listMyAssignments(@query companyId?: string, @query memberId?: string): ApiOkResponse<FormAssignmentItem[]> | ApiUnauthorizedResponse;
+  listMyAssignments(@query organizationId?: string, @query memberId?: string): ApiOkResponse<FormAssignmentItem[]> | ApiUnauthorizedResponse;
 
   @get
   @route("/assignments/{id}")
@@ -244,7 +244,7 @@ interface FormServices {
   @route("/submissions")
   @summary("List form submissions")
   listSubmissions(
-    @query companyId?: string,
+    @query organizationId?: string,
     @query assignmentId?: string,
   ):
     | ApiOkResponse<FormSubmissionItem[]>
@@ -254,7 +254,7 @@ interface FormServices {
   @get
   @route("/reviews")
   @summary("List review queue")
-  listReviewQueue(@query companyId: string): ApiOkResponse<ReviewQueueItem[]> | ApiUnauthorizedResponse;
+  listReviewQueue(@query organizationId: string): ApiOkResponse<ReviewQueueItem[]> | ApiUnauthorizedResponse;
 
   @get
   @route("/submissions/{id}/review-entries")

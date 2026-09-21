@@ -11,13 +11,13 @@ model UpdateFeature
 
 model ToggleFeatureRequest is PickProperties<Feature, "isActive">;
 
-// ─── CompanyFeature ────────────────────────────────────────────────────────────
-model CompanyFeature is Domain.Entity.CompanyFeature;
+// ─── OrganizationFeature ───────────────────────────────────────────────────────
+model OrganizationFeature is Domain.Entity.OrganizationFeature;
 
-model CreateCompanyFeature
-  is OmitProperties<CompanyFeature, "id" | "createdAt" | "updatedAt">;
+model CreateOrganizationFeature
+  is OmitProperties<OrganizationFeature, "id" | "createdAt" | "updatedAt">;
 
-model CompanyToggleFeatureRequest is PickProperties<CompanyFeature, "featureId" | "isEnabled">;
+model OrganizationToggleFeatureRequest is PickProperties<OrganizationFeature, "featureId" | "isEnabled">;
 
 // ─── RoleFeature ───────────────────────────────────────────────────────────────
 model RoleFeature is Domain.Entity.RoleFeature;
@@ -25,7 +25,7 @@ model RoleFeature is Domain.Entity.RoleFeature;
 model CreateRoleFeature
   is OmitProperties<RoleFeature, "id" | "createdAt" | "updatedAt">;
 
-model RoleToggleFeatureRequest is PickProperties<RoleFeature, "companyId" | "featureId" | "isEnabled">;
+model RoleToggleFeatureRequest is PickProperties<RoleFeature, "organizationId" | "featureId" | "isEnabled">;
 
 model FeatureAccessResponse {
   hasAccess: boolean;

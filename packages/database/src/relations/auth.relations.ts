@@ -4,7 +4,7 @@ export const authRelations = (r: RelationsHelper) => ({
   user: {
     sessions: r.many.session(),
     accounts: r.many.account(),
-    memberships: r.many.companyMember(),
+    memberships: r.many.organizationMember(),
   },
   session: {
     user: r.one.user({

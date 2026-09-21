@@ -5,13 +5,16 @@ import {
   QuerySelectField,
   type QuerySelectFieldProps,
 } from '@/shared/components/form/query-select-field';
-import { useCompanyRolesQueries } from '../hooks/role-queries';
+import { useGetOrganizationRoles } from '../hooks/role-queries';
 
-export function RoleSelectField<T extends FieldValues>({
-  companyId,
+export function RoleSelectField<T extends FieldValues = FieldValues>({
+  organizationId,
   ...props
-}: QuerySelectFieldProps<T> & { companyId: string }) {
-  const query = useCompanyRolesQueries(companyId);
+}: QuerySelectFieldProps<T> & {
+  organizationId?: string;
+}) {
+  const orgId = organizationId || '';
+  const query = useGetOrganizationRoles(orgId);
   return (
     <QuerySelectField
       {...props}
@@ -20,7 +23,7 @@ export function RoleSelectField<T extends FieldValues>({
         .filter(
           (role) =>
             role.roleType !== 'SUPER_ADMIN' &&
-            (!role.companyId || role.companyId === companyId),
+            (!role.organizationId || role.organizationId === orgId),
         )
         .map((role) => ({ value: role.id, label: role.name }))}
     />

@@ -20,7 +20,7 @@ import {
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
-import { company, companyMember } from './company';
+import { organization, organizationMember } from './organization';
 import { user } from './user';
 
 /**
@@ -44,9 +44,9 @@ export const leaveTypes = pgTable(
   'leave_types',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     description: text('description'),
     unit: leaveUnitEnum('unit').default('day').notNull(),
@@ -59,10 +59,10 @@ export const leaveTypes = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    index('leave_type_company_id_idx').on(table.companyId),
+    index('leave_type_organization_id_idx').on(table.organizationId),
     index('leave_type_deleted_at_idx').on(table.deletedAt),
-    uniqueIndex('leave_type_company_name_unique')
-      .on(table.companyId, table.name)
+    uniqueIndex('leave_type_organization_name_unique')
+      .on(table.organizationId, table.name)
       .where(sql`${table.deletedAt} IS NULL`),
   ],
 );
@@ -75,9 +75,9 @@ export const leaveQuotas = pgTable(
   'leave_quotas',
   {
     id: primaryKeyUuid7('id'),
-    companyMemberId: uuid('company_member_id')
+    organizationMemberId: uuid('organization_member_id')
       .notNull()
-      .references(() => companyMember.id, { onDelete: 'cascade' }),
+      .references(() => organizationMember.id, { onDelete: 'cascade' }),
     leaveTypeId: uuid('leave_type_id')
       .notNull()
       .references(() => leaveTypes.id, { onDelete: 'cascade' }),
@@ -88,11 +88,11 @@ export const leaveQuotas = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    index('leave_quota_member_id_idx').on(table.companyMemberId),
+    index('leave_quota_member_id_idx').on(table.organizationMemberId),
     index('leave_quota_type_id_idx').on(table.leaveTypeId),
     index('leave_quota_deleted_at_idx').on(table.deletedAt),
     uniqueIndex('leave_quota_member_type_year_unique')
-      .on(table.companyMemberId, table.leaveTypeId, table.year)
+      .on(table.organizationMemberId, table.leaveTypeId, table.year)
       .where(sql`${table.deletedAt} IS NULL`),
     check('leave_quota_total_days_check', sql`total_days >= 0`),
   ],
@@ -106,9 +106,9 @@ export const leaveRequests = pgTable(
   'leave_requests',
   {
     id: primaryKeyUuid7('id'),
-    companyMemberId: uuid('company_member_id')
+    organizationMemberId: uuid('organization_member_id')
       .notNull()
-      .references(() => companyMember.id, { onDelete: 'cascade' }),
+      .references(() => organizationMember.id, { onDelete: 'cascade' }),
     leaveTypeId: uuid('leave_type_id')
       .notNull()
       .references(() => leaveTypes.id, { onDelete: 'restrict' }),
@@ -131,12 +131,12 @@ export const leaveRequests = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    index('leave_request_member_id_idx').on(table.companyMemberId),
+    index('leave_request_member_id_idx').on(table.organizationMemberId),
     index('leave_request_type_id_idx').on(table.leaveTypeId),
     index('leave_request_status_idx').on(table.status),
     index('leave_request_deleted_at_idx').on(table.deletedAt),
     index('leave_request_member_date_idx').on(
-      table.companyMemberId,
+      table.organizationMemberId,
       table.startDate,
       table.endDate,
     ),

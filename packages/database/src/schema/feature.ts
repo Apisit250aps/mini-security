@@ -13,7 +13,7 @@ import {
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
-import { company } from './company';
+import { organization } from './organization';
 import { role } from './role';
 import { user } from './user';
 
@@ -38,13 +38,13 @@ export const feature = pgTable(
   ],
 );
 
-export const companyFeature = pgTable(
-  'company_feature',
+export const organizationFeature = pgTable(
+  'organization_feature',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     featureId: uuid('feature_id')
       .notNull()
       .references(() => feature.id, { onDelete: 'cascade' }),
@@ -58,12 +58,12 @@ export const companyFeature = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    index('company_feature_company_id_idx').on(table.companyId),
-    index('company_feature_feature_id_idx').on(table.featureId),
-    index('company_feature_is_enabled_idx').on(table.isEnabled),
-    index('company_feature_deleted_at_idx').on(table.deletedAt),
-    unique('company_feature_company_feature_unique').on(
-      table.companyId,
+    index('organization_feature_organization_id_idx').on(table.organizationId),
+    index('organization_feature_feature_id_idx').on(table.featureId),
+    index('organization_feature_is_enabled_idx').on(table.isEnabled),
+    index('organization_feature_deleted_at_idx').on(table.deletedAt),
+    unique('organization_feature_organization_feature_unique').on(
+      table.organizationId,
       table.featureId,
     ),
   ],
@@ -73,9 +73,9 @@ export const roleFeature = pgTable(
   'role_feature',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     roleId: uuid('role_id')
       .notNull()
       .references(() => role.id, { onDelete: 'cascade' }),
@@ -88,7 +88,7 @@ export const roleFeature = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    index('role_feature_company_id_idx').on(table.companyId),
+    index('role_feature_organization_id_idx').on(table.organizationId),
     index('role_feature_role_id_idx').on(table.roleId),
     index('role_feature_feature_id_idx').on(table.featureId),
     index('role_feature_deleted_at_idx').on(table.deletedAt),

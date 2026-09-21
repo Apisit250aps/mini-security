@@ -118,11 +118,11 @@ export default function NavUser() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onAction={() =>
-                      router.push(buildPageUrl('companyDashboard'))
+                      router.push(buildPageUrl('organizationDashboard'))
                     }
                   >
                     <Building2Icon />
-                    ไปหน้าพื้นที่ทำงานบริษัท
+                    ไปหน้าพื้นที่ทำงานองค์กร
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

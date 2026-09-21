@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { ISecurityContext } from '@repo/domains/constants';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import { PermissionGuard } from '../src/lib/guard';
 import {
@@ -9,22 +9,22 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from '../src/lib/error';
-import { RemoveCompanyMemberUseCase } from '../src/use-cases/company/company-member.usecase';
+import { RemoveOrganizationMemberUseCase } from '../src/use-cases/organization/organization-member.usecase';
 
 const actor: ISecurityContext = {
   user: { id: 'actor', isAdmin: false, isActive: true },
-  activeCompanyId: 'company-a',
-  permissions: 'company_member:delete',
+  activeOrganizationId: 'organization-a',
+  permissions: 'organization_member:delete',
 };
 
 for (const permissions of [
-  'company_member:delete',
-  ' company_member:delete , user:read ',
-  'company_member:*',
+  'organization_member:delete',
+  ' organization_member:delete , user:read ',
+  'organization_member:*',
   '*',
 ]) {
   test(`allows matching permission: ${permissions}`, async () => {
-    await PermissionGuard.requirePermission('company_member:delete', {
+    await PermissionGuard.requirePermission('organization_member:delete', {
       ...actor,
       permissions,
     });
@@ -34,12 +34,12 @@ for (const permissions of [
   undefined,
   null,
   '',
-  'company_member:delete_other',
+  'organization_member:delete_other',
   'user:*',
 ]) {
   test(`denies missing permission: ${permissions}`, async () => {
     await assert.rejects(
-      PermissionGuard.requirePermission('company_member:delete', {
+      PermissionGuard.requirePermission('organization_member:delete', {
         ...actor,
         permissions,
       }),
@@ -49,24 +49,24 @@ for (const permissions of [
 }
 test('requires an authenticated actor even with permissions or a target user ID', async () => {
   await assert.rejects(
-    PermissionGuard.requirePermission('company_member:delete', {
+    PermissionGuard.requirePermission('organization_member:delete', {
       userId: 'target',
       permissions: '*',
     }),
     UnauthorizedError,
   );
 });
-test('wildcards do not grant cross-company or inactive-user access', async () => {
+test('wildcards do not grant cross-organization or inactive-user access', async () => {
   await assert.rejects(
-    PermissionGuard.requirePermission('company_member:delete', {
+    PermissionGuard.requirePermission('organization_member:delete', {
       ...actor,
       permissions: '*',
-      companyId: 'company-b',
+      organizationId: 'organization-b',
     }),
     ForbiddenError,
   );
   await assert.rejects(
-    PermissionGuard.requirePermission('company_member:delete', {
+    PermissionGuard.requirePermission('organization_member:delete', {
       ...actor,
       user: { id: 'actor', isAdmin: true, isActive: false },
     }),
@@ -75,7 +75,7 @@ test('wildcards do not grant cross-company or inactive-user access', async () =>
 });
 
 function fixture({
-  companyId = 'company-a',
+  organizationId = 'organization-a',
   memberActive = true,
   owner = false,
   exists = true,
@@ -86,14 +86,14 @@ function fixture({
   const members = {
     findById: async () => {
       reads += 1;
-      return exists ? { id: 'target', companyId, roleId: 'role' } : null;
+      return exists ? { id: 'target', organizationId, roleId: 'role' } : null;
     },
-    findByCompanyAndUser: async () =>
+    findByOrganizationAndUser: async () =>
       memberActive ? { isActive: true } : null,
     delete: async () => {
       deleted = true;
     },
-  } as unknown as ICompanyMemberRepository;
+  } as unknown as IOrganizationMemberRepository;
   const roles = {
     findById: async () =>
       roleExists
@@ -101,20 +101,24 @@ function fixture({
         : null,
   } as unknown as IRoleRepository;
   return {
-    useCase: new RemoveCompanyMemberUseCase(members, roles),
+    useCase: new RemoveOrganizationMemberUseCase(members, roles),
     deleted: () => deleted,
     reads: () => reads,
   };
 }
 for (const options of [
-  { companyId: 'company-b' },
+  { organizationId: 'organization-b' },
   { memberActive: false },
   { owner: true },
 ]) {
   test(`rejects member removal: ${JSON.stringify(options)}`, async () => {
     const f = fixture(options);
     await assert.rejects(
-      f.useCase.execute({ ...actor, id: 'target', companyId: 'company-a' }),
+      f.useCase.execute({
+        ...actor,
+        id: 'target',
+        organizationId: 'organization-a',
+      }),
       ForbiddenError,
     );
     assert.equal(f.deleted(), false);
@@ -126,9 +130,9 @@ test('allows authorized member removal', async () => {
   assert.equal(f.deleted(), true);
   assert.equal(f.reads(), 1);
 });
-test('admin may remove a renamed OWNER in another company without membership or permissions', async () => {
+test('admin may remove a renamed OWNER in another organization without membership or permissions', async () => {
   const f = fixture({
-    companyId: 'company-b',
+    organizationId: 'organization-b',
     memberActive: false,
     owner: true,
   });

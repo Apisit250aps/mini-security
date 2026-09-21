@@ -1,17 +1,16 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import type { CompanyMember, LeaveQuota } from '@repo/domains/entities';
+import type { OrganizationMember, LeaveQuota } from '@repo/client';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { Button } from '@repo/ui/components/button';
-import { Badge } from '@repo/ui/components/badge';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useOverlay } from '@repo/ui/hooks';
 import { Plus } from 'lucide-react';
 import {
   useMemberLeaveQuotasQueries,
-  useCompanyLeaveTypesQueries,
+  useOrganizationLeaveTypesQueries,
 } from '../../hooks/leave-queries';
 import {
   useLeaveQuotaCreate,
@@ -21,22 +20,23 @@ import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import QuotaForm, { QuotaFormValues } from './quota-form';
 
 interface MemberQuotasModalProps {
-  member: CompanyMember;
-  companyId: string;
+  member: OrganizationMember;
+  organizationId?: string;
   userName?: string;
 }
 
 export default function MemberQuotasModal({
   member,
-  companyId,
+  organizationId,
   userName,
 }: MemberQuotasModalProps) {
+  const targetOrgId = organizationId || '';
   const ui = useOverlay();
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
   const quotasQuery = useMemberLeaveQuotasQueries(member.id, selectedYear);
-  const typesQuery = useCompanyLeaveTypesQueries(companyId);
+  const typesQuery = useOrganizationLeaveTypesQueries(targetOrgId);
   const usersQuery = useUserListQueries();
 
   const user = useMemo(() => {
@@ -62,7 +62,7 @@ export default function MemberQuotasModal({
       description: `กำหนดจำนวนวันลาที่สามารถใช้ได้ในปี ${selectedYear}`,
       children: (
         <QuotaForm
-          companyId={companyId}
+          organizationId={targetOrgId}
           defaultValues={{
             leaveTypeId: '',
             year: selectedYear,
@@ -72,7 +72,7 @@ export default function MemberQuotasModal({
           onSubmit={(data: QuotaFormValues) => {
             createMutation.mutate(
               {
-                companyMemberId: member.id,
+                organizationMemberId: member.id,
                 leaveTypeId: data.leaveTypeId,
                 year: data.year,
                 totalDays: data.totalDays,
@@ -91,7 +91,7 @@ export default function MemberQuotasModal({
     ui,
     memberDisplayName,
     selectedYear,
-    companyId,
+    targetOrgId,
     createMutation,
     member.id,
   ]);
@@ -103,7 +103,7 @@ export default function MemberQuotasModal({
         description: 'ปรับปรุงจำนวนวันลาทั้งหมด',
         children: (
           <QuotaForm
-            companyId={companyId}
+            organizationId={targetOrgId}
             isEditing
             defaultValues={{
               leaveTypeId: quota.leaveTypeId,
@@ -130,7 +130,7 @@ export default function MemberQuotasModal({
         ),
       });
     },
-    [ui, typeMap, companyId, updateMutation],
+    [ui, typeMap, targetOrgId, updateMutation],
   );
 
   const columns = useMemo<ColumnDef<LeaveQuota>[]>(() => {

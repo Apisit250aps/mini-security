@@ -21,7 +21,7 @@ import { toast } from '@repo/ui/components/sonner';
 import { getCheckInPosition } from '../utils/check-in-position';
 import { attendanceKeys, getErrorMessage } from '@/shared/utils';
 
-export function useScheduleCreate(companyId: string) {
+export function useScheduleCreate(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateCheckInSchedule) => {
@@ -32,7 +32,7 @@ export function useScheduleCreate(companyId: string) {
       toast.success('สร้างตารางเวลาเช็คชื่อสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: attendanceKeys.schedules(companyId),
+          queryKey: attendanceKeys.schedules(organizationId),
         }),
         queryClient.invalidateQueries({
           queryKey: ['ATTENDANCE', 'SCHEDULE', 'ROLE'],
@@ -45,7 +45,7 @@ export function useScheduleCreate(companyId: string) {
   });
 }
 
-export function useScheduleUpdate(companyId: string) {
+export function useScheduleUpdate(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -65,7 +65,7 @@ export function useScheduleUpdate(companyId: string) {
       toast.success('อัปเดตตารางเวลาสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: attendanceKeys.schedules(companyId),
+          queryKey: attendanceKeys.schedules(organizationId),
         }),
         queryClient.invalidateQueries({
           queryKey: ['ATTENDANCE', 'SCHEDULE', 'ROLE'],
@@ -152,7 +152,7 @@ export function useSlotDelete(scheduleId: string) {
   });
 }
 
-export function useAttendanceCheckIn(_companyId: string) {
+export function useAttendanceCheckIn(_organizationId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CheckInRequest) => {
@@ -189,7 +189,7 @@ export function useAttendanceCheckIn(_companyId: string) {
   });
 }
 
-export function useAttendanceManualCheckIn(_companyId: string) {
+export function useAttendanceManualCheckIn(_organizationId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateAttendanceLog) => {

@@ -17,9 +17,9 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Button } from '@repo/ui/components/button';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { useHasPermission } from '@/modules/auth/hooks/permission-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import {
-  useRoleSchedulesQueries,
+  useGetCheckInSchedulesByRole,
   useAssignedScheduleSlotsQueries,
   useMemberAttendanceLogsQueries,
 } from '../../hooks/attendance-queries';
@@ -39,22 +39,23 @@ const statusLabels = {
 };
 
 export default function CheckInForm({
-  companyId,
+  organizationId,
   onSuccess,
 }: {
-  companyId: string;
+  organizationId?: string;
   onSuccess?: () => void;
 }) {
+  const targetOrgId = organizationId || '';
   const slotInputId = useId();
   const { data: session } = useSession();
   const canCheckIn = useHasPermission('attendance:check_in');
-  const members = useCompanyMembersQueries(companyId);
+  const members = useOrganizationMembersQueries(targetOrgId);
   const matchingMembers =
     members.data?.filter(
       (item) => item.userId === session?.user.id && item.isActive,
     ) ?? [];
   const member = matchingMembers.length === 1 ? matchingMembers[0] : undefined;
-  const schedule = useRoleSchedulesQueries(companyId, member?.roleId);
+  const schedule = useGetCheckInSchedulesByRole(targetOrgId, member?.roleId);
   const schedules = schedule.data ?? [];
   const slots = useAssignedScheduleSlotsQueries(schedules);
   const [now, setNow] = useState<Date | null>(null);
@@ -70,13 +71,13 @@ export default function CheckInForm({
   const logs = useMemberAttendanceLogsQueries(now ? member?.id : undefined, {
     workDate,
   });
-  const mutation = useAttendanceCheckIn(companyId);
+  const mutation = useAttendanceCheckIn(targetOrgId);
   const methods = useForm({ defaultValues: { note: '' } });
   const [selection, setSelection] = useState<{
     scope: string;
     id: string;
   } | null>(null);
-  const scope = `${companyId}:${member?.id}:${schedules.map((item) => item.id).join(',')}:${workDate}`;
+  const scope = `${targetOrgId}:${member?.id}:${schedules.map((item) => item.id).join(',')}:${workDate}`;
   const recordedIds = new Set(
     logs.data
       ?.filter((log) => Boolean(log.checkedInAt))
@@ -122,11 +123,11 @@ export default function CheckInForm({
       </div>
     );
   if (matchingMembers.length > 1)
-    return <p role="alert">พบสมาชิกซ้ำในบริษัทนี้ กรุณาติดต่อผู้ดูแลระบบ</p>;
+    return <p role="alert">พบสมาชิกซ้ำในองค์กรนี้ กรุณาติดต่อผู้ดูแลระบบ</p>;
   if (!member)
     return (
       <p>
-        ไม่พบสมาชิกที่เปิดใช้งานสำหรับบัญชีของคุณในบริษัทนี้
+        ไม่พบสมาชิกที่เปิดใช้งานสำหรับบัญชีของคุณในองค์กรนี้
         กรุณาติดต่อผู้ดูแลระบบ
       </p>
     );
@@ -187,7 +188,7 @@ export default function CheckInForm({
             return;
           mutation.mutate(
             {
-              companyMemberId: member.id,
+              organizationMemberId: member.id,
               scheduleSlotId: selectedSlot.id,
               note: values.note || undefined,
             },

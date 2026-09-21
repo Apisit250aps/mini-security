@@ -21,10 +21,10 @@ import { FieldGroup } from '@repo/ui/components/field';
 import { Checkbox } from '@repo/ui/components/checkbox';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
 import {
   useFormTemplateCreate,
   useFormTemplateUpdate,
@@ -40,12 +40,15 @@ type CreateFormValues = z.infer<typeof createFormSchema>;
 
 export default function FormCreateView() {
   const router = useRouter();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
   const { data: session } = useSession();
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
-  const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
+  const membersQuery = useOrganizationMembersQueries(
+    activeOrganizationId || '',
+  );
+  const rolesQuery = useGetOrganizationRoles(activeOrganizationId || '');
 
-  const createMutation = useFormTemplateCreate(activeCompanyId || '');
+  const createMutation = useFormTemplateCreate(activeOrganizationId || '');
 
   const currentMember = membersQuery.data?.find(
     (m) => m.userId === session?.user.id && m.isActive,
@@ -62,19 +65,19 @@ export default function FormCreateView() {
 
   const handleSubmit = useCallback(
     (values: CreateFormValues) => {
-      if (!activeCompanyId) {
+      if (!activeOrganizationId) {
         toast.error('ไม่พบข้อมูลองค์กรที่กำลังใช้งาน');
         return;
       }
 
       createMutation.mutate(
         {
-          companyId: activeCompanyId,
+          organizationId: activeOrganizationId,
           name: values.name,
           description: values.description || null,
           isActive: true,
           createdBy,
-        },
+        } as never,
         {
           onSuccess: (res) => {
             const template = res?.data;
@@ -86,7 +89,7 @@ export default function FormCreateView() {
             toast.success(
               'สร้างแบบฟอร์มสำเร็จ กำลังนำเข้าสู่หน้าออกแบบฟิลด์คำถาม',
             );
-            router.push(`/company/forms/templates/${template.id}/builder`);
+            router.push(`/organization/forms/templates/${template.id}/builder`);
           },
           onError: (err) => {
             toast.error(getErrorMessage(err, 'ไม่สามารถสร้างแบบฟอร์มได้'));
@@ -94,19 +97,19 @@ export default function FormCreateView() {
         },
       );
     },
-    [activeCompanyId, createMutation, createdBy, router],
+    [activeOrganizationId, createMutation, createdBy, router],
   );
 
-  const isPageLoading = isCompanyLoading || !activeCompanyId;
+  const isPageLoading = isOrganizationLoading || !activeOrganizationId;
   const roles = rolesQuery.data || [];
 
   return (
     <PageLayout
-      pageId="companyFormCreate"
+      pageId="organizationFormCreate"
       isLoading={isPageLoading}
       loadingText="กำลังโหลดข้อมูลองค์กร..."
       actions={
-        <Link href={buildPageUrl('companyFormTemplates')}>
+        <Link href={buildPageUrl('organizationFormTemplates')}>
           <Button
             variant="ghost"
             size="sm"
@@ -163,7 +166,7 @@ export default function FormCreateView() {
 
               {/* Submit Buttons */}
               <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                <Link href={buildPageUrl('companyFormTemplates')}>
+                <Link href={buildPageUrl('organizationFormTemplates')}>
                   <Button variant="ghost" type="button">
                     ยกเลิก
                   </Button>

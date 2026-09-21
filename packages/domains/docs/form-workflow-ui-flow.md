@@ -8,25 +8,25 @@
 
 คงกลุ่มเมนู Forms เดิม ไม่กระจายการตั้งค่าแผน/Role ไปเมนูระดับบนใหม่ ภายในกลุ่มมี “แบบฟอร์ม”, “งานของฉัน” และ “รอตรวจ” ตามสิทธิ์ การตั้ง Role permissions อยู่หน้าจัดการสิทธิ์เดิม ไม่ทำ permission matrix ซ้ำใน Form
 
-Routes ต่อไปนี้เป็นข้อเสนอ โดยต่อจาก /company/forms/templates ที่มีอยู่จริง:
+Routes ต่อไปนี้เป็นข้อเสนอ โดยต่อจาก /organization/forms/templates ที่มีอยู่จริง:
 
-| Route                                                    | หน้าที่                                         |
-| -------------------------------------------------------- | ----------------------------------------------- |
-| /company/forms/templates                                 | ตาราง Form                                      |
-| /company/forms/templates/create                          | สร้างชื่อ/คำอธิบาย แล้ว redirect เข้ารายละเอียด |
-| /company/forms/templates/[id]                            | รายละเอียด: ภาพรวม                              |
-| /company/forms/templates/[id]/builder                    | คำถาม/Version ใช้ builder route เดิม            |
-| /company/forms/templates/[id]/plans                      | ตารางแผนภายใต้ Form                             |
-| /company/forms/templates/[id]/plans/new                  | สร้างแผน                                        |
-| /company/forms/templates/[id]/plans/[planId]             | แก้แผน/ดูประวัติ                                |
-| /company/forms/templates/[id]/occurrences                | ตารางรอบงาน                                     |
-| /company/forms/templates/[id]/occurrences/[occurrenceId] | รายละเอียดรอบและตาราง Assignment                |
-| /company/forms/templates/[id]/settings                   | ข้อมูลทั่วไป/เปิดปิด Form                       |
-| /company/forms/tasks                                     | งานของฉันจาก Role และ member                    |
-| /company/forms/assignments/[assignmentId]                | รายละเอียดงานและเริ่ม/ทำต่อ                     |
-| /company/forms/submissions/[id]                          | กรอกหรือดูคำตอบ revision; ต่อจาก route เดิม     |
-| /company/forms/reviews                                   | คิวตรวจ                                         |
-| /company/forms/submissions/[id]/review                   | หน้าตรวจ                                        |
+| Route                                                         | หน้าที่                                         |
+| ------------------------------------------------------------- | ----------------------------------------------- |
+| /organization/forms/templates                                 | ตาราง Form                                      |
+| /organization/forms/templates/create                          | สร้างชื่อ/คำอธิบาย แล้ว redirect เข้ารายละเอียด |
+| /organization/forms/templates/[id]                            | รายละเอียด: ภาพรวม                              |
+| /organization/forms/templates/[id]/builder                    | คำถาม/Version ใช้ builder route เดิม            |
+| /organization/forms/templates/[id]/plans                      | ตารางแผนภายใต้ Form                             |
+| /organization/forms/templates/[id]/plans/new                  | สร้างแผน                                        |
+| /organization/forms/templates/[id]/plans/[planId]             | แก้แผน/ดูประวัติ                                |
+| /organization/forms/templates/[id]/occurrences                | ตารางรอบงาน                                     |
+| /organization/forms/templates/[id]/occurrences/[occurrenceId] | รายละเอียดรอบและตาราง Assignment                |
+| /organization/forms/templates/[id]/settings                   | ข้อมูลทั่วไป/เปิดปิด Form                       |
+| /organization/forms/tasks                                     | งานของฉันจาก Role และ member                    |
+| /organization/forms/assignments/[assignmentId]                | รายละเอียดงานและเริ่ม/ทำต่อ                     |
+| /organization/forms/submissions/[id]                          | กรอกหรือดูคำตอบ revision; ต่อจาก route เดิม     |
+| /organization/forms/reviews                                   | คิวตรวจ                                         |
+| /organization/forms/submissions/[id]/review                   | หน้าตรวจ                                        |
 
 รายละเอียด Form ใช้ header ร่วม: breadcrumb “แบบฟอร์ม > ชื่อ Form”, ชื่อ, เปิด/ปิด, published version และ tabs “ภาพรวม / คำถาม / แผนงาน / รอบงาน / ตั้งค่า” ใช้ URL จริงเพื่อ refresh/deep link/back ได้
 
@@ -176,7 +176,7 @@ Plan detail มีหยุด/เปิดอีกครั้งพร้อ�
 - แยก components ตาม template/plan/occurrence/assignment/fill/review และ hooks ตาม query/mutation เมื่อไฟล์ใหญ่
 - ใช้ shared fields/table/overlay conventions เดิม; overlay component private และ export render functions ตามรูปแบบโมดูลที่เลือกใช้ ไม่สร้าง overlay framework ใหม่
 - Server data อยู่ React Query; input draft อยู่ form state; filters อยู่ URL; ไม่คัดลอก server entities ไป global store อีกชุด
-- Query key ต้องมี companyId และ filters/ids เช่น formKeys.plans(companyId, templateId, filters), assignment(companyId, id), review(companyId, submissionId)
+- Query key ต้องมี organizationId และ filters/ids เช่น formKeys.plans(organizationId, templateId, filters), assignment(organizationId, id), review(organizationId, submissionId)
 - Tenant switch ยกเลิก in-flight requests, reset local draft/navigation ที่ข้าม tenant และใช้ query key ใหม่ ไม่แสดงผลบริษัทเดิมในหน้าใหม่
 - Permission hints/available actions จาก server ใช้แสดง UI แต่ backend ตรวจซ้ำทุก mutation; ไม่ persist effective permissions
 - Generated SDK errors ต้องถูกตรวจและ throw ผ่าน boundary helper ที่ใช้ร่วมกัน ห้าม fallback []/null เมื่อ HTTP error จนแสดงว่าไม่มีข้อมูล

@@ -13,7 +13,7 @@ const ids = Array.from(
   { length: 6 },
   (_, i) => `00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`,
 );
-const [versionId, templateId, companyId, a, b, c] = ids as [
+const [versionId, templateId, organizationId, a, b, c] = ids as [
   string,
   string,
   string,
@@ -23,7 +23,7 @@ const [versionId, templateId, companyId, a, b, c] = ids as [
 ];
 const context = {
   user: { id: 'actor', isActive: true },
-  activeCompanyId: companyId,
+  activeOrganizationId: organizationId,
   permissions: 'form_template:update',
   formTemplateId: templateId,
   formVersionId: versionId,
@@ -53,14 +53,14 @@ for (const kind of ['section', 'field'] as const) {
         return {
           id: versionId,
           formTemplateId: templateId,
-          companyId: foreign ? c : companyId,
+          organizationId: foreign ? c : organizationId,
           status,
         };
       },
     } as IFormVersionRepository;
     const records = [a, b].map((id) => ({
       id,
-      companyId,
+      organizationId,
       formVersionId: versionId,
       formSectionId: a,
     }));
@@ -97,9 +97,9 @@ for (const kind of ['section', 'field'] as const) {
       await assert.rejects(f.useCase.execute(context), /draft/i);
       assert.equal(f.writes(), 0);
     });
-  test(`${kind}: rejects foreign company`, async () => {
+  test(`${kind}: rejects foreign organization`, async () => {
     const f = fixture('DRAFT', true);
-    await assert.rejects(f.useCase.execute(context), /company/i);
+    await assert.rejects(f.useCase.execute(context), /organization/i);
     assert.equal(f.writes(), 0);
   });
   test(`${kind}: requires update permission`, async () => {

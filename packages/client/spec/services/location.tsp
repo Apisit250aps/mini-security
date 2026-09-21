@@ -11,16 +11,16 @@ namespace MiniSecurity;
 @route("/locations")
 interface LocationService {
   @get
-  @summary("Get locations by company")
-  listLocationsByCompany(
-    @query companyId: string,
+  @summary("Get locations by organization")
+  listLocationsByOrganization(
+    @query organizationId: string,
   ): ApiOkResponse<Location[]> | ApiUnauthorizedResponse;
 
   @get
-  @route("/branch/{branchId}")
-  @summary("Get active locations by branch")
-  listLocationsByBranch(
-    @path branchId: string,
+  @route("/site/{siteId}")
+  @summary("Get active locations by site")
+  listLocationsBySite(
+    @path siteId: string,
   ): ApiOkResponse<Location[]> | ApiUnauthorizedResponse;
 
   @get
@@ -49,12 +49,12 @@ interface LocationService {
   @summary("Delete a location")
   deleteLocation(
     @path id: string,
-    @query companyId: string,
+    @query organizationId: string,
   ): ApiOkBasicResponse | ApiNotFoundResponse | ApiUnauthorizedResponse;
 
   @post
   @route("/set-primary")
-  @summary("Set branch primary location")
+  @summary("Set site primary location")
   setPrimaryLocation(
     @body body: SetPrimaryLocationRequest,
   ): ApiOkResponse<Location> | ApiBadRequestResponse | ApiUnauthorizedResponse;

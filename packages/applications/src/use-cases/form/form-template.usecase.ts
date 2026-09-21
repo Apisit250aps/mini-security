@@ -17,8 +17,8 @@ import type {
   ICreateFormTemplateUseCase,
   IGetFormTemplateContext,
   IGetFormTemplateUseCase,
-  IListFormTemplatesByCompanyContext,
-  IListFormTemplatesByCompanyUseCase,
+  IListFormTemplatesByOrganizationContext,
+  IListFormTemplatesByOrganizationUseCase,
   IPublishFormVersionContext,
   IPublishFormVersionUseCase,
   IUpdateFormTemplateContext,
@@ -32,7 +32,7 @@ import type {
   IFormTemplateRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import {
   createFormFieldSchema,
   createFormSectionSchema,
@@ -55,14 +55,17 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
     private readonly unitOfWork: IUnitOfWork,
     private readonly templateRepo: IFormTemplateRepository,
     private readonly versionRepo: IFormVersionRepository,
-    private readonly memberRepo?: ICompanyMemberRepository,
+    private readonly memberRepo?: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_template:create')
   async execute(context: ICreateFormTemplateContext): Promise<FormTemplate> {
-    const companyId =
-      context.companyId ?? context.activeCompanyId ?? context.data.companyId;
-    if (!companyId) throw new BadRequestError('companyId is required');
+    const organizationId =
+      context.organizationId ??
+      context.activeOrganizationId ??
+      context.data.organizationId;
+    if (!organizationId)
+      throw new BadRequestError('organizationId is required');
 
     return this.unitOfWork.transaction(async () => {
       let createdBy: string | null = null;
@@ -72,16 +75,20 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
           ? await this.memberRepo.findById(context.memberId)
           : null;
         if (
-          (!member || !member.isActive || member.companyId !== companyId) &&
+          (!member ||
+            !member.isActive ||
+            member.organizationId !== organizationId) &&
           context.user?.id
         ) {
-          member = await this.memberRepo.findByCompanyAndUser(
-            companyId,
+          member = await this.memberRepo.findByOrganizationAndUser(
+            organizationId,
             context.user.id,
           );
         }
         if (
-          (!member || !member.isActive || member.companyId !== companyId) &&
+          (!member ||
+            !member.isActive ||
+            member.organizationId !== organizationId) &&
           context.data?.createdBy
         ) {
           const maybeMember = await this.memberRepo.findById(
@@ -90,24 +97,29 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
           if (
             maybeMember &&
             maybeMember.isActive &&
-            maybeMember.companyId === companyId
+            maybeMember.organizationId === organizationId
           ) {
             member = maybeMember;
           } else {
-            const maybeUserMember = await this.memberRepo.findByCompanyAndUser(
-              companyId,
-              context.data.createdBy,
-            );
+            const maybeUserMember =
+              await this.memberRepo.findByOrganizationAndUser(
+                organizationId,
+                context.data.createdBy,
+              );
             if (
               maybeUserMember &&
               maybeUserMember.isActive &&
-              maybeUserMember.companyId === companyId
+              maybeUserMember.organizationId === organizationId
             ) {
               member = maybeUserMember;
             }
           }
         }
-        if (member && member.isActive && member.companyId === companyId) {
+        if (
+          member &&
+          member.isActive &&
+          member.organizationId === organizationId
+        ) {
           createdBy = member.id;
         }
       } else {
@@ -116,13 +128,13 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
 
       if (!createdBy) {
         throw new BadRequestError(
-          'Active company membership is required to create a template',
+          'Active organization membership is required to create a template',
         );
       }
 
       const parsed = await createFormTemplateSchema.safeParseAsync({
         ...context.data,
-        companyId,
+        organizationId,
         createdBy,
       });
       if (!parsed.success) {
@@ -133,7 +145,7 @@ export class CreateFormTemplateUseCase implements ICreateFormTemplateUseCase {
 
       // Automatically initialize Version 1 as DRAFT
       await this.versionRepo.create({
-        companyId: template.companyId,
+        organizationId: template.organizationId,
         formTemplateId: template.id,
         version: 1,
         status: 'DRAFT',
@@ -220,19 +232,19 @@ export class GetFormTemplateUseCase implements IGetFormTemplateUseCase {
 }
 
 /**
- * 4. List Form Templates By Company
+ * 4. List Form Templates By Organization
  */
 
-export class ListFormTemplatesByCompanyUseCase
-  implements IListFormTemplatesByCompanyUseCase
+export class ListFormTemplatesByOrganizationUseCase
+  implements IListFormTemplatesByOrganizationUseCase
 {
   constructor(private readonly templateRepo: IFormTemplateRepository) {}
 
   @RequirePermission('form_template:read')
   async execute(
-    context: IListFormTemplatesByCompanyContext,
+    context: IListFormTemplatesByOrganizationContext,
   ): Promise<FormTemplate[]> {
-    return this.templateRepo.findByCompanyId(context.companyId);
+    return this.templateRepo.findByOrganizationId(context.organizationId);
   }
 }
 
@@ -316,7 +328,7 @@ export class CreateFormFieldUseCase implements ICreateFormFieldUseCase {
         }
         savedOptions = await this.optionRepo.replaceOptions(
           field.id,
-          field.companyId,
+          field.organizationId,
           field.formVersionId,
           options,
         );
@@ -336,7 +348,7 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
     private readonly versionRepo: IFormVersionRepository,
     private readonly sectionRepo: IFormSectionRepository,
     private readonly fieldRepo: IFormFieldRepository,
-    private readonly memberRepo?: ICompanyMemberRepository,
+    private readonly memberRepo?: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_template:publish')
@@ -374,8 +386,10 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
         });
       }
 
-      const companyId =
-        context.companyId ?? context.activeCompanyId ?? draft.companyId;
+      const organizationId =
+        context.organizationId ??
+        context.activeOrganizationId ??
+        draft.organizationId;
       let publishedBy: string | null = null;
 
       if (this.memberRepo) {
@@ -383,15 +397,21 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
           ? await this.memberRepo.findById(context.memberId)
           : null;
         if (
-          (!member || !member.isActive || member.companyId !== companyId) &&
+          (!member ||
+            !member.isActive ||
+            member.organizationId !== organizationId) &&
           context.user?.id
         ) {
-          member = await this.memberRepo.findByCompanyAndUser(
-            companyId,
+          member = await this.memberRepo.findByOrganizationAndUser(
+            organizationId,
             context.user.id,
           );
         }
-        if (member && member.isActive && member.companyId === companyId) {
+        if (
+          member &&
+          member.isActive &&
+          member.organizationId === organizationId
+        ) {
           publishedBy = member.id;
         }
       } else {
@@ -400,7 +420,7 @@ export class PublishFormVersionUseCase implements IPublishFormVersionUseCase {
 
       if (!publishedBy) {
         throw new BadRequestError(
-          'Active company membership is required to publish a form version',
+          'Active organization membership is required to publish a form version',
         );
       }
 

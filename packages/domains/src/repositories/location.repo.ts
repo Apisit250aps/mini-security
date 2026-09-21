@@ -9,13 +9,13 @@ import type {
 
 export interface ILocationRepository
   extends BaseRepository<Location, CreateLocation, UpdateLocation> {
-  findByCompanyId(companyId: string): Promise<Location[]>;
-  findByBranchId(branchId: string): Promise<Location[]>;
-  findActiveByBranchId(branchId: string): Promise<Location[]>;
-  findPrimaryByBranchId(branchId: string): Promise<Location | null>;
+  findByOrganizationId(organizationId: string): Promise<Location[]>;
+  findBySiteId(siteId: string): Promise<Location[]>;
+  findActiveBySiteId(siteId: string): Promise<Location[]>;
+  findPrimaryBySiteId(siteId: string): Promise<Location | null>;
   setPrimaryLocation(
-    companyId: string,
-    branchId: string,
+    organizationId: string,
+    siteId: string,
     locationId: string,
   ): Promise<Location>;
 }

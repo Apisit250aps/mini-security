@@ -1,6 +1,6 @@
 import {
   attendanceKeys,
-  companyKeys,
+  organizationKeys,
   featureKeys,
   permissionKeys,
   sessionKeys,
@@ -32,7 +32,7 @@ function useRoleDelete() {
       toast.success('ลบบทบาทสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: roleKeys.all }),
-        queryClient.invalidateQueries({ queryKey: companyKeys.all }),
+        queryClient.invalidateQueries({ queryKey: organizationKeys.all }),
         queryClient.invalidateQueries({ queryKey: featureKeys.all }),
         queryClient.invalidateQueries({ queryKey: attendanceKeys.all }),
         queryClient.invalidateQueries({ queryKey: permissionKeys.all }),

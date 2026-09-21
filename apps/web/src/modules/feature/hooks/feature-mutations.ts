@@ -1,16 +1,16 @@
 import {
-  featureServicesAssignCompanyFeature,
+  featureServicesAssignOrganizationFeature,
   featureServicesAssignRoleFeature,
   featureServicesCreateFeature,
-  featureServicesRemoveCompanyFeature,
+  featureServicesRemoveOrganizationFeature,
   featureServicesRevokeRoleFeature,
-  featureServicesToggleCompanyFeature,
+  featureServicesToggleOrganizationFeature,
   featureServicesToggleFeature,
   featureServicesToggleRoleFeature,
   featureServicesUpdateFeature,
 } from '@repo/client';
 import type {
-  CreateCompanyFeature,
+  CreateOrganizationFeature,
   CreateFeature,
   CreateRoleFeature,
   UpdateFeature,
@@ -20,42 +20,44 @@ import { toast } from '@repo/ui/components/sonner';
 import { featureKeys, getErrorMessage } from '@/shared/utils';
 
 /**
- * 1. Company Feature Mutations (Super Admin)
+ * 1. Organization Feature Mutations (Super Admin)
  */
 
-export function useCompanyFeatureToggle() {
+export function useOrganizationFeatureToggle() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      companyId,
+      organizationId,
       featureId,
       isEnabled,
     }: {
-      companyId: string;
+      organizationId?: string;
       featureId: string;
       isEnabled: boolean;
     }) => {
-      const res = await featureServicesToggleCompanyFeature({
-        path: { companyId },
+      const orgId = organizationId || '';
+      const res = await featureServicesToggleOrganizationFeature({
+        path: { organizationId: orgId },
         body: { featureId, isEnabled },
       });
       return res;
     },
     onSuccess: async (_, variables) => {
+      const orgId = variables.organizationId || '';
       toast.success(
         variables.isEnabled
-          ? 'เปิดใช้งานฟีเจอร์สำหรับบริษัทเรียบร้อยแล้ว'
-          : 'ปิดการใช้งานฟีเจอร์สำหรับบริษัทเรียบร้อยแล้ว',
+          ? 'เปิดใช้งานฟีเจอร์สำหรับองค์กรเรียบร้อยแล้ว'
+          : 'ปิดการใช้งานฟีเจอร์สำหรับองค์กรเรียบร้อยแล้ว',
       );
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: featureKeys.company(variables.companyId),
+          queryKey: featureKeys.organization(orgId),
         }),
         queryClient.invalidateQueries({
-          queryKey: featureKeys.companyAvailable(variables.companyId),
+          queryKey: featureKeys.organizationAvailable(orgId),
         }),
         queryClient.invalidateQueries({
-          queryKey: ['FEATURE', 'COMPANY_ROLES'],
+          queryKey: ['FEATURE', 'ORGANIZATION_ROLES'],
         }),
         queryClient.invalidateQueries({ queryKey: ['FEATURE', 'ROLE'] }),
       ]);
@@ -64,79 +66,79 @@ export function useCompanyFeatureToggle() {
       toast.error(
         getErrorMessage(
           error,
-          'เกิดข้อผิดพลาดในการเปลี่ยนสถานะฟีเจอร์ของบริษัท',
+          'เกิดข้อผิดพลาดในการเปลี่ยนสถานะฟีเจอร์ขององค์กร',
         ),
       );
     },
   });
 }
 
-export function useCompanyFeatureAssign(companyId: string) {
+export function useOrganizationFeatureAssign(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: CreateCompanyFeature) => {
-      const res = await featureServicesAssignCompanyFeature({
-        path: { companyId },
+    mutationFn: async (data: CreateOrganizationFeature) => {
+      const res = await featureServicesAssignOrganizationFeature({
+        path: { organizationId },
         body: data,
       });
       return res;
     },
     onSuccess: async () => {
-      toast.success('มอบหมายฟีเจอร์ให้บริษัทสำเร็จ');
+      toast.success('มอบหมายฟีเจอร์ให้องค์กรสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: featureKeys.company(companyId),
+          queryKey: featureKeys.organization(organizationId),
         }),
         queryClient.invalidateQueries({
-          queryKey: featureKeys.companyAvailable(companyId),
+          queryKey: featureKeys.organizationAvailable(organizationId),
         }),
         queryClient.invalidateQueries({
-          queryKey: ['FEATURE', 'COMPANY_ROLES'],
+          queryKey: ['FEATURE', 'ORGANIZATION_ROLES'],
         }),
       ]);
     },
     onError: (error: unknown) => {
       toast.error(
-        getErrorMessage(error, 'เกิดข้อผิดพลาดในการมอบหมายฟีเจอร์ให้บริษัท'),
+        getErrorMessage(error, 'เกิดข้อผิดพลาดในการมอบหมายฟีเจอร์ให้องค์กร'),
       );
     },
   });
 }
 
-export function useCompanyFeatureRemove(companyId: string) {
+export function useOrganizationFeatureRemove(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (featureId: string) => {
-      const res = await featureServicesRemoveCompanyFeature({
-        path: { companyId, featureId },
+      const res = await featureServicesRemoveOrganizationFeature({
+        path: { organizationId, featureId },
       });
       return res;
     },
     onSuccess: async () => {
-      toast.success('ลบฟีเจอร์ออกจากบริษัทสำเร็จ');
+      toast.success('ลบฟีเจอร์ออกจากองค์กรสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: featureKeys.company(companyId),
+          queryKey: featureKeys.organization(organizationId),
         }),
         queryClient.invalidateQueries({
-          queryKey: featureKeys.companyAvailable(companyId),
+          queryKey: featureKeys.organizationAvailable(organizationId),
         }),
         queryClient.invalidateQueries({
-          queryKey: ['FEATURE', 'COMPANY_ROLES'],
+          queryKey: ['FEATURE', 'ORGANIZATION_ROLES'],
         }),
         queryClient.invalidateQueries({ queryKey: ['FEATURE', 'ROLE'] }),
       ]);
     },
     onError: (error: unknown) => {
       toast.error(
-        getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบฟีเจอร์ออกจากบริษัท'),
+        getErrorMessage(error, 'เกิดข้อผิดพลาดในการลบฟีเจอร์ออกจากองค์กร'),
       );
     },
   });
 }
 
 /**
- * 2. Role Feature Mutations (Company Admin)
+ * 2. Role Feature Mutations (Organization Admin)
  */
 
 export function useRoleFeatureAssign(roleId: string) {
@@ -154,9 +156,11 @@ export function useRoleFeatureAssign(roleId: string) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: featureKeys.role(roleId) }),
         queryClient.invalidateQueries({
-          queryKey: featureKeys.companyRoles(variables.companyId),
+          queryKey: featureKeys.organizationRoles(variables.organizationId),
         }),
-        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'COMPANY'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['FEATURE', 'ORGANIZATION'],
+        }),
       ]);
     },
     onError: (error: unknown) => {
@@ -172,22 +176,24 @@ export function useRoleFeatureToggle() {
   return useMutation({
     mutationFn: async ({
       roleId,
-      companyId,
+      organizationId,
       featureId,
       isEnabled,
     }: {
       roleId: string;
-      companyId: string;
+      organizationId?: string;
       featureId: string;
       isEnabled: boolean;
     }) => {
+      const orgId = organizationId || '';
       const res = await featureServicesToggleRoleFeature({
         path: { roleId },
-        body: { companyId, featureId, isEnabled },
+        body: { organizationId: orgId, featureId, isEnabled },
       });
       return res;
     },
     onSuccess: async (_, variables) => {
+      const orgId = variables.organizationId || '';
       toast.success(
         variables.isEnabled
           ? 'เปิดสิทธิ์ฟีเจอร์ให้บทบาทเรียบร้อยแล้ว'
@@ -198,9 +204,11 @@ export function useRoleFeatureToggle() {
           queryKey: featureKeys.role(variables.roleId),
         }),
         queryClient.invalidateQueries({
-          queryKey: featureKeys.companyRoles(variables.companyId),
+          queryKey: featureKeys.organizationRoles(orgId),
         }),
-        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'COMPANY'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['FEATURE', 'ORGANIZATION'],
+        }),
       ]);
     },
     onError: (error: unknown) => {
@@ -214,13 +222,16 @@ export function useRoleFeatureToggle() {
   });
 }
 
-export function useRoleFeatureRevoke(roleId: string, companyId: string) {
+export function useRoleFeatureRevoke(
+  roleId: string,
+  organizationId: string = '',
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (featureId: string) => {
       const res = await featureServicesRevokeRoleFeature({
         path: { roleId, featureId },
-        query: { companyId },
+        query: { organizationId: organizationId },
       });
       return res;
     },
@@ -229,9 +240,11 @@ export function useRoleFeatureRevoke(roleId: string, companyId: string) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: featureKeys.role(roleId) }),
         queryClient.invalidateQueries({
-          queryKey: featureKeys.companyRoles(companyId),
+          queryKey: featureKeys.organizationRoles(organizationId),
         }),
-        queryClient.invalidateQueries({ queryKey: ['FEATURE', 'COMPANY'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['FEATURE', 'ORGANIZATION'],
+        }),
       ]);
     },
     onError: (error: unknown) => {

@@ -6,24 +6,25 @@ import { FileCheck, Search } from 'lucide-react';
 import { Button } from '@repo/ui/components/button';
 import { Badge } from '@repo/ui/components/badge';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { useReviewQueueQueries } from '../hooks/form-queries';
 import { formatDate } from '@/shared/utils/date';
 
 export default function FormReviewQueueView() {
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
 
   const queueQuery = useReviewQueueQueries({
-    companyId: activeCompanyId || '',
+    organizationId: activeOrganizationId || '',
   });
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || queueQuery.isLoading;
+    isOrganizationLoading || !activeOrganizationId || queueQuery.isLoading;
   const submissions = queueQuery.data || [];
 
   return (
     <PageLayout
-      pageId="companyFormReviewQueue"
+      pageId="organizationFormReviewQueue"
       title="คิวตรวจ"
       description="รายการแบบฟอร์มที่รอการตรวจอนุมัติ"
       isLoading={isPageLoading}
@@ -66,7 +67,7 @@ export default function FormReviewQueueView() {
                     </div>
                   </div>
                 </div>
-                <Link href={`/company/forms/submissions/${sub.id}/review`}>
+                <Link href={`/organization/forms/submissions/${sub.id}/review`}>
                   <Button variant="default">ตรวจแบบฟอร์ม</Button>
                 </Link>
               </div>

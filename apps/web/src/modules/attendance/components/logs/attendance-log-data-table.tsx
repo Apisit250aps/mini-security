@@ -10,21 +10,22 @@ import {
 import { ClipboardCheck, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { DateRangeField } from '@repo/ui/form';
 import {
-  useCompanyAttendanceLogsQueries,
-  useCompanySchedulesQueries,
+  useGetOrganizationLogs,
+  useGetCheckInSchedulesByOrganization,
   useAssignedScheduleSlotsQueries,
 } from '../../hooks/attendance-queries';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import attendanceLogDataColumns from './attendance-log-data-columns';
 
 interface AttendanceLogDataTableProps {
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function AttendanceLogDataTable({
-  companyId,
+  organizationId,
 }: AttendanceLogDataTableProps) {
+  const targetOrgId = organizationId || '';
   const now = new Date();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
     .toISOString()
@@ -43,13 +44,13 @@ export default function AttendanceLogDataTable({
   const startDate = range?.start || firstDay;
   const endDate = range?.end || lastDay;
 
-  const logsQuery = useCompanyAttendanceLogsQueries(companyId, {
+  const logsQuery = useGetOrganizationLogs(targetOrgId, {
     startDate,
     endDate,
   });
-  const membersQuery = useCompanyMembersQueries(companyId);
+  const membersQuery = useOrganizationMembersQueries(targetOrgId);
   const usersQuery = useUserListQueries();
-  const schedulesQuery = useCompanySchedulesQueries(companyId);
+  const schedulesQuery = useGetCheckInSchedulesByOrganization(targetOrgId);
   const slotsQuery = useAssignedScheduleSlotsQueries(schedulesQuery.data ?? []);
 
   const usersMap = useMemo(() => {

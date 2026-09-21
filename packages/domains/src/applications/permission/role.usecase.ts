@@ -11,8 +11,8 @@ export type IUpdateRoleContext = ISecurityContext & {
 };
 export type IDeleteRoleContext = ISecurityContext & { id: string };
 export type IGetRoleContext = ISecurityContext & { id: string };
-export type IGetRolesByCompanyContext = ISecurityContext & {
-  companyId: string;
+export type IGetRolesByOrganizationContext = ISecurityContext & {
+  organizationId: string;
 };
 export type IGetSystemDefaultRolesContext = ISecurityContext | void;
 
@@ -21,8 +21,8 @@ export type ICreateRoleUseCase = BaseUseCase<ICreateRoleContext, Role>;
 export type IUpdateRoleUseCase = BaseUseCase<IUpdateRoleContext, Role>;
 export type IDeleteRoleUseCase = BaseUseCase<IDeleteRoleContext, void>;
 export type IGetRoleUseCase = BaseUseCase<IGetRoleContext, Role | null>;
-export type IGetRolesByCompanyUseCase = BaseUseCase<
-  IGetRolesByCompanyContext,
+export type IGetRolesByOrganizationUseCase = BaseUseCase<
+  IGetRolesByOrganizationContext,
   Role[]
 >;
 export type IGetSystemDefaultRolesUseCase = BaseUseCase<

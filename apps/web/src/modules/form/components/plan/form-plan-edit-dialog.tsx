@@ -42,8 +42,8 @@ import type {
   FormPlanPeriod,
 } from '@repo/domains/entities';
 import type { FormTemplateDetail } from '@repo/client';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useFormPlanUpdate } from '../../hooks/form-mutations';
 
 export type TargetItem =
@@ -54,7 +54,7 @@ export type TargetItem =
     }
   | {
       type: 'MEMBER';
-      companyMemberId: string;
+      organizationMemberId: string;
     };
 
 export type PeriodItem = {
@@ -68,7 +68,7 @@ interface FormPlanEditDialogProps {
   plan: FormPlan;
   initialTargets: FormPlanTarget[];
   initialPeriods: FormPlanPeriod[];
-  companyId: string;
+  organizationId?: string;
   templateDetail?: FormTemplateDetail | null;
 }
 
@@ -78,14 +78,15 @@ export default function FormPlanEditDialog({
   plan,
   initialTargets,
   initialPeriods,
-  companyId,
+  organizationId,
   templateDetail,
 }: FormPlanEditDialogProps) {
+  const activeOrgId = organizationId || '';
   const router = useRouter();
-  const updatePlanMutation = useFormPlanUpdate(companyId, plan.id);
+  const updatePlanMutation = useFormPlanUpdate(activeOrgId, plan.id);
 
-  const rolesQuery = useCompanyRolesQueries(companyId);
-  const membersQuery = useCompanyMembersQueries(companyId);
+  const rolesQuery = useGetOrganizationRoles(activeOrgId);
+  const membersQuery = useOrganizationMembersQueries(activeOrgId);
 
   const roles = useMemo(() => rolesQuery.data || [], [rolesQuery.data]);
   const members = useMemo(() => membersQuery.data || [], [membersQuery.data]);
@@ -161,7 +162,9 @@ export default function FormPlanEditDialog({
           }
         : {
             type: 'MEMBER' as const,
-            companyMemberId: t.companyMemberId || '',
+            organizationMemberId:
+              (t as unknown as { organizationMemberId?: string })
+                .organizationMemberId || '',
           },
     ),
   );
@@ -212,7 +215,7 @@ export default function FormPlanEditDialog({
         return;
       }
       const exists = targets.some(
-        (t) => t.type === 'MEMBER' && t.companyMemberId === newMemberId,
+        (t) => t.type === 'MEMBER' && t.organizationMemberId === newMemberId,
       );
       if (exists) {
         toast.error('พนักงานคนนี้ถูกเพิ่มในรายการมอบหมายแล้ว');
@@ -222,7 +225,7 @@ export default function FormPlanEditDialog({
         ...targets,
         {
           type: 'MEMBER',
-          companyMemberId: newMemberId,
+          organizationMemberId: newMemberId,
         },
       ]);
       setNewMemberId('');
@@ -328,7 +331,7 @@ export default function FormPlanEditDialog({
                 roleDistribution: t.roleDistribution,
               }
             : {
-                companyMemberId: t.companyMemberId,
+                organizationMemberId: t.organizationMemberId,
               },
         ),
         periods:
@@ -346,7 +349,7 @@ export default function FormPlanEditDialog({
             toast.success(
               `บันทึกการตั้งค่าสำเร็จ (สร้างเวอร์ชันใหม่ v${result.data.revision})`,
             );
-            router.push(`/company/forms/plans/${result.data.id}`);
+            router.push(`/organization/forms/plans/${result.data.id}`);
           }
         },
       },
@@ -881,7 +884,7 @@ export default function FormPlanEditDialog({
                       : null;
                   const memberName =
                     t.type === 'MEMBER'
-                      ? `พนักงาน: ${t.companyMemberId.slice(0, 8)}`
+                      ? `พนักงาน: ${t.organizationMemberId.slice(0, 8)}`
                       : null;
 
                   return (

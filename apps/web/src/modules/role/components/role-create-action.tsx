@@ -6,14 +6,15 @@ import { Button } from '@repo/ui/components/button';
 import { Plus } from 'lucide-react';
 
 export default function RoleCreateAction({
-  companyId,
+  organizationId,
 }: {
-  companyId?: string;
+  organizationId?: string;
 }) {
+  const orgId = organizationId;
   const router = useRouter();
   const createAction = () => {
-    if (companyId) {
-      router.push('/company/role/new');
+    if (orgId) {
+      router.push('/organization/role/new');
     } else {
       router.push('/admin/role/new');
     }

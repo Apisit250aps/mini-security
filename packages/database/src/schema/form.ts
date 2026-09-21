@@ -23,7 +23,7 @@ import {
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
-import { company, companyMember } from './company';
+import { organization, organizationMember } from './organization';
 import { role } from './permission';
 
 // Enums
@@ -69,9 +69,9 @@ export const formTemplate = pgTable(
   'form_template',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     name: text('name').notNull(),
     description: text('description'),
     isActive: boolean('is_active').default(true).notNull(),
@@ -81,16 +81,22 @@ export const formTemplate = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('form_template_id_company_id_unique').on(table.id, table.companyId),
-    index('form_template_company_id_is_active_idx').on(
-      table.companyId,
+    unique('form_template_id_organization_id_unique').on(
+      table.id,
+      table.organizationId,
+    ),
+    index('form_template_organization_id_is_active_idx').on(
+      table.organizationId,
       table.isActive,
     ),
     index('form_template_deleted_at_idx').on(table.deletedAt),
     foreignKey({
-      columns: [table.createdBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
-      name: 'form_template_created_by_company_member_fk',
+      columns: [table.createdBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
+      name: 'form_template_created_by_org_member_fk',
     }).onDelete('restrict'),
   ],
 );
@@ -99,9 +105,9 @@ export const formVersion = pgTable(
   'form_version',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     formTemplateId: uuid('form_template_id').notNull(),
     version: integer('version').notNull(),
     status: formVersionStatusEnum('status').default('DRAFT').notNull(),
@@ -115,11 +121,14 @@ export const formVersion = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('form_version_id_company_id_unique').on(table.id, table.companyId),
-    index('form_version_deleted_at_idx').on(table.deletedAt),
-    unique('form_version_id_company_template_unique').on(
+    unique('form_version_id_organization_id_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
+    ),
+    index('form_version_deleted_at_idx').on(table.deletedAt),
+    unique('form_version_id_organization_template_unique').on(
+      table.id,
+      table.organizationId,
       table.formTemplateId,
     ),
     unique('form_version_template_version_unique').on(
@@ -132,25 +141,34 @@ export const formVersion = pgTable(
     uniqueIndex('form_one_published_version')
       .on(table.formTemplateId)
       .where(sql`status = 'PUBLISHED'`),
-    index('form_version_company_status_idx').on(table.companyId, table.status),
+    index('form_version_organization_status_idx').on(
+      table.organizationId,
+      table.status,
+    ),
     check(
       'form_version_publish_metadata_check',
       sql`(status = 'DRAFT' AND published_at IS NULL AND published_by IS NULL) OR (status IN ('PUBLISHED', 'ARCHIVED') AND published_at IS NOT NULL AND published_by IS NOT NULL)`,
     ),
     foreignKey({
-      columns: [table.formTemplateId, table.companyId],
-      foreignColumns: [formTemplate.id, formTemplate.companyId],
+      columns: [table.formTemplateId, table.organizationId],
+      foreignColumns: [formTemplate.id, formTemplate.organizationId],
       name: 'form_version_form_template_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.createdBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
-      name: 'form_version_created_by_company_member_fk',
+      columns: [table.createdBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
+      name: 'form_version_created_by_org_member_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.publishedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
-      name: 'form_version_published_by_company_member_fk',
+      columns: [table.publishedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
+      name: 'form_version_published_by_org_member_fk',
     }).onDelete('restrict'),
   ],
 );
@@ -159,9 +177,9 @@ export const formSection = pgTable(
   'form_section',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     formVersionId: uuid('form_version_id').notNull(),
     title: text('title').notNull(),
     description: text('description'),
@@ -171,9 +189,9 @@ export const formSection = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('form_section_id_company_version_unique').on(
+    unique('form_section_id_organization_version_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.formVersionId,
     ),
     index('form_section_version_sort_idx').on(
@@ -183,8 +201,8 @@ export const formSection = pgTable(
     index('form_section_deleted_at_idx').on(table.deletedAt),
     check('form_section_sort_order_check', sql`sort_order >= 0`),
     foreignKey({
-      columns: [table.formVersionId, table.companyId],
-      foreignColumns: [formVersion.id, formVersion.companyId],
+      columns: [table.formVersionId, table.organizationId],
+      foreignColumns: [formVersion.id, formVersion.organizationId],
       name: 'form_section_form_version_fk',
     }).onDelete('restrict'),
   ],
@@ -194,9 +212,9 @@ export const formField = pgTable(
   'form_field',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     formVersionId: uuid('form_version_id').notNull(),
     formSectionId: uuid('form_section_id').notNull(),
     name: text('name').notNull().default(''),
@@ -215,9 +233,9 @@ export const formField = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('form_field_id_company_version_unique').on(
+    unique('form_field_id_organization_version_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.formVersionId,
     ),
     index('form_field_section_sort_idx').on(
@@ -227,10 +245,10 @@ export const formField = pgTable(
     index('form_field_deleted_at_idx').on(table.deletedAt),
     check('form_field_sort_order_check', sql`sort_order >= 0`),
     foreignKey({
-      columns: [table.formSectionId, table.companyId, table.formVersionId],
+      columns: [table.formSectionId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formSection.id,
-        formSection.companyId,
+        formSection.organizationId,
         formSection.formVersionId,
       ],
       name: 'form_field_form_section_fk',
@@ -242,9 +260,9 @@ export const formFieldOption = pgTable(
   'form_field_option',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     formVersionId: uuid('form_version_id').notNull(),
     fieldId: uuid('field_id').notNull(),
     label: text('label').notNull(),
@@ -255,9 +273,9 @@ export const formFieldOption = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('form_field_option_id_company_version_unique').on(
+    unique('form_field_option_id_organization_version_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.formVersionId,
     ),
     index('form_field_option_field_sort_idx').on(
@@ -267,10 +285,10 @@ export const formFieldOption = pgTable(
     index('form_field_option_deleted_at_idx').on(table.deletedAt),
     check('form_field_option_sort_order_check', sql`sort_order >= 0`),
     foreignKey({
-      columns: [table.fieldId, table.companyId, table.formVersionId],
+      columns: [table.fieldId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formField.id,
-        formField.companyId,
+        formField.organizationId,
         formField.formVersionId,
       ],
       name: 'form_field_option_form_field_fk',
@@ -282,9 +300,9 @@ export const formPlan = pgTable(
   'form_plan',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     formTemplateId: uuid('form_template_id').notNull(),
     supersedesPlanId: uuid('supersedes_plan_id'),
     name: text('name').notNull(),
@@ -305,16 +323,19 @@ export const formPlan = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('form_plan_id_company_unique').on(table.id, table.companyId),
-    index('form_plan_deleted_at_idx').on(table.deletedAt),
-    unique('form_plan_id_company_template_unique').on(
+    unique('form_plan_id_organization_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
+    ),
+    index('form_plan_deleted_at_idx').on(table.deletedAt),
+    unique('form_plan_id_organization_template_unique').on(
+      table.id,
+      table.organizationId,
       table.formTemplateId,
     ),
     unique('form_plan_supersedes_plan_id_unique').on(table.supersedesPlanId),
-    index('form_plan_company_effective_idx').on(
-      table.companyId,
+    index('form_plan_organization_effective_idx').on(
+      table.organizationId,
       table.effectiveFrom,
       table.effectiveUntil,
     ),
@@ -331,32 +352,46 @@ export const formPlan = pgTable(
       sql`closed_by IS NULL OR effective_until IS NOT NULL`,
     ),
     foreignKey({
-      columns: [table.formTemplateId, table.companyId],
-      foreignColumns: [formTemplate.id, formTemplate.companyId],
+      columns: [table.formTemplateId, table.organizationId],
+      foreignColumns: [formTemplate.id, formTemplate.organizationId],
       name: 'form_plan_form_template_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.supersedesPlanId, table.companyId, table.formTemplateId],
-      foreignColumns: [table.id, table.companyId, table.formTemplateId],
+      columns: [
+        table.supersedesPlanId,
+        table.organizationId,
+        table.formTemplateId,
+      ],
+      foreignColumns: [table.id, table.organizationId, table.formTemplateId],
       name: 'form_plan_supersedes_plan_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.fixedVersionId, table.companyId, table.formTemplateId],
+      columns: [
+        table.fixedVersionId,
+        table.organizationId,
+        table.formTemplateId,
+      ],
       foreignColumns: [
         formVersion.id,
-        formVersion.companyId,
+        formVersion.organizationId,
         formVersion.formTemplateId,
       ],
       name: 'form_plan_fixed_version_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.createdBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.createdBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_plan_created_by_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.closedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.closedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_plan_closed_by_fk',
     }).onDelete('restrict'),
   ],
@@ -366,12 +401,12 @@ export const formPlanTarget = pgTable(
   'form_plan_target',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     planId: uuid('plan_id').notNull(),
     roleId: uuid('role_id').references(() => role.id, { onDelete: 'restrict' }),
-    companyMemberId: uuid('company_member_id'),
+    organizationMemberId: uuid('organization_member_id'),
     roleDistribution: formRoleDistributionEnum('role_distribution'),
     createdAt: createdAtTimestamp('created_at'),
   },
@@ -379,21 +414,24 @@ export const formPlanTarget = pgTable(
     unique('form_plan_target_plan_role_unique').on(table.planId, table.roleId),
     unique('form_plan_target_plan_member_unique').on(
       table.planId,
-      table.companyMemberId,
+      table.organizationMemberId,
     ),
     check(
       'form_plan_target_xor_check',
-      sql`(role_id IS NOT NULL AND company_member_id IS NULL AND role_distribution IS NOT NULL) OR (role_id IS NULL AND company_member_id IS NOT NULL AND role_distribution IS NULL)`,
+      sql`(role_id IS NOT NULL AND organization_member_id IS NULL AND role_distribution IS NOT NULL) OR (role_id IS NULL AND organization_member_id IS NOT NULL AND role_distribution IS NULL)`,
     ),
     foreignKey({
-      columns: [table.planId, table.companyId],
-      foreignColumns: [formPlan.id, formPlan.companyId],
+      columns: [table.planId, table.organizationId],
+      foreignColumns: [formPlan.id, formPlan.organizationId],
       name: 'form_plan_target_plan_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.companyMemberId, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
-      name: 'form_plan_target_company_member_fk',
+      columns: [table.organizationMemberId, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
+      name: 'form_plan_target_org_member_fk',
     }).onDelete('restrict'),
   ],
 );
@@ -402,18 +440,18 @@ export const formPlanPeriod = pgTable(
   'form_plan_period',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     planId: uuid('plan_id').notNull(),
     opensAt: timestamp('opens_at', { withTimezone: true }).notNull(),
     dueAt: timestamp('due_at', { withTimezone: true }).notNull(),
     createdAt: createdAtTimestamp('created_at'),
   },
   (table) => [
-    unique('form_plan_period_id_company_plan_unique').on(
+    unique('form_plan_period_id_organization_plan_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.planId,
     ),
     unique('form_plan_period_plan_opens_due_unique').on(
@@ -423,8 +461,8 @@ export const formPlanPeriod = pgTable(
     ),
     check('form_plan_period_time_check', sql`due_at > opens_at`),
     foreignKey({
-      columns: [table.planId, table.companyId],
-      foreignColumns: [formPlan.id, formPlan.companyId],
+      columns: [table.planId, table.organizationId],
+      foreignColumns: [formPlan.id, formPlan.organizationId],
       name: 'form_plan_period_plan_fk',
     }).onDelete('restrict'),
   ],
@@ -434,9 +472,9 @@ export const formOccurrence = pgTable(
   'form_occurrence',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     planId: uuid('plan_id').notNull(),
     formTemplateId: uuid('form_template_id').notNull(),
     formVersionId: uuid('form_version_id').notNull(),
@@ -451,10 +489,13 @@ export const formOccurrence = pgTable(
     createdAt: createdAtTimestamp('created_at'),
   },
   (table) => [
-    unique('form_occurrence_id_company_unique').on(table.id, table.companyId),
-    unique('form_occurrence_id_company_version_unique').on(
+    unique('form_occurrence_id_organization_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
+    ),
+    unique('form_occurrence_id_organization_version_unique').on(
+      table.id,
+      table.organizationId,
       table.formVersionId,
     ),
     unique('form_occurrence_plan_key_unique').on(
@@ -465,8 +506,8 @@ export const formOccurrence = pgTable(
       table.planId,
       table.periodId,
     ),
-    index('form_occurrence_company_opens_idx').on(
-      table.companyId,
+    index('form_occurrence_organization_opens_idx').on(
+      table.organizationId,
       table.opensAt,
     ),
     check('form_occurrence_time_check', sql`due_at > opens_at`),
@@ -475,35 +516,42 @@ export const formOccurrence = pgTable(
       sql`(cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL) OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND cancel_reason IS NOT NULL AND length(trim(cancel_reason)) > 0)`,
     ),
     foreignKey({
-      columns: [table.planId, table.companyId, table.formTemplateId],
+      columns: [table.planId, table.organizationId, table.formTemplateId],
       foreignColumns: [
         formPlan.id,
-        formPlan.companyId,
+        formPlan.organizationId,
         formPlan.formTemplateId,
       ],
       name: 'form_occurrence_plan_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.formVersionId, table.companyId, table.formTemplateId],
+      columns: [
+        table.formVersionId,
+        table.organizationId,
+        table.formTemplateId,
+      ],
       foreignColumns: [
         formVersion.id,
-        formVersion.companyId,
+        formVersion.organizationId,
         formVersion.formTemplateId,
       ],
       name: 'form_occurrence_form_version_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.periodId, table.companyId, table.planId],
+      columns: [table.periodId, table.organizationId, table.planId],
       foreignColumns: [
         formPlanPeriod.id,
-        formPlanPeriod.companyId,
+        formPlanPeriod.organizationId,
         formPlanPeriod.planId,
       ],
       name: 'form_occurrence_period_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.cancelledBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.cancelledBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_occurrence_cancelled_by_fk',
     }).onDelete('restrict'),
   ],
@@ -513,13 +561,13 @@ export const formAssignment = pgTable(
   'form_assignment',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     occurrenceId: uuid('occurrence_id').notNull(),
     formVersionId: uuid('form_version_id').notNull(),
     roleId: uuid('role_id').references(() => role.id, { onDelete: 'restrict' }),
-    companyMemberId: uuid('company_member_id'),
+    organizationMemberId: uuid('organization_member_id'),
     replacesAssignmentId: uuid('replaces_assignment_id'),
     assignedBy: uuid('assigned_by'),
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
@@ -529,14 +577,14 @@ export const formAssignment = pgTable(
     createdAt: createdAtTimestamp('created_at'),
   },
   (table) => [
-    unique('form_assignment_id_company_version_unique').on(
+    unique('form_assignment_id_organization_version_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.formVersionId,
     ),
-    unique('form_assignment_id_company_occurrence_unique').on(
+    unique('form_assignment_id_organization_occurrence_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.occurrenceId,
     ),
     unique('form_assignment_replaces_assignment_id_unique').on(
@@ -546,21 +594,21 @@ export const formAssignment = pgTable(
       .on(table.occurrenceId, table.roleId)
       .where(sql`cancelled_at IS NULL AND role_id IS NOT NULL`),
     uniqueIndex('form_active_member_assignment')
-      .on(table.occurrenceId, table.companyMemberId)
-      .where(sql`cancelled_at IS NULL AND company_member_id IS NOT NULL`),
-    index('form_assignment_company_member_created_idx').on(
-      table.companyId,
-      table.companyMemberId,
+      .on(table.occurrenceId, table.organizationMemberId)
+      .where(sql`cancelled_at IS NULL AND organization_member_id IS NOT NULL`),
+    index('form_assignment_organization_member_created_idx').on(
+      table.organizationId,
+      table.organizationMemberId,
       table.createdAt,
     ),
-    index('form_assignment_company_role_created_idx').on(
-      table.companyId,
+    index('form_assignment_organization_role_created_idx').on(
+      table.organizationId,
       table.roleId,
       table.createdAt,
     ),
     check(
       'form_assignment_target_check',
-      sql`num_nonnulls(role_id, company_member_id) = 1`,
+      sql`num_nonnulls(role_id, organization_member_id) = 1`,
     ),
     check(
       'form_assignment_no_self_check',
@@ -571,36 +619,45 @@ export const formAssignment = pgTable(
       sql`(cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL) OR (cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND cancel_reason IS NOT NULL AND length(trim(cancel_reason)) > 0)`,
     ),
     foreignKey({
-      columns: [table.occurrenceId, table.companyId, table.formVersionId],
+      columns: [table.occurrenceId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formOccurrence.id,
-        formOccurrence.companyId,
+        formOccurrence.organizationId,
         formOccurrence.formVersionId,
       ],
       name: 'form_assignment_occurrence_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.companyMemberId, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
-      name: 'form_assignment_company_member_fk',
+      columns: [table.organizationMemberId, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
+      name: 'form_assignment_org_member_fk',
     }).onDelete('restrict'),
     foreignKey({
       columns: [
         table.replacesAssignmentId,
-        table.companyId,
+        table.organizationId,
         table.occurrenceId,
       ],
-      foreignColumns: [table.id, table.companyId, table.occurrenceId],
+      foreignColumns: [table.id, table.organizationId, table.occurrenceId],
       name: 'form_assignment_replaces_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.assignedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.assignedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_assignment_assigned_by_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.cancelledBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.cancelledBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_assignment_cancelled_by_fk',
     }).onDelete('restrict'),
   ],
@@ -610,9 +667,9 @@ export const formSubmission = pgTable(
   'form_submission',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     assignmentId: uuid('assignment_id').notNull(),
     formVersionId: uuid('form_version_id').notNull(),
     startedBy: uuid('started_by').notNull(),
@@ -625,40 +682,43 @@ export const formSubmission = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('form_submission_id_company_version_unique').on(
+    unique('form_submission_id_organization_version_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.formVersionId,
     ),
     index('form_submission_deleted_at_idx').on(table.deletedAt),
-    unique('form_submission_id_company_version_assignment_unique').on(
+    unique('form_submission_id_organization_version_assignment_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.formVersionId,
       table.assignmentId,
     ),
-    unique('form_submission_id_company_unique').on(table.id, table.companyId),
+    unique('form_submission_id_organization_unique').on(
+      table.id,
+      table.organizationId,
+    ),
     unique('form_submission_supersedes_submission_id_unique').on(
       table.supersedesSubmissionId,
     ),
     uniqueIndex('form_one_root_submission')
       .on(table.assignmentId)
       .where(sql`supersedes_submission_id IS NULL`),
-    index('form_submission_company_submitted_idx').on(
-      table.companyId,
+    index('form_submission_organization_submitted_idx').on(
+      table.organizationId,
       table.submittedAt,
     ),
-    index('form_submission_company_assignment_idx').on(
-      table.companyId,
+    index('form_submission_organization_assignment_idx').on(
+      table.organizationId,
       table.assignmentId,
     ),
-    index('form_submission_company_started_by_created_idx').on(
-      table.companyId,
+    index('form_submission_organization_started_by_created_idx').on(
+      table.organizationId,
       table.startedBy,
       table.createdAt,
     ),
-    index('form_submission_company_submitted_by_created_idx').on(
-      table.companyId,
+    index('form_submission_organization_submitted_by_created_idx').on(
+      table.organizationId,
       table.submittedBy,
       table.createdAt,
     ),
@@ -677,34 +737,40 @@ export const formSubmission = pgTable(
       sql`supersedes_submission_id IS NULL OR supersedes_submission_id <> id`,
     ),
     foreignKey({
-      columns: [table.assignmentId, table.companyId, table.formVersionId],
+      columns: [table.assignmentId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formAssignment.id,
-        formAssignment.companyId,
+        formAssignment.organizationId,
         formAssignment.formVersionId,
       ],
       name: 'form_submission_assignment_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.startedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.startedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_submission_started_by_member_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.submittedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.submittedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_submission_submitted_by_member_fk',
     }).onDelete('restrict'),
     foreignKey({
       columns: [
         table.supersedesSubmissionId,
-        table.companyId,
+        table.organizationId,
         table.formVersionId,
         table.assignmentId,
       ],
       foreignColumns: [
         table.id,
-        table.companyId,
+        table.organizationId,
         table.formVersionId,
         table.assignmentId,
       ],
@@ -717,9 +783,9 @@ export const formSubmissionContributor = pgTable(
   'form_submission_contributor',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     submissionId: uuid('submission_id').notNull(),
     memberId: uuid('member_id').notNull(),
     createdAt: createdAtTimestamp('created_at'),
@@ -729,18 +795,21 @@ export const formSubmissionContributor = pgTable(
       table.submissionId,
       table.memberId,
     ),
-    index('form_submission_contributor_company_member_idx').on(
-      table.companyId,
+    index('form_submission_contributor_organization_member_idx').on(
+      table.organizationId,
       table.memberId,
     ),
     foreignKey({
-      columns: [table.submissionId, table.companyId],
-      foreignColumns: [formSubmission.id, formSubmission.companyId],
+      columns: [table.submissionId, table.organizationId],
+      foreignColumns: [formSubmission.id, formSubmission.organizationId],
       name: 'form_submission_contributor_submission_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.memberId, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.memberId, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_submission_contributor_member_fk',
     }).onDelete('restrict'),
   ],
@@ -750,9 +819,9 @@ export const formAnswer = pgTable(
   'form_answer',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     formVersionId: uuid('form_version_id').notNull(),
     submissionId: uuid('submission_id').notNull(),
     fieldId: uuid('field_id').notNull(),
@@ -762,38 +831,47 @@ export const formAnswer = pgTable(
     updatedAt: updatedAtTimestamp('updated_at'),
   },
   (table) => [
-    unique('form_answer_id_company_unique').on(table.id, table.companyId),
-    unique('form_answer_id_company_submission_unique').on(
+    unique('form_answer_id_organization_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
+    ),
+    unique('form_answer_id_organization_submission_unique').on(
+      table.id,
+      table.organizationId,
       table.submissionId,
     ),
     unique('form_answer_submission_field_unique').on(
       table.submissionId,
       table.fieldId,
     ),
-    index('form_answer_company_field_idx').on(table.companyId, table.fieldId),
+    index('form_answer_organization_field_idx').on(
+      table.organizationId,
+      table.fieldId,
+    ),
     foreignKey({
-      columns: [table.submissionId, table.companyId, table.formVersionId],
+      columns: [table.submissionId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formSubmission.id,
-        formSubmission.companyId,
+        formSubmission.organizationId,
         formSubmission.formVersionId,
       ],
       name: 'form_answer_submission_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.fieldId, table.companyId, table.formVersionId],
+      columns: [table.fieldId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formField.id,
-        formField.companyId,
+        formField.organizationId,
         formField.formVersionId,
       ],
       name: 'form_answer_field_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.updatedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.updatedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_answer_updated_by_member_fk',
     }).onDelete('restrict'),
   ],
@@ -803,9 +881,9 @@ export const formAnswerAttachment = pgTable(
   'form_answer_attachment',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     answerId: uuid('answer_id').notNull(),
     storageKey: text('storage_key').notNull(),
     originalName: text('original_name').notNull(),
@@ -826,21 +904,24 @@ export const formAnswerAttachment = pgTable(
       table.answerId,
       table.sortOrder,
     ),
-    index('form_answer_attachment_company_key_idx').on(
-      table.companyId,
+    index('form_answer_attachment_organization_key_idx').on(
+      table.organizationId,
       table.storageKey,
     ),
     index('form_answer_attachment_deleted_at_idx').on(table.deletedAt),
     check('form_answer_attachment_size_check', sql`size_bytes > 0`),
     check('form_answer_attachment_sort_order_check', sql`sort_order >= 0`),
     foreignKey({
-      columns: [table.answerId, table.companyId],
-      foreignColumns: [formAnswer.id, formAnswer.companyId],
+      columns: [table.answerId, table.organizationId],
+      foreignColumns: [formAnswer.id, formAnswer.organizationId],
       name: 'form_answer_attachment_answer_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.uploadedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.uploadedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_answer_attachment_uploaded_by_member_fk',
     }).onDelete('restrict'),
   ],
@@ -850,9 +931,9 @@ export const formReviewEntry = pgTable(
   'form_review_entry',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'restrict' }),
+      .references(() => organization.id, { onDelete: 'restrict' }),
     submissionId: uuid('submission_id').notNull(),
     formVersionId: uuid('form_version_id').notNull(),
     answerId: uuid('answer_id').notNull(),
@@ -863,9 +944,9 @@ export const formReviewEntry = pgTable(
     createdAt: createdAtTimestamp('created_at'),
   },
   (table) => [
-    unique('form_review_entry_id_company_submission_unique').on(
+    unique('form_review_entry_id_organization_submission_unique').on(
       table.id,
-      table.companyId,
+      table.organizationId,
       table.submissionId,
     ),
     unique('form_review_entry_supersedes_entry_id_unique').on(
@@ -879,8 +960,8 @@ export const formReviewEntry = pgTable(
       table.answerId,
       table.createdAt,
     ),
-    index('form_review_entry_company_reviewer_created_idx').on(
-      table.companyId,
+    index('form_review_entry_organization_reviewer_created_idx').on(
+      table.organizationId,
       table.reviewedBy,
       table.createdAt,
     ),
@@ -897,42 +978,49 @@ export const formReviewEntry = pgTable(
       sql`supersedes_entry_id IS NULL OR supersedes_entry_id <> id`,
     ),
     foreignKey({
-      columns: [table.submissionId, table.companyId, table.formVersionId],
+      columns: [table.submissionId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formSubmission.id,
-        formSubmission.companyId,
+        formSubmission.organizationId,
         formSubmission.formVersionId,
       ],
       name: 'form_review_entry_submission_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.answerId, table.companyId, table.submissionId],
+      columns: [table.answerId, table.organizationId, table.submissionId],
       foreignColumns: [
         formAnswer.id,
-        formAnswer.companyId,
+        formAnswer.organizationId,
         formAnswer.submissionId,
       ],
       name: 'form_review_entry_answer_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.supersedesEntryId, table.companyId, table.submissionId],
-      foreignColumns: [table.id, table.companyId, table.submissionId],
+      columns: [
+        table.supersedesEntryId,
+        table.organizationId,
+        table.submissionId,
+      ],
+      foreignColumns: [table.id, table.organizationId, table.submissionId],
       name: 'form_review_entry_supersedes_fk',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.reviewedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.reviewedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
       name: 'form_review_entry_reviewed_by_member_fk',
     }).onDelete('restrict'),
   ],
 );
 
-/** Typed recurring inputs; plan_id is the one-to-one key, company_id enforces tenant integrity. */
+/** Typed recurring inputs; plan_id is the one-to-one key, organization_id enforces tenant integrity. */
 export const formPlanRecurringSchedule = pgTable(
   'form_plan_recurring_schedule',
   {
     planId: uuid('plan_id').primaryKey(),
-    companyId: uuid('company_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
     frequency: text('frequency')
       .$type<'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>()
       .notNull(),
@@ -950,8 +1038,8 @@ export const formPlanRecurringSchedule = pgTable(
   },
   (table) => [
     foreignKey({
-      columns: [table.planId, table.companyId],
-      foreignColumns: [formPlan.id, formPlan.companyId],
+      columns: [table.planId, table.organizationId],
+      foreignColumns: [formPlan.id, formPlan.organizationId],
     }).onDelete('cascade'),
     check(
       'form_schedule_frequency_check',
@@ -982,7 +1070,7 @@ export const formSubmissionDecision = pgTable(
   'form_submission_decision',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
     submissionId: uuid('submission_id').notNull().unique(),
     formVersionId: uuid('form_version_id').notNull(),
     action: text('action').$type<'APPROVE' | 'RETURN'>().notNull(),
@@ -992,16 +1080,19 @@ export const formSubmissionDecision = pgTable(
   },
   (table) => [
     foreignKey({
-      columns: [table.submissionId, table.companyId, table.formVersionId],
+      columns: [table.submissionId, table.organizationId, table.formVersionId],
       foreignColumns: [
         formSubmission.id,
-        formSubmission.companyId,
+        formSubmission.organizationId,
         formSubmission.formVersionId,
       ],
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.decidedBy, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.decidedBy, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
     }).onDelete('restrict'),
     check('form_decision_action_check', sql`action IN ('APPROVE', 'RETURN')`),
     check(

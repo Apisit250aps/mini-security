@@ -4,9 +4,9 @@ import {
   createLeaveQuotaUseCase,
   createLeaveTypeUseCase,
   getLeaveQuotasByMemberUseCase,
-  getLeaveRequestsByCompanyUseCase,
+  getLeaveRequestsByOrganizationUseCase,
   getLeaveRequestsByMemberUseCase,
-  getLeaveTypesByCompanyUseCase,
+  getLeaveTypesByOrganizationUseCase,
   reviewLeaveRequestUseCase,
   submitLeaveRequestUseCase,
   updateLeaveQuotaUseCase,
@@ -18,7 +18,7 @@ import { authMiddleware } from '../middleware';
 const leaveController = new LeaveController(
   createLeaveTypeUseCase,
   updateLeaveTypeUseCase,
-  getLeaveTypesByCompanyUseCase,
+  getLeaveTypesByOrganizationUseCase,
   createLeaveQuotaUseCase,
   updateLeaveQuotaUseCase,
   getLeaveQuotasByMemberUseCase,
@@ -26,7 +26,7 @@ const leaveController = new LeaveController(
   reviewLeaveRequestUseCase,
   cancelLeaveRequestUseCase,
   getLeaveRequestsByMemberUseCase,
-  getLeaveRequestsByCompanyUseCase,
+  getLeaveRequestsByOrganizationUseCase,
 );
 
 const leaveRoutes = new Hono();
@@ -37,8 +37,8 @@ leaveRoutes.use('*', authMiddleware);
 leaveRoutes.post('/types', leaveController.createType);
 leaveRoutes.put('/types/:id', leaveController.updateType);
 leaveRoutes.get(
-  '/companies/:companyId/types',
-  leaveController.getTypesByCompany,
+  '/organizations/:organizationId/types',
+  leaveController.getTypesByOrganization,
 );
 
 // Leave Quotas
@@ -58,8 +58,8 @@ leaveRoutes.get(
   leaveController.getMemberRequests,
 );
 leaveRoutes.get(
-  '/companies/:companyId/requests',
-  leaveController.getCompanyRequests,
+  '/organizations/:organizationId/requests',
+  leaveController.getOrganizationRequests,
 );
 
 export default leaveRoutes;

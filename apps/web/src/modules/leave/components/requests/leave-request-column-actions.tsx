@@ -10,19 +10,19 @@ import LeaveRequestDetailSheet from './leave-request-detail-sheet';
 
 interface LeaveRequestColumnActionsProps<T extends LeaveRequest> {
   cell: CellContext<T, unknown>;
-  companyId: string;
+  organizationId: string;
   leaveTypeName?: string;
   memberName?: string;
 }
 
 export default function LeaveRequestColumnActions<T extends LeaveRequest>({
   cell,
-  companyId,
+  organizationId,
   leaveTypeName,
   memberName,
 }: LeaveRequestColumnActionsProps<T>) {
   const ui = useOverlay();
-  const cancelMutation = useLeaveRequestCancel(companyId);
+  const cancelMutation = useLeaveRequestCancel(organizationId);
   const request = cell.row.original;
 
   const actionOpenSheet = useCallback(() => {
@@ -33,14 +33,14 @@ export default function LeaveRequestColumnActions<T extends LeaveRequest>({
       children: (
         <LeaveRequestDetailSheet
           request={request}
-          companyId={companyId}
+          organizationId={organizationId}
           leaveTypeName={leaveTypeName}
           memberName={memberName}
           onClose={() => ui.sheet.close()}
         />
       ),
     });
-  }, [ui.sheet, request, companyId, leaveTypeName, memberName]);
+  }, [ui.sheet, request, organizationId, leaveTypeName, memberName]);
 
   const actionCancel = useCallback(() => {
     ui.alert.open({

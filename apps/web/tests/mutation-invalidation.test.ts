@@ -41,36 +41,36 @@ for (const moduleName of readdirSync(modules)) {
       const candidates = [
         [primary, 'LIST'],
         [primary, 'DETAIL', 'id'],
-        keys.companyKeys.members('company'),
-        keys.companyKeys.branches('company'),
+        keys.organizationKeys.members('organization'),
+        keys.organizationKeys.sites('organization'),
         keys.roleKeys.all,
-        keys.featureKeys.company('company'),
+        keys.featureKeys.organization('organization'),
         keys.featureKeys.role('role'),
-        keys.featureKeys.companyRoles('company'),
-        keys.attendanceKeys.schedules('company'),
-        keys.attendanceKeys.scheduleByRole('company', 'role'),
+        keys.featureKeys.organizationRoles('organization'),
+        keys.attendanceKeys.schedules('organization'),
+        keys.attendanceKeys.scheduleByRole('organization', 'role'),
         keys.attendanceKeys.slots('schedule'),
         keys.attendanceKeys.memberLogs('member'),
-        keys.leaveKeys.types('company', true),
-        keys.leaveKeys.types('company', false),
+        keys.leaveKeys.types('organization', true),
+        keys.leaveKeys.types('organization', false),
         keys.leaveKeys.quotas('member', 2026),
-        keys.locationKeys.company('company'),
-        keys.formKeys.templates('company'),
+        keys.locationKeys.organization('organization'),
+        keys.formKeys.templates('organization'),
         keys.formKeys.template('template'),
-        keys.formKeys.submissions('company'),
+        keys.formKeys.submissions('organization'),
         keys.formKeys.submission('submission'),
-        keys.formKeys.plans('company'),
-        keys.formKeys.plans('company', 'template'),
+        keys.formKeys.plans('organization'),
+        keys.formKeys.plans('organization', 'template'),
         keys.formKeys.plan('plan'),
         keys.formKeys.schedulePreview('plan'),
-        keys.formKeys.occurrences('company'),
+        keys.formKeys.occurrences('organization'),
         keys.formKeys.occurrence('id'),
         keys.formKeys.occurrenceAssignments('id'),
         keys.formKeys.assignment('id'),
-        keys.formKeys.myAssignments('company'),
+        keys.formKeys.myAssignments('organization'),
         ['FORM', 'ASSIGNMENTS'],
         ['FORM', 'OCCURRENCE'],
-        keys.formKeys.reviewQueue('company'),
+        keys.formKeys.reviewQueue('organization'),
         keys.formKeys.reviewDetail('submission'),
       ];
       let refetched = 0;
@@ -93,7 +93,7 @@ for (const moduleName of readdirSync(modules)) {
           queryClient: client,
           client,
           toast: { success: () => {}, error: () => {} },
-          companyId: 'company',
+          organizationId: 'organization',
           roleId: 'role',
           scheduleId: 'schedule',
           memberId: 'member',
@@ -114,7 +114,7 @@ for (const moduleName of readdirSync(modules)) {
           { data: { status: 'late' } },
           {
             id: 'id',
-            companyId: 'company',
+            organizationId: 'organization',
             roleId: 'role',
             isEnabled: true,
             assignmentId: 'id',
@@ -127,18 +127,18 @@ for (const moduleName of readdirSync(modules)) {
         );
         if (name === 'useLeaveTypeCreate' || name === 'useLeaveTypeUpdate') {
           assert.equal(
-            client.getQueryData(keys.leaveKeys.types('company', true)),
+            client.getQueryData(keys.leaveKeys.types('organization', true)),
             1,
           );
           assert.equal(
-            client.getQueryData(keys.leaveKeys.types('company', false)),
+            client.getQueryData(keys.leaveKeys.types('organization', false)),
             1,
           );
         }
         if (name === 'useScheduleCreate' || name === 'useScheduleUpdate')
           assert.equal(
             client.getQueryData(
-              keys.attendanceKeys.scheduleByRole('company', 'role'),
+              keys.attendanceKeys.scheduleByRole('organization', 'role'),
             ),
             1,
           );

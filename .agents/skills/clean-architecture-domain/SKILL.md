@@ -40,7 +40,7 @@ import { z } from 'zod';
 
 // 1. Full entity schema (includes id, createdAt, updatedAt)
 const productSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   categoryId: UUIDField({ required: true }),
   name: StringField({ required: true }),
   sku: StringField({ required: true }),
@@ -94,7 +94,7 @@ import type { ProductEntity } from '../schema/product';
 
 class Product implements ProductEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   categoryId: string;
   name: string;
   sku: string;
@@ -106,7 +106,7 @@ class Product implements ProductEntity {
 
   constructor(data: ProductEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.categoryId = data.categoryId;
     this.name = data.name;
     this.sku = data.sku;
@@ -137,7 +137,7 @@ import { CreateProduct, UpdateProduct } from '../schema/product';
 
 interface IProductRepository
   extends BaseRepository<Product, CreateProduct, UpdateProduct> {
-  // Add custom query contracts here (e.g., findBySku, findByCompany)
+  // Add custom query contracts here (e.g., findBySku, findByOrganization)
   findBySku(sku: string): Promise<Product | null>;
 }
 
@@ -199,7 +199,7 @@ export type {
 
 ```typescript
 export { User } from './user';
-export { Company, Branch, Department } from './company';
+export { Organization, Branch, Department } from './organization';
 export { Product } from './product';
 // ... add new entity classes here
 ```

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useCompanyListQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationListQueries } from '@/modules/organization/hooks/organization-queries';
 import {
   Tabs,
   TabsList,
@@ -22,24 +22,25 @@ import {
   MetricCard,
   DashboardStatsGrid,
 } from '@repo/ui/components/shared/dashboard';
-import { useCompanySchedulesQueries } from '../hooks/attendance-queries';
+import { useGetCheckInSchedulesByOrganization } from '../hooks/attendance-queries';
 import ScheduleDataTable from '../components/schedules/schedule-data-table';
 import ScheduleCreateAction from '../components/schedules/schedule-create-action';
 import AttendanceLogDataTable from '../components/logs/attendance-log-data-table';
 import ManualCheckInAction from '../components/logs/manual-check-in-action';
 
 export default function AdminAttendanceView() {
-  const companiesQuery = useCompanyListQueries();
-  const companies = useMemo(
-    () => companiesQuery.data || [],
-    [companiesQuery.data],
+  const organizationsQuery = useOrganizationListQueries();
+  const organizations = useMemo(
+    () => organizationsQuery.data || [],
+    [organizationsQuery.data],
   );
 
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('');
 
-  const activeCompanyId = selectedCompanyId || companies[0]?.id || '';
-  const selectedCompany = companies.find((c) => c.id === activeCompanyId);
-  const schedulesQuery = useCompanySchedulesQueries(activeCompanyId);
+  const activeOrganizationId = selectedOrgId || organizations[0]?.id || '';
+  const selectedOrg = organizations.find((c) => c.id === activeOrganizationId);
+  const schedulesQuery =
+    useGetCheckInSchedulesByOrganization(activeOrganizationId);
   const schedulesCount = schedulesQuery.data?.length || 0;
 
   return (
@@ -52,11 +53,11 @@ export default function AdminAttendanceView() {
               เลือกองค์กร:
             </span>
             <select
-              value={activeCompanyId}
-              onChange={(e) => setSelectedCompanyId(e.target.value)}
+              value={activeOrganizationId}
+              onChange={(e) => setSelectedOrgId(e.target.value)}
               className="h-9 px-3 rounded-md border text-sm bg-background"
             >
-              {companies.map((c) => (
+              {organizations.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
@@ -66,9 +67,9 @@ export default function AdminAttendanceView() {
         </div>
       }
     >
-      {!activeCompanyId ? (
+      {!activeOrganizationId ? (
         <div className="p-12 text-center text-muted-foreground">
-          ไม่พบบริษัทในระบบ
+          ไม่พบองค์กรในระบบ
         </div>
       ) : (
         <div className="flex flex-col gap-6">
@@ -76,15 +77,15 @@ export default function AdminAttendanceView() {
           <DashboardStatsGrid columns={3}>
             <MetricCard
               title="องค์กรปัจจุบัน"
-              value={selectedCompany?.name || '-'}
+              value={selectedOrg?.name || '-'}
               icon={Building2}
-              description={`Slug: ${selectedCompany?.slug || '-'}`}
+              description={`Slug: ${selectedOrg?.slug || '-'}`}
             />
             <MetricCard
               title="ตารางกะ / เวลาเข้างาน"
               value={`${schedulesCount} กะ`}
               icon={CalendarRange}
-              description="ตารางเวลาที่เปิดใช้งานในบริษัท"
+              description="ตารางเวลาที่เปิดใช้งานในองค์กร"
             />
             <MetricCard
               title="ระบบบันทึกเวลา"
@@ -117,15 +118,17 @@ export default function AdminAttendanceView() {
                   <div>
                     <CardTitle>ตารางเวลาเช็คชื่อ</CardTitle>
                     <CardDescription>
-                      ตารางเวลาและรอบการลงเวลาที่ผูกกับบทบาทของบริษัทนี้
+                      ตารางเวลาและรอบการลงเวลาที่ผูกกับบทบาทขององค์กรนี้
                     </CardDescription>
                   </div>
                   <CardAction>
-                    <ScheduleCreateAction companyId={activeCompanyId} />
+                    <ScheduleCreateAction
+                      organizationId={activeOrganizationId}
+                    />
                   </CardAction>
                 </CardHeader>
                 <CardContent>
-                  <ScheduleDataTable companyId={activeCompanyId} />
+                  <ScheduleDataTable organizationId={activeOrganizationId} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -140,11 +143,15 @@ export default function AdminAttendanceView() {
                     </CardDescription>
                   </div>
                   <CardAction>
-                    <ManualCheckInAction companyId={activeCompanyId} />
+                    <ManualCheckInAction
+                      organizationId={activeOrganizationId}
+                    />
                   </CardAction>
                 </CardHeader>
                 <CardContent>
-                  <AttendanceLogDataTable companyId={activeCompanyId} />
+                  <AttendanceLogDataTable
+                    organizationId={activeOrganizationId}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>

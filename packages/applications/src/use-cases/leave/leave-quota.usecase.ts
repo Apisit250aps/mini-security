@@ -29,7 +29,7 @@ export class CreateLeaveQuotaUseCase implements ICreateLeaveQuotaUseCase {
     );
 
     const existing = await this.leaveQuotaRepository.findByMemberTypeAndYear(
-      data.companyMemberId,
+      data.organizationMemberId,
       data.leaveTypeId,
       data.year,
     );
@@ -73,7 +73,7 @@ export class GetLeaveQuotasByMemberUseCase
     context: IGetLeaveQuotasByMemberContext,
   ): Promise<LeaveQuota[]> {
     return this.leaveQuotaRepository.findByMemberAndYear(
-      context.companyMemberId,
+      context.organizationMemberId,
       context.year,
     );
   }

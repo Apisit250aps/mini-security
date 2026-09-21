@@ -5,13 +5,13 @@ import { BadRequestError, NotFoundError } from '../../lib/error';
 
 interface DraftFormRecord {
   id: string;
-  companyId: string;
+  organizationId: string;
   formVersionId: string;
 }
 
 /**
  * Shared "load a draft-scoped form field/section" pattern: loads the record, enforces
- * company scope, verifies it belongs to the given template's version, and requires DRAFT status.
+ * organization scope, verifies it belongs to the given template's version, and requires DRAFT status.
  */
 export async function loadDraftFormEntity<T extends DraftFormRecord>(
   ctx: ISecurityContext & { formTemplateId: string },
@@ -23,12 +23,12 @@ export async function loadDraftFormEntity<T extends DraftFormRecord>(
 ): Promise<T> {
   const entity = await finder(entityId);
   if (!entity) throw new NotFoundError(`Form ${entityLabel} not found`);
-  PermissionGuard.requireCompanyScope(ctx, entity.companyId);
+  PermissionGuard.requireOrganizationScope(ctx, entity.organizationId);
   const version = await versions.findById(entity.formVersionId);
   if (
     !version ||
     version.formTemplateId !== ctx.formTemplateId ||
-    version.companyId !== entity.companyId
+    version.organizationId !== entity.organizationId
   )
     throw new NotFoundError(`Form ${entityLabel} not found for this template`);
   if (version.status !== 'DRAFT') throw new BadRequestError(draftStatusMessage);

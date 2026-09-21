@@ -5,8 +5,8 @@ import type {
 
 export class Location implements LocationEntity {
   id: string;
-  companyId: string;
-  companyBranchId: string;
+  organizationId: string;
+  siteId: string;
   isPrimary: boolean;
   isActive: boolean;
   name: string;
@@ -19,8 +19,8 @@ export class Location implements LocationEntity {
 
   constructor(data: LocationEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
-    this.companyBranchId = data.companyBranchId;
+    this.organizationId = data.organizationId;
+    this.siteId = data.siteId;
     this.isPrimary = data.isPrimary;
     this.isActive = data.isActive;
     this.name = data.name;
@@ -35,7 +35,7 @@ export class Location implements LocationEntity {
 
 export class ScheduleSlotLocation implements ScheduleSlotLocationEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   scheduleSlotId: string;
   locationId: string;
   isActive: boolean;
@@ -44,7 +44,7 @@ export class ScheduleSlotLocation implements ScheduleSlotLocationEntity {
 
   constructor(data: ScheduleSlotLocationEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.scheduleSlotId = data.scheduleSlotId;
     this.locationId = data.locationId;
     this.isActive = data.isActive;

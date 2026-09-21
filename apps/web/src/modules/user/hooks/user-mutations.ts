@@ -1,4 +1,4 @@
-import { companyKeys } from '@/shared/utils/query';
+import { organizationKeys } from '@/shared/utils/query';
 import {
   userServicesCreateUser,
   userServicesDeleteUser,
@@ -21,7 +21,7 @@ function useUserDelete() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: userKeys.lists() }),
         queryClient.invalidateQueries({ queryKey: userKeys.details() }),
-        queryClient.invalidateQueries({ queryKey: companyKeys.all }),
+        queryClient.invalidateQueries({ queryKey: organizationKeys.all }),
       ]);
     },
     onError: (error: unknown) => {

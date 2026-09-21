@@ -13,8 +13,8 @@ import {
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import db from '../src/db';
 import {
-  company,
-  companyFeature,
+  organization,
+  organizationFeature,
   feature,
   permission,
   role,
@@ -59,7 +59,11 @@ export interface SystemSeedStats {
     existing: number;
     revokedExtra: number;
   };
-  companyFeatures: { backfilled: number; restored: number; existing: number };
+  organizationFeatures: {
+    backfilled: number;
+    restored: number;
+    existing: number;
+  };
   roleFeatures: { backfilled: number; restored: number; existing: number };
 }
 
@@ -80,7 +84,7 @@ export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
     permissions: { inserted: 0, updated: 0, restored: 0, unchanged: 0 },
     roles: { created: 0, updated: 0, restored: 0, unchanged: 0 },
     rolePermissions: { granted: 0, restored: 0, existing: 0, revokedExtra: 0 },
-    companyFeatures: { backfilled: 0, restored: 0, existing: 0 },
+    organizationFeatures: { backfilled: 0, restored: 0, existing: 0 },
     roleFeatures: { backfilled: 0, restored: 0, existing: 0 },
   };
 
@@ -255,7 +259,7 @@ export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
     const existingRoles = await tx
       .select()
       .from(role)
-      .where(and(isNull(role.companyId), eq(role.isSystemDefault, true)));
+      .where(and(isNull(role.organizationId), eq(role.isSystemDefault, true)));
     const roleIdByType = new Map<string, string>();
 
     for (const r of SYSTEM_DEFAULT_ROLES) {
@@ -297,7 +301,7 @@ export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
             description: r.description,
             roleType: r.roleType,
             isSystemDefault: true,
-            companyId: null,
+            organizationId: null,
           })
           .returning();
         if (created) {
@@ -403,60 +407,65 @@ export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
     logger.auditItem('Role Grants Sync', 'PASS', grantStatsSummary);
 
     // ------------------------------------------------------------------------
-    // Step 5: Backfill Company Features & Role Features
+    // Step 5: Backfill Organization & Tenant Role Feature Entitlements
     // ------------------------------------------------------------------------
     logger.step(
       5,
       5,
-      'Backfilling Company & Tenant Role Feature Entitlements...',
+      'Backfilling Organization & Tenant Role Feature Entitlements...',
     );
-    const companies = await tx.select({ id: company.id }).from(company);
+    const organizations = await tx
+      .select({ id: organization.id })
+      .from(organization);
     const allFeatureIds = Array.from(featureIdByCode.values());
 
-    for (const comp of companies) {
-      const existingCompanyFeatures = await tx
+    for (const org of organizations) {
+      const existingOrganizationFeatures = await tx
         .select({
-          id: companyFeature.id,
-          featureId: companyFeature.featureId,
-          isEnabled: companyFeature.isEnabled,
-          deletedAt: companyFeature.deletedAt,
+          id: organizationFeature.id,
+          featureId: organizationFeature.featureId,
+          isEnabled: organizationFeature.isEnabled,
+          deletedAt: organizationFeature.deletedAt,
         })
-        .from(companyFeature)
-        .where(eq(companyFeature.companyId, comp.id));
+        .from(organizationFeature)
+        .where(eq(organizationFeature.organizationId, org.id));
 
-      const existingCfMap = new Map(
-        existingCompanyFeatures.map((cf) => [cf.featureId, cf]),
+      const existingOfMap = new Map(
+        existingOrganizationFeatures.map((ofItem) => [
+          ofItem.featureId,
+          ofItem,
+        ]),
       );
 
       for (const featId of allFeatureIds) {
-        const existing = existingCfMap.get(featId);
+        const existing = existingOfMap.get(featId);
         if (!existing) {
-          await tx.insert(companyFeature).values({
-            companyId: comp.id,
+          await tx.insert(organizationFeature).values({
+            organizationId: org.id,
             featureId: featId,
             isEnabled: true,
           });
-          stats.companyFeatures.backfilled++;
+          stats.organizationFeatures.backfilled++;
         } else if (existing.deletedAt !== null || !existing.isEnabled) {
           await tx
-            .update(companyFeature)
+            .update(organizationFeature)
             .set({ isEnabled: true, deletedAt: null, updatedAt: new Date() })
-            .where(eq(companyFeature.id, existing.id));
-          stats.companyFeatures.restored++;
+            .where(eq(organizationFeature.id, existing.id));
+          stats.organizationFeatures.restored++;
         } else {
-          stats.companyFeatures.existing++;
+          stats.organizationFeatures.existing++;
         }
       }
     }
 
-    // Backfill role features for company roles
+    // Backfill role features for organization roles
     const tenantRoles = await tx
-      .select({ id: role.id, companyId: role.companyId })
+      .select({ id: role.id, organizationId: role.organizationId })
       .from(role)
-      .where(sql`${role.companyId} IS NOT NULL`);
+      .where(sql`${role.organizationId} IS NOT NULL`);
 
     for (const tr of tenantRoles) {
-      if (!tr.companyId) continue;
+      if (!tr.organizationId) continue;
       const existingRoleFeatures = await tx
         .select({
           id: roleFeature.id,
@@ -475,7 +484,7 @@ export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
         const existing = existingRfMap.get(featId);
         if (!existing) {
           await tx.insert(roleFeature).values({
-            companyId: tr.companyId,
+            organizationId: tr.organizationId,
             roleId: tr.id,
             featureId: featId,
             isEnabled: true,
@@ -494,9 +503,9 @@ export async function runTransactionalSeedSystems(): Promise<SystemSeedStats> {
     }
 
     logger.auditItem(
-      'Company Features',
+      'Organization Features',
       'PASS',
-      `${stats.companyFeatures.backfilled} backfilled, ${stats.companyFeatures.restored} restored, ${stats.companyFeatures.existing} existing`,
+      `${stats.organizationFeatures.backfilled} backfilled, ${stats.organizationFeatures.restored} restored, ${stats.organizationFeatures.existing} existing`,
     );
     logger.auditItem(
       'Tenant Role Features',
@@ -698,7 +707,7 @@ export async function runSystemsVerification(): Promise<VerificationResult> {
     .from(role)
     .where(
       and(
-        isNull(role.companyId),
+        isNull(role.organizationId),
         eq(role.isSystemDefault, true),
         isNull(role.deletedAt),
       ),

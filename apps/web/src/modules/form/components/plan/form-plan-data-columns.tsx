@@ -8,12 +8,12 @@ import { Badge } from '@repo/ui/components/badge';
 import FormPlanColumnActions from './form-plan-column-actions';
 
 interface FormPlanColumnsOptions {
-  companyId: string;
+  organizationId: string;
   templatesMap?: Map<string, FormTemplate>;
 }
 
 export const formPlanDataColumns = ({
-  companyId,
+  organizationId,
   templatesMap,
 }: FormPlanColumnsOptions): ColumnDef<FormPlan>[] => [
   {
@@ -23,7 +23,7 @@ export const formPlanDataColumns = ({
       const template = templatesMap?.get(row.original.formTemplateId);
       return (
         <Link
-          href={`/company/forms/plans/${row.original.id}`}
+          href={`/organization/forms/plans/${row.original.id}`}
           className="flex flex-col group hover:underline cursor-pointer"
         >
           <span className="font-semibold text-sm group-hover:text-primary transition-colors">
@@ -128,7 +128,9 @@ export const formPlanDataColumns = ({
   {
     id: 'actions',
     header: '',
-    cell: (cell) => <FormPlanColumnActions cell={cell} companyId={companyId} />,
+    cell: (cell) => (
+      <FormPlanColumnActions cell={cell} organizationId={organizationId} />
+    ),
   },
 ];
 

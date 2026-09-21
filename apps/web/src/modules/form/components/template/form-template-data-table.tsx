@@ -4,22 +4,22 @@ import React, { useMemo, useState } from 'react';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { Input } from '@repo/ui/components/input';
 import { Search } from 'lucide-react';
-import { useCompanyFormTemplatesQueries } from '../../hooks/form-queries';
+import { useOrganizationFormTemplatesQueries } from '../../hooks/form-queries';
 import formTemplateDataColumns from './form-template-data-columns';
 
 interface FormTemplateDataTableProps {
-  companyId: string;
+  organizationId: string;
 }
 
 export default function FormTemplateDataTable({
-  companyId,
+  organizationId,
 }: FormTemplateDataTableProps) {
   const [search, setSearch] = useState('');
-  const templatesQuery = useCompanyFormTemplatesQueries(companyId);
+  const templatesQuery = useOrganizationFormTemplatesQueries(organizationId);
 
   const columns = useMemo(
-    () => formTemplateDataColumns({ companyId }),
-    [companyId],
+    () => formTemplateDataColumns({ organizationId }),
+    [organizationId],
   );
 
   const filteredData = useMemo(() => {

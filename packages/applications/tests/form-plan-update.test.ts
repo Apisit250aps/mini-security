@@ -7,7 +7,7 @@ import type {
   FormPlanPeriod,
   FormTemplate,
 } from '@repo/domains/entities/form';
-import type { CompanyMember } from '@repo/domains/entities/company';
+import type { OrganizationMember } from '@repo/domains/entities/organization';
 import type {
   IFormPlanRepository,
   IFormPlanTargetRepository,
@@ -15,7 +15,7 @@ import type {
   IFormTemplateRepository,
   IFormVersionRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import {
   GetFormPlanUseCase,
   UpdateFormPlanUseCase,
@@ -34,9 +34,9 @@ function fixture() {
     },
   };
 
-  const member: CompanyMember = {
+  const member: OrganizationMember = {
     id: '01900000-0000-7000-8000-000000000001',
-    companyId: '01900000-0000-7000-8000-000000000002',
+    organizationId: '01900000-0000-7000-8000-000000000002',
     userId: '01900000-0000-7000-8000-000000000003',
     roleId: '01900000-0000-7000-8000-000000000004',
     isActive: true,
@@ -45,17 +45,17 @@ function fixture() {
     updatedAt: new Date(),
   };
 
-  const memberRepo: Partial<ICompanyMemberRepository> = {
+  const memberRepo: Partial<IOrganizationMemberRepository> = {
     findById: async (id) => (id === member.id ? member : null),
-    findByCompanyAndUser: async (companyId, userId) =>
-      companyId === member.companyId && userId === member.userId
+    findByOrganizationAndUser: async (organizationId, userId) =>
+      organizationId === member.organizationId && userId === member.userId
         ? member
         : null,
   };
 
   const template: FormTemplate = {
     id: '01900000-0000-7000-8000-000000000010',
-    companyId: member.companyId,
+    organizationId: member.organizationId,
     name: 'Safety Inspection',
     description: null,
     isActive: true,
@@ -65,8 +65,10 @@ function fixture() {
   };
 
   const templateRepo: Partial<IFormTemplateRepository> = {
-    findByIdAndCompany: async (id, companyId) =>
-      id === template.id && companyId === template.companyId ? template : null,
+    findByIdAndOrganization: async (id, organizationId) =>
+      id === template.id && organizationId === template.organizationId
+        ? template
+        : null,
   };
 
   const versionRepo: Partial<IFormVersionRepository> = {
@@ -82,7 +84,7 @@ function fixture() {
     create: async (data) => {
       const p: FormPlan = {
         id: `plan-${plans.length + 1}`,
-        companyId: data.companyId,
+        organizationId: data.organizationId,
         formTemplateId: data.formTemplateId,
         supersedesPlanId: data.supersedesPlanId ?? null,
         name: data.name,
@@ -122,10 +124,10 @@ function fixture() {
     create: async (data) => {
       const t: FormPlanTarget = {
         id: `target-${targets.length + 1}`,
-        companyId: data.companyId,
+        organizationId: data.organizationId,
         planId: data.planId,
         roleId: data.roleId ?? null,
-        companyMemberId: data.companyMemberId ?? null,
+        organizationMemberId: data.organizationMemberId ?? null,
         roleDistribution: data.roleDistribution ?? null,
         createdAt: new Date(),
       };
@@ -142,7 +144,7 @@ function fixture() {
     create: async (data) => {
       const pr: FormPlanPeriod = {
         id: `period-${periods.length + 1}`,
-        companyId: data.companyId,
+        organizationId: data.organizationId,
         planId: data.planId,
         opensAt: data.opensAt,
         dueAt: data.dueAt,
@@ -159,7 +161,7 @@ function fixture() {
   return {
     uow,
     member,
-    memberRepo: memberRepo as ICompanyMemberRepository,
+    memberRepo: memberRepo as IOrganizationMemberRepository,
     template,
     templateRepo: templateRepo as IFormTemplateRepository,
     versionRepo: versionRepo as IFormVersionRepository,
@@ -175,15 +177,15 @@ function fixture() {
 const baseCtx = {
   user: { id: '01900000-0000-7000-8000-000000000003' },
   memberId: '01900000-0000-7000-8000-000000000001',
-  companyId: '01900000-0000-7000-8000-000000000002',
-  activeCompanyId: '01900000-0000-7000-8000-000000000002',
+  organizationId: '01900000-0000-7000-8000-000000000002',
+  activeOrganizationId: '01900000-0000-7000-8000-000000000002',
   permissions: 'form_plan:read,form_plan:manage',
 };
 
 test('GetFormPlanUseCase returns plan with targets and periods', async () => {
   const f = fixture();
   const plan = await f.planRepo.create({
-    companyId: f.member.companyId,
+    organizationId: f.member.organizationId,
     formTemplateId: f.template.id,
     name: 'Inspection Plan A',
     scheduleKind: 'RECURRING',
@@ -199,7 +201,7 @@ test('GetFormPlanUseCase returns plan with targets and periods', async () => {
   });
 
   await f.targetRepo.create({
-    companyId: f.member.companyId,
+    organizationId: f.member.organizationId,
     planId: plan.id,
     roleId: f.member.roleId,
     roleDistribution: 'SHARED',
@@ -224,7 +226,7 @@ test('GetFormPlanUseCase returns plan with targets and periods', async () => {
 test('UpdateFormPlanUseCase updates draft plan in-place and replaces targets', async () => {
   const f = fixture();
   const draftPlan = await f.planRepo.create({
-    companyId: f.member.companyId,
+    organizationId: f.member.organizationId,
     formTemplateId: f.template.id,
     name: 'Original Draft Plan',
     scheduleKind: 'RECURRING',
@@ -241,9 +243,9 @@ test('UpdateFormPlanUseCase updates draft plan in-place and replaces targets', a
   });
 
   await f.targetRepo.create({
-    companyId: f.member.companyId,
+    organizationId: f.member.organizationId,
     planId: draftPlan.id,
-    companyMemberId: f.member.id,
+    organizationMemberId: f.member.id,
   });
 
   const updateUseCase = new UpdateFormPlanUseCase(
@@ -293,7 +295,7 @@ test('UpdateFormPlanUseCase updates draft plan in-place and replaces targets', a
 test('UpdateFormPlanUseCase rejects mismatched revision token (optimistic lock)', async () => {
   const f = fixture();
   const plan = await f.planRepo.create({
-    companyId: f.member.companyId,
+    organizationId: f.member.organizationId,
     formTemplateId: f.template.id,
     name: 'Plan',
     scheduleKind: 'RECURRING',
@@ -333,7 +335,7 @@ test('UpdateFormPlanUseCase rejects mismatched revision token (optimistic lock)'
 test('UpdateFormPlanUseCase creates successor revision when modifying active plan', async () => {
   const f = fixture();
   const activePlan = await f.planRepo.create({
-    companyId: f.member.companyId,
+    organizationId: f.member.organizationId,
     formTemplateId: f.template.id,
     name: 'Active Security Patrol',
     scheduleKind: 'RECURRING',
@@ -351,7 +353,7 @@ test('UpdateFormPlanUseCase creates successor revision when modifying active pla
   });
 
   await f.targetRepo.create({
-    companyId: f.member.companyId,
+    organizationId: f.member.organizationId,
     planId: activePlan.id,
     roleId: f.member.roleId,
     roleDistribution: 'SHARED',

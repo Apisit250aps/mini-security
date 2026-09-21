@@ -29,7 +29,7 @@ YYYYMMDDHHmmss_<action>_<target_or_description>
 #### ก. การเปลี่ยนแปลงโครงสร้างตาราง (DDL / Schema Changes):
 | Prefix | การใช้งาน | ตัวอย่างชื่อ |
 |---|---|---|
-| `add_` | เพิ่มตารางใหม่ หรือเพิ่มคอลัมน์ใหม่ | `add_company_branch`, `add_schedule_slots` |
+| `add_` | เพิ่มตารางใหม่ หรือเพิ่มคอลัมน์ใหม่ | `add_site`, `add_schedule_slots` |
 | `alter_` หรือ `modify_` | ปรับปรุง data type, constraints หรือ index | `alter_attendance_logs_status`, `modify_user_email_idx` |
 | `remove_` หรือ `drop_` | ลบตาราง คอลัมน์ หรือ enum ออกจากระบบ | `remove_feature_attendance`, `drop_legacy_work_shift` |
 | `refactor_` | ปรับโครงสร้างชุดใหญ่ที่มีการย้ายหรือแปลงความสัมพันธ์ | `refactor_role_work_schedule` |
@@ -53,7 +53,7 @@ YYYYMMDDHHmmss_<action>_<target_or_description>
    - ใช้ `WHERE NOT EXISTS (SELECT 1 FROM ...)` สำหรับตารางความสัมพันธ์ junction table
 2. **Statement Breakpoints:** ต้องมีคอมเมนต์ `--> statement-breakpoint` คั่นระหว่างแต่ละคำสั่ง SQL เสมอ เพื่อให้ Drizzle Migrator แยก statement ได้ถูกต้อง
 3. **Feature-Permission Binding:** ทุก Permission ใหม่ **ต้องผูกกับ `feature_id` เสมอ** (ยกเว้น Core System Permissions ที่เป็นอิสระ)
-4. **Tenant Isolation & Backfill:** เมื่อเพิ่ม Feature ใหม่ ต้องแน่ใจว่าได้ Backfill ให้กับบริษัทเดิม (`company_feature`) ตาม Policy ที่กำหนด
+4. **Tenant Isolation & Backfill:** เมื่อเพิ่ม Feature ใหม่ ต้องแน่ใจว่าได้ Backfill ให้กับบริษัทเดิม (`organization_feature`) ตาม Policy ที่กำหนด
 
 ---
 
@@ -63,7 +63,7 @@ YYYYMMDDHHmmss_<action>_<target_or_description>
 -- ============================================================================
 -- Migration: <timestamp>_seed_<feature_name>_permissions
 -- Description: Seed <Feature Name>, define permissions, map to system roles,
---              and backfill company feature entitlements.
+--              and backfill organization feature entitlements.
 -- ============================================================================
 
 -- ขั้นตอนที่ 1: Seed Master Feature Catalog (ตาราง "feature")
@@ -151,30 +151,30 @@ WHERE r.role_type = 'MEMBER' AND r.is_system_default = true
 
 --> statement-breakpoint
 
--- ขั้นตอนที่ 4: Backfill Company Entitlements (ตาราง "company_feature")
+-- ขั้นตอนที่ 4: Backfill Organization Entitlements (ตาราง "organization_feature")
 -- เปิดใช้งานฟีเจอร์นี้ให้กับทุกบริษัทที่มีอยู่ในระบบ (ถ้าเป็น Default Feature)
 -- ----------------------------------------------------------------------------
-INSERT INTO "company_feature" ("id", "company_id", "feature_id", "is_enabled", "created_at", "updated_at")
+INSERT INTO "organization_feature" ("id", "organization_id", "feature_id", "is_enabled", "created_at", "updated_at")
 SELECT gen_random_uuid(), c.id, f.id, true, now(), now()
-FROM "company" c
+FROM "organization" c
 CROSS JOIN "feature" f
 WHERE f.code = 'ATTENDANCE_MANAGEMENT' AND f.is_active = true
   AND NOT EXISTS (
-    SELECT 1 FROM "company_feature" cf WHERE cf.company_id = c.id AND cf.feature_id = f.id
+    SELECT 1 FROM "organization_feature" cf WHERE cf.organization_id = c.id AND cf.feature_id = f.id
   );
 
 --> statement-breakpoint
 
--- ขั้นตอนที่ 5: Delegate Feature สู่ Company Roles (ตาราง "role_feature" - ถ้าต้องการ)
+-- ขั้นตอนที่ 5: Delegate Feature สู่ Organization Roles (ตาราง "role_feature" - ถ้าต้องการ)
 -- กำหนดว่า Role ใดในบริษัทสามารถมองเห็นและเข้าถึง Feature นี้ได้
 -- ----------------------------------------------------------------------------
-INSERT INTO "role_feature" ("id", "company_id", "role_id", "feature_id", "is_enabled", "created_at", "updated_at")
-SELECT gen_random_uuid(), r.company_id, r.id, f.id, true, now(), now()
+INSERT INTO "role_feature" ("id", "organization_id", "role_id", "feature_id", "is_enabled", "created_at", "updated_at")
+SELECT gen_random_uuid(), r.organization_id, r.id, f.id, true, now(), now()
 FROM "role" r
 CROSS JOIN "feature" f
 WHERE f.code = 'ATTENDANCE_MANAGEMENT'
   AND r.role_type IN ('OWNER', 'ADMIN', 'MEMBER')
-  AND r.company_id IS NOT NULL
+  AND r.organization_id IS NOT NULL
   AND NOT EXISTS (
     SELECT 1 FROM "role_feature" rf WHERE rf.role_id = r.id AND rf.feature_id = f.id
   );

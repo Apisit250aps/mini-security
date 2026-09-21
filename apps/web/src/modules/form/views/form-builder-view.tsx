@@ -33,9 +33,9 @@ import { Badge } from '@repo/ui/components/badge';
 import { useOverlay } from '@repo/ui/hooks';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useFormTemplateQueries } from '../hooks/form-queries';
 import {
   useFormSectionDelete,
@@ -64,23 +64,29 @@ interface FormBuilderViewProps {
 
 export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
   const ui = useOverlay();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
   const { data: session } = useSession();
 
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
+  const membersQuery = useOrganizationMembersQueries(
+    activeOrganizationId || '',
+  );
   const templateQuery = useFormTemplateQueries(templateId);
   const publishMutation = useFormVersionPublish(
-    activeCompanyId || '',
+    activeOrganizationId || '',
     templateId,
   );
 
   const deleteField = useFormFieldDelete(templateId);
   const deleteSection = useFormSectionDelete(templateId);
   const sectionReorder = useFormSectionReorder(
-    activeCompanyId || '',
+    activeOrganizationId || '',
     templateId,
   );
-  const fieldReorder = useFormFieldReorder(activeCompanyId || '', templateId);
+  const fieldReorder = useFormFieldReorder(
+    activeOrganizationId || '',
+    templateId,
+  );
 
   const [activeTab, setActiveTab] = useState<'builder' | 'preview'>('builder');
   const [previewAnswers, setPreviewAnswers] = useState<Record<string, unknown>>(
@@ -111,13 +117,13 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
     fieldReorder.isPending;
 
   const handleEditField = (field: (typeof fields)[number]) => {
-    if (!activeCompanyId || !draftVersion) return;
+    if (!activeOrganizationId || !draftVersion) return;
     ui.dialog.open({
       title: 'แก้ไขคำถาม',
       size: 'lg',
       children: (
         <FormTemplateFieldDialog
-          companyId={activeCompanyId}
+          organizationId={activeOrganizationId}
           templateId={templateId}
           formVersionId={draftVersion.id}
           sections={sections}
@@ -158,23 +164,23 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
 
   // Dialog Handlers
   const handleEditInfo = useCallback(() => {
-    if (!template || !activeCompanyId) return;
+    if (!template || !activeOrganizationId) return;
     ui.dialog.open({
       title: 'แก้ไขข้อมูลแบบฟอร์ม',
       description: 'ปรับปรุงชื่อ คำอธิบาย หรือสถานะการเปิดใช้งาน',
       size: 'lg',
       children: (
         <FormTemplateEditDialog
-          companyId={activeCompanyId}
+          organizationId={activeOrganizationId}
           template={template}
           onClose={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, activeCompanyId, template]);
+  }, [ui.dialog, activeOrganizationId, template]);
 
   const handleAddSection = useCallback(() => {
-    if (!activeCompanyId || !currentVersion) {
+    if (!activeOrganizationId || !currentVersion) {
       toast.error('ไม่พบเวอร์ชันแบบฟอร์ม');
       return;
     }
@@ -185,7 +191,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
       size: 'md',
       children: (
         <FormTemplateSectionDialog
-          companyId={activeCompanyId}
+          organizationId={activeOrganizationId}
           templateId={templateId}
           formVersionId={currentVersion.id}
           currentSectionsCount={sections.length}
@@ -195,7 +201,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
     });
   }, [
     ui.dialog,
-    activeCompanyId,
+    activeOrganizationId,
     templateId,
     currentVersion,
     template?.name,
@@ -204,7 +210,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
 
   const handleAddField = useCallback(
     (defaultSectionId?: string) => {
-      if (!activeCompanyId || !currentVersion) {
+      if (!activeOrganizationId || !currentVersion) {
         toast.error('ไม่พบเวอร์ชันแบบฟอร์ม');
         return;
       }
@@ -220,7 +226,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
         size: 'lg',
         children: (
           <FormTemplateFieldDialog
-            companyId={activeCompanyId}
+            organizationId={activeOrganizationId}
             templateId={templateId}
             formVersionId={currentVersion.id}
             sections={sections}
@@ -233,7 +239,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
     },
     [
       ui.dialog,
-      activeCompanyId,
+      activeOrganizationId,
       templateId,
       currentVersion,
       sections,
@@ -330,16 +336,16 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
   };
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || templateQuery.isLoading;
+    isOrganizationLoading || !activeOrganizationId || templateQuery.isLoading;
 
   return (
     <PageLayout
-      pageId="companyFormBuilder"
+      pageId="organizationFormBuilder"
       isLoading={isPageLoading}
       loadingText="กำลังโหลดโครงสร้างแบบฟอร์ม..."
       actions={
         <div className="flex items-center gap-2">
-          <Link href={buildPageUrl('companyFormTemplates')}>
+          <Link href={buildPageUrl('organizationFormTemplates')}>
             <Button
               variant="ghost"
               size="sm"
@@ -372,7 +378,7 @@ export default function FormBuilderView({ templateId }: FormBuilderViewProps) {
       {!template ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
           <p className="text-muted-foreground">ไม่พบข้อมูลแบบฟอร์มที่ระบุ</p>
-          <Link href={buildPageUrl('companyFormTemplates')}>
+          <Link href={buildPageUrl('organizationFormTemplates')}>
             <Button variant="outline">กลับหน้ารายการแบบฟอร์ม</Button>
           </Link>
         </div>

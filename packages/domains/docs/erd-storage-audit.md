@@ -10,7 +10,7 @@
 
 | ตาราง                       | ฟิลด์           | แหล่งข้อมูลทดแทน                                                                                                 |
 | --------------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------- |
-| session                     | permissions     | Resolve สิทธิ์จาก active company/member/role/permission และ entitlement ปัจจุบัน; ไม่เก็บ cache ใน DB            |
+| session                     | permissions     | Resolve สิทธิ์จาก active organization/member/role/permission และ entitlement ปัจจุบัน; ไม่เก็บ cache ใน DB       |
 | attendance_logs             | distance_meters | พิกัดเช็คอินจริง + พิกัดศูนย์กลาง snapshot; server คำนวณและตรวจรัศมีก่อนบันทึก                                   |
 | leave_requests              | total_days      | ช่วงวันที่ + unit + ช่วงเวลาที่ขอ + นโยบายนาทีต่อวันสำหรับรายชั่วโมง                                             |
 | leave_quotas                | used_days       | รวมคำขอ approved ของสมาชิก/ประเภท/ปี; remaining = quota.total_days - used                                        |
@@ -27,11 +27,11 @@
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | user                                                        | โปรไฟล์/flags เป็นข้อเท็จจริงหรือคำสั่ง; last_login เป็นเวลาเหตุการณ์ ไม่เท่ากับ MAX(session.created_at) เพราะ session หมดอายุ/ถูกลบได้                                                                                  |
 | account                                                     | credentials/token/expiry/issuer/scope เป็นข้อมูลจาก provider หรือ auth protocol ไม่ใช่ผลรวมทางธุรกิจ                                                                                                                     |
-| session                                                     | นำ permissions ออก; active_company_id คือบริษัทที่เลือก; expiry ไม่อนุมานจาก created_at เพราะยืดอายุได้                                                                                                                  |
+| session                                                     | นำ permissions ออก; active_organization_id คือบริษัทที่เลือก; expiry ไม่อนุมานจาก created_at เพราะยืดอายุได้                                                                                                             |
 | verification, jwks                                          | ข้อมูลยืนยันและกุญแจตาม auth protocol; ไม่เปลี่ยนรูปแบบ public/private key หรือ metadata โดยไม่มีการตรวจ adapter                                                                                                         |
-| company, company_branch, company_member                     | ตัวตน สังกัด Role และสถานะที่กำหนด; company_id ที่ซ้ำตามความสัมพันธ์คงไว้เพื่อ tenant boundary                                                                                                                           |
+| organization, site, organization_member                     | ตัวตน สังกัด Role และสถานะที่กำหนด; organization_id ที่ซ้ำตามความสัมพันธ์คงไว้เพื่อ tenant boundary                                                                                                                      |
 | role, permission, role_permission                           | สิทธิ์ที่กำหนดจริง; role_type กับ is_system_default คนละความหมาย; module กับ feature ไม่จำเป็นต้องตรงกัน                                                                                                                 |
-| feature, company_feature, role_feature                      | catalog กับการเปิดสิทธิ์แต่ละระดับเป็นคำสั่งอิสระ; effective access คำนวณตอนอ่าน                                                                                                                                         |
+| feature, organization_feature, role_feature                 | catalog กับการเปิดสิทธิ์แต่ละระดับเป็นคำสั่งอิสระ; effective access คำนวณตอนอ่าน                                                                                                                                         |
 | locations, schedule_slot_location                           | พิกัด/รัศมีเป็นการตั้งค่า; primary/active เป็นการตัดสินใจ ไม่ได้ derive จากลำดับหรือจำนวน assignment                                                                                                                     |
 | check_in_schedules, check_in_schedule_roles, schedule_slots | เวลา ลำดับ required/active และ assignments เป็นข้อมูลตั้งต้น; ไม่เพิ่มจำนวน Slot หรือ Role                                                                                                                               |
 | attendance_logs                                             | นำระยะออก; คง work_date เพราะลา/ขาดไม่มี checked_in_at และวันทำงานเป็น business date; คง status เป็นผลบันทึก attendance ณ ตอนนั้น รวม manual/excused ซึ่งคำนวณจากเวลาอย่างเดียวไม่ได้และไม่มี historical Slot policy ครบ |
@@ -40,7 +40,7 @@
 | leave_requests                                              | นำ total_days ออก; unit เป็นหน่วยของคำขอ ณ ตอนนั้น; status เก็บผลการตัดสินใจ/cancel เพราะไม่มี event/review action แยกที่ให้ derive ได้                                                                                  |
 | form_template, form_template_role                           | ชื่อ/การเปิดใช้/สิทธิ์เข้าถึงเป็นข้อมูลต้นทาง                                                                                                                                                                            |
 | form_version                                                | version เป็นหมายเลขอ้างอิงถาวร ไม่ใช่ COUNT; status บันทึก publish/archive ซึ่ง published_at อย่างเดียวไม่บอก archive; title/description คือเนื้อหาเวอร์ชันเดิม                                                          |
-| form_section, form_field                                    | label/config/type/required/order เป็นนิยาม; form_version_id/company_id คงไว้บังคับ composite FK ไม่ใช่ cache สำหรับแสดงผล                                                                                                |
+| form_section, form_field                                    | label/config/type/required/order เป็นนิยาม; form_version_id/organization_id คงไว้บังคับ composite FK ไม่ใช่ cache สำหรับแสดงผล                                                                                           |
 | form_submission                                             | นำ status/started_at ออก; คง revision เป็น concurrency token ไม่ใช่จำนวน revisions; role/template/version keys บังคับขอบเขตและอ้างอิงชุดคำตอบเดิม                                                                        |
 | form_submission_contributor                                 | คงสมาชิกที่เคยมีส่วนร่วม แม้คำตอบถูกแก้ทับแล้วจะ derive จาก answer ปัจจุบันไม่ได้; นำ updated_at ออก                                                                                                                     |
 | form_answer                                                 | คำตอบและ updated_by เป็นค่าต้นทาง/ผู้เขียนล่าสุด                                                                                                                                                                         |
@@ -84,7 +84,7 @@ Snapshot ชื่อ/ศูนย์กลาง/รัศมีสถานท
 | form_assignment                        | ผู้รับงานจริง Role XOR member; created_at เป็นเวลามอบหมาย ไม่เพิ่ม assigned_at                                    |
 | form_submission                        | assignment เป็นขอบเขต revision; ไม่มี role/template ACL ซ้ำ; คง version key เพื่อ integrity                       |
 | form_review_entry                      | ผลจริง/เป้าหมาย/comment/actor/history ไม่เก็บ progress หรือ status ซ้ำ                                            |
-| Integrity keys                         | company/template/version keys ที่ซ้ำเพื่อ composite FK มีเหตุผลใน ERD description                                 |
+| Integrity keys                         | organization/template/version keys ที่ซ้ำเพื่อ composite FK มีเหตุผลใน ERD description                            |
 
 ผลนี้เป็น design audit และ DBML validation ไม่ใช่ migration หรือฐานข้อมูลจริง
 
@@ -94,6 +94,6 @@ Snapshot ชื่อ/ศูนย์กลาง/รัศมีสถานท
 - form_plan เก็บ late_policy/missed_policy และ effective history; ถอด review_mode ทุกชุดส่งแล้วรอคำตัดสิน
 - form_review_entry เก็บผลจริง PASS/NEEDS_CHANGES ต่อ answer พร้อม actor/history; ไม่เก็บ section_id หรือ section status
 - form_submission_decision เก็บ APPROVE/RETURN ที่เป็นคำตัดสินจริง หนึ่งครั้งต่อ submission; ไม่ใช่ derived approval cache
-- company_id/form_version_id ในตารางลูกเก็บเพื่อ composite FK และ tenant/version integrity
+- organization_id/form_version_id ในตารางลูกเก็บเพื่อ composite FK และ tenant/version integrity
 - form_answer.value ยังคง JSONB; ผลรวมและสถานะ Section คำนวณจากผลตรวจล่าสุด
 - Drizzle และ initial migration จัดทำแล้ว; ยังไม่ apply DB หรือยืนยัน runtime

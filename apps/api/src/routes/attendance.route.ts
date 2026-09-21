@@ -4,10 +4,10 @@ import {
   createCheckInScheduleUseCase,
   createScheduleSlotUseCase,
   deleteScheduleSlotUseCase,
-  getAttendanceLogsByCompanyUseCase,
+  getAttendanceLogsByOrganizationUseCase,
   getAttendanceLogsByMemberUseCase,
   getCheckInSchedulesByRoleUseCase,
-  getCheckInSchedulesByCompanyUseCase,
+  getCheckInSchedulesByOrganizationUseCase,
   getScheduleSlotsByScheduleUseCase,
   manualCheckInAttendanceUseCase,
   updateCheckInScheduleUseCase,
@@ -20,7 +20,7 @@ const attendanceController = new AttendanceController(
   createCheckInScheduleUseCase,
   updateCheckInScheduleUseCase,
   getCheckInSchedulesByRoleUseCase,
-  getCheckInSchedulesByCompanyUseCase,
+  getCheckInSchedulesByOrganizationUseCase,
   createScheduleSlotUseCase,
   updateScheduleSlotUseCase,
   deleteScheduleSlotUseCase,
@@ -28,7 +28,7 @@ const attendanceController = new AttendanceController(
   checkInAttendanceUseCase,
   manualCheckInAttendanceUseCase,
   getAttendanceLogsByMemberUseCase,
-  getAttendanceLogsByCompanyUseCase,
+  getAttendanceLogsByOrganizationUseCase,
 );
 
 const attendanceRoutes = new Hono();
@@ -39,12 +39,12 @@ attendanceRoutes.use('*', authMiddleware);
 attendanceRoutes.post('/schedules', attendanceController.createSchedule);
 attendanceRoutes.put('/schedules/:id', attendanceController.updateSchedule);
 attendanceRoutes.get(
-  '/companies/:companyId/roles/:roleId/schedules',
+  '/organizations/:organizationId/roles/:roleId/schedules',
   attendanceController.getSchedulesByRole,
 );
 attendanceRoutes.get(
-  '/companies/:companyId/schedules',
-  attendanceController.getSchedulesByCompany,
+  '/organizations/:organizationId/schedules',
+  attendanceController.getSchedulesByOrganization,
 );
 
 // Schedule slots
@@ -67,8 +67,8 @@ attendanceRoutes.get(
   attendanceController.getMemberLogs,
 );
 attendanceRoutes.get(
-  '/companies/:companyId/logs',
-  attendanceController.getCompanyLogs,
+  '/organizations/:organizationId/logs',
+  attendanceController.getOrganizationLogs,
 );
 
 export default attendanceRoutes;

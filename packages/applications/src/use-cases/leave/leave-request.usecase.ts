@@ -3,8 +3,8 @@ import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICancelLeaveRequestContext,
   ICancelLeaveRequestUseCase,
-  IGetLeaveRequestsByCompanyContext,
-  IGetLeaveRequestsByCompanyUseCase,
+  IGetLeaveRequestsByOrganizationContext,
+  IGetLeaveRequestsByOrganizationUseCase,
   IGetLeaveRequestsByMemberContext,
   IGetLeaveRequestsByMemberUseCase,
   IReviewLeaveRequestContext,
@@ -18,7 +18,7 @@ import type {
   ICheckInScheduleRepository,
   IScheduleSlotRepository,
 } from '@repo/domains/repositories/attendance';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   ILeaveQuotaRepository,
   ILeaveRequestRepository,
@@ -48,7 +48,7 @@ export class SubmitLeaveRequestUseCase implements ISubmitLeaveRequestUseCase {
 
     const year = new Date(parsed.data.startDate).getFullYear();
     const quota = await this.leaveQuotaRepository.findByMemberTypeAndYear(
-      parsed.data.companyMemberId,
+      parsed.data.organizationMemberId,
       parsed.data.leaveTypeId,
       year,
     );
@@ -57,7 +57,7 @@ export class SubmitLeaveRequestUseCase implements ISubmitLeaveRequestUseCase {
       const requestedDays = calculateLeaveDays(parsed.data);
       const approvedRequests =
         await this.leaveRequestRepository.findApprovedByMemberTypeAndYear(
-          parsed.data.companyMemberId,
+          parsed.data.organizationMemberId,
           parsed.data.leaveTypeId,
           year,
         );
@@ -83,7 +83,7 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
     private readonly leaveRequestRepository: ILeaveRequestRepository,
     private readonly leaveQuotaRepository: ILeaveQuotaRepository,
     private readonly leaveTypeRepository: ILeaveTypeRepository,
-    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly organizationMemberRepository: IOrganizationMemberRepository,
     private readonly checkInScheduleRepository: ICheckInScheduleRepository,
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly attendanceLogRepository: IAttendanceLogRepository,
@@ -123,7 +123,7 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
       // 1. Concurrency control: Lock quota if exists and verify availability
       const year = new Date(leaveRequest.startDate).getFullYear();
       const quota = await this.leaveQuotaRepository.lockByMemberTypeAndYear(
-        leaveRequest.companyMemberId,
+        leaveRequest.organizationMemberId,
         leaveRequest.leaveTypeId,
         year,
       );
@@ -132,7 +132,7 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
         const requestedDays = calculateLeaveDays(leaveRequest);
         const approvedRequests =
           await this.leaveRequestRepository.findApprovedByMemberTypeAndYear(
-            leaveRequest.companyMemberId,
+            leaveRequest.organizationMemberId,
             leaveRequest.leaveTypeId,
             year,
           );
@@ -165,13 +165,13 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
       );
       const leaveTypeName = leaveType ? leaveType.name : 'อนุมัติแล้ว';
 
-      const member = await this.companyMemberRepository.findById(
-        leaveRequest.companyMemberId,
+      const member = await this.organizationMemberRepository.findById(
+        leaveRequest.organizationMemberId,
       );
 
       if (member) {
         const schedules = await this.checkInScheduleRepository.findByRoleId(
-          member.companyId,
+          member.organizationId,
           member.roleId,
         );
 
@@ -189,8 +189,8 @@ export class ReviewLeaveRequestUseCase implements IReviewLeaveRequestUseCase {
           for (const dateStr of dates) {
             for (const slot of slots) {
               await this.attendanceLogRepository.upsertLog({
-                companyId: member.companyId,
-                companyMemberId: member.id,
+                organizationId: member.organizationId,
+                organizationMemberId: member.id,
                 scheduleSlotId: slot.id,
                 workDate: dateStr,
                 checkedInAt: null,
@@ -266,12 +266,14 @@ export class GetLeaveRequestsByMemberUseCase
   async execute(
     context: IGetLeaveRequestsByMemberContext,
   ): Promise<LeaveRequest[]> {
-    return this.leaveRequestRepository.findByMemberId(context.companyMemberId);
+    return this.leaveRequestRepository.findByMemberId(
+      context.organizationMemberId,
+    );
   }
 }
 
-export class GetLeaveRequestsByCompanyUseCase
-  implements IGetLeaveRequestsByCompanyUseCase
+export class GetLeaveRequestsByOrganizationUseCase
+  implements IGetLeaveRequestsByOrganizationUseCase
 {
   constructor(
     private readonly leaveRequestRepository: ILeaveRequestRepository,
@@ -279,10 +281,10 @@ export class GetLeaveRequestsByCompanyUseCase
 
   @RequirePermission('leave_request:read')
   async execute(
-    context: IGetLeaveRequestsByCompanyContext,
+    context: IGetLeaveRequestsByOrganizationContext,
   ): Promise<LeaveRequest[]> {
-    return this.leaveRequestRepository.findByCompanyId(
-      context.companyId,
+    return this.leaveRequestRepository.findByOrganizationId(
+      context.organizationId,
       context.status,
     );
   }

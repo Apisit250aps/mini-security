@@ -10,8 +10,8 @@ import type {
   IDeleteScheduleSlotUseCase,
   IGetCheckInSchedulesByRoleContext,
   IGetCheckInSchedulesByRoleUseCase,
-  IGetCheckInSchedulesByCompanyContext,
-  IGetCheckInSchedulesByCompanyUseCase,
+  IGetCheckInSchedulesByOrganizationContext,
+  IGetCheckInSchedulesByOrganizationUseCase,
   IGetScheduleSlotsByScheduleContext,
   IGetScheduleSlotsByScheduleUseCase,
   IUpdateCheckInScheduleContext,
@@ -41,7 +41,7 @@ import {
 
 async function validateAssignedRoles(
   repository: IRoleRepository,
-  companyId: string,
+  organizationId: string,
   roleIds: string[],
 ) {
   const roles = await Promise.all(roleIds.map((id) => repository.findById(id)));
@@ -49,12 +49,12 @@ async function validateAssignedRoles(
     roles.some(
       (role) =>
         !role ||
-        (role.companyId !== companyId &&
-          !(role.companyId == null && role.isSystemDefault)),
+        (role.organizationId !== organizationId &&
+          !(role.organizationId == null && role.isSystemDefault)),
     )
   ) {
     throw new ValidationError(
-      'Schedules can only be assigned to company roles or system default roles',
+      'Schedules can only be assigned to organization roles or system default roles',
     );
   }
 }
@@ -87,7 +87,7 @@ export class CreateCheckInScheduleUseCase
 
     await validateAssignedRoles(
       this.roleRepository,
-      parsed.data.companyId,
+      parsed.data.organizationId,
       parsed.data.roleIds,
     );
 
@@ -128,7 +128,7 @@ export class UpdateCheckInScheduleUseCase
     if (parsed.data.roleIds) {
       await validateAssignedRoles(
         this.roleRepository,
-        schedule!.companyId,
+        schedule!.organizationId,
         parsed.data.roleIds,
       );
     }
@@ -148,14 +148,14 @@ export class GetCheckInSchedulesByRoleUseCase
     context: IGetCheckInSchedulesByRoleContext,
   ): Promise<CheckInSchedule[]> {
     return this.scheduleRepository.findByRoleId(
-      context.companyId,
+      context.organizationId,
       context.roleId,
     );
   }
 }
 
-export class GetCheckInSchedulesByCompanyUseCase
-  implements IGetCheckInSchedulesByCompanyUseCase
+export class GetCheckInSchedulesByOrganizationUseCase
+  implements IGetCheckInSchedulesByOrganizationUseCase
 {
   constructor(
     private readonly scheduleRepository: ICheckInScheduleRepository,
@@ -163,9 +163,9 @@ export class GetCheckInSchedulesByCompanyUseCase
 
   @RequirePermission('attendance_schedule:read')
   async execute(
-    context: IGetCheckInSchedulesByCompanyContext,
+    context: IGetCheckInSchedulesByOrganizationContext,
   ): Promise<CheckInSchedule[]> {
-    return this.scheduleRepository.findByCompanyId(context.companyId);
+    return this.scheduleRepository.findByOrganizationId(context.organizationId);
   }
 }
 
@@ -198,7 +198,7 @@ export class CreateScheduleSlotUseCase implements ICreateScheduleSlotUseCase {
       );
     }
 
-    PermissionGuard.requireCompanyScope(context, schedule.companyId);
+    PermissionGuard.requireOrganizationScope(context, schedule.organizationId);
 
     const existingOrder = await this.slotRepository.findByScheduleIdAndOrder(
       parsed.data.checkInScheduleId,
@@ -233,7 +233,7 @@ export class UpdateScheduleSlotUseCase implements IUpdateScheduleSlotUseCase {
       existing.checkInScheduleId,
     );
     if (!schedule) throw new NotFoundError('Check-in schedule not found');
-    PermissionGuard.requireCompanyScope(context, schedule.companyId);
+    PermissionGuard.requireOrganizationScope(context, schedule.organizationId);
     const parsed = await updateScheduleSlotSchema.safeParseAsync(context.data);
     if (!parsed.success) {
       throw new ValidationError(
@@ -265,7 +265,7 @@ export class DeleteScheduleSlotUseCase implements IDeleteScheduleSlotUseCase {
       existing.checkInScheduleId,
     );
     if (!schedule) throw new NotFoundError('Check-in schedule not found');
-    PermissionGuard.requireCompanyScope(context, schedule.companyId);
+    PermissionGuard.requireOrganizationScope(context, schedule.organizationId);
     await this.slotRepository.delete(context.id);
   }
 }
@@ -286,7 +286,7 @@ export class GetScheduleSlotsByScheduleUseCase
       context.checkInScheduleId,
     );
     if (!schedule) throw new NotFoundError('Check-in schedule not found');
-    PermissionGuard.requireCompanyScope(context, schedule.companyId);
+    PermissionGuard.requireOrganizationScope(context, schedule.organizationId);
     return this.slotRepository.findByScheduleId(context.checkInScheduleId);
   }
 }

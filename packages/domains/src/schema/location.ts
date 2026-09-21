@@ -12,8 +12,8 @@ import {
  */
 
 export const locationSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
-  companyBranchId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
+  siteId: UUIDField({ required: true }),
   isPrimary: BooleanField({ default: () => false }),
   isActive: BooleanField({ default: () => true }),
   name: StringField({ required: true, max: 255 }),
@@ -36,8 +36,8 @@ export const locationSchema = BaseEntity({
 });
 
 export const createLocationSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
-  companyBranchId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
+  siteId: UUIDField({ required: true }),
   isPrimary: BooleanField({ default: () => false }),
   isActive: BooleanField({ default: () => true }),
   name: StringField({ required: true, max: 255 }),
@@ -101,7 +101,7 @@ export type UpdateLocation = z.infer<typeof updateLocationSchema>;
  */
 
 export const scheduleSlotLocationSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   scheduleSlotId: UUIDField({ required: true }),
   locationId: UUIDField({ required: true }),
   isActive: BooleanField({ default: () => true }),
@@ -119,7 +119,7 @@ export const updateScheduleSlotLocationSchema = scheduleSlotLocationSchema
   .partial()
   .omit({
     id: true,
-    companyId: true,
+    organizationId: true,
     scheduleSlotId: true,
     locationId: true,
     createdAt: true,

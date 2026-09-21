@@ -1,20 +1,20 @@
 import type { RelationsHelper } from './types';
 
 export const locationRelations = (r: RelationsHelper) => ({
-  company: {
+  organization: {
     locations: r.many.locations(),
   },
-  companyBranch: {
+  site: {
     locations: r.many.locations(),
   },
   locations: {
-    company: r.one.company({
-      from: r.locations.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.locations.organizationId,
+      to: r.organization.id,
     }),
-    branch: r.one.companyBranch({
-      from: [r.locations.companyBranchId, r.locations.companyId],
-      to: [r.companyBranch.id, r.companyBranch.companyId],
+    site: r.one.site({
+      from: [r.locations.siteId, r.locations.organizationId],
+      to: [r.site.id, r.site.organizationId],
     }),
     scheduleSlots: r.many.scheduleSlotLocation(),
     attendanceLogs: r.many.attendanceLogs(),
@@ -23,16 +23,16 @@ export const locationRelations = (r: RelationsHelper) => ({
     scheduleSlot: r.one.scheduleSlots({
       from: [
         r.scheduleSlotLocation.scheduleSlotId,
-        r.scheduleSlotLocation.companyId,
+        r.scheduleSlotLocation.organizationId,
       ],
-      to: [r.scheduleSlots.id, r.scheduleSlots.companyId],
+      to: [r.scheduleSlots.id, r.scheduleSlots.organizationId],
     }),
     location: r.one.locations({
       from: [
         r.scheduleSlotLocation.locationId,
-        r.scheduleSlotLocation.companyId,
+        r.scheduleSlotLocation.organizationId,
       ],
-      to: [r.locations.id, r.locations.companyId],
+      to: [r.locations.id, r.locations.organizationId],
     }),
   },
 });

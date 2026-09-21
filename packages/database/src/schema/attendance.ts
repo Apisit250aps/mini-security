@@ -23,7 +23,7 @@ import {
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
-import { company, companyMember } from './company';
+import { organization, organizationMember } from './organization';
 import { role } from './permission';
 import { user } from './user';
 import { locations } from './location';
@@ -47,9 +47,9 @@ export const checkInSchedules = pgTable(
   'check_in_schedules',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => company.id, { onDelete: 'cascade' }),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: createdAtTimestamp('created_at'),
@@ -57,8 +57,11 @@ export const checkInSchedules = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    unique('check_in_schedule_id_company_unique').on(table.id, table.companyId),
-    index('check_in_schedule_company_id_idx').on(table.companyId),
+    unique('check_in_schedule_id_organization_unique').on(
+      table.id,
+      table.organizationId,
+    ),
+    index('check_in_schedule_organization_id_idx').on(table.organizationId),
     index('check_in_schedule_deleted_at_idx').on(table.deletedAt),
   ],
 );
@@ -67,7 +70,7 @@ export const checkInScheduleRoles = pgTable(
   'check_in_schedule_roles',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
     checkInScheduleId: uuid('check_in_schedule_id').notNull(),
     roleId: uuid('role_id')
       .notNull()
@@ -81,13 +84,13 @@ export const checkInScheduleRoles = pgTable(
       table.checkInScheduleId,
       table.roleId,
     ),
-    index('check_in_schedule_role_company_role_idx').on(
-      table.companyId,
+    index('check_in_schedule_role_organization_role_idx').on(
+      table.organizationId,
       table.roleId,
     ),
     foreignKey({
-      columns: [table.checkInScheduleId, table.companyId],
-      foreignColumns: [checkInSchedules.id, checkInSchedules.companyId],
+      columns: [table.checkInScheduleId, table.organizationId],
+      foreignColumns: [checkInSchedules.id, checkInSchedules.organizationId],
     }).onDelete('cascade'),
   ],
 );
@@ -100,7 +103,7 @@ export const scheduleSlots = pgTable(
   'schedule_slots',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
     checkInScheduleId: uuid('check_in_schedule_id').notNull(),
     slotOrder: integer('slot_order').notNull(),
     label: text('label').notNull(),
@@ -114,14 +117,17 @@ export const scheduleSlots = pgTable(
   (table) => [
     index('schedule_slot_schedule_id_idx').on(table.checkInScheduleId),
     index('schedule_slot_deleted_at_idx').on(table.deletedAt),
-    unique('schedule_slots_id_company_unique').on(table.id, table.companyId),
+    unique('schedule_slots_id_organization_unique').on(
+      table.id,
+      table.organizationId,
+    ),
     unique('schedule_slot_order_unique').on(
       table.checkInScheduleId,
       table.slotOrder,
     ),
     foreignKey({
-      columns: [table.checkInScheduleId, table.companyId],
-      foreignColumns: [checkInSchedules.id, checkInSchedules.companyId],
+      columns: [table.checkInScheduleId, table.organizationId],
+      foreignColumns: [checkInSchedules.id, checkInSchedules.organizationId],
     }).onDelete('cascade'),
   ],
 );
@@ -134,7 +140,7 @@ export const scheduleSlotLocation = pgTable(
   'schedule_slot_location',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
     scheduleSlotId: uuid('schedule_slot_id').notNull(),
     locationId: uuid('location_id').notNull(),
     isActive: boolean('is_active').default(true).notNull(),
@@ -150,27 +156,27 @@ export const scheduleSlotLocation = pgTable(
       table.scheduleSlotId,
       table.locationId,
     ),
-    unique('schedule_slot_location_slot_loc_company_unique').on(
+    unique('schedule_slot_location_slot_loc_organization_unique').on(
       table.scheduleSlotId,
       table.locationId,
-      table.companyId,
+      table.organizationId,
     ),
-    index('schedule_slot_location_loc_company_idx').on(
+    index('schedule_slot_location_loc_organization_idx').on(
       table.locationId,
-      table.companyId,
+      table.organizationId,
     ),
-    index('schedule_slot_location_company_slot_active_idx').on(
-      table.companyId,
+    index('schedule_slot_location_organization_slot_active_idx').on(
+      table.organizationId,
       table.scheduleSlotId,
       table.isActive,
     ),
     foreignKey({
-      columns: [table.scheduleSlotId, table.companyId],
-      foreignColumns: [scheduleSlots.id, scheduleSlots.companyId],
+      columns: [table.scheduleSlotId, table.organizationId],
+      foreignColumns: [scheduleSlots.id, scheduleSlots.organizationId],
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.locationId, table.companyId],
-      foreignColumns: [locations.id, locations.companyId],
+      columns: [table.locationId, table.organizationId],
+      foreignColumns: [locations.id, locations.organizationId],
     }).onDelete('restrict'),
   ],
 );
@@ -183,8 +189,8 @@ export const attendanceLogs = pgTable(
   'attendance_logs',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id').notNull(),
-    companyMemberId: uuid('company_member_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
+    organizationMemberId: uuid('organization_member_id').notNull(),
     scheduleSlotId: uuid('schedule_slot_id').notNull(),
     workDate: date('work_date').notNull(),
     checkedInAt: timestamp('checked_in_at'),
@@ -205,27 +211,30 @@ export const attendanceLogs = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    index('attendance_log_member_id_idx').on(table.companyMemberId),
+    index('attendance_log_member_id_idx').on(table.organizationMemberId),
     index('attendance_log_slot_id_idx').on(table.scheduleSlotId),
     index('attendance_log_work_date_idx').on(table.workDate),
     index('attendance_log_deleted_at_idx').on(table.deletedAt),
     uniqueIndex('attendance_log_unique_per_slot_per_day')
-      .on(table.companyMemberId, table.scheduleSlotId, table.workDate)
+      .on(table.organizationMemberId, table.scheduleSlotId, table.workDate)
       .where(sql`${table.deletedAt} IS NULL`),
     foreignKey({
-      columns: [table.companyMemberId, table.companyId],
-      foreignColumns: [companyMember.id, companyMember.companyId],
+      columns: [table.organizationMemberId, table.organizationId],
+      foreignColumns: [
+        organizationMember.id,
+        organizationMember.organizationId,
+      ],
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.scheduleSlotId, table.companyId],
-      foreignColumns: [scheduleSlots.id, scheduleSlots.companyId],
+      columns: [table.scheduleSlotId, table.organizationId],
+      foreignColumns: [scheduleSlots.id, scheduleSlots.organizationId],
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.scheduleSlotId, table.locationId, table.companyId],
+      columns: [table.scheduleSlotId, table.locationId, table.organizationId],
       foreignColumns: [
         scheduleSlotLocation.scheduleSlotId,
         scheduleSlotLocation.locationId,
-        scheduleSlotLocation.companyId,
+        scheduleSlotLocation.organizationId,
       ],
     }).onDelete('restrict'),
     check(

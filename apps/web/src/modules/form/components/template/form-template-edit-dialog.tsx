@@ -6,17 +6,18 @@ import { useFormTemplateUpdate } from '../../hooks/form-mutations';
 import FormTemplateForm, { FormTemplateFormValues } from './form-template-form';
 
 interface FormTemplateEditDialogProps {
-  companyId: string;
+  organizationId?: string;
   template: FormTemplate;
   onClose: () => void;
 }
 
 export default function FormTemplateEditDialog({
-  companyId,
+  organizationId,
   template,
   onClose,
 }: FormTemplateEditDialogProps) {
-  const updateMutation = useFormTemplateUpdate(companyId, template.id);
+  const activeOrgId = organizationId || '';
+  const updateMutation = useFormTemplateUpdate(activeOrgId, template.id);
 
   const handleSubmit = useCallback(
     (values: FormTemplateFormValues) => {

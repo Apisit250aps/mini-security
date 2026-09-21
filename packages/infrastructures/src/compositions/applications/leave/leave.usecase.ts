@@ -4,9 +4,9 @@ import {
   CreateLeaveQuotaUseCase,
   CreateLeaveTypeUseCase,
   GetLeaveQuotasByMemberUseCase,
-  GetLeaveRequestsByCompanyUseCase,
+  GetLeaveRequestsByOrganizationUseCase,
   GetLeaveRequestsByMemberUseCase,
-  GetLeaveTypesByCompanyUseCase,
+  GetLeaveTypesByOrganizationUseCase,
   ReviewLeaveRequestUseCase,
   SubmitLeaveRequestUseCase,
   UpdateLeaveQuotaUseCase,
@@ -15,7 +15,7 @@ import {
 import {
   attendanceLogRepository,
   checkInScheduleRepository,
-  companyMemberRepository,
+  organizationMemberRepository,
   leaveQuotaRepository,
   leaveRequestRepository,
   leaveTypeRepository,
@@ -30,9 +30,8 @@ export const updateLeaveTypeUseCase = new UpdateLeaveTypeUseCase(
   leaveTypeRepository,
 );
 
-export const getLeaveTypesByCompanyUseCase = new GetLeaveTypesByCompanyUseCase(
-  leaveTypeRepository,
-);
+export const getLeaveTypesByOrganizationUseCase =
+  new GetLeaveTypesByOrganizationUseCase(leaveTypeRepository);
 
 export const createLeaveQuotaUseCase = new CreateLeaveQuotaUseCase(
   leaveQuotaRepository,
@@ -56,7 +55,7 @@ export const reviewLeaveRequestUseCase = new ReviewLeaveRequestUseCase(
   leaveRequestRepository,
   leaveQuotaRepository,
   leaveTypeRepository,
-  companyMemberRepository,
+  organizationMemberRepository,
   checkInScheduleRepository,
   scheduleSlotRepository,
   attendanceLogRepository,
@@ -70,5 +69,5 @@ export const cancelLeaveRequestUseCase = new CancelLeaveRequestUseCase(
 export const getLeaveRequestsByMemberUseCase =
   new GetLeaveRequestsByMemberUseCase(leaveRequestRepository);
 
-export const getLeaveRequestsByCompanyUseCase =
-  new GetLeaveRequestsByCompanyUseCase(leaveRequestRepository);
+export const getLeaveRequestsByOrganizationUseCase =
+  new GetLeaveRequestsByOrganizationUseCase(leaveRequestRepository);

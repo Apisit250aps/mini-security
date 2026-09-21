@@ -1,7 +1,7 @@
 import {
-  featureServicesGetCompanyAvailableFeatures,
-  featureServicesGetCompanyFeatures,
-  featureServicesGetCompanyRoleFeatures,
+  featureServicesGetOrganizationAvailableFeatures,
+  featureServicesGetOrganizationFeatures,
+  featureServicesGetOrganizationRoleFeatures,
   featureServicesGetFeatures,
   featureServicesGetRoleFeatures,
 } from '@repo/client';
@@ -25,41 +25,43 @@ export function useFeatureListQueries(options?: {
   });
 }
 
-export function useCompanyFeaturesQueries(
-  companyId: string,
+export function useOrganizationFeaturesQueries(
+  organizationId: string,
   onlyEnabled?: boolean,
 ) {
   return useQuery({
-    queryKey: [...featureKeys.company(companyId), { onlyEnabled }],
+    queryKey: [...featureKeys.organization(organizationId), { onlyEnabled }],
     queryFn: async ({ signal }) => {
-      const response = await featureServicesGetCompanyFeatures({
+      const response = await featureServicesGetOrganizationFeatures({
         signal,
-        path: { companyId },
+        path: { organizationId },
         query: { onlyEnabled },
       });
       if (response.data) return response.data.data;
       throw new Error(
-        'No data returned from featureServicesGetCompanyFeatures',
+        'No data returned from featureServicesGetOrganizationFeatures',
       );
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }
 
-export function useCompanyAvailableFeaturesQueries(companyId: string) {
+export function useOrganizationAvailableFeaturesQueries(
+  organizationId: string,
+) {
   return useQuery({
-    queryKey: featureKeys.companyAvailable(companyId),
+    queryKey: featureKeys.organizationAvailable(organizationId),
     queryFn: async ({ signal }) => {
-      const response = await featureServicesGetCompanyAvailableFeatures({
+      const response = await featureServicesGetOrganizationAvailableFeatures({
         signal,
-        path: { companyId },
+        path: { organizationId },
       });
       if (response.data) return response.data.data;
       throw new Error(
-        'No data returned from featureServicesGetCompanyAvailableFeatures',
+        'No data returned from featureServicesGetOrganizationAvailableFeatures',
       );
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }
 
@@ -78,19 +80,19 @@ export function useRoleFeaturesQueries(roleId: string) {
   });
 }
 
-export function useCompanyRoleFeaturesQueries(companyId: string) {
+export function useOrganizationRoleFeaturesQueries(organizationId: string) {
   return useQuery({
-    queryKey: featureKeys.companyRoles(companyId),
+    queryKey: featureKeys.organizationRoles(organizationId),
     queryFn: async ({ signal }) => {
-      const response = await featureServicesGetCompanyRoleFeatures({
+      const response = await featureServicesGetOrganizationRoleFeatures({
         signal,
-        path: { companyId },
+        path: { organizationId },
       });
       if (response.data) return response.data.data;
       throw new Error(
-        'No data returned from featureServicesGetCompanyRoleFeatures',
+        'No data returned from featureServicesGetOrganizationRoleFeatures',
       );
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }

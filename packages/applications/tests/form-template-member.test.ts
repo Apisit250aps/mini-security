@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { IUnitOfWork } from '@repo/domains';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   IFormTemplateRepository,
   IFormVersionRepository,
@@ -19,7 +19,7 @@ import {
   PublishFormVersionUseCase,
 } from '../src/use-cases/form/form-template.usecase';
 
-const companyId = '01a09d98-1063-71f9-8b24-db8753ff6d69';
+const organizationId = '01a09d98-1063-71f9-8b24-db8753ff6d69';
 const userId = '01a09d99-1db8-7357-8538-dac2c933fb03';
 const memberId = '01a09d99-aaaa-7bbb-8ccc-dac2c933fb03';
 
@@ -41,8 +41,8 @@ function fixture() {
       } as unknown as FormTemplate;
     },
     findById: async () => null,
-    findByIdAndCompany: async () => null,
-    findByCompanyId: async () => [],
+    findByIdAndOrganization: async () => null,
+    findByOrganizationId: async () => [],
     update: async () => ({}) as unknown as FormTemplate,
     delete: async () => ({}) as unknown as FormTemplate,
   };
@@ -60,7 +60,7 @@ function fixture() {
     findDraftByTemplateId: async () =>
       ({
         id: 'version-1',
-        companyId,
+        organizationId,
         formTemplateId: '01a0aa39-945a-765f-8e79-9dfa19c10df8',
         version: 1,
         status: 'DRAFT',
@@ -79,34 +79,34 @@ function fixture() {
     },
   };
 
-  const memberRepo: ICompanyMemberRepository = {
+  const memberRepo: IOrganizationMemberRepository = {
     findById: async (id: string) => {
       if (id === memberId) {
         return {
           id: memberId,
-          companyId,
+          organizationId,
           userId,
           isActive: true,
         } as unknown as Awaited<
-          ReturnType<ICompanyMemberRepository['findById']>
+          ReturnType<IOrganizationMemberRepository['findById']>
         >;
       }
       return null;
     },
-    findByCompanyAndUser: async (cId: string, uId: string) => {
-      if (cId === companyId && uId === userId) {
+    findByOrganizationAndUser: async (cId: string, uId: string) => {
+      if (cId === organizationId && uId === userId) {
         return {
           id: memberId,
-          companyId,
+          organizationId,
           userId,
           isActive: true,
         } as unknown as Awaited<
-          ReturnType<ICompanyMemberRepository['findByCompanyAndUser']>
+          ReturnType<IOrganizationMemberRepository['findByOrganizationAndUser']>
         >;
       }
       return null;
     },
-  } as unknown as ICompanyMemberRepository;
+  } as unknown as IOrganizationMemberRepository;
 
   const sectionRepo: IFormSectionRepository = {
     findByVersionId: async () => [{ id: 'section-1' } as FormSection],
@@ -155,10 +155,10 @@ test('CreateFormTemplateUseCase resolves createdBy to memberId when given userId
 
   const res = await useCase.execute({
     user: { id: userId },
-    activeCompanyId: companyId,
+    activeOrganizationId: organizationId,
     permissions: 'form_template:create',
     data: {
-      companyId,
+      organizationId,
       name: 'Morning Inspection',
       description: 'Morning check',
       isActive: true,
@@ -174,7 +174,7 @@ test('CreateFormTemplateUseCase resolves createdBy to memberId when given userId
   assert.equal(createdVersion?.createdBy, memberId);
 });
 
-test('CreateFormTemplateUseCase rejects if user is not an active company member', async () => {
+test('CreateFormTemplateUseCase rejects if user is not an active organization member', async () => {
   const f = fixture();
   const useCase = new CreateFormTemplateUseCase(
     f.uow,
@@ -187,10 +187,10 @@ test('CreateFormTemplateUseCase rejects if user is not an active company member'
     async () => {
       await useCase.execute({
         user: { id: 'unknown-user' },
-        activeCompanyId: companyId,
+        activeOrganizationId: organizationId,
         permissions: 'form_template:create',
         data: {
-          companyId,
+          organizationId,
           name: 'Morning Inspection',
           description: 'Morning check',
           isActive: true,
@@ -200,12 +200,13 @@ test('CreateFormTemplateUseCase rejects if user is not an active company member'
     },
     {
       name: 'BadRequestError',
-      message: 'Active company membership is required to create a template',
+      message:
+        'Active organization membership is required to create a template',
     },
   );
 });
 
-test('PublishFormVersionUseCase resolves publishedBy to memberId using findByCompanyAndUser', async () => {
+test('PublishFormVersionUseCase resolves publishedBy to memberId using findByOrganizationAndUser', async () => {
   const f = fixture();
   const useCase = new PublishFormVersionUseCase(
     f.uow,
@@ -217,7 +218,7 @@ test('PublishFormVersionUseCase resolves publishedBy to memberId using findByCom
 
   const res = await useCase.execute({
     user: { id: userId },
-    activeCompanyId: companyId,
+    activeOrganizationId: organizationId,
     permissions: 'form_template:publish',
     formTemplateId: '01a0aa39-945a-765f-8e79-9dfa19c10df8',
     memberId: '',

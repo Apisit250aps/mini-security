@@ -3,22 +3,23 @@ import { useAttendanceManualCheckIn } from '../../hooks/attendance-mutations';
 import ManualCheckInForm from './manual-check-in-form';
 
 export default function ManualCheckInDialog({
-  companyId,
+  organizationId,
   onSuccess,
 }: {
-  companyId: string;
+  organizationId?: string;
   onSuccess: () => void;
 }) {
-  const mutation = useAttendanceManualCheckIn(companyId);
+  const targetOrgId = organizationId || '';
+  const mutation = useAttendanceManualCheckIn(targetOrgId);
   return (
     <ManualCheckInForm
-      companyId={companyId}
+      organizationId={targetOrgId}
       isLoading={mutation.isPending}
       onSubmit={(data) =>
         mutation.mutate(
           {
-            companyId,
-            companyMemberId: data.companyMemberId,
+            organizationId: targetOrgId,
+            organizationMemberId: data.organizationMemberId,
             scheduleSlotId: data.scheduleSlotId,
             workDate: data.workDate,
             status: data.status,

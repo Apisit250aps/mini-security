@@ -40,9 +40,9 @@ export class PermissionGuard {
       permissions.has('*') ||
       permissions.has(`${action.split(':')[0]}:*`);
 
-    // A session snapshot only grants permissions for its active company.
-    if (context.companyId) {
-      PermissionGuard.requireCompanyScope(context, context.companyId);
+    // A session snapshot only grants permissions for its active organization.
+    if (context.organizationId) {
+      PermissionGuard.requireOrganizationScope(context, context.organizationId);
     }
 
     if (!isAllowed) {
@@ -53,22 +53,24 @@ export class PermissionGuard {
     }
   }
 
-  /** Checks resource scope after loading its actual company; does not check actions. */
-  public static requireCompanyScope(
+  /** Checks resource scope after loading its actual organization; does not check actions. */
+  public static requireOrganizationScope(
     context: ISecurityContext,
-    companyId: string,
+    organizationId: string,
   ): void {
     if (!context.user?.id) {
       throw new UnauthorizedError(
-        'Authentication required to access this company',
+        'Authentication required to access this organization',
       );
     }
     if (context.user.isActive === false) {
       throw new ForbiddenError('User is inactive');
     }
     if (context.user.isAdmin === true) return;
-    if (!companyId || companyId !== context.activeCompanyId) {
-      throw new ForbiddenError('Permission does not apply to this company');
+    if (!organizationId || organizationId !== context.activeOrganizationId) {
+      throw new ForbiddenError(
+        'Permission does not apply to this organization',
+      );
     }
   }
 }

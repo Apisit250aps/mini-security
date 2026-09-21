@@ -10,7 +10,7 @@
 - PK คือรหัสแถว เช่น UUIDv7; FK คือการอ้างแถวที่ต้องมีอยู่จริง
 - ความสัมพันธ์ `>` ใน DBML หมายถึงหลายแถวฝั่งซ้ายอ้างแถวเดียวฝั่งขวา
 - `not null` คือข้อมูลบังคับ `unique` กันค่าซ้ำ และ `checks` จำกัดเงื่อนไขในแถวเดียว
-- Composite FK ใช้หลายคอลัมน์ร่วมกัน เช่น `(member_id, company_id)` ทำให้ไม่อ้างสมาชิกของอีกบริษัทได้ แม้ UUID นั้นมีอยู่จริง
+- Composite FK ใช้หลายคอลัมน์ร่วมกัน เช่น `(member_id, organization_id)` ทำให้ไม่อ้างสมาชิกของอีกบริษัทได้ แม้ UUID นั้นมีอยู่จริง
 - Nullable FK ใช้ระบุความสัมพันธ์ที่มีเฉพาะบางกรณี เช่น `published_by` ยังว่างก่อนเผยแพร่ ต้องมี check ประกอบเมื่อต้องการค่าครบชุด
 - `delete: restrict` ป้องกันลบต้นทางที่ประวัติยังอ้างอยู่ ไม่ได้แปลว่าผู้ใช้มีสิทธิ์แก้หรือลบข้อมูล
 - Note ภาษาไทยใน DBML อธิบายความหมาย ไม่ใช่กลไกบังคับกติกา กติกาที่ข้ามแถวหรืออ่านสิทธิ์ต้อง implement เพิ่ม
@@ -20,9 +20,9 @@
 | กลุ่ม        | ตาราง                                                                                                | หน้าที่และความสัมพันธ์                                                                   |
 | ------------ | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | ตัวตน        | user, account, session, verification, jwks                                                           | บัญชีผู้ใช้ ช่องทางเข้าสู่ระบบ เซสชัน ข้อมูลยืนยัน และกุญแจ JWT ใช้ระบบ Auth เดิม        |
-| บริษัท       | company, company_branch, company_member                                                              | company เป็น tenant; สาขาอยู่ใต้บริษัท; member เชื่อม user กับบริษัทและ Role             |
+| บริษัท       | organization, site, organization_member                                                              | organization เป็น tenant; สาขาอยู่ใต้บริษัท; member เชื่อม user กับบริษัทและ Role        |
 | สิทธิ์       | role, permission, role_permission                                                                    | Role รวมการกระทำที่ได้รับอนุญาต ไม่ใช้ชื่อ Role เป็นกติกาพิเศษของ Form                   |
-| ฟีเจอร์      | feature, company_feature, role_feature                                                               | แค็ตตาล็อกฟีเจอร์ การเปิดให้บริษัท และขอบเขตการใช้ของ Role แยกจาก permission รายการกระทำ |
+| ฟีเจอร์      | feature, organization_feature, role_feature                                                          | แค็ตตาล็อกฟีเจอร์ การเปิดให้บริษัท และขอบเขตการใช้ของ Role แยกจาก permission รายการกระทำ |
 | สถานที่      | locations, schedule_slot_location                                                                    | สถานที่และการอนุญาตพื้นที่เช็คอินต่อ Slot; ปิด assignment ไม่ลบหลักฐานเดิม               |
 | เช็คอิน      | check_in_schedules, check_in_schedule_roles, schedule_slots, attendance_logs                         | ตารางเช็คอินผูก Role แบบหลายต่อหลาย Slot ระบุรอบ log ระบุการเช็คจริงต่อสมาชิก/Slot/วัน   |
 | การลา        | leave_types, leave_quotas, leave_requests                                                            | ประเภทลา สิทธิ์ที่กำหนดต่อปี และคำขอลาพร้อมเหตุการณ์อนุมัติ ยอดใช้/คงเหลือคำนวณจากต้นทาง |
@@ -34,9 +34,9 @@ Form เพิ่ม form_plan_recurring_schedule และ form_submission_deci
 
 ## 3. ขอบเขต tenant และผู้กระทำ
 
-`user` คือคนเดียวกันระดับระบบ ส่วน `company_member` คือสมาชิกของคนนั้นในบริษัทหนึ่ง ผู้เริ่มกรอก ผู้แก้คำตอบ ผู้ส่ง และผู้ตรวจจึงอ้าง member พร้อม company_id ใช้ user identity เมื่อต้องตรวจ self-review ตลอดสายประวัติ
+`user` คือคนเดียวกันระดับระบบ ส่วน `organization_member` คือสมาชิกของคนนั้นในบริษัทหนึ่ง ผู้เริ่มกรอก ผู้แก้คำตอบ ผู้ส่ง และผู้ตรวจจึงอ้าง member พร้อม organization_id ใช้ user identity เมื่อต้องตรวจ self-review ตลอดสายประวัติ
 
-ตาราง `role` เดิมอนุญาต `company_id = NULL` สำหรับค่าเริ่มต้นระบบ FK role_id จึงยืนยันเพียงว่ามี Role อยู่จริง Use case ต้องตรวจว่าเป็น Role ของ tenant นั้นหรือ system default ที่อนุญาต ห้ามอ้างว่า FK นี้กัน Role ข้าม tenant ได้ทั้งหมด
+ตาราง `role` เดิมอนุญาต `organization_id = NULL` สำหรับค่าเริ่มต้นระบบ FK role_id จึงยืนยันเพียงว่ามี Role อยู่จริง Use case ต้องตรวจว่าเป็น Role ของ tenant นั้นหรือ system default ที่อนุญาต ห้ามอ้างว่า FK นี้กัน Role ข้าม tenant ได้ทั้งหมด
 
 สิทธิ์ตรวจคำนวณจากสมาชิก active, Role, Permission และขอบเขตข้อมูลปัจจุบัน ไม่มี reviewer_id ในแผน ไม่มี Owner-only condition และไม่เก็บ effective permission ลงตารางงาน การมีสิทธิ์อ่านงานไม่ได้ให้สิทธิ์แก้คำตอบแทนผู้รับงานโดยอัตโนมัติ
 
@@ -127,7 +127,7 @@ Form เพิ่ม form_plan_recurring_schedule และ form_submission_deci
 
 ### 6.2 form_assignment — ผู้รับผิดชอบจริง
 
-หนึ่งแถวคือหนึ่งผู้รับงานต่อรอบ มี role_id XOR company_member_id ไม่เก็บ target_type หรือ role_distribution ซ้ำ เวลามอบหมายใช้ created_at ไม่เพิ่ม assigned_at
+หนึ่งแถวคือหนึ่งผู้รับงานต่อรอบ มี role_id XOR organization_member_id ไม่เก็บ target_type หรือ role_distribution ซ้ำ เวลามอบหมายใช้ created_at ไม่เพิ่ม assigned_at
 
 `form_version_id` เป็น integrity key ส่งต่อจาก occurrence ไป submission เพื่อกัน revision คำตอบใช้คนละฉบับ `assigned_by` ว่างเมื่อ worker เปิดจากแผน มีค่าเมื่อเป็นการมอบหมายด้วยคำสั่งสมาชิกจริง
 
@@ -139,7 +139,7 @@ Replacement ในรอบเดิมใช้ due เดิม ไม่ใ�
 
 ### 7.1 form_submission
 
-หนึ่งแถวคือคำตอบหนึ่ง revision ของ Assignment สาย `supersedes_submission_id` ต้องคง assignment/version/company เดิม และมี successor ได้หนึ่งเดียว root ต่อ assignment ต้องไม่ซ้ำ ผู้เริ่มกับผู้ส่งเป็นคนละข้อเท็จจริง ไม่ใช้ started_by เป็น ACL
+หนึ่งแถวคือคำตอบหนึ่ง revision ของ Assignment สาย `supersedes_submission_id` ต้องคง assignment/version/organization เดิม และมี successor ได้หนึ่งเดียว root ต่อ assignment ต้องไม่ซ้ำ ผู้เริ่มกับผู้ส่งเป็นคนละข้อเท็จจริง ไม่ใช้ started_by เป็น ACL
 
 `submitted_at` กับ `submitted_by` ต้องมี/ไม่มีพร้อมกัน หลังส่งห้ามแก้เนื้อหา ส่งกลับแล้ว clone เป็น ID ใหม่ `revision` คือ concurrency token ทุก draft/review mutation ไม่ใช่เลขรอบที่แสดงผู้ใช้
 
@@ -182,7 +182,7 @@ API review history รวมผลรายคำตอบและคำตั�
 
 | ข้อมูล                                 | เหตุผล                                                                               |
 | -------------------------------------- | ------------------------------------------------------------------------------------ |
-| company_id ในตารางลูก                  | บังคับ tenant ด้วย composite FK ไม่ใช่ cache                                         |
+| organization_id ในตารางลูก             | บังคับ tenant ด้วย composite FK ไม่ใช่ cache                                         |
 | version/template keys บางตาราง         | บังคับ plan/version, assignment/submission, answer/field และ answer/review ให้ตรงกัน |
 | plan config ที่ supersede              | ประวัติกติกาที่ใช้จริงและ catch-up ไม่สามารถอาศัย config ล่าสุด                      |
 | occurrence version/เวลาจริง            | ขอบเขตงานที่เปิดใช้และห้ามเปลี่ยนตามแผนภายหลัง                                       |
@@ -208,8 +208,8 @@ CREATE UNIQUE INDEX form_active_role_assignment
 ON form_assignment (occurrence_id, role_id)
 WHERE cancelled_at IS NULL AND role_id IS NOT NULL;
 CREATE UNIQUE INDEX form_active_member_assignment
-ON form_assignment (occurrence_id, company_member_id)
-WHERE cancelled_at IS NULL AND company_member_id IS NOT NULL;
+ON form_assignment (occurrence_id, organization_member_id)
+WHERE cancelled_at IS NULL AND organization_member_id IS NOT NULL;
 CREATE UNIQUE INDEX form_one_answer_review_root
 ON form_review_entry (submission_id, answer_id)
 WHERE answer_id IS NOT NULL AND supersedes_entry_id IS NULL;

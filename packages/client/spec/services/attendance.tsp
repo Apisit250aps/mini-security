@@ -29,17 +29,17 @@ interface AttendanceServices {
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/roles/{roleId}/schedules")
-  @summary("Get active check-in schedules assigned to a role in a company")
-  getSchedulesByRole(@path companyId: string, @path roleId: string):
+  @route("/organizations/{organizationId}/roles/{roleId}/schedules")
+  @summary("Get active check-in schedules assigned to a role in an organization")
+  getSchedulesByRole(@path organizationId: string, @path roleId: string):
     | ApiOkResponse<CheckInSchedule[]>
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/schedules")
-  @summary("Get check-in schedules by company")
-  getSchedulesByCompany(@path companyId: string):
+  @route("/organizations/{organizationId}/schedules")
+  @summary("Get check-in schedules by organization")
+  getSchedulesByOrganization(@path organizationId: string):
     | ApiOkResponse<CheckInSchedule[]>
     | ApiUnauthorizedResponse;
 
@@ -106,10 +106,10 @@ interface AttendanceServices {
     | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/logs")
-  @summary("Get company attendance logs by date range")
-  getCompanyLogs(
-    @path companyId: string,
+  @route("/organizations/{organizationId}/logs")
+  @summary("Get organization attendance logs by date range")
+  getOrganizationLogs(
+    @path organizationId: string,
     @query startDate: string,
     @query endDate: string,
   ):

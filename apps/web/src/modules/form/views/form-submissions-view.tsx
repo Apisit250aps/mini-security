@@ -13,16 +13,17 @@ import {
   MetricCard,
   DashboardStatsGrid,
 } from '@repo/ui/components/shared/dashboard';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { useFormSubmissionsQueries } from '../hooks/form-queries';
 import FormSubmissionDataTable from '../components/submission/form-submission-data-table';
 import type { FormSubmissionItem } from '@repo/client';
 
 export default function FormSubmissionsView() {
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
 
   const submissionsQuery = useFormSubmissionsQueries(
-    activeCompanyId ? { companyId: activeCompanyId } : undefined,
+    activeOrganizationId ? { organizationId: activeOrganizationId } : undefined,
   );
 
   const submissions: FormSubmissionItem[] = useMemo(
@@ -53,11 +54,13 @@ export default function FormSubmissionsView() {
   );
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || submissionsQuery.isLoading;
+    isOrganizationLoading ||
+    !activeOrganizationId ||
+    submissionsQuery.isLoading;
 
   return (
     <PageLayout
-      pageId="companyFormSubmissions"
+      pageId="organizationFormSubmissions"
       title="ประวัติและผลการตรวจ"
       description="ประวัติผลการตรวจที่เคยส่งแล้วและการพิจารณาอนุมัติ"
       isLoading={isPageLoading}
@@ -105,7 +108,9 @@ export default function FormSubmissionsView() {
             </div>
           </div>
 
-          <FormSubmissionDataTable companyId={activeCompanyId || ''} />
+          <FormSubmissionDataTable
+            organizationId={activeOrganizationId || ''}
+          />
         </div>
       </div>
     </PageLayout>

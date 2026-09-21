@@ -11,14 +11,14 @@ import type {
 
 export interface IRoleRepository
   extends BaseRepository<Role, CreateRole, UpdateRole> {
-  findByCompanyId(
-    companyId: string,
+  findByOrganizationId(
+    organizationId: string,
     includeSuperAdmin?: boolean,
   ): Promise<Role[]>;
   findSystemDefaultRoles(includeSuperAdmin?: boolean): Promise<Role[]>;
-  findByNameAndCompany(
+  findByNameAndOrganization(
     name: string,
-    companyId?: string | null,
+    organizationId?: string | null,
   ): Promise<Role | null>;
 }
 

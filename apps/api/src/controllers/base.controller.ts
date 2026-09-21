@@ -12,9 +12,9 @@ export abstract class Controller {
     return {
       user,
       userId: user?.id,
-      companyId: session?.activeCompanyId ?? undefined,
+      organizationId: session?.activeOrganizationId ?? undefined,
       permissions: session?.permissions,
-      activeCompanyId: session?.activeCompanyId,
+      activeOrganizationId: session?.activeOrganizationId,
       memberId: session?.memberId ?? null,
     };
   }

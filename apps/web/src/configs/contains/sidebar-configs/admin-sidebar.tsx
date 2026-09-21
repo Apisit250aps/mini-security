@@ -25,9 +25,9 @@ export const adminSidebarConfig: NavItem[] = [
       requiredPermissions: 'user:read',
     },
     {
-      id: 'company',
+      id: 'organization',
       icon: <BuildingIcon />,
-      requiredPermissions: 'company:read',
+      requiredPermissions: 'organization:read',
     },
   ]),
   sidebarGroupBuilder('time-attendance', 'ระบบเวลาและการลา', [

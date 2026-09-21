@@ -1,44 +1,48 @@
 import {
-  attendanceServicesGetCompanyLogs,
+  attendanceServicesGetOrganizationLogs,
   attendanceServicesGetMemberLogs,
   attendanceServicesGetSchedulesByRole,
-  attendanceServicesGetSchedulesByCompany,
+  attendanceServicesGetSchedulesByOrganization,
   attendanceServicesGetSlotsBySchedule,
 } from '@repo/client';
 import type { CheckInSchedule } from '@repo/client';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { attendanceKeys } from '@/shared/utils';
 
-export function useCompanySchedulesQueries(companyId: string) {
+export function useGetCheckInSchedulesByOrganization(organizationId: string) {
   return useQuery({
-    queryKey: attendanceKeys.schedules(companyId),
+    queryKey: attendanceKeys.schedules(organizationId),
     queryFn: async ({ signal }) => {
-      const response = await attendanceServicesGetSchedulesByCompany({
+      const response = await attendanceServicesGetSchedulesByOrganization({
         signal,
-        path: { companyId },
+        path: { organizationId },
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
 }
 
-export function useRoleSchedulesQueries(companyId: string, roleId?: string) {
+export function useGetCheckInSchedulesByRole(
+  organizationId: string,
+  roleId?: string,
+) {
   return useQuery({
     queryKey: roleId
-      ? attendanceKeys.scheduleByRole(companyId, roleId)
+      ? attendanceKeys.scheduleByRole(organizationId, roleId)
       : ['ATTENDANCE', 'SCHEDULE', 'ROLE', 'NONE'],
     queryFn: async ({ signal }) => {
       if (!roleId) return [];
       const response = await attendanceServicesGetSchedulesByRole({
         signal,
-        path: { companyId, roleId },
+        path: { organizationId, roleId },
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(companyId && roleId),
+    enabled: Boolean(organizationId && roleId),
   });
 }
+export const useRoleSchedulesQueries = useGetCheckInSchedulesByRole;
 
 export function useScheduleSlotsQueries(scheduleId?: string) {
   return useQuery({
@@ -78,21 +82,21 @@ export function useMemberAttendanceLogsQueries(
   });
 }
 
-export function useCompanyAttendanceLogsQueries(
-  companyId: string,
+export function useGetOrganizationLogs(
+  organizationId: string,
   filters: { startDate: string; endDate: string },
 ) {
   return useQuery({
-    queryKey: attendanceKeys.companyLogs(companyId, filters),
+    queryKey: attendanceKeys.organizationLogs(organizationId, filters),
     queryFn: async ({ signal }) => {
-      const response = await attendanceServicesGetCompanyLogs({
+      const response = await attendanceServicesGetOrganizationLogs({
         signal,
-        path: { companyId },
+        path: { organizationId },
         query: filters,
       });
       return response.data?.data || [];
     },
-    enabled: Boolean(companyId && filters.startDate && filters.endDate),
+    enabled: Boolean(organizationId && filters.startDate && filters.endDate),
   });
 }
 

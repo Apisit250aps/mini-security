@@ -8,7 +8,7 @@ import type {
   FormSubmission,
   FormReviewEntry,
 } from '@repo/domains/entities/form';
-import type { CompanyMember } from '@repo/domains/entities/company';
+import type { OrganizationMember } from '@repo/domains/entities/organization';
 import type { User } from '@repo/domains/entities/user';
 import type {
   IFormAssignmentRepository,
@@ -18,7 +18,7 @@ import type {
   IFormTemplateRepository,
   IFormReviewEntryRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type { IUserRepository } from '@repo/domains/repositories/user';
 import { ListMyAssignmentsUseCase } from '../src/use-cases/form/form-assignment.usecase';
 import { ListFormSubmissionsUseCase } from '../src/use-cases/form/form-submission.usecase';
@@ -26,8 +26,8 @@ import { ListFormSubmissionsUseCase } from '../src/use-cases/form/form-submissio
 const ctx = {
   user: { id: 'u1', name: 'Inspector Somchai' },
   memberId: 'm1',
-  companyId: 'c1',
-  activeCompanyId: 'c1',
+  organizationId: 'c1',
+  activeOrganizationId: 'c1',
   permissions:
     'form_submission:read,form_submission:create,form_submission:update,form_plan:read,form_plan:manage',
 };
@@ -35,11 +35,11 @@ const ctx = {
 test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
   const assignment: FormAssignment = {
     id: 'a1',
-    companyId: 'c1',
+    organizationId: 'c1',
     occurrenceId: 'occ1',
     formVersionId: 'fv1',
     roleId: null,
-    companyMemberId: 'm1',
+    organizationMemberId: 'm1',
     replacesAssignmentId: null,
     assignedBy: 'u1',
     cancelledAt: null,
@@ -51,7 +51,7 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
 
   const occurrence: FormOccurrence = {
     id: 'occ1',
-    companyId: 'c1',
+    organizationId: 'c1',
     planId: 'p1',
     formTemplateId: 't1',
     formVersionId: 'fv1',
@@ -67,7 +67,7 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
 
   const plan: FormPlan = {
     id: 'p1',
-    companyId: 'c1',
+    organizationId: 'c1',
     formTemplateId: 't1',
     name: 'Daily Safety Patrol',
     scheduleKind: 'MANUAL',
@@ -84,10 +84,10 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
     updatedAt: new Date(),
   };
 
-  const member: CompanyMember = {
+  const member: OrganizationMember = {
     id: 'm1',
-    companyId: 'c1',
-    companyBranchId: 'b1',
+    organizationId: 'c1',
+    siteId: 'b1',
     userId: 'u1',
     roleId: 'r1',
     isActive: true,
@@ -101,7 +101,7 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
     findById: async () => assignment,
   };
 
-  const memberRepo: Partial<ICompanyMemberRepository> = {
+  const memberRepo: Partial<IOrganizationMemberRepository> = {
     findById: async () => member,
   };
 
@@ -128,7 +128,7 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
 
   const usecase = new ListMyAssignmentsUseCase(
     assignmentRepo as IFormAssignmentRepository,
-    memberRepo as ICompanyMemberRepository,
+    memberRepo as IOrganizationMemberRepository,
     occurrenceRepo as IFormOccurrenceRepository,
     templateRepo as IFormTemplateRepository,
     undefined,
@@ -151,11 +151,11 @@ test('ListMyAssignmentsUseCase computes NOT_STARTED and canStart', async () => {
 test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
   const assignment: FormAssignment = {
     id: 'a1',
-    companyId: 'c1',
+    organizationId: 'c1',
     occurrenceId: 'occ1',
     formVersionId: 'fv1',
     roleId: null,
-    companyMemberId: 'm1',
+    organizationMemberId: 'm1',
     replacesAssignmentId: null,
     assignedBy: 'u1',
     cancelledAt: null,
@@ -167,7 +167,7 @@ test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
 
   const overdueOccurrence: FormOccurrence = {
     id: 'occ1',
-    companyId: 'c1',
+    organizationId: 'c1',
     planId: 'p1',
     formTemplateId: 't1',
     formVersionId: 'fv1',
@@ -183,7 +183,7 @@ test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
 
   const denyPlan: FormPlan = {
     id: 'p1',
-    companyId: 'c1',
+    organizationId: 'c1',
     formTemplateId: 't1',
     name: 'Strict Plan',
     scheduleKind: 'MANUAL',
@@ -200,10 +200,10 @@ test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
     updatedAt: new Date(),
   };
 
-  const member: CompanyMember = {
+  const member: OrganizationMember = {
     id: 'm1',
-    companyId: 'c1',
-    companyBranchId: 'b1',
+    organizationId: 'c1',
+    siteId: 'b1',
     userId: 'u1',
     roleId: 'r1',
     isActive: true,
@@ -215,7 +215,7 @@ test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
     findByMemberId: async () => [assignment],
     findByRoleId: async () => [],
   };
-  const denyMemberRepo: Partial<ICompanyMemberRepository> = {
+  const denyMemberRepo: Partial<IOrganizationMemberRepository> = {
     findById: async () => member,
   };
   const denyOccRepo: Partial<IFormOccurrenceRepository> = {
@@ -236,7 +236,7 @@ test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
 
   const usecase = new ListMyAssignmentsUseCase(
     denyAssignmentRepo as IFormAssignmentRepository,
-    denyMemberRepo as ICompanyMemberRepository,
+    denyMemberRepo as IOrganizationMemberRepository,
     denyOccRepo as IFormOccurrenceRepository,
     emptyTemplateRepo as IFormTemplateRepository,
     undefined,
@@ -261,7 +261,7 @@ test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
 
   const allowUsecase = new ListMyAssignmentsUseCase(
     denyAssignmentRepo as IFormAssignmentRepository,
-    denyMemberRepo as ICompanyMemberRepository,
+    denyMemberRepo as IOrganizationMemberRepository,
     denyOccRepo as IFormOccurrenceRepository,
     emptyTemplateRepo as IFormTemplateRepository,
     undefined,
@@ -279,7 +279,7 @@ test('ListMyAssignmentsUseCase enforces latePolicy DENY vs ALLOW', async () => {
 test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', async () => {
   const originalSub: FormSubmission = {
     id: 's1',
-    companyId: 'c1',
+    organizationId: 'c1',
     assignmentId: 'a1',
     formVersionId: 'fv1',
     startedBy: 'm1',
@@ -294,7 +294,7 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
 
   const correctionSub: FormSubmission = {
     id: 's2',
-    companyId: 'c1',
+    organizationId: 'c1',
     assignmentId: 'a1',
     formVersionId: 'fv1',
     startedBy: 'm1',
@@ -309,7 +309,7 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
 
   const returnReview: FormReviewEntry = {
     id: 'rev1',
-    companyId: 'c1',
+    organizationId: 'c1',
     submissionId: 's1',
     formVersionId: 'v1',
     reviewedBy: 'm2',
@@ -323,7 +323,7 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
 
   const approveReview: FormReviewEntry = {
     id: 'rev2',
-    companyId: 'c1',
+    organizationId: 'c1',
     submissionId: 's2',
     formVersionId: 'v1',
     reviewedBy: 'm2',
@@ -355,10 +355,10 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
     updatedAt: new Date(),
   };
 
-  const member1: CompanyMember = {
+  const member1: OrganizationMember = {
     id: 'm1',
-    companyId: 'c1',
-    companyBranchId: 'b1',
+    organizationId: 'c1',
+    siteId: 'b1',
     userId: 'u1',
     roleId: 'r1',
     isActive: true,
@@ -366,10 +366,10 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
     updatedAt: new Date(),
   };
 
-  const member2: CompanyMember = {
+  const member2: OrganizationMember = {
     id: 'm2',
-    companyId: 'c1',
-    companyBranchId: 'b1',
+    organizationId: 'c1',
+    siteId: 'b1',
     userId: 'u2',
     roleId: 'r2',
     isActive: true,
@@ -378,7 +378,7 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
   };
 
   const subRepo: Partial<IFormSubmissionRepository> = {
-    findByCompanyId: async () => [originalSub, correctionSub],
+    findByOrganizationId: async () => [originalSub, correctionSub],
     findByAssignmentId: async () => [originalSub, correctionSub],
   };
 
@@ -387,12 +387,12 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
       ({
         id: 'a1',
         occurrenceId: 'occ1',
-        companyMemberId: 'm1',
+        organizationMemberId: 'm1',
         roleId: null,
       }) as unknown as FormAssignment,
   };
 
-  const memRepo: Partial<ICompanyMemberRepository> = {
+  const memRepo: Partial<IOrganizationMemberRepository> = {
     findById: async (id: string) =>
       id === 'm1' ? member1 : id === 'm2' ? member2 : null,
   };
@@ -428,7 +428,7 @@ test('ListFormSubmissionsUseCase calculates submissionSequence and isLatest', as
   const usecase = new ListFormSubmissionsUseCase(
     subRepo as IFormSubmissionRepository,
     assignRepo as IFormAssignmentRepository,
-    memRepo as ICompanyMemberRepository,
+    memRepo as IOrganizationMemberRepository,
     occRepo as IFormOccurrenceRepository,
     pRepo as IFormPlanRepository,
     tRepo as IFormTemplateRepository,

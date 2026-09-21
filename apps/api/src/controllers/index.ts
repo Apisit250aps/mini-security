@@ -1,6 +1,6 @@
 export * from './base.controller';
 export * from './user.controller';
-export * from './company.controller';
+export * from './organization.controller';
 export * from './permission.controller';
 export * from './feature.controller';
 export * from './attendance.controller';

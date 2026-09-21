@@ -22,8 +22,8 @@
 DBML ไม่แสดง partial unique index นี้ ต้องเพิ่มใน migration จริง:
 
 ```sql
-CREATE UNIQUE INDEX locations_one_primary_per_branch
-ON locations (company_branch_id)
+CREATE UNIQUE INDEX locations_one_primary_per_site
+ON locations (site_id)
 WHERE is_primary = true;
 ```
 
@@ -42,8 +42,8 @@ WHERE is_primary = true;
 
 ## ลำดับ migration ในอนาคต
 
-1. เพิ่ม `company_id` แบบ nullable ใน Slots/Logs; backfill จาก Schedule และตรวจให้บริษัทสมาชิกตรงกับ Slot หากไม่ตรงให้หยุดและแก้ข้อมูลก่อน
-2. เพิ่ม unique `(id, company_id)` ที่ Branch, Member และ Slot ก่อนสร้าง composite FKs แล้วเปลี่ยน company_id เป็น NOT NULL
+1. เพิ่ม `organization_id` แบบ nullable ใน Slots/Logs; backfill จาก Schedule และตรวจให้บริษัทสมาชิกตรงกับ Slot หากไม่ตรงให้หยุดและแก้ข้อมูลก่อน
+2. เพิ่ม unique `(id, organization_id)` ที่ Site, Member และ Slot ก่อนสร้าง composite FKs แล้วเปลี่ยน organization_id เป็น NOT NULL
 3. สร้าง Location และ assignment พร้อม checks, indexes และ partial unique; พิกัดและรัศมีใช้ `double precision`
 4. เพิ่ม snapshot columns แบบ nullable ใน log; ปล่อยข้อมูลเก่าเป็น NULL ทั้งชุด เพิ่ม checks และ FKs
 5. ติดตั้ง use case/API/UI สำหรับการตรวจพื้นที่ก่อนเปิด assignments จริง และตรวจสิทธิ์ทุกเส้นทางเขียน รวม manual/leave

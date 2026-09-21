@@ -6,8 +6,8 @@ its repositories. All database work inside the callback must be awaited.
 
 | Use cases                                  | Work that must succeed or fail together                                             |
 | ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `CreateCompany`                            | Company and initial branch                                                          |
-| `AddCompanyMember`                         | Fallback branch creation and membership                                             |
+| `CreateOrganization`                       | Organization and initial site                                                     |
+| `AddOrganizationMember`                    | Fallback site creation and membership                                             |
 | `CreateUser`, `SignUpEmail`, `SocialLogin` | User, credential/provider account and session where applicable                      |
 | `ReviewLeaveRequest`                       | Request status, quota usage and all generated attendance logs                       |
 | `CancelLeaveRequest`                       | Quota refund and cancelled status                                                   |

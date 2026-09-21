@@ -18,46 +18,41 @@ import {
   useRoleFeatureRevoke,
 } from '@/modules/feature/hooks/feature-mutations';
 import {
-  useCompanyAvailableFeaturesQueries,
+  useOrganizationAvailableFeaturesQueries,
   useRoleFeaturesQueries,
 } from '@/modules/feature/hooks/feature-queries';
 
 interface RoleFeatureManagerProps {
   role: Role;
-  companyId: string;
+  organizationId?: string;
   readOnly?: boolean;
 }
 
 export function RoleFeatureManager({
   role,
-  companyId,
+  organizationId,
   readOnly = false,
 }: RoleFeatureManagerProps) {
+  const orgId = organizationId || '';
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 1. Only show features that THIS company has active access to!
-  const availableFeaturesQuery = useCompanyAvailableFeaturesQueries(companyId);
+  // 1. Only show features that THIS organization has active access to!
+  const availableFeaturesQuery = useOrganizationAvailableFeaturesQueries(orgId);
 
   // 2. Query features assigned to this role
   const roleFeaturesQuery = useRoleFeaturesQueries(role.id);
 
   const assignMutation = useRoleFeatureAssign(role.id);
-  const revokeMutation = useRoleFeatureRevoke(role.id, companyId);
+  const revokeMutation = useRoleFeatureRevoke(role.id, orgId);
 
   const availableFeatures = useMemo<Feature[]>(
     () => availableFeaturesQuery.data || [],
     [availableFeaturesQuery.data],
   );
 
-  const assignedRoleFeatures = useMemo<Feature[]>(
-    () => roleFeaturesQuery.data || [],
-    [roleFeaturesQuery.data],
-  );
-
-  const assignedFeatureIds = useMemo(
-    () => new Set(assignedRoleFeatures.map((f) => f.id)),
-    [assignedRoleFeatures],
-  );
+  const assignedFeatureIds = useMemo(() => {
+    return new Set(roleFeaturesQuery.data?.map((f) => f.id) || []);
+  }, [roleFeaturesQuery.data]);
 
   const filteredFeatures = useMemo(() => {
     if (!searchTerm.trim()) return availableFeatures;
@@ -71,11 +66,21 @@ export function RoleFeatureManager({
     );
   }, [availableFeatures, searchTerm]);
 
+  const activeCount = useMemo(() => {
+    let count = 0;
+    for (const feat of availableFeatures) {
+      if (assignedFeatureIds.has(feat.id)) {
+        count++;
+      }
+    }
+    return count;
+  }, [availableFeatures, assignedFeatureIds]);
+
   const columns = useMemo<ColumnDef<Feature>[]>(
     () => [
       {
         id: 'toggle',
-        header: 'มอบหมาย',
+        header: 'มอบหมายสิทธิ์',
         cell: ({ row }) => {
           const feat = row.original;
           const isAssigned = assignedFeatureIds.has(feat.id);
@@ -95,7 +100,7 @@ export function RoleFeatureManager({
                 onChange={(nextVal) => {
                   if (nextVal) {
                     assignMutation.mutate({
-                      companyId,
+                      organizationId: orgId,
                       roleId: role.id,
                       featureId: feat.id,
                       isEnabled: true,
@@ -152,16 +157,13 @@ export function RoleFeatureManager({
         cell: ({ row }) => {
           const isAssigned = assignedFeatureIds.has(row.original.id);
           return isAssigned ? (
-            <Badge variant="default" className="text-xs font-normal">
-              มอบหมายแล้ว
-            </Badge>
+            <span className="inline-flex items-center text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              ● มอบหมายแล้ว
+            </span>
           ) : (
-            <Badge
-              variant="outline"
-              className="text-xs text-muted-foreground font-normal"
-            >
-              ยังไม่มอบหมาย
-            </Badge>
+            <span className="inline-flex items-center text-xs text-muted-foreground">
+              ○ ยังไม่ได้รับสิทธิ์
+            </span>
           );
         },
       },
@@ -171,7 +173,7 @@ export function RoleFeatureManager({
       assignMutation,
       revokeMutation,
       readOnly,
-      companyId,
+      orgId,
       role.id,
     ],
   );
@@ -184,70 +186,66 @@ export function RoleFeatureManager({
       <div className="flex flex-col items-center justify-center py-16 gap-3">
         <Spinner className="size-6 text-primary" />
         <span className="text-sm text-muted-foreground">
-          กำลังโหลดรายการฟีเจอร์สำหรับบทบาท...
+          กำลังโหลดรายการฟีเจอร์ที่มอบหมายได้...
         </span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
-      {readOnly && (
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
-          <span className="font-semibold">
-            บทบาทมาตรฐานของระบบ (System Default):
-          </span>{' '}
-          แสดงข้อมูลฟีเจอร์ในโหมดดูข้อมูลเท่านั้น
-        </div>
-      )}
-
-      {/* Role Summary Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/30 p-3.5">
-        <div className="flex items-center gap-2.5">
-          <ShieldCheck className="size-5 text-primary" />
-          <div className="flex flex-col">
-            <span className="font-semibold text-sm">
-              มอบหมายฟีเจอร์ให้บทบาท: {role.name}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              กำหนดว่าผู้ใช้ในบทบาทนี้
-              สามารถเข้าถึงและดูแลฟีเจอร์ใดขององค์กรได้บ้าง
-            </span>
+    <div className="flex flex-col gap-5">
+      {/* Overview Banner */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/30 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <ShieldCheck className="size-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold">
+              มอบหมายสิทธิ์ฟีเจอร์ให้บทบาท ({role.name})
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              พนักงานที่สังกัดบทบาทนี้จะสามารถเข้าถึงเมนูและฟังก์ชันของฟีเจอร์ที่เปิดใช้งานได้
+            </p>
           </div>
         </div>
 
-        <Badge variant="outline" className="text-xs">
-          ดูแล {assignedFeatureIds.size} จาก {availableFeatures.length}{' '}
-          ฟีเจอร์ที่บริษัทมี
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs font-normal">
+            มอบหมายแล้ว {activeCount} จาก {availableFeatures.length}{' '}
+            ฟีเจอร์ที่เปิดใช้ในองค์กร
+          </Badge>
+        </div>
       </div>
 
-      {/* Search Input */}
-      <InputGroup className="w-full">
+      {/* Search Bar */}
+      <InputGroup className="w-full max-w-md">
         <InputGroupAddon align="inline-start">
           <Search className="size-4 text-muted-foreground" />
         </InputGroupAddon>
         <InputGroupInput
-          placeholder="ค้นหาฟีเจอร์ที่ต้องการมอบหมาย..."
+          placeholder="ค้นหาฟีเจอร์..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </InputGroup>
 
-      {/* Feature List Table */}
+      {/* Features Table */}
       {availableFeatures.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground rounded-lg border border-dashed">
+        <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
           <Layers className="size-8 opacity-40 mb-2" />
           <p className="text-sm font-medium">
-            บริษัทนี้ยังไม่ได้รับสิทธิ์ฟีเจอร์ใดจาก Super Admin
+            องค์กรนี้ยังไม่ได้รับสิทธิ์ในฟีเจอร์ใดๆ
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            โปรดติดต่อ Super Admin เพื่อเปิดใช้งานฟีเจอร์ก่อนทำการมอบหมายบทบาท
+            Super Admin
+            จำเป็นต้องเปิดใช้งานฟีเจอร์ให้องค์กรก่อนจึงจะมอบหมายให้บทบาทได้
           </p>
         </div>
       ) : filteredFeatures.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-          <p className="text-sm">ไม่พบฟีเจอร์ที่ตรงกับคำค้นหา</p>
+        <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+          <Layers className="size-8 opacity-40 mb-2" />
+          <p className="text-sm font-medium">ไม่พบฟีเจอร์ที่ตรงกับคำค้นหา</p>
         </div>
       ) : (
         <DataTable data={filteredFeatures} columns={columns} />

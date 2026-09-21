@@ -10,7 +10,7 @@ import {
 
 interface ReorderableRecord {
   id: string;
-  companyId: string;
+  organizationId: string;
 }
 
 interface ReorderRepository<T extends ReorderableRecord> {
@@ -44,7 +44,7 @@ export async function validateAndReorderFormItems<
   if (!version || version.formTemplateId !== ctx.formTemplateId) {
     throw new NotFoundError('Form version not found for this template');
   }
-  PermissionGuard.requireCompanyScope(ctx, version.companyId);
+  PermissionGuard.requireOrganizationScope(ctx, version.organizationId);
   if (version.status !== 'DRAFT') {
     throw new BadRequestError('Only draft versions can be reordered');
   }
@@ -56,7 +56,8 @@ export async function validateAndReorderFormItems<
       (item) =>
         !records.some(
           (record) =>
-            record.id === item.id && record.companyId === version.companyId,
+            record.id === item.id &&
+            record.organizationId === version.organizationId,
         ),
     )
   ) {

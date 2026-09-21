@@ -1,0 +1,160 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { useActiveOrganization } from '../hooks/use-active-organization';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
+import { useRoleListQueries } from '@/modules/role/hooks/role-queries';
+import PageLayout from '@/shared/components/layouts/page-layout';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@repo/ui/components/card';
+import {
+  MetricCard,
+  DashboardStatsGrid,
+} from '@repo/ui/components/shared/dashboard';
+import { Button } from '@repo/ui/components/button';
+import { Badge } from '@repo/ui/components/badge';
+import {
+  Building2,
+  Users,
+  ShieldCheck,
+  UserPlus,
+  ArrowRight,
+  Activity,
+} from 'lucide-react';
+import { buildPageUrl } from '@/shared/utils';
+
+export default function OrganizationDashboardView() {
+  const { activeOrganization, activeOrganizationId, isLoading } =
+    useActiveOrganization();
+  const membersQuery = useOrganizationMembersQueries(activeOrganizationId);
+  const rolesQuery = useRoleListQueries();
+
+  const memberCount = membersQuery.data?.length || 0;
+  const roleCount = rolesQuery.data?.length || 0;
+
+  return (
+    <PageLayout
+      pageId="organizationDashboard"
+      isLoading={isLoading}
+      actions={
+        activeOrganization && (
+          <Link href={buildPageUrl('organizationEmployeeNew')}>
+            <Button className="gap-2">
+              <UserPlus className="size-4" />
+              เพิ่มพนักงานใหม่
+            </Button>
+          </Link>
+        )
+      }
+    >
+      {!activeOrganization ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
+          <Building2 className="size-12 text-muted-foreground" />
+          <h2 className="text-lg font-semibold">ยังไม่มีข้อมูลองค์กร</h2>
+          <p className="text-sm text-muted-foreground max-w-sm">
+            คุณยังไม่ได้สังกัดหรือสร้างองค์กร
+            กรุณาติดต่อผู้ดูแลระบบเพื่อรับคำเชิญเข้าสู่องค์กร
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {/* Top Banner */}
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4 shadow-xs">
+            <div className="flex items-center gap-4">
+              <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Building2 className="size-7" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    {activeOrganization.name}
+                  </h1>
+                  {activeOrganization.isActive ? (
+                    <Badge variant="default">เปิดใช้งาน</Badge>
+                  ) : (
+                    <Badge variant="destructive">ปิดใช้งาน</Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground font-mono">
+                  Slug: {activeOrganization.slug}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Metrics Cards */}
+          <DashboardStatsGrid columns={3}>
+            <MetricCard
+              title="จำนวนพนักงานทั้งหมด"
+              value={`${memberCount} คน`}
+              icon={Users}
+              description="สมาชิกที่สังกัดในองค์กรนี้"
+            />
+
+            <MetricCard
+              title="บทบาทและตำแหน่ง (Roles)"
+              value={`${roleCount} บทบาท`}
+              icon={ShieldCheck}
+              description="ตำแหน่งและสิทธิ์ที่ใช้งานได้"
+            />
+
+            <MetricCard
+              title="สถานะองค์กร"
+              value="พร้อมใช้งาน"
+              icon={Activity}
+              trend={{
+                value: 'Active',
+                isPositive: true,
+                label: 'ปกติ',
+              }}
+              description="ระบบความปลอดภัยเปิดทำงานปกติ"
+            />
+          </DashboardStatsGrid>
+
+          {/* Quick Navigation Cards */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <CardTitle>จัดการพนักงานในองค์กร</CardTitle>
+                <CardDescription>
+                  ตรวจสอบรายชื่อพนักงาน มอบหมายบทบาท และแก้ไขสถานะการทำงาน
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-end">
+                <Link href={buildPageUrl('organizationEmployee')}>
+                  <Button variant="outline" className="gap-2">
+                    ดูรายชื่อพนักงาน
+                    <ArrowRight className="size-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <CardTitle>กำหนดบทบาทและสิทธิ์ (Roles & Permissions)</CardTitle>
+                <CardDescription>
+                  สร้างตำแหน่งใหม่และกำหนดสิทธิ์การเข้าถึงเมนูต่างๆ ในองค์กร
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-end">
+                <Link href={buildPageUrl('organizationRole')}>
+                  <Button variant="outline" className="gap-2">
+                    จัดการสิทธิ์และบทบาท
+                    <ArrowRight className="size-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+    </PageLayout>
+  );
+}

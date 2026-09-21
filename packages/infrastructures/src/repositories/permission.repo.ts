@@ -25,14 +25,20 @@ export class RoleRepository
     super(db, role);
   }
 
-  async findByCompanyId(
-    companyId: string,
+  async findByOrganizationId(
+    organizationId: string,
     includeSuperAdmin = false,
   ): Promise<Role[]> {
     const condition = includeSuperAdmin
-      ? or(eq(role.companyId, companyId), eq(role.isSystemDefault, true))
+      ? or(
+          eq(role.organizationId, organizationId),
+          eq(role.isSystemDefault, true),
+        )
       : or(
-          and(eq(role.companyId, companyId), ne(role.roleType, 'SUPER_ADMIN')),
+          and(
+            eq(role.organizationId, organizationId),
+            ne(role.roleType, 'SUPER_ADMIN'),
+          ),
           and(eq(role.isSystemDefault, true), ne(role.roleType, 'SUPER_ADMIN')),
         );
 
@@ -49,13 +55,13 @@ export class RoleRepository
     return results.map((r) => new Role(r as unknown as Role));
   }
 
-  async findByNameAndCompany(
+  async findByNameAndOrganization(
     name: string,
-    companyId?: string | null,
+    organizationId?: string | null,
   ): Promise<Role | null> {
-    const condition = companyId
-      ? and(eq(role.name, name), eq(role.companyId, companyId))
-      : and(eq(role.name, name), isNull(role.companyId));
+    const condition = organizationId
+      ? and(eq(role.name, name), eq(role.organizationId, organizationId))
+      : and(eq(role.name, name), isNull(role.organizationId));
 
     const [result] = await this.db.select().from(this.table).where(condition);
     return result ? new Role(result as unknown as Role) : null;

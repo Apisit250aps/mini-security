@@ -87,26 +87,26 @@ import { eq, and, or } from 'drizzle-orm';                // Query operators
 
 ### Filter by foreign key:
 ```typescript
-async findByCompany(companyId: string): Promise<Product[]> {
+async findByOrganization(organizationId: string): Promise<Product[]> {
   const results = await this.db
     .select()
     .from(this.table)
-    .where(eq(product.companyId, companyId));
+    .where(eq(product.organizationId, organizationId));
   return results as Product[];
 }
 ```
 
 ### Filter with multiple conditions:
 ```typescript
-async findByCompanyAndCategory(
-  companyId: string,
+async findByOrganizationAndCategory(
+  organizationId: string,
   categoryId: string,
 ): Promise<Product[]> {
   const results = await this.db
     .select()
     .from(this.table)
     .where(and(
-      eq(product.companyId, companyId),
+      eq(product.organizationId, organizationId),
       eq(product.categoryId, categoryId),
     ));
   return results as Product[];
@@ -158,7 +158,7 @@ export { hash, verify };
 ```typescript
 export { default as UserRepository } from './user.repo';
 export { default as ProductRepository } from './product.repo';
-export { default as CompanyRepository } from './company.repo';
+export { default as OrganizationRepository } from './organization.repo';
 // add new repositories here
 ```
 

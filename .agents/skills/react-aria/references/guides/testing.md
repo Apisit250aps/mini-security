@@ -199,7 +199,7 @@ it('my test case', async function () {
 
 ### Patterns
 
-Below is a list of the ARIA patterns testers currently supported by `createTester`. See the accompanying component testing docs pages for a sample of how to use
+Below is a list of the ARIA patterns testers currently supported by `createTester`. See the acorganizationing component testing docs pages for a sample of how to use
 the testers in your test suite.
 
 - [CheckboxGroup](./CheckboxGroup/testing.md)

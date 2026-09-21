@@ -7,7 +7,7 @@ import type {
 
 export class Role implements RoleEntity {
   id: string;
-  companyId?: string | null;
+  organizationId?: string | null;
   name: string;
   description?: string | null;
   roleType: RoleType;
@@ -17,7 +17,7 @@ export class Role implements RoleEntity {
 
   constructor(data: RoleEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.name = data.name;
     this.description = data.description;
     this.roleType = data.roleType;

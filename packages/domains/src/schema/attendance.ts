@@ -34,7 +34,7 @@ export const checkInScheduleSchema = BaseEntity({
       (ids) => new Set(ids).size === ids.length,
       'Role assignments must be unique',
     ),
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   name: StringField({ required: true }),
   isActive: BooleanField({ default: () => true }),
 });
@@ -47,12 +47,12 @@ export const createCheckInScheduleSchema = checkInScheduleSchema.omit({
 
 export const updateCheckInScheduleSchema = checkInScheduleSchema
   .partial()
-  .omit({ id: true, companyId: true, createdAt: true, updatedAt: true })
+  .omit({ id: true, organizationId: true, createdAt: true, updatedAt: true })
   .extend({ isActive: BooleanField({ required: false }) })
   .strict();
 
 export const checkInScheduleRoleSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   checkInScheduleId: UUIDField({ required: true }),
   roleId: UUIDField({ required: true }),
   isActive: BooleanField({ default: () => true }),
@@ -70,7 +70,7 @@ export type UpdateCheckInSchedule = z.infer<typeof updateCheckInScheduleSchema>;
  */
 
 export const scheduleSlotSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   checkInScheduleId: UUIDField({ required: true }),
   slotOrder: NumberField({ required: true }),
   label: StringField({ required: true }),
@@ -89,7 +89,7 @@ export const updateScheduleSlotSchema = scheduleSlotSchema
   .partial()
   .omit({
     id: true,
-    companyId: true,
+    organizationId: true,
     checkInScheduleId: true,
     createdAt: true,
     updatedAt: true,
@@ -106,8 +106,8 @@ export type UpdateScheduleSlot = z.infer<typeof updateScheduleSlotSchema>;
  */
 
 export const attendanceLogSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
-  companyMemberId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
+  organizationMemberId: UUIDField({ required: true }),
   scheduleSlotId: UUIDField({ required: true }),
   workDate: StringField({ required: true, max: 10 }), // "YYYY-MM-DD"
   checkedInAt: DateField({ required: false, nullable: true }),
@@ -188,8 +188,8 @@ export const attendanceLogSchema = BaseEntity({
   );
 
 export const createAttendanceLogSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
-  companyMemberId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
+  organizationMemberId: UUIDField({ required: true }),
   scheduleSlotId: UUIDField({ required: true }),
   workDate: StringField({ required: true, max: 10 }),
   checkedInAt: DateField({ required: false, nullable: true }),

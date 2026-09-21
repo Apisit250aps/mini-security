@@ -7,12 +7,12 @@ import { PermissionGuard } from '../lib/guard';
 
 type PermissionContext = ISecurityContext & {
   id?: string;
-  data?: { companyId?: string | null };
+  data?: { organizationId?: string | null };
 };
 
 export type PermissionContextExtractor<TContext = PermissionContext> = (
   context: TContext,
-) => { companyId?: string | null };
+) => { organizationId?: string | null };
 
 export interface ResourcePermissionOptions<TThis, TResource> {
   resolveResource: (
@@ -25,7 +25,7 @@ export interface ResourcePermissionOptions<TThis, TResource> {
 /** Checks the action before loading and authorizing the actual resource. */
 export function RequirePermission<
   TThis = unknown,
-  TResource extends { companyId: string } = { companyId: string },
+  TResource extends { organizationId: string } = { organizationId: string },
 >(
   action: PermissionAction,
   options?:
@@ -52,17 +52,21 @@ export function RequirePermission<
       const resourceOptions = typeof options === 'object' ? options : undefined;
       await PermissionGuard.requirePermission(action, {
         ...context,
-        // Resource-based authorization uses the stored company, never caller input.
-        companyId: resourceOptions
+        // Resource-based authorization uses the stored organization, never caller input.
+        organizationId: resourceOptions
           ? undefined
           : ((target && typeof options === 'function'
-              ? options(target).companyId
-              : (target?.companyId ?? target?.data?.companyId)) ?? undefined),
+              ? options(target).organizationId
+              : (target?.organizationId ?? target?.data?.organizationId)) ??
+            undefined),
       });
       if (resourceOptions) {
         const resource = await resourceOptions.resolveResource(this, target!);
         if (!resource) throw new NotFoundError(resourceOptions.notFoundMessage);
-        PermissionGuard.requireCompanyScope(context!, resource.companyId);
+        PermissionGuard.requireOrganizationScope(
+          context!,
+          resource.organizationId,
+        );
         // Pass the exact authorized resource, without instance state or a second lookup.
         return method.call(this, context, resource);
       }

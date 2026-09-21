@@ -4,15 +4,15 @@ import React from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import type {
   AttendanceLog,
-  CompanyMember,
+  OrganizationMember,
   ScheduleSlot,
   User,
-} from '@repo/domains/entities';
+} from '@repo/client';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate, formatDateTime } from '@/shared/utils';
 
 interface AttendanceLogColumnsOptions {
-  members?: CompanyMember[];
+  members?: OrganizationMember[];
   slots?: (ScheduleSlot & { scheduleName?: string })[];
   usersMap?: Map<string, User>;
 }
@@ -52,7 +52,7 @@ export const attendanceLogDataColumns = ({
       ),
     },
     {
-      accessorKey: 'companyMemberId',
+      accessorKey: 'organizationMemberId',
       header: 'พนักงาน',
       cell: ({ getValue }) => {
         const memberId = getValue<string>();

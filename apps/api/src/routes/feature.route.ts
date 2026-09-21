@@ -1,18 +1,18 @@
 import { Hono } from 'hono';
 import {
-  assignCompanyFeatureUseCase,
+  assignOrganizationFeatureUseCase,
   assignRoleFeatureUseCase,
   checkRoleFeatureAccessUseCase,
   createFeatureUseCase,
-  getCompanyAvailableFeaturesUseCase,
-  getCompanyFeaturesUseCase,
-  getCompanyRoleFeaturesUseCase,
+  getOrganizationAvailableFeaturesUseCase,
+  getOrganizationFeaturesUseCase,
+  getOrganizationRoleFeaturesUseCase,
   getFeatureByIdUseCase,
   getFeaturesUseCase,
   getRoleFeaturesUseCase,
-  removeCompanyFeatureUseCase,
+  removeOrganizationFeatureUseCase,
   revokeRoleFeatureUseCase,
-  toggleCompanyFeatureUseCase,
+  toggleOrganizationFeatureUseCase,
   toggleFeatureUseCase,
   toggleRoleFeatureUseCase,
   updateFeatureUseCase,
@@ -26,16 +26,16 @@ const featureController = new FeatureController(
   toggleFeatureUseCase,
   getFeaturesUseCase,
   getFeatureByIdUseCase,
-  assignCompanyFeatureUseCase,
-  toggleCompanyFeatureUseCase,
-  removeCompanyFeatureUseCase,
-  getCompanyFeaturesUseCase,
-  getCompanyAvailableFeaturesUseCase,
+  assignOrganizationFeatureUseCase,
+  toggleOrganizationFeatureUseCase,
+  removeOrganizationFeatureUseCase,
+  getOrganizationFeaturesUseCase,
+  getOrganizationAvailableFeaturesUseCase,
   assignRoleFeatureUseCase,
   toggleRoleFeatureUseCase,
   revokeRoleFeatureUseCase,
   getRoleFeaturesUseCase,
-  getCompanyRoleFeaturesUseCase,
+  getOrganizationRoleFeaturesUseCase,
   checkRoleFeatureAccessUseCase,
 );
 
@@ -43,32 +43,32 @@ const featureRoutes = new Hono();
 
 featureRoutes.use('*', authMiddleware);
 
-// Company Features
+// Organization Features
 featureRoutes.get(
-  '/companies/:companyId/available',
-  featureController.getCompanyAvailableFeatures,
+  '/organizations/:organizationId/available',
+  featureController.getOrganizationAvailableFeatures,
 );
 featureRoutes.get(
-  '/companies/:companyId',
-  featureController.getCompanyFeatures,
+  '/organizations/:organizationId',
+  featureController.getOrganizationFeatures,
 );
 featureRoutes.post(
-  '/companies/:companyId/assign',
-  featureController.assignCompanyFeature,
+  '/organizations/:organizationId/assign',
+  featureController.assignOrganizationFeature,
 );
 featureRoutes.put(
-  '/companies/:companyId/toggle',
-  featureController.toggleCompanyFeature,
+  '/organizations/:organizationId/toggle',
+  featureController.toggleOrganizationFeature,
 );
 featureRoutes.delete(
-  '/companies/:companyId/features/:featureId',
-  featureController.removeCompanyFeature,
+  '/organizations/:organizationId/features/:featureId',
+  featureController.removeOrganizationFeature,
 );
 
 // Role Features
 featureRoutes.get(
-  '/companies/:companyId/roles',
-  featureController.getCompanyRoleFeatures,
+  '/organizations/:organizationId/roles',
+  featureController.getOrganizationRoleFeatures,
 );
 featureRoutes.get('/roles/:roleId', featureController.getRoleFeatures);
 featureRoutes.post(
@@ -81,7 +81,7 @@ featureRoutes.delete(
   featureController.revokeRoleFeature,
 );
 featureRoutes.get(
-  '/companies/:companyId/roles/:roleId/access/:featureCode',
+  '/organizations/:organizationId/roles/:roleId/access/:featureCode',
   featureController.checkRoleFeatureAccess,
 );
 

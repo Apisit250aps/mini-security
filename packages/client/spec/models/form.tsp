@@ -78,7 +78,7 @@ model SubmitFormSubmissionRequest {
 model CreateFormPlanRequest {
   data: PickProperties<
     Domain.Entity.FormPlan,
-    | "companyId"
+    | "organizationId"
     | "formTemplateId"
     | "name"
     | "scheduleKind"
@@ -110,7 +110,7 @@ model UpdateFormPlanRequest {
 
 model CreateFormPlanTarget {
   roleId?: string;
-  companyMemberId?: string;
+  organizationMemberId?: string;
   roleDistribution?: Domain.Entity.FormRoleDistribution;
 }
 
@@ -133,7 +133,7 @@ model CancelOccurrenceRequest {
 }
 
 model OpenOccurrencesRequest {
-  companyId: string;
+  organizationId: string;
 }
 
 model CancelAssignmentRequest {
@@ -143,7 +143,7 @@ model CancelAssignmentRequest {
 
 model ReplaceAssignmentRequest {
   cancelReason: string;
-  newCompanyMemberId?: string;
+  newOrganizationMemberId?: string;
   newRoleId?: string;
 }
 
@@ -262,10 +262,10 @@ model OccurrenceAssignmentItem {
   id: string;
   assignmentId: string;
   occurrenceId: string;
-  companyId: string;
+  organizationId: string;
   formVersionId: string;
   roleId?: string;
-  companyMemberId?: string;
+  organizationMemberId?: string;
   roleName?: string;
   memberName?: string;
   assignmentType: string;

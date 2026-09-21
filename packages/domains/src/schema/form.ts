@@ -60,7 +60,7 @@ export type FormReviewAction = (typeof FormReviewActionValues)[number];
  * 1. Form Template Schema
  */
 export const formTemplateSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   name: StringField({ required: true, max: 255 }),
   description: StringField({ required: false, nullable: true, max: 1000 }),
   isActive: BooleanField({ default: () => true }),
@@ -82,7 +82,7 @@ export type UpdateFormTemplate = z.infer<typeof updateFormTemplateSchema>;
  * 2. Form Version Schema
  */
 export const formVersionSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
   version: NumberField({ required: true }),
   status: EnumField(FormVersionStatusValues, { default: () => 'DRAFT' }),
@@ -108,7 +108,7 @@ export type UpdateFormVersion = z.infer<typeof updateFormVersionSchema>;
  * 3. Form Section Schema
  */
 export const formSectionSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   title: StringField({ required: true, max: 255 }),
   description: StringField({ required: false, nullable: true, max: 1000 }),
@@ -127,7 +127,7 @@ export type CreateFormSection = z.infer<typeof createFormSectionSchema>;
 export type UpdateFormSection = z.infer<typeof updateFormSectionSchema>;
 
 export const formFieldSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   formSectionId: UUIDField({ required: true }),
   name: StringField({ required: true, max: 100 }),
@@ -166,7 +166,7 @@ export type UpdateFormField = z.infer<typeof updateFormFieldSchema>;
  * 4.1 Form Field Option Schema
  */
 export const formFieldOptionSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   fieldId: UUIDField({ required: true }),
   label: StringField({ required: true, max: 255 }),
@@ -216,7 +216,7 @@ export const formScheduleConfigSchema = z
 export type FormScheduleConfig = z.infer<typeof formScheduleConfigSchema>;
 
 const baseFormPlanSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
   supersedesPlanId: UUIDField({ required: false, nullable: true }),
   name: StringField({ required: true, max: 255 }),
@@ -258,10 +258,10 @@ export type UpdateFormPlan = z.infer<typeof updateFormPlanSchema>;
  * 6. Form Plan Target Schema
  */
 const baseFormPlanTargetSchema = AppendOnlyBaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   planId: UUIDField({ required: true }),
   roleId: UUIDField({ required: false, nullable: true }),
-  companyMemberId: UUIDField({ required: false, nullable: true }),
+  organizationMemberId: UUIDField({ required: false, nullable: true }),
   roleDistribution: EnumField(FormRoleDistributionValues, {
     required: false,
     nullable: true,
@@ -271,14 +271,14 @@ const baseFormPlanTargetSchema = AppendOnlyBaseEntity({
 export const formPlanTargetSchema = baseFormPlanTargetSchema.refine(
   (data) =>
     (data.roleId != null &&
-      data.companyMemberId == null &&
+      data.organizationMemberId == null &&
       data.roleDistribution != null) ||
     (data.roleId == null &&
-      data.companyMemberId != null &&
+      data.organizationMemberId != null &&
       data.roleDistribution == null),
   {
     message:
-      'XOR(roleId, companyMemberId) and roleDistribution required iff roleId',
+      'XOR(roleId, organizationMemberId) and roleDistribution required iff roleId',
   },
 );
 export const createFormPlanTargetSchema = baseFormPlanTargetSchema
@@ -286,14 +286,14 @@ export const createFormPlanTargetSchema = baseFormPlanTargetSchema
   .refine(
     (data) =>
       (data.roleId != null &&
-        data.companyMemberId == null &&
+        data.organizationMemberId == null &&
         data.roleDistribution != null) ||
       (data.roleId == null &&
-        data.companyMemberId != null &&
+        data.organizationMemberId != null &&
         data.roleDistribution == null),
     {
       message:
-        'XOR(roleId, companyMemberId) and roleDistribution required iff roleId',
+        'XOR(roleId, organizationMemberId) and roleDistribution required iff roleId',
     },
   );
 export type FormPlanTargetEntity = z.infer<typeof formPlanTargetSchema>;
@@ -303,7 +303,7 @@ export type CreateFormPlanTarget = z.infer<typeof createFormPlanTargetSchema>;
  * 7. Form Plan Period Schema
  */
 const baseFormPlanPeriodSchema = AppendOnlyBaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   planId: UUIDField({ required: true }),
   opensAt: DateField({ required: true }),
   dueAt: DateField({ required: true }),
@@ -323,7 +323,7 @@ export type CreateFormPlanPeriod = z.infer<typeof createFormPlanPeriodSchema>;
  * 8. Form Occurrence Schema
  */
 const baseFormOccurrenceSchema = AppendOnlyBaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   planId: UUIDField({ required: true }),
   formTemplateId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
@@ -362,11 +362,11 @@ export type UpdateFormOccurrence = z.infer<typeof updateFormOccurrenceSchema>;
  * 9. Form Assignment Schema
  */
 const baseFormAssignmentSchema = AppendOnlyBaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   occurrenceId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   roleId: UUIDField({ required: false, nullable: true }),
-  companyMemberId: UUIDField({ required: false, nullable: true }),
+  organizationMemberId: UUIDField({ required: false, nullable: true }),
   replacesAssignmentId: UUIDField({ required: false, nullable: true }),
   assignedBy: UUIDField({ required: false, nullable: true }),
   cancelledAt: DateField({ required: false, nullable: true }),
@@ -377,8 +377,8 @@ const baseFormAssignmentSchema = AppendOnlyBaseEntity({
 
 export const formAssignmentSchema = baseFormAssignmentSchema.refine(
   (data) =>
-    (data.roleId != null && data.companyMemberId == null) ||
-    (data.roleId == null && data.companyMemberId != null),
+    (data.roleId != null && data.organizationMemberId == null) ||
+    (data.roleId == null && data.organizationMemberId != null),
   { message: 'XOR role/member' },
 );
 export const createFormAssignmentSchema = baseFormAssignmentSchema.omit({
@@ -396,7 +396,7 @@ export type UpdateFormAssignment = z.infer<typeof updateFormAssignmentSchema>;
  * 10. Form Submission Schema
  */
 const baseFormSubmissionSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   assignmentId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   startedBy: UUIDField({ required: true }),
@@ -437,7 +437,7 @@ export type UpdateFormSubmission = z.infer<typeof updateFormSubmissionSchema>;
  * 11. Form Submission Contributor Schema
  */
 export const formSubmissionContributorSchema = AppendOnlyBaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   submissionId: UUIDField({ required: true }),
   memberId: UUIDField({ required: true }),
 });
@@ -454,7 +454,7 @@ export type CreateFormSubmissionContributor = z.infer<
  * 12. Form Answer Schema
  */
 export const formAnswerSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   submissionId: UUIDField({ required: true }),
   fieldId: UUIDField({ required: true }),
@@ -477,7 +477,7 @@ export type UpdateFormAnswer = z.infer<typeof updateFormAnswerSchema>;
  * 13. Form Answer Attachment Schema
  */
 export const formAnswerAttachmentSchema = BaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   answerId: UUIDField({ required: true }),
   storageKey: StringField({ required: true, max: 1000 }),
   originalName: StringField({ required: true, max: 255 }),
@@ -500,7 +500,7 @@ export type CreateFormAnswerAttachment = z.infer<
  * 14. Form Review Entry Schema
  */
 const baseFormReviewEntrySchema = AppendOnlyBaseEntity({
-  companyId: UUIDField({ required: true }),
+  organizationId: UUIDField({ required: true }),
   submissionId: UUIDField({ required: true }),
   formVersionId: UUIDField({ required: true }),
   answerId: UUIDField({ required: false, nullable: true }),

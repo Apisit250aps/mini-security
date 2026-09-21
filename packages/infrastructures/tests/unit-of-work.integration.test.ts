@@ -1,4 +1,4 @@
-import type { CompanyBranch } from '@repo/domains/entities/company';
+import type { Site } from '@repo/domains/entities/organization';
 import type { FormSubmission } from '@repo/domains/entities/form';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -18,10 +18,10 @@ import { SaveFormSubmissionDraftUseCase } from '../../applications/src/use-cases
 import { AssignFormRolesUseCase } from '../../applications/src/use-cases/form/form-template.usecase';
 import { UnitOfWork } from '../src/unit-of-work';
 import {
-  CompanyRepository,
-  CompanyBranchRepository,
-} from '../src/repositories/company.repo';
-import { CreateCompanyUseCase } from '../../applications/src/use-cases/company/company.usecase';
+  OrganizationRepository,
+  SiteRepository,
+} from '../src/repositories/organization.repo';
+import { CreateOrganizationUseCase } from '../../applications/src/use-cases/organization/organization.usecase';
 
 function barrier() {
   let resolve!: () => void;
@@ -40,8 +40,8 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
   const db = drizzle(url!, { relations: { ...relations } });
   const pool = db.$client;
   const uow = new UnitOfWork(db);
-  const companies = new CompanyRepository(db);
-  const branches = new CompanyBranchRepository(db);
+  const organizations = new OrganizationRepository(db);
+  const sites = new SiteRepository(db);
   const prefix = `uow-${randomUUID()}`;
   const data = (name: string) => ({
     name,
@@ -53,20 +53,20 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
       'commits a result and rolls back writes across repositories on failure',
       async () => {
         const saved = await uow.transaction(async () => {
-          const company = await companies.create(data('commit'));
-          await branches.create({
-            companyId: company.id,
+          const organization = await organizations.create(data('commit'));
+          await sites.create({
+            organizationId: organization.id,
             name: 'HQ',
             isActive: true,
           });
-          return company;
+          return organization;
         });
-        assert.equal((await branches.findByCompanyId(saved.id)).length, 1);
+        assert.equal((await sites.findByOrganizationId(saved.id)).length, 1);
         await assert.rejects(
           uow.transaction(async () => {
-            const company = await companies.create(data('rollback'));
-            await branches.create({
-              companyId: company.id,
+            const organization = await organizations.create(data('rollback'));
+            await sites.create({
+              organizationId: organization.id,
               name: 'HQ',
               isActive: true,
             });
@@ -74,32 +74,38 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
           }),
           /abort/,
         );
-        assert.equal(await companies.findBySlug(data('rollback').slug), null);
+        assert.equal(
+          await organizations.findBySlug(data('rollback').slug),
+          null,
+        );
         assert.equal(resolveDatabase(db), db);
       },
     );
 
     await t.test(
-      'the company use case rolls back the company if branch creation fails',
+      'the organization use case rolls back the organization if site creation fails',
       async () => {
-        class FailingBranches extends CompanyBranchRepository {
-          override async create(): Promise<CompanyBranch> {
-            throw new Error('branch failed');
+        class FailingSites extends SiteRepository {
+          override async create(): Promise<Site> {
+            throw new Error('site failed');
           }
         }
-        const useCase = new CreateCompanyUseCase(
+        const useCase = new CreateOrganizationUseCase(
           uow,
-          companies,
-          new FailingBranches(db),
+          organizations,
+          new FailingSites(db),
         );
         await assert.rejects(
           useCase.execute({
             data: data('usecase'),
             user: { id: randomUUID(), isAdmin: true, isActive: true },
           }),
-          /branch failed/,
+          /site failed/,
         );
-        assert.equal(await companies.findBySlug(data('usecase').slug), null);
+        assert.equal(
+          await organizations.findBySlug(data('usecase').slug),
+          null,
+        );
       },
     );
 
@@ -110,7 +116,7 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
         const finish = barrier();
         const rollback = uow.transaction(async () => {
           const connection = resolveDatabase(db);
-          await companies.create(data('parallel-rollback'));
+          await organizations.create(data('parallel-rollback'));
           ready.resolve();
           await finish.promise;
           assert.equal(resolveDatabase(db), connection);
@@ -121,17 +127,17 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
         assert.equal(resolveDatabase(db), db);
         try {
           await uow.transaction(() =>
-            companies.create(data('parallel-commit')),
+            organizations.create(data('parallel-commit')),
           );
         } finally {
           finish.resolve();
         }
         await rejected;
         assert.equal(
-          await companies.findBySlug(data('parallel-rollback').slug),
+          await organizations.findBySlug(data('parallel-rollback').slug),
           null,
         );
-        assert.ok(await companies.findBySlug(data('parallel-commit').slug));
+        assert.ok(await organizations.findBySlug(data('parallel-commit').slug));
       },
     );
 
@@ -140,21 +146,21 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
       async () => {
         await uow.transaction(async () => {
           const parent = resolveDatabase(db);
-          await companies.create(data('parent'));
+          await organizations.create(data('parent'));
           await assert.rejects(
             uow.transaction(async () => {
               assert.notEqual(resolveDatabase(db), parent);
-              await companies.create(data('child'));
+              await organizations.create(data('child'));
               throw new Error('nested abort');
             }),
             /nested abort/,
           );
           assert.equal(resolveDatabase(db), parent);
-          await companies.create(data('after-child'));
+          await organizations.create(data('after-child'));
         });
-        assert.ok(await companies.findBySlug(data('parent').slug));
-        assert.ok(await companies.findBySlug(data('after-child').slug));
-        assert.equal(await companies.findBySlug(data('child').slug), null);
+        assert.ok(await organizations.findBySlug(data('parent').slug));
+        assert.ok(await organizations.findBySlug(data('after-child').slug));
+        assert.equal(await organizations.findBySlug(data('child').slug), null);
       },
     );
 
@@ -164,14 +170,14 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
         await assert.rejects(
           uow.transaction(async () => {
             await uow.transaction(() =>
-              companies.create(data('nested-success')),
+              organizations.create(data('nested-success')),
             );
             throw new Error('outer abort');
           }),
           /outer abort/,
         );
         assert.equal(
-          await companies.findBySlug(data('nested-success').slug),
+          await organizations.findBySlug(data('nested-success').slug),
           null,
         );
       },
@@ -184,8 +190,8 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
         await assert.rejects(
           uow.transaction(async () => {
             const tx = resolveDatabase(db);
-            const [company] = await tx
-              .insert(schema.company)
+            const [organization] = await tx
+              .insert(schema.organization)
               .values(data('form'))
               .returning();
             const [user] = await tx
@@ -194,17 +200,17 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
               .returning();
             const [role] = await tx
               .insert(schema.role)
-              .values({ companyId: company!.id, name: 'Member' })
+              .values({ organizationId: organization!.id, name: 'Member' })
               .returning();
-            const [branch] = await tx
-              .insert(schema.companyBranch)
-              .values({ companyId: company!.id, name: 'HQ' })
+            const [site] = await tx
+              .insert(schema.site)
+              .values({ organizationId: organization!.id, name: 'HQ' })
               .returning();
             const [member] = await tx
-              .insert(schema.companyMember)
+              .insert(schema.organizationMember)
               .values({
-                companyId: company!.id,
-                companyBranchId: branch!.id,
+                organizationId: organization!.id,
+                siteId: site!.id,
                 roleId: role!.id,
                 userId: user!.id,
               })
@@ -212,7 +218,7 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
             const [template] = await tx
               .insert(schema.formTemplate)
               .values({
-                companyId: company!.id,
+                organizationId: organization!.id,
                 name: 'Form',
                 createdBy: member!.id,
               })
@@ -220,7 +226,7 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
             const [version] = await tx
               .insert(schema.formVersion)
               .values({
-                companyId: company!.id,
+                organizationId: organization!.id,
                 formTemplateId: template!.id,
                 version: 1,
                 title: 'Form',
@@ -230,7 +236,7 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
             const [section] = await tx
               .insert(schema.formSection)
               .values({
-                companyId: company!.id,
+                organizationId: organization!.id,
                 formVersionId: version!.id,
                 title: 'Section',
               })
@@ -238,7 +244,7 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
             const [field] = await tx
               .insert(schema.formField)
               .values({
-                companyId: company!.id,
+                organizationId: organization!.id,
                 formVersionId: version!.id,
                 formSectionId: section!.id,
                 label: 'Answer',
@@ -248,7 +254,7 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
             const [submission] = await tx
               .insert(schema.formSubmission)
               .values({
-                companyId: company!.id,
+                organizationId: organization!.id,
                 formTemplateId: template!.id,
                 formVersionId: version!.id,
                 roleId: role!.id,
@@ -263,7 +269,7 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
             const submissions = new FormSubmissionRepository(db);
             const roles = new FormTemplateRoleRepository(db);
             const originalRole = await roles.create({
-              companyId: company!.id,
+              organizationId: organization!.id,
               formTemplateId: template!.id,
               roleId: role!.id,
               isEnabled: true,
@@ -348,15 +354,15 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
     await t.test(
       'concurrent read-modify-write conflicts abort instead of losing an update',
       async () => {
-        const company = await companies.create(data('conflict'));
+        const organization = await organizations.create(data('conflict'));
         let reads = 0;
         const ready = barrier();
         const change = (name: string) =>
           uow.transaction(async () => {
-            await companies.findById(company.id);
+            await organizations.findById(organization.id);
             if (++reads === 2) ready.resolve();
             await ready.promise;
-            await companies.update(company.id, { name });
+            await organizations.update(organization.id, { name });
           });
         const results = await Promise.allSettled([
           change('first'),
@@ -373,7 +379,9 @@ test('PostgreSQL unit of work integration', { skip: !url }, async (t) => {
       },
     );
   } finally {
-    await pool.query('DELETE FROM company WHERE slug LIKE $1', [`${prefix}%`]);
+    await pool.query('DELETE FROM organization WHERE slug LIKE $1', [
+      `${prefix}%`,
+    ]);
     await pool.end();
   }
 });

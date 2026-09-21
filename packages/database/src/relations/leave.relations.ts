@@ -1,10 +1,10 @@
 import type { RelationsHelper } from './types';
 
 export const leaveRelations = (r: RelationsHelper) => ({
-  company: {
+  organization: {
     leaveTypes: r.many.leaveTypes(),
   },
-  companyMember: {
+  organizationMember: {
     leaveQuotas: r.many.leaveQuotas(),
     leaveRequests: r.many.leaveRequests(),
   },
@@ -12,17 +12,17 @@ export const leaveRelations = (r: RelationsHelper) => ({
     reviewedLeaveRequests: r.many.leaveRequests(),
   },
   leaveTypes: {
-    company: r.one.company({
-      from: r.leaveTypes.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.leaveTypes.organizationId,
+      to: r.organization.id,
     }),
     quotas: r.many.leaveQuotas(),
     requests: r.many.leaveRequests(),
   },
   leaveQuotas: {
-    member: r.one.companyMember({
-      from: r.leaveQuotas.companyMemberId,
-      to: r.companyMember.id,
+    member: r.one.organizationMember({
+      from: r.leaveQuotas.organizationMemberId,
+      to: r.organizationMember.id,
     }),
     leaveType: r.one.leaveTypes({
       from: r.leaveQuotas.leaveTypeId,
@@ -30,9 +30,9 @@ export const leaveRelations = (r: RelationsHelper) => ({
     }),
   },
   leaveRequests: {
-    member: r.one.companyMember({
-      from: r.leaveRequests.companyMemberId,
-      to: r.companyMember.id,
+    member: r.one.organizationMember({
+      from: r.leaveRequests.organizationMemberId,
+      to: r.organizationMember.id,
     }),
     leaveType: r.one.leaveTypes({
       from: r.leaveRequests.leaveTypeId,

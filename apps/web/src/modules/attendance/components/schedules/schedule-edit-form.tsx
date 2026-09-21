@@ -1,5 +1,5 @@
 'use client';
-import type { CheckInSchedule } from '@repo/domains/entities/attendance';
+import type { CheckInSchedule } from '@repo/client';
 import { useScheduleUpdate } from '../../hooks/attendance-mutations';
 import ScheduleForm from './schedule-form';
 
@@ -10,10 +10,10 @@ export default function ScheduleEditForm({
   schedule: CheckInSchedule;
   onSuccess: () => void;
 }) {
-  const mutation = useScheduleUpdate(schedule.companyId);
+  const mutation = useScheduleUpdate(schedule.organizationId);
   return (
     <ScheduleForm
-      companyId={schedule.companyId}
+      organizationId={schedule.organizationId}
       isLoading={mutation.isPending}
       defaultValues={{
         name: schedule.name,

@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import {
   useFormTemplateQueries,
   useFormPlansQueries,
@@ -63,14 +63,14 @@ interface FormDetailViewProps {
 
 function PlanItemCard({
   plan,
-  companyId,
+  organizationId,
 }: {
   plan: FormPlan;
-  companyId: string;
+  organizationId: string;
 }) {
   const router = useRouter();
-  const activateMutation = useFormPlanActivate(companyId, plan.id);
-  const pauseMutation = useFormPlanPause(companyId, plan.id);
+  const activateMutation = useFormPlanActivate(organizationId, plan.id);
+  const pauseMutation = useFormPlanPause(organizationId, plan.id);
 
   const isActive = Boolean(plan.effectiveFrom && !plan.effectiveUntil);
   const isPaused = Boolean(plan.effectiveUntil);
@@ -116,7 +116,7 @@ function PlanItemCard({
             variant="outline"
             size="sm"
             className="gap-1.5"
-            onClick={() => router.push(`/company/forms/plans/${plan.id}`)}
+            onClick={() => router.push(`/organization/forms/plans/${plan.id}`)}
           >
             <Settings2 className="w-3.5 h-3.5" />
             ดูรายละเอียดและการตั้งค่าแผน
@@ -173,7 +173,8 @@ function PlanItemCard({
 }
 
 export default function FormDetailView({ templateId }: FormDetailViewProps) {
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -182,7 +183,10 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
   const activeTab = searchParams.get('tab') || 'overview';
 
   const templateQuery = useFormTemplateQueries(templateId);
-  const plansQuery = useFormPlansQueries(activeCompanyId || '', templateId);
+  const plansQuery = useFormPlansQueries(
+    activeOrganizationId || '',
+    templateId,
+  );
   const detail = templateQuery.data;
   const template = detail?.template;
   const draftVersion = detail?.draftVersion;
@@ -192,7 +196,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
   const plans = plansQuery.data || [];
 
   const updateMutation = useFormTemplateUpdate(
-    activeCompanyId || '',
+    activeOrganizationId || '',
     templateId,
   );
 
@@ -204,7 +208,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
 
   const handleCreatePlan = useCallback(() => {
     if (!template) return;
-    router.push(`/company/forms/plans/new?templateId=${template.id}`);
+    router.push(`/organization/forms/plans/new?templateId=${template.id}`);
   }, [router, template]);
 
   const handlePreview = useCallback(() => {
@@ -244,7 +248,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
   );
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || templateQuery.isLoading;
+    isOrganizationLoading || !activeOrganizationId || templateQuery.isLoading;
 
   return (
     <PageLayout
@@ -252,7 +256,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
       loadingText="กำลังโหลดข้อมูลฟอร์ม..."
       actions={
         <div className="flex items-center gap-2">
-          <Link href={buildPageUrl('companyFormTemplates')}>
+          <Link href={buildPageUrl('organizationFormTemplates')}>
             <Button
               variant="ghost"
               size="sm"
@@ -268,7 +272,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
       {!template ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
           <p className="text-muted-foreground">ไม่พบข้อมูลแบบฟอร์มที่ระบุ</p>
-          <Link href={buildPageUrl('companyFormTemplates')}>
+          <Link href={buildPageUrl('organizationFormTemplates')}>
             <Button variant="outline">กลับหน้ารายการแบบฟอร์ม</Button>
           </Link>
         </div>
@@ -549,7 +553,7 @@ export default function FormDetailView({ templateId }: FormDetailViewProps) {
                       <PlanItemCard
                         key={p.id}
                         plan={p}
-                        companyId={activeCompanyId || ''}
+                        organizationId={activeOrganizationId || ''}
                       />
                     ))}
                   </div>

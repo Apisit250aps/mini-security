@@ -1,13 +1,13 @@
 import type { RelationsHelper } from './types';
 
 export const attendanceRelations = (r: RelationsHelper) => ({
-  company: {
+  organization: {
     checkInSchedules: r.many.checkInSchedules(),
   },
   role: {
     checkInScheduleRoles: r.many.checkInScheduleRoles(),
   },
-  companyMember: {
+  organizationMember: {
     attendanceLogs: r.many.attendanceLogs(),
   },
   user: {
@@ -15,9 +15,9 @@ export const attendanceRelations = (r: RelationsHelper) => ({
   },
   checkInSchedules: {
     roleAssignments: r.many.checkInScheduleRoles(),
-    company: r.one.company({
-      from: r.checkInSchedules.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.checkInSchedules.organizationId,
+      to: r.organization.id,
     }),
     slots: r.many.scheduleSlots(),
   },
@@ -25,9 +25,9 @@ export const attendanceRelations = (r: RelationsHelper) => ({
     schedule: r.one.checkInSchedules({
       from: [
         r.checkInScheduleRoles.checkInScheduleId,
-        r.checkInScheduleRoles.companyId,
+        r.checkInScheduleRoles.organizationId,
       ],
-      to: [r.checkInSchedules.id, r.checkInSchedules.companyId],
+      to: [r.checkInSchedules.id, r.checkInSchedules.organizationId],
     }),
     role: r.one.role({
       from: r.checkInScheduleRoles.roleId,
@@ -43,17 +43,17 @@ export const attendanceRelations = (r: RelationsHelper) => ({
     attendanceLogs: r.many.attendanceLogs(),
   },
   attendanceLogs: {
-    member: r.one.companyMember({
-      from: r.attendanceLogs.companyMemberId,
-      to: r.companyMember.id,
+    member: r.one.organizationMember({
+      from: r.attendanceLogs.organizationMemberId,
+      to: r.organizationMember.id,
     }),
     slot: r.one.scheduleSlots({
       from: r.attendanceLogs.scheduleSlotId,
       to: r.scheduleSlots.id,
     }),
     location: r.one.locations({
-      from: [r.attendanceLogs.locationId, r.attendanceLogs.companyId],
-      to: [r.locations.id, r.locations.companyId],
+      from: [r.attendanceLogs.locationId, r.attendanceLogs.organizationId],
+      to: [r.locations.id, r.locations.organizationId],
     }),
     recordedByUser: r.one.user({
       from: r.attendanceLogs.recordedBy,

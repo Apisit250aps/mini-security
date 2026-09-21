@@ -4,7 +4,7 @@ import type {
   IFormAttachmentUploadContext,
   IFormAttachmentContext,
 } from '@repo/domains/applications/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   IFormSubmissionRepository,
   IFormAssignmentRepository,
@@ -49,7 +49,7 @@ export class FormAttachmentUseCase implements IFormAttachmentUseCase {
     private readonly submissionRepo: IFormSubmissionRepository,
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly occurrenceRepo: IFormOccurrenceRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly fieldRepo: IFormFieldRepository,
     private readonly answerRepo: IFormAnswerRepository,
     private readonly attachmentRepo: IFormAnswerAttachmentRepository,
@@ -109,7 +109,7 @@ export class FormAttachmentUseCase implements IFormAttachmentUseCase {
         if (field.type === 'IMAGE' && context.bytes.length > 5 * 1024 * 1024)
           throw new ValidationError('Image exceeds 5 MB');
         const answer = await this.answerRepo.upsertAnswer({
-          companyId: submission.companyId,
+          organizationId: submission.organizationId,
           submissionId: submission.id,
           formVersionId: submission.formVersionId,
           fieldId: field.id,
@@ -119,9 +119,12 @@ export class FormAttachmentUseCase implements IFormAttachmentUseCase {
         const attachments = await this.attachmentRepo.findByAnswerId(answer.id);
         if (attachments.length >= 10)
           throw new ValidationError('At most 10 attachments per answer');
-        storedKey = await this.storage.put(submission.companyId, context.bytes);
+        storedKey = await this.storage.put(
+          submission.organizationId,
+          context.bytes,
+        );
         const attachment = await this.attachmentRepo.create({
-          companyId: submission.companyId,
+          organizationId: submission.organizationId,
           answerId: answer.id,
           storageKey: storedKey,
           originalName,
@@ -134,7 +137,7 @@ export class FormAttachmentUseCase implements IFormAttachmentUseCase {
           !(await this.contributorRepo.isContributor(submission.id, memberId))
         )
           await this.contributorRepo.create({
-            companyId: submission.companyId,
+            organizationId: submission.organizationId,
             submissionId: submission.id,
             memberId,
           });
@@ -192,7 +195,7 @@ export class FormAttachmentUseCase implements IFormAttachmentUseCase {
       await this.attachmentRepo.delete(attachment.id);
       if (!(await this.contributorRepo.isContributor(submission.id, memberId)))
         await this.contributorRepo.create({
-          companyId: submission.companyId,
+          organizationId: submission.organizationId,
           submissionId: submission.id,
           memberId,
         });
@@ -206,7 +209,10 @@ export class FormAttachmentUseCase implements IFormAttachmentUseCase {
   private async load(context: AttachmentContext) {
     const attachment = await this.attachmentRepo.findById(context.attachmentId);
     if (!attachment) throw new NotFoundError('Attachment not found');
-    PermissionGuard.requireCompanyScope(context, attachment.companyId);
+    PermissionGuard.requireOrganizationScope(
+      context,
+      attachment.organizationId,
+    );
     const answer = await this.answerRepo.findById(attachment.answerId);
     const submission =
       answer && (await this.submissionRepo.findById(answer.submissionId));

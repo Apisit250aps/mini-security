@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import {
   MetricCard,
   DashboardStatsGrid,
@@ -25,9 +25,12 @@ import FormPlanDataTable from '../components/plan/form-plan-data-table';
 import { useOverlay } from '@repo/ui/hooks';
 
 export default function FormPlansView() {
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
-  const plansQuery = useFormPlansQueries(activeCompanyId || '');
-  const openOccurrencesMutation = useFormOccurrencesOpen(activeCompanyId || '');
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
+  const plansQuery = useFormPlansQueries(activeOrganizationId || '');
+  const openOccurrencesMutation = useFormOccurrencesOpen(
+    activeOrganizationId || '',
+  );
   const ui = useOverlay();
 
   const plans = useMemo(() => plansQuery.data || [], [plansQuery.data]);
@@ -48,7 +51,7 @@ export default function FormPlansView() {
   );
 
   const handleTriggerOccurrences = () => {
-    if (!activeCompanyId) return;
+    if (!activeOrganizationId) return;
 
     ui.alert.open({
       title: 'ประมวลผลเปิดรอบงานที่ถึงเวลา',
@@ -56,7 +59,7 @@ export default function FormPlansView() {
         'ระบบจะตรวจสอบและสร้างรอบงาน (Occurrences) และงานที่ได้รับมอบหมาย (Assignments) สำหรับทุกแผนงานที่เปิดใช้งานในบริษัทที่มีรอบถึงเวลาเปิด ณ ตอนนี้ คุณต้องการดำเนินการหรือไม่?',
       onConfirm: () => {
         openOccurrencesMutation.mutate(
-          { companyId: activeCompanyId },
+          { organizationId: activeOrganizationId },
           {
             onSuccess: (res) => {
               const count = res?.data?.length || 0;
@@ -73,11 +76,11 @@ export default function FormPlansView() {
     });
   };
 
-  const isPageLoading = isCompanyLoading || !activeCompanyId;
+  const isPageLoading = isOrganizationLoading || !activeOrganizationId;
 
   return (
     <PageLayout
-      pageId="companyFormPlans"
+      pageId="organizationFormPlans"
       isLoading={isPageLoading}
       loadingText="กำลังโหลดข้อมูลแผนการตรวจ..."
       actions={
@@ -92,7 +95,7 @@ export default function FormPlansView() {
               <Zap data-icon="inline-start" className="text-amber-500" />
               ประมวลผลรอบที่ถึงเวลา
             </ButtonLoading>
-            <Link href="/company/forms/plans/new">
+            <Link href="/organization/forms/plans/new">
               <Button size="sm">
                 <Plus data-icon="inline-start" />
                 สร้างแผนการตรวจใหม่
@@ -135,7 +138,7 @@ export default function FormPlansView() {
           />
         </DashboardStatsGrid>
 
-        <FormPlanDataTable companyId={activeCompanyId || ''} />
+        <FormPlanDataTable organizationId={activeOrganizationId || ''} />
       </div>
     </PageLayout>
   );

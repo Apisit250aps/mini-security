@@ -4,8 +4,8 @@ import type {
   IDeleteRoleContext,
   IDeleteRoleUseCase,
   IGetRoleContext,
-  IGetRolesByCompanyContext,
-  IGetRolesByCompanyUseCase,
+  IGetRolesByOrganizationContext,
+  IGetRolesByOrganizationUseCase,
   IGetRoleUseCase,
   IGetSystemDefaultRolesContext,
   IGetSystemDefaultRolesUseCase,
@@ -42,15 +42,15 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
       throw new ValidationError('ไม่อนุญาตให้สร้างบทบาทประเภท Super Admin');
     }
 
-    if (parsed.data.companyId && parsed.data.roleType === 'SUPER_ADMIN') {
+    if (parsed.data.organizationId && parsed.data.roleType === 'SUPER_ADMIN') {
       throw new ValidationError(
-        'บทบาทเฉพาะบริษัทไม่สามารถเป็นประเภท Super Admin ได้',
+        'บทบาทเฉพาะองค์กรไม่สามารถเป็นประเภท Super Admin ได้',
       );
     }
 
-    const existing = await this.roleRepository.findByNameAndCompany(
+    const existing = await this.roleRepository.findByNameAndOrganization(
       parsed.data.name,
-      parsed.data.companyId,
+      parsed.data.organizationId,
     );
     if (existing) {
       throw new DuplicateError(
@@ -61,7 +61,7 @@ export class CreateRoleUseCase implements ICreateRoleUseCase {
     const roleData = {
       ...parsed.data,
       isSystemDefault:
-        isAdmin && !parsed.data.companyId
+        isAdmin && !parsed.data.organizationId
           ? (parsed.data.isSystemDefault ?? false)
           : false,
     };
@@ -104,11 +104,11 @@ export class UpdateRoleUseCase implements IUpdateRoleUseCase {
     }
 
     if (
-      (existing.companyId || parsed.data.companyId) &&
+      (existing.organizationId || parsed.data.organizationId) &&
       parsed.data.roleType === 'SUPER_ADMIN'
     ) {
       throw new ValidationError(
-        'บทบาทเฉพาะบริษัทไม่สามารถเป็นประเภท Super Admin ได้',
+        'บทบาทเฉพาะองค์กรไม่สามารถเป็นประเภท Super Admin ได้',
       );
     }
 
@@ -153,18 +153,23 @@ export class GetRoleUseCase implements IGetRoleUseCase {
   }
 }
 
-export class GetRolesByCompanyUseCase implements IGetRolesByCompanyUseCase {
+export class GetRolesByOrganizationUseCase
+  implements IGetRolesByOrganizationUseCase
+{
   constructor(
     private readonly roleRepository: IRoleRepository,
     private readonly userRepository?: IUserRepository,
   ) {}
 
   @RequirePermission('role:read', (ctx) => ({
-    companyId: ctx.companyId,
+    organizationId: ctx.organizationId,
   }))
-  async execute(context: IGetRolesByCompanyContext): Promise<Role[]> {
+  async execute(context: IGetRolesByOrganizationContext): Promise<Role[]> {
     const isAdmin = context.user?.isAdmin === true;
-    return this.roleRepository.findByCompanyId(context.companyId, isAdmin);
+    return this.roleRepository.findByOrganizationId(
+      context.organizationId,
+      isAdmin,
+    );
   }
 }
 

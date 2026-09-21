@@ -15,7 +15,7 @@ const sectionId = '11111111-1111-4111-8111-111111111111';
 const destinationId = '22222222-2222-4222-8222-222222222222';
 const ctx = {
   user: { id: 'actor' },
-  activeCompanyId: 'company',
+  activeOrganizationId: 'organization',
   permissions: 'form_template:update',
   formTemplateId: 'template',
   fieldId: 'field',
@@ -32,7 +32,7 @@ function fixture(status = 'DRAFT') {
   const writes: object[] = [];
   const field = {
     id: 'field',
-    companyId: 'company',
+    organizationId: 'organization',
     formVersionId: 'version',
     formSectionId: sectionId,
     sortOrder: 0,
@@ -57,11 +57,15 @@ function fixture(status = 'DRAFT') {
       writes.push(items);
     },
   } as IFormFieldRepository;
-  const version = { companyId: 'company', formTemplateId: 'template', status };
+  const version = {
+    organizationId: 'organization',
+    formTemplateId: 'template',
+    status,
+  };
   const versions = { findById: async () => version } as IFormVersionRepository;
   const section = {
     id: destinationId,
-    companyId: 'company',
+    organizationId: 'organization',
     formVersionId: 'version',
   };
   const sections = {
@@ -128,10 +132,13 @@ for (const operation of ['edit', 'remove'] as const) {
     );
     assert.equal(f.writes.length, 0);
   });
-  test(`${operation} rejects foreign company`, async () => {
+  test(`${operation} rejects foreign organization`, async () => {
     const f = fixture();
-    f.field.companyId = 'other';
-    await assert.rejects(f[operation].execute({ ...ctx, data }), /company/i);
+    f.field.organizationId = 'other';
+    await assert.rejects(
+      f[operation].execute({ ...ctx, data }),
+      /organization/i,
+    );
     assert.equal(f.writes.length, 0);
   });
   test(`${operation} rejects foreign template`, async () => {
@@ -154,7 +161,7 @@ test('edit rejects client ownership and order changes', async () => {
   await assert.rejects(
     f.edit.execute({
       ...ctx,
-      data: { ...data, ...{ companyId: 'company', sortOrder: 10 } },
+      data: { ...data, ...{ organizationId: 'organization', sortOrder: 10 } },
     }),
     /invalid/i,
   );
@@ -180,7 +187,7 @@ test('edit saves and returns options when optionRepo is provided', async () => {
   const optionsStub = {
     replaceOptions: async (
       fieldId: string,
-      companyId: string,
+      organizationId: string,
       formVersionId: string,
       opts: Array<{ label: string; value: string; sortOrder?: number }>,
     ) => {
@@ -188,7 +195,7 @@ test('edit saves and returns options when optionRepo is provided', async () => {
         ...o,
         id: `opt-${idx}`,
         fieldId,
-        companyId,
+        organizationId,
         formVersionId,
         sortOrder: o.sortOrder ?? idx,
         createdAt: new Date(),

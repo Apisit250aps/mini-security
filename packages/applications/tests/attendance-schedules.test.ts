@@ -5,7 +5,7 @@ import type {
   IScheduleSlotRepository,
   IAttendanceLogRepository,
 } from '@repo/domains/repositories/attendance';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import {
   CreateCheckInScheduleUseCase,
@@ -22,20 +22,20 @@ import {
 } from '@repo/domains/schema/attendance';
 import { ForbiddenError, ValidationError } from '../src/lib/error';
 
-const companyId = '11111111-1111-4111-8111-111111111111';
+const organizationId = '11111111-1111-4111-8111-111111111111';
 const roleA = '22222222-2222-4222-8222-222222222222';
 const roleB = '33333333-3333-4333-8333-333333333333';
 const memberId = '44444444-4444-4444-8444-444444444444';
 const slotId = '55555555-5555-4555-8555-555555555555';
 const context = {
   user: { id: memberId, isActive: true },
-  activeCompanyId: companyId,
+  activeOrganizationId: organizationId,
   permissions:
     'attendance_schedule:manage,attendance_schedule:read,attendance:check_in,attendance:manage',
 };
 const schedule = {
   id: 'schedule-a',
-  companyId,
+  organizationId,
   name: 'Daily',
   roleIds: [roleA],
   isActive: true,
@@ -55,8 +55,11 @@ function fixture(
   let writes = 0;
   const schedules = {
     findById: async () => schedule,
-    findByRoleId: async (company: string, role: string) => {
-      assert.equal(company, options.foreignMember ? roleB : companyId);
+    findByRoleId: async (organization: string, role: string) => {
+      assert.equal(
+        organization,
+        options.foreignMember ? roleB : organizationId,
+      );
       assert.equal(role, roleA);
       return options.unassigned
         ? []
@@ -74,18 +77,18 @@ function fixture(
   const roles = {
     findById: async (id: string) => ({
       id,
-      companyId: options.foreignRole ? null : companyId,
+      organizationId: options.foreignRole ? null : organizationId,
     }),
   } as IRoleRepository;
   const members = {
     findById: async () => ({
       id: memberId,
       userId: options.otherActor ? roleB : memberId,
-      companyId: options.foreignMember ? roleB : companyId,
+      organizationId: options.foreignMember ? roleB : organizationId,
       roleId: roleA,
       isActive: !options.inactiveMember,
     }),
-  } as ICompanyMemberRepository;
+  } as IOrganizationMemberRepository;
   const slots = {
     findById: async () => ({
       id: slotId,
@@ -114,11 +117,11 @@ function fixture(
   return { schedules, roles, members, slots, logs, writes: () => writes };
 }
 
-test('one schedule accepts multiple company roles; the same roles may receive another schedule', async () => {
+test('one schedule accepts multiple organization roles; the same roles may receive another schedule', async () => {
   const f = fixture();
   const uc = new CreateCheckInScheduleUseCase(f.schedules, f.roles);
   const data = {
-    companyId,
+    organizationId,
     name: 'Daily',
     roleIds: [roleA, roleB],
     isActive: true,
@@ -140,7 +143,7 @@ test('rejects duplicate role IDs and global/foreign roles before writing', async
       uc.execute({
         ...context,
         data: {
-          companyId,
+          organizationId,
           name: 'Daily',
           roleIds: [...roleIds],
           isActive: true,
@@ -151,7 +154,7 @@ test('rejects duplicate role IDs and global/foreign roles before writing', async
     assert.equal(f.writes(), 0);
   }
 });
-test('roles-only update supports unassigning all roles and authorizes the stored company', async () => {
+test('roles-only update supports unassigning all roles and authorizes the stored organization', async () => {
   const f = fixture();
   const uc = new UpdateCheckInScheduleUseCase(f.schedules, f.roles);
   assert.deepEqual(
@@ -162,7 +165,7 @@ test('roles-only update supports unassigning all roles and authorizes the stored
   await assert.rejects(
     uc.execute({
       ...context,
-      activeCompanyId: roleB,
+      activeOrganizationId: roleB,
       id: schedule.id,
       data: { roleIds: [roleB] },
     }),
@@ -170,15 +173,15 @@ test('roles-only update supports unassigning all roles and authorizes the stored
   );
   assert.equal(f.writes(), 1);
 });
-test('company-scoped role lookup returns every assigned schedule', async () => {
+test('organization-scoped role lookup returns every assigned schedule', async () => {
   const f = fixture();
   const uc = new GetCheckInSchedulesByRoleUseCase(f.schedules);
   assert.equal(
-    (await uc.execute({ ...context, companyId, roleId: roleA })).length,
+    (await uc.execute({ ...context, organizationId, roleId: roleA })).length,
     2,
   );
   await assert.rejects(
-    uc.execute({ ...context, companyId: roleB, roleId: roleA }),
+    uc.execute({ ...context, organizationId: roleB, roleId: roleA }),
     ForbiddenError,
   );
 });
@@ -192,7 +195,7 @@ test('self check-in accepts an explicit slot from the second schedule', async ()
   );
   const result = await uc.execute({
     ...context,
-    companyMemberId: memberId,
+    organizationMemberId: memberId,
     scheduleSlotId: slotId,
   });
   assert.equal(result.scheduleSlotId, slotId);
@@ -215,7 +218,7 @@ for (const options of [
         f.members,
       ).execute({
         ...context,
-        companyMemberId: memberId,
+        organizationMemberId: memberId,
         scheduleSlotId: slotId,
       }),
     );
@@ -224,8 +227,8 @@ for (const options of [
 }
 test('manual check-in validates assignments and stamps the actual actor', async () => {
   const data = {
-    companyId,
-    companyMemberId: memberId,
+    organizationId,
+    organizationMemberId: memberId,
     scheduleSlotId: slotId,
     workDate: '2026-09-12',
     status: 'present' as const,
@@ -260,7 +263,7 @@ test('partial edits do not silently enable schedules or make slots required', ()
     label: 'New label',
   });
   assert.equal(
-    updateCheckInScheduleSchema.safeParse({ companyId: roleB }).success,
+    updateCheckInScheduleSchema.safeParse({ organizationId: roleB }).success,
     false,
   );
 });
@@ -269,7 +272,7 @@ test('system default roles remain assignable without changing membership roles',
   const roles = {
     findById: async () => ({
       id: roleA,
-      companyId: null,
+      organizationId: null,
       isSystemDefault: true,
     }),
   } as IRoleRepository;
@@ -279,7 +282,7 @@ test('system default roles remain assignable without changing membership roles',
   ).execute({
     ...context,
     data: {
-      companyId,
+      organizationId,
       name: 'Shared default',
       roleIds: [roleA],
       isActive: true,
@@ -295,7 +298,7 @@ test('leave approval synchronizes every assigned schedule across every leave day
   const f = fixture();
   const request = {
     id: 'leave',
-    companyMemberId: memberId,
+    organizationMemberId: memberId,
     leaveTypeId: 'type',
     status: 'pending',
     startDate: '2026-09-12',

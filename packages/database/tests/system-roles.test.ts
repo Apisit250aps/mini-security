@@ -82,13 +82,13 @@ test('role defaults preserve platform, owner review and read-only boundaries', (
   for (const role of ['OWNER', 'ADMIN', 'MEMBER', 'VIEWER'] as const) {
     const actions: readonly string[] = defaults[role];
     for (const forbidden of [
-      'company:create',
-      'company:delete',
+      'organization:create',
+      'organization:delete',
       'user:create',
       'user:delete',
       'permission:create',
       'feature:toggle',
-      'company_feature:create',
+      'organization_feature:create',
     ]) {
       assert.ok(
         !actions.includes(forbidden),

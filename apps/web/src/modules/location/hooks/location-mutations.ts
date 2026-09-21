@@ -12,7 +12,7 @@ import { toast } from '@repo/ui/components/sonner';
 import { getErrorMessage } from '@/shared/utils';
 import { locationKeys } from './location-queries';
 
-export function useLocationSave(companyId: string) {
+export function useLocationSave(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (
@@ -38,7 +38,7 @@ export function useLocationSave(companyId: string) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: locationKeys.company(companyId),
+        queryKey: locationKeys.organization(organizationId),
       });
       toast.success('บันทึกสถานที่สำเร็จ');
     },
@@ -47,7 +47,7 @@ export function useLocationSave(companyId: string) {
   });
 }
 
-export function useSlotLocationToggle(companyId: string, slotId: string) {
+export function useSlotLocationToggle(organizationId: string, slotId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -65,13 +65,18 @@ export function useSlotLocationToggle(companyId: string, slotId: string) {
         });
       }
       return locationServiceAssignSlotLocation({
-        body: { companyId, scheduleSlotId: slotId, locationId, isActive: true },
+        body: {
+          organizationId,
+          scheduleSlotId: slotId,
+          locationId,
+          isActive: true,
+        },
         throwOnError: true,
       });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: locationKeys.company(companyId),
+        queryKey: locationKeys.organization(organizationId),
       });
       toast.success('บันทึกตำแหน่งของรอบเวลาสำเร็จ');
     },

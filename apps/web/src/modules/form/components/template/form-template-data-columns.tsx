@@ -9,18 +9,18 @@ import { formatDate } from '@/shared/utils/date';
 import FormTemplateColumnActions from './form-template-column-actions';
 
 interface FormTemplateColumnsOptions {
-  companyId: string;
+  organizationId: string;
 }
 
 export const formTemplateDataColumns = ({
-  companyId,
+  organizationId,
 }: FormTemplateColumnsOptions): ColumnDef<FormTemplate>[] => [
   {
     accessorKey: 'name',
     header: 'ชื่อแบบฟอร์ม',
     cell: ({ row }) => (
       <Link
-        href={`/company/forms/templates/${row.original.id}`}
+        href={`/organization/forms/templates/${row.original.id}`}
         className="flex flex-col group hover:underline cursor-pointer"
       >
         <span className="font-semibold text-sm group-hover:text-primary transition-colors">
@@ -62,7 +62,7 @@ export const formTemplateDataColumns = ({
     id: 'actions',
     header: '',
     cell: (cell) => (
-      <FormTemplateColumnActions cell={cell} companyId={companyId} />
+      <FormTemplateColumnActions cell={cell} organizationId={organizationId} />
     ),
   },
 ];

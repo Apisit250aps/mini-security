@@ -6,23 +6,26 @@ import { useRoleCreate } from '../../hooks/role-mutations';
 import { useOverlay } from '@repo/ui/hooks';
 
 export default function RoleCreateForm({
-  companyId,
+  organizationId,
   onSuccess,
 }: {
-  companyId?: string;
+  organizationId?: string;
   onSuccess?: () => void;
 }) {
   const ui = useOverlay();
   const createMutation = useRoleCreate();
+  const effectiveOrgId = organizationId;
 
   const handleSubmit = async (data: RoleFormValues) => {
     try {
       await createMutation.mutateAsync({
         name: data.name,
         description: data.description || null,
-        companyId: companyId || data.companyId || null,
+        organizationId: effectiveOrgId || data.organizationId || null,
         roleType: data.roleType,
-        isSystemDefault: companyId ? false : (data.isSystemDefault ?? false),
+        isSystemDefault: effectiveOrgId
+          ? false
+          : (data.isSystemDefault ?? false),
       });
       ui.hideAll();
       onSuccess?.();
@@ -35,11 +38,11 @@ export default function RoleCreateForm({
     <RoleForm
       onSubmit={handleSubmit}
       isLoading={createMutation.isPending}
-      hideSystemDefault={Boolean(companyId)}
+      hideSystemDefault={Boolean(effectiveOrgId)}
       defaultValues={{
         name: '',
         description: '',
-        companyId: companyId || null,
+        organizationId: effectiveOrgId || null,
         roleType: 'MEMBER',
         isSystemDefault: false,
       }}

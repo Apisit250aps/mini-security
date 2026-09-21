@@ -6,16 +6,17 @@ import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
 import RoleColumnActions from './role-column-actions';
 
-const roleListColumns = (companyId?: string): ColumnDef<Role>[] => {
+const roleListColumns = (organizationId?: string): ColumnDef<Role>[] => {
+  const orgId = organizationId;
   return [
     {
       accessorKey: 'name',
       header: 'ชื่อบทบาท',
       cell: ({ row, getValue }) => {
-        const basePath = companyId
-          ? '/company/role'
-          : row.original.companyId
-            ? '/company/role'
+        const basePath = orgId
+          ? '/organization/role'
+          : row.original.organizationId
+            ? '/organization/role'
             : '/admin/role';
         return (
           <Link
@@ -78,7 +79,7 @@ const roleListColumns = (companyId?: string): ColumnDef<Role>[] => {
     {
       id: 'actions',
       header: 'จัดการ',
-      cell: (cell) => <RoleColumnActions cell={cell} companyId={companyId} />,
+      cell: (cell) => <RoleColumnActions cell={cell} organizationId={orgId} />,
     },
   ];
 };

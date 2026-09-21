@@ -19,8 +19,11 @@ export interface ICheckInScheduleRepository
     CreateCheckInSchedule,
     UpdateCheckInSchedule
   > {
-  findByRoleId(companyId: string, roleId: string): Promise<CheckInSchedule[]>;
-  findByCompanyId(companyId: string): Promise<CheckInSchedule[]>;
+  findByRoleId(
+    organizationId: string,
+    roleId: string,
+  ): Promise<CheckInSchedule[]>;
+  findByOrganizationId(organizationId: string): Promise<CheckInSchedule[]>;
 }
 
 export interface IScheduleSlotRepository
@@ -48,8 +51,8 @@ export interface IAttendanceLogRepository
     slotId: string,
     workDate: string,
   ): Promise<AttendanceLog | null>;
-  findByCompanyAndDateRange(
-    companyId: string,
+  findByOrganizationAndDateRange(
+    organizationId: string,
     startDate: string,
     endDate: string,
   ): Promise<AttendanceLog[]>;

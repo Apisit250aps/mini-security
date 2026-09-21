@@ -8,7 +8,7 @@ import type {
 
 export class LeaveType implements LeaveTypeEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   name: string;
   description?: string | null;
   unit: LeaveUnit;
@@ -21,7 +21,7 @@ export class LeaveType implements LeaveTypeEntity {
 
   constructor(data: LeaveTypeEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.name = data.name;
     this.description = data.description;
     this.unit = data.unit;
@@ -36,7 +36,7 @@ export class LeaveType implements LeaveTypeEntity {
 
 export class LeaveQuota implements LeaveQuotaEntity {
   id: string;
-  companyMemberId: string;
+  organizationMemberId: string;
   leaveTypeId: string;
   year: number;
   totalDays: number;
@@ -45,7 +45,7 @@ export class LeaveQuota implements LeaveQuotaEntity {
 
   constructor(data: LeaveQuotaEntity) {
     this.id = data.id;
-    this.companyMemberId = data.companyMemberId;
+    this.organizationMemberId = data.organizationMemberId;
     this.leaveTypeId = data.leaveTypeId;
     this.year = data.year;
     this.totalDays = data.totalDays;
@@ -56,7 +56,7 @@ export class LeaveQuota implements LeaveQuotaEntity {
 
 export class LeaveRequest implements LeaveRequestEntity {
   id: string;
-  companyMemberId: string;
+  organizationMemberId: string;
   leaveTypeId: string;
   startDate: string;
   endDate: string;
@@ -75,7 +75,7 @@ export class LeaveRequest implements LeaveRequestEntity {
 
   constructor(data: LeaveRequestEntity) {
     this.id = data.id;
-    this.companyMemberId = data.companyMemberId;
+    this.organizationMemberId = data.organizationMemberId;
     this.leaveTypeId = data.leaveTypeId;
     this.startDate = data.startDate;
     this.endDate = data.endDate;

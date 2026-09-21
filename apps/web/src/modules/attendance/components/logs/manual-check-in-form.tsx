@@ -7,18 +7,18 @@ import { z } from 'zod';
 import { SelectField, TextareaField, DateField } from '@repo/ui/form';
 import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import AttendanceSelectField from './attendance-select-field';
 import { getWorkDate } from '../../utils/check-in-slot';
 import {
-  useRoleSchedulesQueries,
+  useGetCheckInSchedulesByRole,
   useScheduleSlotsQueries,
 } from '../../hooks/attendance-queries';
 import type { FormProps } from '@/types';
 
 export const manualCheckInFormSchema = z.object({
-  companyMemberId: z.string().uuid('กรุณาเลือกพนักงาน'),
+  organizationMemberId: z.string().uuid('กรุณาเลือกพนักงาน'),
   scheduleSlotId: z.string().uuid('กรุณาเลือกรอบเวลา'),
   scheduleId: z.string().uuid('กรุณาเลือกตารางเวลา'),
   workDate: z.string().min(1, 'กรุณาระบุวันที่'),
@@ -36,16 +36,17 @@ const STATUS_OPTIONS = [
 ];
 
 interface ManualCheckInFormProps extends FormProps<ManualCheckInFormValues> {
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function ManualCheckInForm({
-  companyId,
+  organizationId,
   onSubmit,
   defaultValues,
   isLoading,
 }: ManualCheckInFormProps) {
-  const members = useCompanyMembersQueries(companyId);
+  const targetOrgId = organizationId || '';
+  const members = useOrganizationMembersQueries(targetOrgId);
   const users = useUserListQueries();
 
   const todayStr = useMemo(() => getWorkDate(new Date()), []);
@@ -53,7 +54,7 @@ export default function ManualCheckInForm({
   const methods = useForm<ManualCheckInFormValues>({
     resolver: zodResolver(manualCheckInFormSchema),
     defaultValues: defaultValues ?? {
-      companyMemberId: '',
+      organizationMemberId: '',
       scheduleId: '',
       scheduleSlotId: '',
       workDate: todayStr,
@@ -68,13 +69,13 @@ export default function ManualCheckInForm({
   });
   const selectedMemberId = useWatch({
     control: methods.control,
-    name: 'companyMemberId',
+    name: 'organizationMemberId',
   });
   const selectedMember = members.data?.find(
     (member) => member.id === selectedMemberId && member.isActive,
   );
-  const schedulesQuery = useRoleSchedulesQueries(
-    companyId,
+  const schedulesQuery = useGetCheckInSchedulesByRole(
+    targetOrgId,
     selectedMember?.roleId,
   );
   const validSchedule = schedulesQuery.data?.some(
@@ -138,7 +139,7 @@ export default function ManualCheckInForm({
     >
       <FieldGroup className="flex flex-col gap-3">
         <AttendanceSelectField
-          name="companyMemberId"
+          name="organizationMemberId"
           label="พนักงาน"
           options={memberOptions}
           control={methods.control}

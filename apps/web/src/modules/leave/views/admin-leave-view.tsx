@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useCompanyListQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationListQueries } from '@/modules/organization/hooks/organization-queries';
 import {
   Tabs,
   TabsList,
@@ -17,20 +17,14 @@ import {
   CardContent,
   CardAction,
 } from '@repo/ui/components/card';
-import {
-  CalendarRange,
-  Sliders,
-  Building2,
-  Clock,
-  CheckCircle2,
-} from 'lucide-react';
+import { CalendarRange, Sliders, Building2, Clock } from 'lucide-react';
 import {
   MetricCard,
   DashboardStatsGrid,
 } from '@repo/ui/components/shared/dashboard';
 import {
-  useCompanyLeaveRequestsQueries,
-  useCompanyLeaveTypesQueries,
+  useOrganizationLeaveRequestsQueries,
+  useOrganizationLeaveTypesQueries,
 } from '../hooks/leave-queries';
 import LeaveRequestDataTable from '../components/requests/leave-request-data-table';
 import LeaveRequestSubmitAction from '../components/requests/leave-request-submit-action';
@@ -38,30 +32,30 @@ import LeaveTypeDataTable from '../components/types/leave-type-data-table';
 import LeaveTypeCreateAction from '../components/types/leave-type-create-action';
 
 export default function AdminLeaveView() {
-  const companiesQuery = useCompanyListQueries();
-  const companies = useMemo(
-    () => companiesQuery.data || [],
-    [companiesQuery.data],
+  const organizationsQuery = useOrganizationListQueries();
+  const organizations = useMemo(
+    () => organizationsQuery.data || [],
+    [organizationsQuery.data],
   );
 
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedOrganizationId, setSelectedOrganizationId] =
+    useState<string>('');
 
-  const activeCompanyId = selectedCompanyId || companies[0]?.id || '';
-  const selectedCompany = companies.find((c) => c.id === activeCompanyId);
+  const activeOrganizationId =
+    selectedOrganizationId || organizations[0]?.id || '';
+  const selectedOrganization = organizations.find(
+    (c) => c.id === activeOrganizationId,
+  );
 
-  const requestsQuery = useCompanyLeaveRequestsQueries(activeCompanyId);
-  const typesQuery = useCompanyLeaveTypesQueries(activeCompanyId);
+  const requestsQuery =
+    useOrganizationLeaveRequestsQueries(activeOrganizationId);
+  const typesQuery = useOrganizationLeaveTypesQueries(activeOrganizationId);
 
   const requests = requestsQuery.data || [];
   const types = typesQuery.data || [];
 
   const pendingCount = useMemo(
     () => requests.filter((r) => r.status === 'pending').length,
-    [requests],
-  );
-
-  const approvedCount = useMemo(
-    () => requests.filter((r) => r.status === 'approved').length,
     [requests],
   );
 
@@ -75,11 +69,11 @@ export default function AdminLeaveView() {
               เลือกองค์กร:
             </span>
             <select
-              value={activeCompanyId}
-              onChange={(e) => setSelectedCompanyId(e.target.value)}
+              value={activeOrganizationId}
+              onChange={(e) => setSelectedOrganizationId(e.target.value)}
               className="h-9 px-3 rounded-md border text-sm bg-background"
             >
-              {companies.map((c) => (
+              {organizations.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
@@ -89,9 +83,9 @@ export default function AdminLeaveView() {
         </div>
       }
     >
-      {!activeCompanyId ? (
+      {!activeOrganizationId ? (
         <div className="p-12 text-center text-muted-foreground">
-          ไม่พบบริษัทในระบบ
+          ไม่พบองค์กรในระบบ
         </div>
       ) : (
         <div className="flex flex-col gap-6">
@@ -99,9 +93,9 @@ export default function AdminLeaveView() {
           <DashboardStatsGrid columns={4}>
             <MetricCard
               title="องค์กรปัจจุบัน"
-              value={selectedCompany?.name || '-'}
+              value={selectedOrganization?.name || '-'}
               icon={Building2}
-              description={`Slug: ${selectedCompany?.slug || '-'}`}
+              description={`Slug: ${selectedOrganization?.slug || '-'}`}
             />
             <MetricCard
               title="คำขอลาทั้งหมด"
@@ -124,7 +118,7 @@ export default function AdminLeaveView() {
               title="ประเภทการลาที่เปิดใช้"
               value={`${types.length} ประเภท`}
               icon={Sliders}
-              description="นโยบายวันลาของบริษัท"
+              description="นโยบายวันลาขององค์กร"
             />
           </DashboardStatsGrid>
 
@@ -146,15 +140,19 @@ export default function AdminLeaveView() {
                   <div>
                     <CardTitle>รายการคำขอลาหยุดงาน</CardTitle>
                     <CardDescription>
-                      คำขอลาทั้งหมดของพนักงานในบริษัทนี้
+                      คำขอลาทั้งหมดของพนักงานในองค์กรนี้
                     </CardDescription>
                   </div>
                   <CardAction>
-                    <LeaveRequestSubmitAction companyId={activeCompanyId} />
+                    <LeaveRequestSubmitAction
+                      organizationId={activeOrganizationId}
+                    />
                   </CardAction>
                 </CardHeader>
                 <CardContent>
-                  <LeaveRequestDataTable companyId={activeCompanyId} />
+                  <LeaveRequestDataTable
+                    organizationId={activeOrganizationId}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -165,15 +163,17 @@ export default function AdminLeaveView() {
                   <div>
                     <CardTitle>ประเภทการลาและโควต้า</CardTitle>
                     <CardDescription>
-                      นโยบายการลาและโควต้าวันลาประจำปีของบริษัทนี้
+                      นโยบายการลาและโควต้าวันลาประจำปีขององค์กรนี้
                     </CardDescription>
                   </div>
                   <CardAction>
-                    <LeaveTypeCreateAction companyId={activeCompanyId} />
+                    <LeaveTypeCreateAction
+                      organizationId={activeOrganizationId}
+                    />
                   </CardAction>
                 </CardHeader>
                 <CardContent>
-                  <LeaveTypeDataTable companyId={activeCompanyId} />
+                  <LeaveTypeDataTable organizationId={activeOrganizationId} />
                 </CardContent>
               </Card>
             </TabsContent>

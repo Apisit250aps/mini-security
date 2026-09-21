@@ -19,12 +19,12 @@ export const quotaFormSchema = z.object({
 export type QuotaFormValues = z.infer<typeof quotaFormSchema>;
 
 interface QuotaFormProps extends FormProps<QuotaFormValues> {
-  companyId: string;
+  organizationId: string;
   isEditing?: boolean;
 }
 
 export default function QuotaForm({
-  companyId,
+  organizationId,
   onSubmit,
   defaultValues,
   isLoading,
@@ -46,7 +46,7 @@ export default function QuotaForm({
     >
       <FieldGroup className="flex flex-col gap-3">
         <LeaveTypeSelectField
-          companyId={companyId}
+          organizationId={organizationId}
           name="leaveTypeId"
           label="ประเภทการลา"
           placeholder="เลือกประเภทการลา..."

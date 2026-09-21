@@ -5,23 +5,24 @@ import UserForm, { type UserFormValues } from './user-form';
 import { useOverlay } from '@repo/ui/hooks';
 import { toast } from '@repo/ui/components/sonner';
 import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMemberAdd } from '@/modules/company/hooks/company-mutations';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useOrganizationMemberAdd } from '@/modules/organization/hooks/organization-mutations';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
 import { getErrorMessage } from '@/shared/utils';
 
 export default function UserCreateForm({
-  companyId,
+  organizationId,
   roleId,
   onSuccess,
 }: {
-  companyId?: string;
+  organizationId?: string;
   roleId?: string;
   onSuccess?: () => void;
 } = {}) {
+  const orgId = organizationId || '';
   const ui = useOverlay();
   const session = useSession();
-  const addMemberMutation = useCompanyMemberAdd(companyId || '');
-  const rolesQuery = useCompanyRolesQueries(companyId || '');
+  const addMemberMutation = useOrganizationMemberAdd(orgId);
+  const rolesQuery = useGetOrganizationRoles(orgId);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,8 +36,8 @@ export default function UserCreateForm({
     if (res?.data?.user) {
       const newUser = res.data.user;
 
-      // If companyId is present, automatically add user into company members
-      if (companyId) {
+      // If orgId is present, automatically add user into organization members
+      if (orgId) {
         const availableRoles = rolesQuery.data || [];
         const targetRoleId =
           roleId ||
@@ -44,7 +45,7 @@ export default function UserCreateForm({
             (r) =>
               r.roleType !== 'SUPER_ADMIN' &&
               r.name.toLowerCase() !== 'owner' &&
-              (!r.companyId || r.companyId === companyId),
+              (!r.organizationId || r.organizationId === orgId),
           )?.id ||
           availableRoles.find(
             (r) =>
@@ -54,12 +55,12 @@ export default function UserCreateForm({
 
         if (targetRoleId) {
           await addMemberMutation.mutateAsync({
-            companyId,
+            organizationId: orgId,
             userId: newUser.id,
             roleId: targetRoleId,
             isActive: true,
           });
-          toast.success(`เพิ่มพนักงาน ${newUser.name} เข้าสู่บริษัทเรียบร้อย`);
+          toast.success(`เพิ่มพนักงาน ${newUser.name} เข้าสู่องค์กรเรียบร้อย`);
         } else {
           toast.success('สร้างบัญชีผู้ใช้สำเร็จ');
         }

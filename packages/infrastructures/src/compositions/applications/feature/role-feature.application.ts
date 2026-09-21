@@ -1,20 +1,20 @@
 import {
   AssignRoleFeatureUseCase,
   CheckRoleFeatureAccessUseCase,
-  GetCompanyRoleFeaturesUseCase,
+  GetOrganizationRoleFeaturesUseCase,
   GetRoleFeaturesUseCase,
   RevokeRoleFeatureUseCase,
   ToggleRoleFeatureUseCase,
 } from '@repo/applications';
 import {
-  companyFeatureRepository,
+  organizationFeatureRepository,
   featureRepository,
   roleFeatureRepository,
 } from '../../repositories';
 
 export const assignRoleFeatureUseCase = new AssignRoleFeatureUseCase(
   roleFeatureRepository,
-  companyFeatureRepository,
+  organizationFeatureRepository,
   featureRepository,
 );
 
@@ -30,12 +30,11 @@ export const getRoleFeaturesUseCase = new GetRoleFeaturesUseCase(
   roleFeatureRepository,
 );
 
-export const getCompanyRoleFeaturesUseCase = new GetCompanyRoleFeaturesUseCase(
-  roleFeatureRepository,
-);
+export const getOrganizationRoleFeaturesUseCase =
+  new GetOrganizationRoleFeaturesUseCase(roleFeatureRepository);
 
 export const checkRoleFeatureAccessUseCase = new CheckRoleFeatureAccessUseCase(
-  companyFeatureRepository,
+  organizationFeatureRepository,
   roleFeatureRepository,
   featureRepository,
 );

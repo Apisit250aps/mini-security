@@ -4,8 +4,8 @@ import { RequirePermission } from '../../decorators/permission.decorator';
 import type {
   ICheckInAttendanceContext,
   ICheckInAttendanceUseCase,
-  IGetAttendanceLogsByCompanyContext,
-  IGetAttendanceLogsByCompanyUseCase,
+  IGetAttendanceLogsByOrganizationContext,
+  IGetAttendanceLogsByOrganizationUseCase,
   IGetAttendanceLogsByMemberContext,
   IGetAttendanceLogsByMemberUseCase,
   IManualCheckInAttendanceContext,
@@ -18,7 +18,7 @@ import type {
   IScheduleSlotRepository,
 } from '@repo/domains/repositories/attendance';
 import type { IScheduleSlotLocationRepository } from '@repo/domains/repositories/location';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import { createAttendanceLogSchema } from '@repo/domains/schema/attendance';
 import {
   DuplicateError,
@@ -52,24 +52,24 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
     private readonly attendanceLogRepository: IAttendanceLogRepository,
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly checkInScheduleRepository: ICheckInScheduleRepository,
-    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly organizationMemberRepository: IOrganizationMemberRepository,
     private readonly slotLocationRepository?: IScheduleSlotLocationRepository,
   ) {}
 
   @RequirePermission('attendance:check_in')
   async execute(context: ICheckInAttendanceContext): Promise<AttendanceLog> {
-    const member = await this.companyMemberRepository.findById(
-      context.companyMemberId,
+    const member = await this.organizationMemberRepository.findById(
+      context.organizationMemberId,
     );
     if (!member) {
       throw new NotFoundError(
-        `Company member with id "${context.companyMemberId}" not found`,
+        `Organization member with id "${context.organizationMemberId}" not found`,
       );
     }
 
-    PermissionGuard.requireCompanyScope(context, member.companyId);
+    PermissionGuard.requireOrganizationScope(context, member.organizationId);
     if (!member.isActive)
-      throw new ValidationError('Company member is inactive');
+      throw new ValidationError('Organization member is inactive');
     if (member.userId !== context.user?.id) {
       throw new ForbiddenError(
         'Use manual check-in to record attendance for another member',
@@ -78,7 +78,7 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
     if (!context.scheduleSlotId)
       throw new ValidationError('Select a schedule slot');
     const schedules = await this.checkInScheduleRepository.findByRoleId(
-      member.companyId,
+      member.organizationId,
       member.roleId,
     );
     const slot = await this.scheduleSlotRepository.findById(
@@ -195,8 +195,8 @@ export class CheckInAttendanceUseCase implements ICheckInAttendanceUseCase {
     }
 
     const logData = {
-      companyId: member.companyId,
-      companyMemberId: member.id,
+      organizationId: member.organizationId,
+      organizationMemberId: member.id,
       scheduleSlotId: targetSlot.id,
       workDate: today,
       checkedInAt: now,
@@ -215,7 +215,7 @@ export class ManualCheckInAttendanceUseCase
 {
   constructor(
     private readonly attendanceLogRepository: IAttendanceLogRepository,
-    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly organizationMemberRepository: IOrganizationMemberRepository,
     private readonly scheduleSlotRepository: IScheduleSlotRepository,
     private readonly checkInScheduleRepository: ICheckInScheduleRepository,
   ) {}
@@ -232,17 +232,17 @@ export class ManualCheckInAttendanceUseCase
       );
     }
 
-    const member = await this.companyMemberRepository.findById(
-      parsed.data.companyMemberId,
+    const member = await this.organizationMemberRepository.findById(
+      parsed.data.organizationMemberId,
     );
-    if (!member) throw new NotFoundError('Company member not found');
-    PermissionGuard.requireCompanyScope(context, member.companyId);
+    if (!member) throw new NotFoundError('Organization member not found');
+    PermissionGuard.requireOrganizationScope(context, member.organizationId);
     if (!member.isActive)
-      throw new ValidationError('Company member is inactive');
+      throw new ValidationError('Organization member is inactive');
     const [slot, schedules] = await Promise.all([
       this.scheduleSlotRepository.findById(parsed.data.scheduleSlotId),
       this.checkInScheduleRepository.findByRoleId(
-        member.companyId,
+        member.organizationId,
         member.roleId,
       ),
     ]);
@@ -271,21 +271,21 @@ export class GetAttendanceLogsByMemberUseCase
 {
   constructor(
     private readonly attendanceLogRepository: IAttendanceLogRepository,
-    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly organizationMemberRepository: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('attendance:read')
   async execute(
     context: IGetAttendanceLogsByMemberContext,
   ): Promise<AttendanceLog[]> {
-    const member = await this.companyMemberRepository.findById(
-      context.companyMemberId,
+    const member = await this.organizationMemberRepository.findById(
+      context.organizationMemberId,
     );
-    if (!member) throw new NotFoundError('Company member not found');
-    PermissionGuard.requireCompanyScope(context, member.companyId);
+    if (!member) throw new NotFoundError('Organization member not found');
+    PermissionGuard.requireOrganizationScope(context, member.organizationId);
     if (context.startDate && context.endDate) {
       return this.attendanceLogRepository.findByMemberAndDateRange(
-        context.companyMemberId,
+        context.organizationMemberId,
         context.startDate,
         context.endDate,
       );
@@ -293,21 +293,21 @@ export class GetAttendanceLogsByMemberUseCase
 
     if (context.workDate) {
       return this.attendanceLogRepository.findByMemberAndDate(
-        context.companyMemberId,
+        context.organizationMemberId,
         context.workDate,
       );
     }
 
     const today = attendanceClock(new Date()).workDate;
     return this.attendanceLogRepository.findByMemberAndDate(
-      context.companyMemberId,
+      context.organizationMemberId,
       today,
     );
   }
 }
 
-export class GetAttendanceLogsByCompanyUseCase
-  implements IGetAttendanceLogsByCompanyUseCase
+export class GetAttendanceLogsByOrganizationUseCase
+  implements IGetAttendanceLogsByOrganizationUseCase
 {
   constructor(
     private readonly attendanceLogRepository: IAttendanceLogRepository,
@@ -315,10 +315,10 @@ export class GetAttendanceLogsByCompanyUseCase
 
   @RequirePermission('attendance:read')
   async execute(
-    context: IGetAttendanceLogsByCompanyContext,
+    context: IGetAttendanceLogsByOrganizationContext,
   ): Promise<AttendanceLog[]> {
-    return this.attendanceLogRepository.findByCompanyAndDateRange(
-      context.companyId,
+    return this.attendanceLogRepository.findByOrganizationAndDateRange(
+      context.organizationId,
       context.startDate,
       context.endDate,
     );

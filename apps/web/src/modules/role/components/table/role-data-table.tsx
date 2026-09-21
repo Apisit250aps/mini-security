@@ -5,15 +5,20 @@ import roleListColumns from './role-data-columns';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import {
   useRoleListQueries,
-  useCompanyRolesQueries,
+  useGetOrganizationRoles,
 } from '../../hooks/role-queries';
 
-export default function RoleDataTable({ companyId }: { companyId?: string }) {
+export default function RoleDataTable({
+  organizationId,
+}: {
+  organizationId?: string;
+}) {
+  const orgId = organizationId;
   const globalQuery = useRoleListQueries();
-  const companyQuery = useCompanyRolesQueries(companyId || '');
+  const orgQuery = useGetOrganizationRoles(orgId || '');
 
-  const query = companyId ? companyQuery : globalQuery;
-  const columns = useMemo(() => roleListColumns(companyId), [companyId]);
+  const query = orgId ? orgQuery : globalQuery;
+  const columns = useMemo(() => roleListColumns(orgId), [orgId]);
 
   const table = useMemo(() => {
     const data = query.isLoading ? [] : query.data || [];

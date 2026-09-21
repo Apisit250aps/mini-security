@@ -1,19 +1,19 @@
 import type { RelationsHelper } from './types';
 
 export const roleRelations = (r: RelationsHelper) => ({
-  company: {
+  organization: {
     roles: r.many.role(),
-    companyFeatures: r.many.companyFeature(),
+    organizationFeatures: r.many.organizationFeature(),
     roleFeatures: r.many.roleFeature(),
   },
   role: {
-    company: r.one.company({
-      from: r.role.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.role.organizationId,
+      to: r.organization.id,
     }),
     rolePermissions: r.many.rolePermission(),
     roleFeatures: r.many.roleFeature(),
-    members: r.many.companyMember(),
+    members: r.many.organizationMember(),
   },
   permission: {
     rolePermissions: r.many.rolePermission(),
@@ -33,28 +33,28 @@ export const roleRelations = (r: RelationsHelper) => ({
     }),
   },
   feature: {
-    companyFeatures: r.many.companyFeature(),
+    organizationFeatures: r.many.organizationFeature(),
     roleFeatures: r.many.roleFeature(),
     permissions: r.many.permission(),
   },
-  companyFeature: {
-    company: r.one.company({
-      from: r.companyFeature.companyId,
-      to: r.company.id,
+  organizationFeature: {
+    organization: r.one.organization({
+      from: r.organizationFeature.organizationId,
+      to: r.organization.id,
     }),
     feature: r.one.feature({
-      from: r.companyFeature.featureId,
+      from: r.organizationFeature.featureId,
       to: r.feature.id,
     }),
     assignedByUser: r.one.user({
-      from: r.companyFeature.assignedBy,
+      from: r.organizationFeature.assignedBy,
       to: r.user.id,
     }),
   },
   roleFeature: {
-    company: r.one.company({
-      from: r.roleFeature.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.roleFeature.organizationId,
+      to: r.organization.id,
     }),
     role: r.one.role({
       from: r.roleFeature.roleId,

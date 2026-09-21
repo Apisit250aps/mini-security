@@ -9,7 +9,7 @@
 ## 1. ขอบเขตและหลักการ
 
 - Form ใช้ซ้ำผ่านแผนรายวัน สัปดาห์ เดือน ไตรมาส ปี ครั้งเดียว หรือหลายช่วงเวลาที่กำหนดเอง
-- ผู้รับงานเป็น Role ร่วมทำ หรือ company member รายบุคคล เลือก Role เพื่อแจกคนละงานได้
+- ผู้รับงานเป็น Role ร่วมทำ หรือ organization member รายบุคคล เลือก Role เพื่อแจกคนละงานได้
 - แต่ละ tenant ตั้ง Role/Permission เอง ผู้ตรวจไม่ถูกบังคับเป็น Owner หรือตำแหน่งใด
 - ตรวจข้อ หมวด และทั้งชุดได้ ขอแก้ภาพไม่ชัดพร้อม comment ได้
 - รายการ Form เป็นตาราง คลิกชื่อไปหน้ารายละเอียดเพื่อแก้คำถาม จัดแผน และติดตามงาน
@@ -30,7 +30,7 @@ erDiagram
     form_version ||--o{ form_occurrence : fixes_content
     form_occurrence ||--o{ form_assignment : assigns
     role o|--o{ form_assignment : receives
-    company_member o|--o{ form_assignment : receives
+    organization_member o|--o{ form_assignment : receives
     form_assignment ||--o{ form_submission : revisions
     form_submission ||--o{ form_answer : contains
     form_answer ||--o{ form_answer_attachment : attaches
@@ -46,15 +46,15 @@ Mermaid นี้สรุปความสัมพันธ์ ส่วน c
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | form_template / version / section / field | ใช้โครงสร้างคำถามเดิม Published content immutable; แก้โดย clone version                                                                                                                  |
 | form_plan                                 | template, ชื่อแผน, effective interval decision, schedule config, timezone, effective start/end, version selection, review mode, late submission และ missed-run policy, concurrency token |
-| form_plan_target                          | plan, role_id XOR company_member_id; role_distribution = SHARED/PER_MEMBER เฉพาะ Role                                                                                                    |
+| form_plan_target                          | plan, role_id XOR organization_member_id; role_distribution = SHARED/PER_MEMBER เฉพาะ Role                                                                                               |
 | form_plan_period                          | plan, เปิดเมื่อไรและ due เมื่อไร สำหรับครั้งเดียว/หลายช่วง explicit; ไม่ปนกับ recurring rule                                                                                             |
 | form_occurrence                           | plan, occurrence_key, fixed version, actual open/due instants, อ้าง policy ผ่าน plan config ประวัติ, created_at, cancellation facts                                                      |
-| form_assignment                           | occurrence, role_id XOR company_member_id, created_at คือเวลามอบหมาย, cancellation facts; ผู้สั่งเปลี่ยน/ยกเลิกจริงเมื่อมี manual action                                                 |
+| form_assignment                           | occurrence, role_id XOR organization_member_id, created_at คือเวลามอบหมาย, cancellation facts; ผู้สั่งเปลี่ยน/ยกเลิกจริงเมื่อมี manual action                                            |
 | form_submission                           | assignment, supersedes_submission_id, started_by, submitted_by/at, concurrency token เดิม; content ของ revision ที่ส่งแล้ว immutable                                                     |
 | form_review_entry                         | submission, answer_id หรือ section_id หรือไม่มีทั้งคู่, action, note, actor, created_at, supersedes_entry_id                                                                             |
 | answer / attachment / contributor         | ใช้ต่อ; เก็บผู้กรอกจริงและหลักฐานไฟล์เดิมเมื่อมีรอบแก้ไข                                                                                                                                 |
 
-กำหนด company_id และ composite FK เท่าที่จำเป็นบังคับ tenant integrity ทุกความสัมพันธ์ ไม่ใช่เพื่อ cache การแสดงผล ไม่เพิ่ม template/version FK ในตารางลูกซ้ำ เว้นแต่จำเป็นเพื่อ FK integrity และต้องระบุเหตุผลใน DBML
+กำหนด organization_id และ composite FK เท่าที่จำเป็นบังคับ tenant integrity ทุกความสัมพันธ์ ไม่ใช่เพื่อ cache การแสดงผล ไม่เพิ่ม template/version FK ในตารางลูกซ้ำ เว้นแต่จำเป็นเพื่อ FK integrity และต้องระบุเหตุผลใน DBML
 
 ไม่เพิ่ม form_review แบบ 1:1, ไม่เก็บ target_type ซ้ำ, เลิก form_template_role สำหรับสิทธิ์กรอก และแทน submission_review เดิมด้วย review entry เมื่อ implement จริง
 
@@ -106,7 +106,7 @@ flowchart TD
     G --> H[แสดงงานของฉันและรายการรอบ]
 ```
 
-- Unique (company, plan configuration, occurrence_key); key มาจากรอบ nominal local พร้อม timezone/offset หรือ period ID ไม่ใช่เวลาที่ worker รัน
+- Unique (organization, plan configuration, occurrence_key); key มาจากรอบ nominal local พร้อม timezone/offset หรือ period ID ไม่ใช่เวลาที่ worker รัน
 - Target Role SHARED สร้างงาน Role หนึ่งรายการ สมาชิก active ปัจจุบันที่มีสิทธิ์ร่วมกรอกได้
 - Target PER_MEMBER อ่านสมาชิก active ตอนเปิดจริงแล้วสร้างงานรายคน เก็บรายชื่อจริง ไม่สร้าง membership ย้อนหลังจากข้อมูลที่ไม่มี
 - Direct member และ PER_MEMBER ที่ซ้ำคนเดียวกันในรอบ deduplicate ให้เหลืองานรายบุคคลหนึ่งงาน; Role SHARED กับงานส่วนตัวของคนใน Role เป็นคนละงาน
@@ -118,7 +118,7 @@ flowchart TD
 
 ## 7. กรอก ส่ง และแก้ไข
 
-1. เปิด assignment: server ตรวจ active company/member, permission, target membership, cancellation และ open time จาก persisted resource
+1. เปิด assignment: server ตรวจ active organization/member, permission, target membership, cancellation และ open time จาก persisted resource
 2. Start draft เป็น explicit mutation ไม่สร้างข้อมูลจาก GET; unique root submission ต่อ assignment และ unique successor ต่อ rejected revision
 3. Role SHARED ใช้ draft ร่วม assignment เดียวกัน ส่วน member ใช้ draft ของตน
 4. Save validate field/type/options ตาม fixed version, รับ expected revision, upsert answers และ contributor ใน transaction
@@ -144,7 +144,7 @@ flowchart TD
 
 - ผู้ตรวจมาจาก Role permissions ปัจจุบัน ไม่ใช้ role_type/name/created_by หรือรายชื่อ reviewer ใน plan
 - self-review ตรวจตัวตน user ของผู้มีส่วนร่วมตลอด revision lineage เพื่อไม่หลุดจากการเปลี่ยน member record; ไม่มี permission เพิ่มนี้ให้ปฏิเสธ
-- form_review_entry ต้องมี answer_id; form_submission_decision เก็บคำตัดสินทั้งชุดแยกตาราง; ห้ามชี้เป้าต่าง submission/version/company
+- form_review_entry ต้องมี answer_id; form_submission_decision เก็บคำตัดสินทั้งชุดแยกตาราง; ห้ามชี้เป้าต่าง submission/version/organization
 - NEEDS_CHANGES และ RETURN บังคับ note ที่ trim แล้วไม่ว่าง; PASS/APPROVE note optional
 - Comment เป็น note ของผลตรวจ ไม่เพิ่ม discussion table; รองรับภาพหลายรูปโดย note ระบุรูปได้ รุ่นแรก reject ทั้งคำตอบ ไม่เพิ่ม attachment-level review
 - ผู้ตรวจบันทึกผลรายข้อ/หมวดแล้วตรวจต่อได้ ยังไม่ส่งกลับจนกด RETURN ทั้งชุด

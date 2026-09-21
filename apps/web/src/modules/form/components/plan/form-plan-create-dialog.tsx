@@ -9,8 +9,8 @@ import { FieldGroup } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Button } from '@repo/ui/components/button';
 import { toast } from '@repo/ui/components/sonner';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useFormPlanCreate } from '../../hooks/form-mutations';
 import { getErrorMessage } from '@/shared/utils';
 
@@ -27,7 +27,7 @@ const planFormSchema = z.object({
   targetType: z.enum(['ROLE', 'MEMBER']).default('ROLE'),
   roleId: z.string().optional(),
   roleDistribution: z.enum(['SHARED', 'PER_MEMBER']).default('SHARED'),
-  companyMemberId: z.string().optional(),
+  organizationMemberId: z.string().optional(),
   latePolicy: z.enum(['ALLOW', 'DENY']).default('DENY'),
   autoActivate: z.boolean().default(true),
 });
@@ -35,19 +35,20 @@ const planFormSchema = z.object({
 type PlanFormValues = z.infer<typeof planFormSchema>;
 
 interface FormPlanCreateDialogProps {
-  companyId: string;
+  organizationId?: string;
   templateId: string;
   onClose: () => void;
 }
 
 export default function FormPlanCreateDialog({
-  companyId,
+  organizationId,
   templateId,
   onClose,
 }: FormPlanCreateDialogProps) {
-  const rolesQuery = useCompanyRolesQueries(companyId);
-  const membersQuery = useCompanyMembersQueries(companyId);
-  const createPlanMutation = useFormPlanCreate(companyId);
+  const targetOrgId = organizationId || '';
+  const rolesQuery = useGetOrganizationRoles(targetOrgId);
+  const membersQuery = useOrganizationMembersQueries(targetOrgId);
+  const createPlanMutation = useFormPlanCreate(targetOrgId);
 
   const roles = rolesQuery.data || [];
   const members = membersQuery.data || [];
@@ -65,7 +66,7 @@ export default function FormPlanCreateDialog({
       targetType: 'ROLE',
       roleId: roles[0]?.id || '',
       roleDistribution: 'SHARED',
-      companyMemberId: members[0]?.id || '',
+      organizationMemberId: members[0]?.id || '',
       latePolicy: 'DENY',
       autoActivate: true,
     },
@@ -92,7 +93,7 @@ export default function FormPlanCreateDialog({
         toast.error('กรุณาเลือกตำแหน่ง (Role) ที่ต้องการมอบหมาย');
         return;
       }
-      if (values.targetType === 'MEMBER' && !values.companyMemberId) {
+      if (values.targetType === 'MEMBER' && !values.organizationMemberId) {
         toast.error('กรุณาเลือกพนักงานที่ต้องการมอบหมาย');
         return;
       }
@@ -120,7 +121,7 @@ export default function FormPlanCreateDialog({
               roleDistribution: values.roleDistribution,
             }
           : {
-              companyMemberId: values.companyMemberId,
+              organizationMemberId: values.organizationMemberId,
             },
       ];
 
@@ -137,7 +138,7 @@ export default function FormPlanCreateDialog({
       createPlanMutation.mutate(
         {
           data: {
-            companyId,
+            organizationId: targetOrgId,
             formTemplateId: templateId,
             name: values.name,
             scheduleKind: values.scheduleKind,
@@ -163,7 +164,7 @@ export default function FormPlanCreateDialog({
         },
       );
     },
-    [companyId, templateId, createPlanMutation, onClose],
+    [targetOrgId, templateId, createPlanMutation, onClose],
   );
 
   return (
@@ -290,7 +291,7 @@ export default function FormPlanCreateDialog({
             ) : (
               <SelectField
                 control={control}
-                name="companyMemberId"
+                name="organizationMemberId"
                 label="เลือกพนักงาน (Member)"
                 options={memberOptions}
                 placeholder="เลือกพนักงาน..."

@@ -14,7 +14,7 @@ import {
   primaryKeyUuid7,
   updatedAtTimestamp,
 } from '#lib/utils';
-import { company } from './company';
+import { organization } from './organization';
 
 export const roleTypeEnum = pgEnum('role_type', [
   'SUPER_ADMIN',
@@ -28,7 +28,7 @@ export const role = pgTable(
   'role',
   {
     id: primaryKeyUuid7('id'),
-    companyId: uuid('company_id').references(() => company.id, {
+    organizationId: uuid('organization_id').references(() => organization.id, {
       onDelete: 'cascade',
     }),
     name: text('name').notNull(),
@@ -40,12 +40,12 @@ export const role = pgTable(
     deletedAt: deletedAtTimestamp('deleted_at'),
   },
   (table) => [
-    index('role_company_id_idx').on(table.companyId),
+    index('role_organization_id_idx').on(table.organizationId),
     index('role_is_system_default_idx').on(table.isSystemDefault),
     index('role_role_type_idx').on(table.roleType),
     index('role_deleted_at_idx').on(table.deletedAt),
     uniqueIndex('role_system_default_unique')
       .on(table.roleType)
-      .where(sql`company_id IS NULL AND is_system_default = true`),
+      .where(sql`organization_id IS NULL AND is_system_default = true`),
   ],
 );

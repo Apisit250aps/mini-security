@@ -28,101 +28,111 @@ export function createQueryKeys<TEntity extends string>(entity: TEntity) {
  */
 export const userKeys = createQueryKeys('USER');
 
-export const companyKeys = {
-  ...createQueryKeys('COMPANY'),
-  members: (companyId: string) =>
-    ['COMPANY', 'DETAIL', companyId, 'MEMBERS'] as const,
-  branches: (companyId: string) =>
-    ['COMPANY', 'DETAIL', companyId, 'BRANCHES'] as const,
+export const organizationKeys = {
+  ...createQueryKeys('ORGANIZATION'),
+  members: (organizationId: string) =>
+    ['ORGANIZATION', 'DETAIL', organizationId, 'MEMBERS'] as const,
+  sites: (organizationId: string) =>
+    ['ORGANIZATION', 'DETAIL', organizationId, 'SITES'] as const,
 };
 
 export const roleKeys = {
   ...createQueryKeys('ROLE'),
-  company: (companyId: string) => ['ROLE', 'COMPANY', companyId] as const,
+  organization: (organizationId: string) =>
+    ['ROLE', 'ORGANIZATION', organizationId] as const,
   permissions: (roleId: string) =>
     ['ROLE', 'DETAIL', roleId, 'PERMISSIONS'] as const,
 };
 
 export const permissionKeys = {
   ...createQueryKeys('PERMISSION'),
-  my: (companyId?: string) =>
-    ['PERMISSION', 'MY', companyId || 'GLOBAL'] as const,
+  my: (organizationId?: string) =>
+    ['PERMISSION', 'MY', organizationId || 'GLOBAL'] as const,
 };
 
 export const sessionKeys = {
   all: ['SESSION'] as const,
-  myPermissions: (companyId?: string) =>
-    ['SESSION', 'PERMISSIONS', companyId || 'GLOBAL'] as const,
+  myPermissions: (organizationId?: string) =>
+    ['SESSION', 'PERMISSIONS', organizationId || 'GLOBAL'] as const,
 };
 
 export const featureKeys = {
   ...createQueryKeys('FEATURE'),
-  company: (companyId: string) => ['FEATURE', 'COMPANY', companyId] as const,
-  companyAvailable: (companyId: string) =>
-    ['FEATURE', 'COMPANY', companyId, 'AVAILABLE'] as const,
+  organization: (organizationId: string) =>
+    ['FEATURE', 'ORGANIZATION', organizationId] as const,
+  organizationAvailable: (organizationId: string) =>
+    ['FEATURE', 'ORGANIZATION', organizationId, 'AVAILABLE'] as const,
   role: (roleId: string) => ['FEATURE', 'ROLE', roleId] as const,
-  companyRoles: (companyId: string) =>
-    ['FEATURE', 'COMPANY_ROLES', companyId] as const,
+  organizationRoles: (organizationId: string) =>
+    ['FEATURE', 'ORGANIZATION_ROLES', organizationId] as const,
 };
 
 export const attendanceKeys = {
   ...createQueryKeys('ATTENDANCE'),
-  schedules: (companyId: string) =>
-    ['ATTENDANCE', 'SCHEDULES', companyId] as const,
-  scheduleByRole: (companyId: string, roleId: string) =>
-    ['ATTENDANCE', 'SCHEDULE', 'ROLE', companyId, roleId] as const,
+  schedules: (organizationId: string) =>
+    ['ATTENDANCE', 'SCHEDULES', organizationId] as const,
+  scheduleByRole: (organizationId: string, roleId: string) =>
+    ['ATTENDANCE', 'SCHEDULE', 'ROLE', organizationId, roleId] as const,
   slots: (scheduleId: string) => ['ATTENDANCE', 'SLOTS', scheduleId] as const,
   memberLogs: (memberId: string, filters?: Record<string, unknown>) =>
     ['ATTENDANCE', 'LOGS', 'MEMBER', memberId, filters] as const,
-  companyLogs: (companyId: string, filters?: Record<string, unknown>) =>
-    ['ATTENDANCE', 'LOGS', 'COMPANY', companyId, filters] as const,
+  organizationLogs: (
+    organizationId: string,
+    filters?: Record<string, unknown>,
+  ) => ['ATTENDANCE', 'LOGS', 'ORGANIZATION', organizationId, filters] as const,
 };
 
 export const locationKeys = {
   all: ['LOCATIONS'] as const,
-  company: (companyId: string) => ['LOCATIONS', companyId] as const,
-  assignments: (companyId: string, slotId: string) =>
-    ['LOCATIONS', companyId, 'SLOT', slotId] as const,
+  organization: (organizationId: string) =>
+    ['LOCATIONS', organizationId] as const,
+  site: (siteId: string) => ['LOCATIONS', 'SITE', siteId] as const,
+  assignments: (organizationId: string, slotId: string) =>
+    ['LOCATIONS', organizationId, 'SLOT', slotId] as const,
 };
 
 export const leaveKeys = {
   ...createQueryKeys('LEAVE'),
-  typeLists: (companyId: string) => ['LEAVE', 'TYPES', companyId] as const,
-  types: (companyId: string, onlyActive?: boolean) =>
-    ['LEAVE', 'TYPES', companyId, { onlyActive }] as const,
+  typeLists: (organizationId: string) =>
+    ['LEAVE', 'TYPES', organizationId] as const,
+  types: (organizationId: string, onlyActive?: boolean) =>
+    ['LEAVE', 'TYPES', organizationId, { onlyActive }] as const,
   quotas: (memberId: string, year: number) =>
     ['LEAVE', 'QUOTAS', memberId, year] as const,
   memberRequests: (memberId: string) =>
     ['LEAVE', 'REQUESTS', 'MEMBER', memberId] as const,
-  companyRequests: (companyId: string, filters?: Record<string, unknown>) =>
-    ['LEAVE', 'REQUESTS', 'COMPANY', companyId, filters] as const,
+  organizationRequests: (
+    organizationId: string,
+    filters?: Record<string, unknown>,
+  ) => ['LEAVE', 'REQUESTS', 'ORGANIZATION', organizationId, filters] as const,
 };
 
 export const formKeys = {
   ...createQueryKeys('FORM'),
-  templates: (companyId: string) => ['FORM', 'TEMPLATES', companyId] as const,
+  templates: (organizationId: string) =>
+    ['FORM', 'TEMPLATES', organizationId] as const,
   template: (templateId: string) => ['FORM', 'TEMPLATE', templateId] as const,
-  submissions: (companyId?: string, filters?: Record<string, unknown>) =>
-    ['FORM', 'SUBMISSIONS', companyId ?? 'ALL', filters] as const,
+  submissions: (organizationId?: string, filters?: Record<string, unknown>) =>
+    ['FORM', 'SUBMISSIONS', organizationId ?? 'ALL', filters] as const,
   submission: (submissionId: string) =>
     ['FORM', 'SUBMISSION', submissionId] as const,
-  plans: (companyId: string, templateId?: string) =>
-    ['FORM', 'PLANS', companyId, templateId ?? 'ALL'] as const,
+  plans: (organizationId: string, templateId?: string) =>
+    ['FORM', 'PLANS', organizationId, templateId ?? 'ALL'] as const,
   plan: (planId: string) => ['FORM', 'PLAN', planId] as const,
   schedulePreview: (planId: string) =>
     ['FORM', 'PLAN', planId, 'PREVIEW'] as const,
-  occurrences: (companyId: string, templateId?: string) =>
-    ['FORM', 'OCCURRENCES', companyId, templateId ?? 'ALL'] as const,
+  occurrences: (organizationId: string, templateId?: string) =>
+    ['FORM', 'OCCURRENCES', organizationId, templateId ?? 'ALL'] as const,
   occurrence: (occurrenceId: string) =>
     ['FORM', 'OCCURRENCE', occurrenceId] as const,
   occurrenceAssignments: (occurrenceId: string) =>
     ['FORM', 'OCCURRENCE', occurrenceId, 'ASSIGNMENTS'] as const,
-  myAssignments: (companyId: string, memberId?: string) =>
-    ['FORM', 'ASSIGNMENTS', companyId, memberId ?? 'ME'] as const,
+  myAssignments: (organizationId: string, memberId?: string) =>
+    ['FORM', 'ASSIGNMENTS', organizationId, memberId ?? 'ME'] as const,
   assignment: (assignmentId: string) =>
     ['FORM', 'ASSIGNMENT', assignmentId] as const,
-  reviewQueue: (companyId: string) =>
-    ['FORM', 'REVIEWS', 'QUEUE', companyId] as const,
+  reviewQueue: (organizationId: string) =>
+    ['FORM', 'REVIEWS', 'QUEUE', organizationId] as const,
   reviewDetail: (submissionId: string) =>
     ['FORM', 'REVIEWS', 'DETAIL', submissionId] as const,
 };

@@ -10,15 +10,15 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { Button } from '@repo/ui/components/button';
 import { useFormSectionCreate } from '../../hooks/form-mutations';
 
-const formSectionSchema = z.object({
-  title: z.string().min(1, 'กรุณาระบุหัวข้อหมวดหมู่'),
+export const formSectionSchema = z.object({
+  title: z.string().min(1, 'กรุณาระบุชื่อหมวดหมู่'),
   description: z.string().optional(),
 });
 
-type FormSectionValues = z.infer<typeof formSectionSchema>;
+export type FormSectionValues = z.infer<typeof formSectionSchema>;
 
 interface FormTemplateSectionDialogProps {
-  companyId: string;
+  organizationId?: string;
   templateId: string;
   formVersionId: string;
   currentSectionsCount: number;
@@ -26,13 +26,14 @@ interface FormTemplateSectionDialogProps {
 }
 
 export default function FormTemplateSectionDialog({
-  companyId,
+  organizationId,
   templateId,
   formVersionId,
   currentSectionsCount,
   onClose,
 }: FormTemplateSectionDialogProps) {
-  const createSectionMutation = useFormSectionCreate(companyId, templateId);
+  const activeOrgId = organizationId || '';
+  const createSectionMutation = useFormSectionCreate(activeOrgId, templateId);
 
   const methods = useForm<FormSectionValues>({
     resolver: zodResolver(formSectionSchema as never),
@@ -46,7 +47,7 @@ export default function FormTemplateSectionDialog({
     (values: FormSectionValues) => {
       createSectionMutation.mutate(
         {
-          companyId,
+          organizationId: activeOrgId,
           formVersionId,
           title: values.title,
           description: values.description || null,
@@ -61,7 +62,7 @@ export default function FormTemplateSectionDialog({
     },
     [
       createSectionMutation,
-      companyId,
+      activeOrgId,
       formVersionId,
       currentSectionsCount,
       onClose,
@@ -77,21 +78,20 @@ export default function FormTemplateSectionDialog({
         <InputField
           name="title"
           label="ชื่อหมวดหมู่ (Section Title)"
-          placeholder="เช่น ข้อมูลทั่วไป, รายการตรวจเช็คความปลอดภัย"
+          placeholder="เช่น ข้อมูลทั่วไป, การตรวจสอบความปลอดภัย"
           control={methods.control}
           required
         />
 
         <TextareaField
           name="description"
-          label="คำอธิบายหมวดหมู่"
-          placeholder="ระบุคำอธิบายย่อยของหมวดหมู่นี้ (ถ้ามี)"
+          label="คำอธิบายหมวดหมู่ (ถ้ามี)"
+          placeholder="ระบุคำแนะนำหรือขอบเขตสำหรับหมวดหมู่นี้..."
           control={methods.control}
-          rows={2}
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2">
         <Button variant="outline" onPress={onClose}>
           ยกเลิก
         </Button>
@@ -99,7 +99,7 @@ export default function FormTemplateSectionDialog({
           type="submit"
           isLoading={createSectionMutation.isPending}
         >
-          เพิ่มหมวดหมู่
+          บันทึกหมวดหมู่
         </ButtonLoading>
       </div>
     </form>

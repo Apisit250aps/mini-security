@@ -4,11 +4,11 @@ import React from 'react';
 import { formatDateRange } from '@/shared/utils/date';
 import type { ColumnDef } from '@tanstack/react-table';
 import type {
-  CompanyMember,
+  OrganizationMember,
   LeaveRequest,
   LeaveType,
   User,
-} from '@repo/domains/entities';
+} from '@repo/client';
 import { calculateLeaveDays } from '@repo/domains';
 import { Badge } from '@repo/ui/components/badge';
 import { useOverlay } from '@repo/ui/hooks';
@@ -16,9 +16,9 @@ import LeaveRequestDetailSheet from './leave-request-detail-sheet';
 import LeaveRequestColumnActions from './leave-request-column-actions';
 
 interface LeaveRequestColumnsOptions {
-  companyId: string;
+  organizationId?: string;
   types?: LeaveType[];
-  members?: CompanyMember[];
+  members?: OrganizationMember[];
   usersMap?: Map<string, User>;
 }
 
@@ -37,14 +37,14 @@ const STATUS_MAP: Record<
 
 function LeaveRequestEmployeeCell({
   request,
-  companyId,
+  organizationId,
   displayName,
   subText,
   leaveTypeName,
   memberName,
 }: {
   request: LeaveRequest;
-  companyId: string;
+  organizationId: string;
   displayName: string;
   subText?: string;
   leaveTypeName?: string;
@@ -60,7 +60,7 @@ function LeaveRequestEmployeeCell({
       children: (
         <LeaveRequestDetailSheet
           request={request}
-          companyId={companyId}
+          organizationId={organizationId}
           leaveTypeName={leaveTypeName}
           memberName={memberName}
           onClose={() => ui.sheet.close()}
@@ -86,17 +86,18 @@ function LeaveRequestEmployeeCell({
 }
 
 export const leaveRequestDataColumns = ({
-  companyId,
+  organizationId,
   types = [],
   members = [],
   usersMap,
 }: LeaveRequestColumnsOptions): ColumnDef<LeaveRequest>[] => {
+  const activeOrgId = organizationId || '';
   const typeMap = new Map(types.map((t) => [t.id, t.name]));
   const memberObjMap = new Map(members.map((m) => [m.id, m]));
 
   return [
     {
-      accessorKey: 'companyMemberId',
+      accessorKey: 'organizationMemberId',
       header: 'พนักงาน',
       cell: ({ row, getValue }) => {
         const memberId = getValue<string>();
@@ -118,7 +119,7 @@ export const leaveRequestDataColumns = ({
         return (
           <LeaveRequestEmployeeCell
             request={row.original}
-            companyId={companyId}
+            organizationId={activeOrgId}
             displayName={displayName}
             subText={subText}
             leaveTypeName={typeName}
@@ -186,17 +187,17 @@ export const leaveRequestDataColumns = ({
       header: 'จัดการ',
       cell: (cell) => {
         const typeName = typeMap.get(cell.row.original.leaveTypeId) || 'การลา';
-        const member = memberObjMap.get(cell.row.original.companyMemberId);
+        const member = memberObjMap.get(cell.row.original.organizationMemberId);
         const user = member ? usersMap?.get(member.userId) : undefined;
         const memberName = user
           ? `${user.name} (${user.email})`
           : member
             ? `พนักงาน #${member.id.slice(0, 6)}`
-            : `พนักงาน #${cell.row.original.companyMemberId.slice(0, 6)}`;
+            : `พนักงาน #${cell.row.original.organizationMemberId.slice(0, 6)}`;
         return (
           <LeaveRequestColumnActions
             cell={cell}
-            companyId={companyId}
+            organizationId={activeOrgId}
             leaveTypeName={typeName}
             memberName={memberName}
           />

@@ -27,12 +27,12 @@ export type IUpdateCheckInScheduleContext = ISecurityContext & {
 };
 
 export type IGetCheckInSchedulesByRoleContext = ISecurityContext & {
-  companyId: string;
+  organizationId: string;
   roleId: string;
 };
 
-export type IGetCheckInSchedulesByCompanyContext = ISecurityContext & {
-  companyId: string;
+export type IGetCheckInSchedulesByOrganizationContext = ISecurityContext & {
+  organizationId: string;
 };
 
 export type ICreateCheckInScheduleUseCase = BaseUseCase<
@@ -50,8 +50,8 @@ export type IGetCheckInSchedulesByRoleUseCase = BaseUseCase<
   CheckInSchedule[]
 >;
 
-export type IGetCheckInSchedulesByCompanyUseCase = BaseUseCase<
-  IGetCheckInSchedulesByCompanyContext,
+export type IGetCheckInSchedulesByOrganizationUseCase = BaseUseCase<
+  IGetCheckInSchedulesByOrganizationContext,
   CheckInSchedule[]
 >;
 
@@ -101,7 +101,7 @@ export type IGetScheduleSlotsByScheduleUseCase = BaseUseCase<
  */
 
 export type ICheckInAttendanceContext = ISecurityContext & {
-  companyMemberId: string;
+  organizationMemberId: string;
   scheduleSlotId: string;
   note?: string;
   latitude?: number;
@@ -114,14 +114,14 @@ export type IManualCheckInAttendanceContext = ISecurityContext & {
 };
 
 export type IGetAttendanceLogsByMemberContext = ISecurityContext & {
-  companyMemberId: string;
+  organizationMemberId: string;
   workDate?: string;
   startDate?: string;
   endDate?: string;
 };
 
-export type IGetAttendanceLogsByCompanyContext = ISecurityContext & {
-  companyId: string;
+export type IGetAttendanceLogsByOrganizationContext = ISecurityContext & {
+  organizationId: string;
   startDate: string;
   endDate: string;
 };
@@ -141,7 +141,7 @@ export type IGetAttendanceLogsByMemberUseCase = BaseUseCase<
   AttendanceLog[]
 >;
 
-export type IGetAttendanceLogsByCompanyUseCase = BaseUseCase<
-  IGetAttendanceLogsByCompanyContext,
+export type IGetAttendanceLogsByOrganizationUseCase = BaseUseCase<
+  IGetAttendanceLogsByOrganizationContext,
   AttendanceLog[]
 >;

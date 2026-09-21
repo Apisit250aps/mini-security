@@ -60,22 +60,22 @@ test('isTenantConfigurablePermission correctly identifies system vs business per
   );
   assert.strictEqual(
     isTenantConfigurablePermission({
-      module: 'company_member',
-      action: 'company_member:read',
+      module: 'organization_member',
+      action: 'organization_member:read',
     }),
     true,
   );
   assert.strictEqual(
     isTenantConfigurablePermission({
-      module: 'company',
-      action: 'company:read',
+      module: 'organization',
+      action: 'organization:read',
     }),
     true,
   );
   assert.strictEqual(
     isTenantConfigurablePermission({
-      module: 'company',
-      action: 'company:update',
+      module: 'organization',
+      action: 'organization:update',
     }),
     true,
   );
@@ -93,7 +93,7 @@ test('AssignPermissionToRoleUseCase rejects assigning system permissions to tena
     findById: async (id: string) => ({
       id,
       name: 'Custom HR',
-      companyId: 'company-1',
+      organizationId: 'organization-1',
       roleType: 'MEMBER',
       isSystemDefault: false,
       createdAt: new Date(),

@@ -1,5 +1,5 @@
 import {
-  roleServicesGetCompanyRoles,
+  roleServicesGetOrganizationRoles,
   roleServicesGetSystemDefaultRoles,
   roleServicesGetRole,
   roleServicesGetRolePermissions,
@@ -7,7 +7,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { roleKeys } from '@/shared/utils';
 
-function useRoleListQueries() {
+export function useRoleListQueries() {
   const query = useQuery({
     queryKey: roleKeys.lists(),
     queryFn: async ({ signal }) => {
@@ -21,23 +21,23 @@ function useRoleListQueries() {
   return query;
 }
 
-function useCompanyRolesQueries(companyId: string) {
+export function useGetOrganizationRoles(organizationId: string) {
   const query = useQuery({
-    queryKey: roleKeys.company(companyId),
+    queryKey: roleKeys.organization(organizationId),
     queryFn: async ({ signal }) => {
-      const response = await roleServicesGetCompanyRoles({
+      const response = await roleServicesGetOrganizationRoles({
         signal,
-        path: { companyId },
+        path: { organizationId },
       });
       if (response.data) return response.data.data;
-      throw new Error('No data returned from roleServicesGetCompanyRoles');
+      throw new Error('No data returned from roleServicesGetOrganizationRoles');
     },
-    enabled: Boolean(companyId),
+    enabled: Boolean(organizationId),
   });
   return query;
 }
 
-function useRoleDetailQueries(roleId: string) {
+export function useRoleDetailQueries(roleId: string) {
   const query = useQuery({
     queryKey: roleKeys.detail(roleId),
     queryFn: async ({ signal }) => {
@@ -53,7 +53,7 @@ function useRoleDetailQueries(roleId: string) {
   return query;
 }
 
-function useRolePermissionsQueries(roleId: string) {
+export function useRolePermissionsQueries(roleId: string) {
   const query = useQuery({
     queryKey: roleKeys.permissions(roleId),
     queryFn: async ({ signal }) => {
@@ -68,10 +68,3 @@ function useRolePermissionsQueries(roleId: string) {
   });
   return query;
 }
-
-export {
-  useRoleListQueries,
-  useCompanyRolesQueries,
-  useRoleDetailQueries,
-  useRolePermissionsQueries,
-};

@@ -1,6 +1,6 @@
 import type {
-  CompanyFeatureEntity,
   FeatureEntity,
+  OrganizationFeatureEntity,
   RoleFeatureEntity,
 } from '#schema/feature';
 
@@ -26,9 +26,9 @@ export class Feature implements FeatureEntity {
   }
 }
 
-export class CompanyFeature implements CompanyFeatureEntity {
+export class OrganizationFeature implements OrganizationFeatureEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   featureId: string;
   isEnabled: boolean;
   assignedBy?: string | null;
@@ -36,9 +36,9 @@ export class CompanyFeature implements CompanyFeatureEntity {
   createdAt: Date;
   updatedAt: Date;
 
-  constructor(data: CompanyFeatureEntity) {
+  constructor(data: OrganizationFeatureEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.featureId = data.featureId;
     this.isEnabled = data.isEnabled;
     this.assignedBy = data.assignedBy;
@@ -50,7 +50,7 @@ export class CompanyFeature implements CompanyFeatureEntity {
 
 export class RoleFeature implements RoleFeatureEntity {
   id: string;
-  companyId: string;
+  organizationId: string;
   roleId: string;
   featureId: string;
   isEnabled: boolean;
@@ -59,7 +59,7 @@ export class RoleFeature implements RoleFeatureEntity {
 
   constructor(data: RoleFeatureEntity) {
     this.id = data.id;
-    this.companyId = data.companyId;
+    this.organizationId = data.organizationId;
     this.roleId = data.roleId;
     this.featureId = data.featureId;
     this.isEnabled = data.isEnabled;

@@ -33,8 +33,8 @@ export type AttendanceLog = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
-    companyMemberId: string;
+    organizationId: string;
+    organizationMemberId: string;
     scheduleSlotId: string;
     workDate: string;
     checkedInAt?: Date | null;
@@ -69,7 +69,7 @@ export type CancelOccurrenceRequest = {
 };
 
 export type CheckInRequest = {
-    companyMemberId: string;
+    organizationMemberId: string;
     scheduleSlotId: string;
     note?: string;
     latitude?: number;
@@ -82,67 +82,17 @@ export type CheckInSchedule = {
     createdAt: Date;
     updatedAt: Date;
     roleIds: Array<string>;
-    companyId: string;
+    organizationId: string;
     name: string;
     isActive: boolean;
-};
-
-export type Company = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    name: string;
-    slug: string;
-    logo?: string | null;
-    isActive: boolean;
-};
-
-export type CompanyBranch = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    companyId: string;
-    name: string;
-    address?: string | null;
-    isActive: boolean;
-};
-
-export type CompanyFeature = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    companyId: string;
-    featureId: string;
-    isEnabled: boolean;
-    assignedBy?: string | null;
-    expiresAt?: Date | null;
-};
-
-export type CompanyMember = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    companyBranchId: string;
-    companyId: string;
-    userId: string;
-    roleId: string;
-    isActive: boolean;
-};
-
-/**
- * The template for picking properties.
- */
-export type CompanyToggleFeatureRequest = {
-    featureId: string;
-    isEnabled: boolean;
 };
 
 /**
  * The template for omitting properties.
  */
 export type CreateAttendanceLog = {
-    companyId: string;
-    companyMemberId: string;
+    organizationId: string;
+    organizationMemberId: string;
     scheduleSlotId: string;
     workDate: string;
     checkedInAt?: Date | null;
@@ -163,48 +113,9 @@ export type CreateAttendanceLog = {
  */
 export type CreateCheckInSchedule = {
     roleIds: Array<string>;
-    companyId: string;
+    organizationId: string;
     name: string;
     isActive: boolean;
-};
-
-/**
- * The template for omitting properties.
- */
-export type CreateCompany = {
-    name: string;
-    slug: string;
-    logo?: string | null;
-    isActive: boolean;
-};
-
-/**
- * The template for omitting properties.
- */
-export type CreateCompanyBranch = {
-    companyId: string;
-    name: string;
-    address?: string | null;
-    isActive: boolean;
-};
-
-/**
- * The template for omitting properties.
- */
-export type CreateCompanyFeature = {
-    companyId: string;
-    featureId: string;
-    isEnabled: boolean;
-    assignedBy?: string | null;
-    expiresAt?: Date | null;
-};
-
-export type CreateCompanyMember = {
-    companyId: string;
-    userId: string;
-    roleId: string;
-    isActive: boolean;
-    companyBranchId?: string | null;
 };
 
 /**
@@ -219,7 +130,7 @@ export type CreateFeature = {
 };
 
 export type CreateFormField = {
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     formSectionId: string;
     name: string;
@@ -247,7 +158,7 @@ export type CreateFormPlanRequest = {
      * The template for picking properties.
      */
     data: {
-        companyId: string;
+        organizationId: string;
         formTemplateId: string;
         name: string;
         scheduleKind: DomainEntityFormScheduleKind;
@@ -263,7 +174,7 @@ export type CreateFormPlanRequest = {
 
 export type CreateFormPlanTarget = {
     roleId?: string;
-    companyMemberId?: string;
+    organizationMemberId?: string;
     roleDistribution?: DomainEntityFormRoleDistribution;
 };
 
@@ -271,7 +182,7 @@ export type CreateFormPlanTarget = {
  * The template for omitting properties.
  */
 export type CreateFormSection = {
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     title: string;
     description?: string | null;
@@ -282,7 +193,7 @@ export type CreateFormSection = {
  * The template for omitting properties.
  */
 export type CreateFormTemplate = {
-    companyId: string;
+    organizationId: string;
     name: string;
     description?: string | null;
     isActive: boolean;
@@ -293,7 +204,7 @@ export type CreateFormTemplate = {
  * The template for omitting properties.
  */
 export type CreateLeaveQuota = {
-    companyMemberId: string;
+    organizationMemberId: string;
     leaveTypeId: string;
     year: number;
     totalDays: number;
@@ -303,7 +214,7 @@ export type CreateLeaveQuota = {
  * The template for omitting properties.
  */
 export type CreateLeaveRequest = {
-    companyMemberId: string;
+    organizationMemberId: string;
     leaveTypeId: string;
     startDate: string;
     endDate: string;
@@ -319,7 +230,7 @@ export type CreateLeaveRequest = {
  * The template for omitting properties.
  */
 export type CreateLeaveType = {
-    companyId: string;
+    organizationId: string;
     name: string;
     description?: string | null;
     unit: DomainEntityLeaveUnit;
@@ -333,8 +244,8 @@ export type CreateLeaveType = {
  * The template for omitting properties.
  */
 export type CreateLocation = {
-    companyId: string;
-    companyBranchId: string;
+    organizationId: string;
+    siteId: string;
     isPrimary: boolean;
     isActive: boolean;
     name: string;
@@ -342,6 +253,35 @@ export type CreateLocation = {
     latitude: number;
     longitude: number;
     radiusMeters: number;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateOrganization = {
+    name: string;
+    slug: string;
+    logo?: string | null;
+    isActive: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateOrganizationFeature = {
+    organizationId: string;
+    featureId: string;
+    isEnabled: boolean;
+    assignedBy?: string | null;
+    expiresAt?: Date | null;
+};
+
+export type CreateOrganizationMember = {
+    organizationId: string;
+    userId: string;
+    roleId: string;
+    isActive: boolean;
+    siteId?: string | null;
 };
 
 /**
@@ -358,7 +298,7 @@ export type CreatePermission = {
  * The template for omitting properties.
  */
 export type CreateRole = {
-    companyId?: string | null;
+    organizationId?: string | null;
     name: string;
     description?: string | null;
     roleType: DomainEntityRoleType;
@@ -369,7 +309,7 @@ export type CreateRole = {
  * The template for omitting properties.
  */
 export type CreateRoleFeature = {
-    companyId: string;
+    organizationId: string;
     roleId: string;
     featureId: string;
     isEnabled: boolean;
@@ -387,7 +327,7 @@ export type CreateRolePermission = {
  * The template for omitting properties.
  */
 export type CreateScheduleSlot = {
-    companyId: string;
+    organizationId: string;
     slotOrder: number;
     label: string;
     windowStart: string;
@@ -399,9 +339,19 @@ export type CreateScheduleSlot = {
  * The template for omitting properties.
  */
 export type CreateScheduleSlotLocation = {
-    companyId: string;
+    organizationId: string;
     scheduleSlotId: string;
     locationId: string;
+    isActive: boolean;
+};
+
+/**
+ * The template for omitting properties.
+ */
+export type CreateSite = {
+    organizationId: string;
+    name: string;
+    address?: string | null;
     isActive: boolean;
 };
 
@@ -423,11 +373,11 @@ export type DomainEntityFormAssignment = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     occurrenceId: string;
     formVersionId: string;
     roleId?: string | null;
-    companyMemberId?: string | null;
+    organizationMemberId?: string | null;
     replacesAssignmentId?: string | null;
     assignedBy?: string | null;
     cancelledAt?: Date | null;
@@ -440,7 +390,7 @@ export type DomainEntityFormFieldOption = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     fieldId: string;
     label: string;
@@ -458,7 +408,7 @@ export type DomainEntityFormOccurrence = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     planId: string;
     formTemplateId: string;
     formVersionId: string;
@@ -476,7 +426,7 @@ export type DomainEntityFormPlan = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     formTemplateId: string;
     supersedesPlanId?: string | null;
     name: string;
@@ -497,7 +447,7 @@ export type DomainEntityFormPlanPeriod = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     planId: string;
     opensAt: Date;
     dueAt: Date;
@@ -507,10 +457,10 @@ export type DomainEntityFormPlanTarget = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     planId: string;
     roleId?: string | null;
-    companyMemberId?: string | null;
+    organizationMemberId?: string | null;
     roleDistribution?: DomainEntityFormRoleDistribution | null;
 };
 
@@ -520,7 +470,7 @@ export type DomainEntityFormReviewEntry = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     submissionId: string;
     formVersionId: string;
     answerId?: string | null;
@@ -551,7 +501,7 @@ export type DomainEntityFormSubmission = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     assignmentId: string;
     formVersionId: string;
     startedBy: string;
@@ -610,7 +560,7 @@ export type FormAnswer = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     submissionId: string;
     fieldId: string;
@@ -622,7 +572,7 @@ export type FormAnswerAttachment = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     answerId: string;
     storageKey: string;
     originalName: string;
@@ -657,7 +607,7 @@ export type FormField = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     formSectionId: string;
     name: string;
@@ -678,7 +628,7 @@ export type FormFieldOption = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     fieldId: string;
     label: string;
@@ -707,7 +657,7 @@ export type FormSection = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     title: string;
     description?: string | null;
@@ -718,7 +668,7 @@ export type FormSubmission = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     assignmentId: string;
     formVersionId: string;
     startedBy: string;
@@ -732,7 +682,7 @@ export type FormSubmissionContributor = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     submissionId: string;
     memberId: string;
 };
@@ -781,7 +731,7 @@ export type FormTemplate = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     name: string;
     description?: string | null;
     isActive: boolean;
@@ -800,7 +750,7 @@ export type FormVersion = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     formTemplateId: string;
     version: number;
     status: DomainEntityFormVersionStatus;
@@ -815,7 +765,7 @@ export type LeaveQuota = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyMemberId: string;
+    organizationMemberId: string;
     leaveTypeId: string;
     year: number;
     totalDays: number;
@@ -825,7 +775,7 @@ export type LeaveRequest = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyMemberId: string;
+    organizationMemberId: string;
     leaveTypeId: string;
     startDate: string;
     endDate: string;
@@ -845,7 +795,7 @@ export type LeaveType = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     name: string;
     description?: string | null;
     unit: DomainEntityLeaveUnit;
@@ -859,8 +809,8 @@ export type Location = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
-    companyBranchId: string;
+    organizationId: string;
+    siteId: string;
     isPrimary: boolean;
     isActive: boolean;
     name: string;
@@ -874,10 +824,10 @@ export type OccurrenceAssignmentItem = {
     id: string;
     assignmentId: string;
     occurrenceId: string;
-    companyId: string;
+    organizationId: string;
     formVersionId: string;
     roleId?: string;
-    companyMemberId?: string;
+    organizationMemberId?: string;
     roleName?: string;
     memberName?: string;
     assignmentType: string;
@@ -894,7 +844,47 @@ export type OccurrenceAssignmentItem = {
 };
 
 export type OpenOccurrencesRequest = {
-    companyId: string;
+    organizationId: string;
+};
+
+export type Organization = {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    name: string;
+    slug: string;
+    logo?: string | null;
+    isActive: boolean;
+};
+
+export type OrganizationFeature = {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    organizationId: string;
+    featureId: string;
+    isEnabled: boolean;
+    assignedBy?: string | null;
+    expiresAt?: Date | null;
+};
+
+export type OrganizationMember = {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    siteId: string;
+    organizationId: string;
+    userId: string;
+    roleId: string;
+    isActive: boolean;
+};
+
+/**
+ * The template for picking properties.
+ */
+export type OrganizationToggleFeatureRequest = {
+    featureId: string;
+    isEnabled: boolean;
 };
 
 export type PausePlanRequest = {
@@ -929,7 +919,7 @@ export type ReorderFormItemsRequest = {
 
 export type ReplaceAssignmentRequest = {
     cancelReason: string;
-    newCompanyMemberId?: string;
+    newOrganizationMemberId?: string;
     newRoleId?: string;
 };
 
@@ -947,7 +937,7 @@ export type Role = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId?: string | null;
+    organizationId?: string | null;
     name: string;
     description?: string | null;
     roleType: DomainEntityRoleType;
@@ -958,7 +948,7 @@ export type RoleFeature = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     roleId: string;
     featureId: string;
     isEnabled: boolean;
@@ -976,7 +966,7 @@ export type RolePermission = {
  * The template for picking properties.
  */
 export type RoleToggleFeatureRequest = {
-    companyId: string;
+    organizationId: string;
     featureId: string;
     isEnabled: boolean;
 };
@@ -990,7 +980,7 @@ export type ScheduleSlot = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     checkInScheduleId: string;
     slotOrder: number;
     label: string;
@@ -1003,7 +993,7 @@ export type ScheduleSlotLocation = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
-    companyId: string;
+    organizationId: string;
     scheduleSlotId: string;
     locationId: string;
     isActive: boolean;
@@ -1011,7 +1001,17 @@ export type ScheduleSlotLocation = {
 
 export type SetPrimaryLocationRequest = {
     locationId: string;
-    companyBranchId: string;
+    siteId: string;
+};
+
+export type Site = {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    organizationId: string;
+    name: string;
+    address?: string | null;
+    isActive: boolean;
 };
 
 export type StartFormSubmissionRequest = {
@@ -1022,9 +1022,9 @@ export type SubmitFormSubmissionRequest = {
     expectedRevision: number;
 };
 
-export type SwitchActiveCompanyResponse = {
-    activeCompanyId: string;
-    company: Company;
+export type SwitchActiveOrganizationResponse = {
+    activeOrganizationId: string;
+    organization: Organization;
 };
 
 /**
@@ -1038,8 +1038,8 @@ export type ToggleFeatureRequest = {
  * The template for adding optional properties.
  */
 export type UpdateAttendanceLog = {
-    companyId?: string;
-    companyMemberId?: string;
+    organizationId?: string;
+    organizationMemberId?: string;
     scheduleSlotId?: string;
     workDate?: string;
     checkedInAt?: Date | null;
@@ -1061,37 +1061,6 @@ export type UpdateAttendanceLog = {
 export type UpdateCheckInSchedule = {
     roleIds?: Array<string>;
     name?: string;
-    isActive?: boolean;
-};
-
-/**
- * The template for adding optional properties.
- */
-export type UpdateCompany = {
-    name?: string;
-    slug?: string;
-    logo?: string | null;
-    isActive?: boolean;
-};
-
-/**
- * The template for adding optional properties.
- */
-export type UpdateCompanyBranch = {
-    companyId?: string;
-    name?: string;
-    address?: string | null;
-    isActive?: boolean;
-};
-
-/**
- * The template for adding optional properties.
- */
-export type UpdateCompanyMember = {
-    companyBranchId?: string;
-    companyId?: string;
-    userId?: string;
-    roleId?: string;
     isActive?: boolean;
 };
 
@@ -1128,7 +1097,7 @@ export type UpdateFormPlanRequest = {
  * The template for adding optional properties.
  */
 export type UpdateFormTemplate = {
-    companyId?: string;
+    organizationId?: string;
     name?: string;
     description?: string | null;
     isActive?: boolean;
@@ -1139,7 +1108,7 @@ export type UpdateFormTemplate = {
  * The template for adding optional properties.
  */
 export type UpdateLeaveQuota = {
-    companyMemberId?: string;
+    organizationMemberId?: string;
     leaveTypeId?: string;
     year?: number;
     totalDays?: number;
@@ -1149,7 +1118,7 @@ export type UpdateLeaveQuota = {
  * The template for adding optional properties.
  */
 export type UpdateLeaveType = {
-    companyId?: string;
+    organizationId?: string;
     name?: string;
     description?: string | null;
     unit?: DomainEntityLeaveUnit;
@@ -1175,6 +1144,27 @@ export type UpdateLocation = {
 /**
  * The template for adding optional properties.
  */
+export type UpdateOrganization = {
+    name?: string;
+    slug?: string;
+    logo?: string | null;
+    isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateOrganizationMember = {
+    siteId?: string;
+    organizationId?: string;
+    userId?: string;
+    roleId?: string;
+    isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
 export type UpdatePermission = {
     featureId?: string | null;
     action?: string;
@@ -1186,7 +1176,7 @@ export type UpdatePermission = {
  * The template for adding optional properties.
  */
 export type UpdateRole = {
-    companyId?: string | null;
+    organizationId?: string | null;
     name?: string;
     description?: string | null;
     roleType?: DomainEntityRoleType;
@@ -1197,7 +1187,7 @@ export type UpdateRole = {
  * The template for adding optional properties.
  */
 export type UpdateScheduleSlot = {
-    companyId?: string;
+    organizationId?: string;
     slotOrder?: number;
     label?: string;
     windowStart?: string;
@@ -1209,6 +1199,16 @@ export type UpdateScheduleSlot = {
  * The template for adding optional properties.
  */
 export type UpdateScheduleSlotLocation = {
+    isActive?: boolean;
+};
+
+/**
+ * The template for adding optional properties.
+ */
+export type UpdateSite = {
+    organizationId?: string;
+    name?: string;
+    address?: string | null;
     isActive?: boolean;
 };
 
@@ -1270,107 +1270,6 @@ export type AttendanceServicesCheckInResponses = {
 };
 
 export type AttendanceServicesCheckInResponse = AttendanceServicesCheckInResponses[keyof AttendanceServicesCheckInResponses];
-
-export type AttendanceServicesGetCompanyLogsData = {
-    body?: never;
-    path: {
-        companyId: string;
-    };
-    query: {
-        startDate: string;
-        endDate: string;
-    };
-    url: '/attendances/companies/{companyId}/logs';
-};
-
-export type AttendanceServicesGetCompanyLogsErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type AttendanceServicesGetCompanyLogsError = AttendanceServicesGetCompanyLogsErrors[keyof AttendanceServicesGetCompanyLogsErrors];
-
-export type AttendanceServicesGetCompanyLogsResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<AttendanceLog>;
-    };
-};
-
-export type AttendanceServicesGetCompanyLogsResponse = AttendanceServicesGetCompanyLogsResponses[keyof AttendanceServicesGetCompanyLogsResponses];
-
-export type AttendanceServicesGetSchedulesByRoleData = {
-    body?: never;
-    path: {
-        companyId: string;
-        roleId: string;
-    };
-    query?: never;
-    url: '/attendances/companies/{companyId}/roles/{roleId}/schedules';
-};
-
-export type AttendanceServicesGetSchedulesByRoleErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type AttendanceServicesGetSchedulesByRoleError = AttendanceServicesGetSchedulesByRoleErrors[keyof AttendanceServicesGetSchedulesByRoleErrors];
-
-export type AttendanceServicesGetSchedulesByRoleResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<CheckInSchedule>;
-    };
-};
-
-export type AttendanceServicesGetSchedulesByRoleResponse = AttendanceServicesGetSchedulesByRoleResponses[keyof AttendanceServicesGetSchedulesByRoleResponses];
-
-export type AttendanceServicesGetSchedulesByCompanyData = {
-    body?: never;
-    path: {
-        companyId: string;
-    };
-    query?: never;
-    url: '/attendances/companies/{companyId}/schedules';
-};
-
-export type AttendanceServicesGetSchedulesByCompanyErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type AttendanceServicesGetSchedulesByCompanyError = AttendanceServicesGetSchedulesByCompanyErrors[keyof AttendanceServicesGetSchedulesByCompanyErrors];
-
-export type AttendanceServicesGetSchedulesByCompanyResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<CheckInSchedule>;
-    };
-};
-
-export type AttendanceServicesGetSchedulesByCompanyResponse = AttendanceServicesGetSchedulesByCompanyResponses[keyof AttendanceServicesGetSchedulesByCompanyResponses];
 
 export type AttendanceServicesManualCheckInData = {
     body: CreateAttendanceLog;
@@ -1439,6 +1338,107 @@ export type AttendanceServicesGetMemberLogsResponses = {
 };
 
 export type AttendanceServicesGetMemberLogsResponse = AttendanceServicesGetMemberLogsResponses[keyof AttendanceServicesGetMemberLogsResponses];
+
+export type AttendanceServicesGetOrganizationLogsData = {
+    body?: never;
+    path: {
+        organizationId: string;
+    };
+    query: {
+        startDate: string;
+        endDate: string;
+    };
+    url: '/attendances/organizations/{organizationId}/logs';
+};
+
+export type AttendanceServicesGetOrganizationLogsErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetOrganizationLogsError = AttendanceServicesGetOrganizationLogsErrors[keyof AttendanceServicesGetOrganizationLogsErrors];
+
+export type AttendanceServicesGetOrganizationLogsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<AttendanceLog>;
+    };
+};
+
+export type AttendanceServicesGetOrganizationLogsResponse = AttendanceServicesGetOrganizationLogsResponses[keyof AttendanceServicesGetOrganizationLogsResponses];
+
+export type AttendanceServicesGetSchedulesByRoleData = {
+    body?: never;
+    path: {
+        organizationId: string;
+        roleId: string;
+    };
+    query?: never;
+    url: '/attendances/organizations/{organizationId}/roles/{roleId}/schedules';
+};
+
+export type AttendanceServicesGetSchedulesByRoleErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetSchedulesByRoleError = AttendanceServicesGetSchedulesByRoleErrors[keyof AttendanceServicesGetSchedulesByRoleErrors];
+
+export type AttendanceServicesGetSchedulesByRoleResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<CheckInSchedule>;
+    };
+};
+
+export type AttendanceServicesGetSchedulesByRoleResponse = AttendanceServicesGetSchedulesByRoleResponses[keyof AttendanceServicesGetSchedulesByRoleResponses];
+
+export type AttendanceServicesGetSchedulesByOrganizationData = {
+    body?: never;
+    path: {
+        organizationId: string;
+    };
+    query?: never;
+    url: '/attendances/organizations/{organizationId}/schedules';
+};
+
+export type AttendanceServicesGetSchedulesByOrganizationErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type AttendanceServicesGetSchedulesByOrganizationError = AttendanceServicesGetSchedulesByOrganizationErrors[keyof AttendanceServicesGetSchedulesByOrganizationErrors];
+
+export type AttendanceServicesGetSchedulesByOrganizationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<CheckInSchedule>;
+    };
+};
+
+export type AttendanceServicesGetSchedulesByOrganizationResponse = AttendanceServicesGetSchedulesByOrganizationResponses[keyof AttendanceServicesGetSchedulesByOrganizationResponses];
 
 export type AttendanceServicesCreateScheduleData = {
     body: CreateCheckInSchedule;
@@ -1648,560 +1648,6 @@ export type AttendanceServicesUpdateSlotResponses = {
 
 export type AttendanceServicesUpdateSlotResponse = AttendanceServicesUpdateSlotResponses[keyof AttendanceServicesUpdateSlotResponses];
 
-export type CompanyServicesGetCompaniesData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/companies/';
-};
-
-export type CompanyServicesGetCompaniesErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type CompanyServicesGetCompaniesError = CompanyServicesGetCompaniesErrors[keyof CompanyServicesGetCompaniesErrors];
-
-export type CompanyServicesGetCompaniesResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<Company>;
-    };
-};
-
-export type CompanyServicesGetCompaniesResponse = CompanyServicesGetCompaniesResponses[keyof CompanyServicesGetCompaniesResponses];
-
-export type CompanyServicesCreateCompanyData = {
-    body: CreateCompany;
-    path?: never;
-    query?: never;
-    url: '/companies/';
-};
-
-export type CompanyServicesCreateCompanyErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type CompanyServicesCreateCompanyError = CompanyServicesCreateCompanyErrors[keyof CompanyServicesCreateCompanyErrors];
-
-export type CompanyServicesCreateCompanyResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    201: {
-        success: boolean;
-        message: string;
-        data?: Company;
-    };
-};
-
-export type CompanyServicesCreateCompanyResponse = CompanyServicesCreateCompanyResponses[keyof CompanyServicesCreateCompanyResponses];
-
-export type CompanyServicesCreateCompanyBranchData = {
-    body: CreateCompanyBranch;
-    path?: never;
-    query?: never;
-    url: '/companies/branches';
-};
-
-export type CompanyServicesCreateCompanyBranchErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type CompanyServicesCreateCompanyBranchError = CompanyServicesCreateCompanyBranchErrors[keyof CompanyServicesCreateCompanyBranchErrors];
-
-export type CompanyServicesCreateCompanyBranchResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    201: {
-        success: boolean;
-        message: string;
-        data?: CompanyBranch;
-    };
-};
-
-export type CompanyServicesCreateCompanyBranchResponse = CompanyServicesCreateCompanyBranchResponses[keyof CompanyServicesCreateCompanyBranchResponses];
-
-export type CompanyServicesDeleteCompanyBranchData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: {
-        companyId?: string;
-    };
-    url: '/companies/branches/{id}';
-};
-
-export type CompanyServicesDeleteCompanyBranchErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesDeleteCompanyBranchError = CompanyServicesDeleteCompanyBranchErrors[keyof CompanyServicesDeleteCompanyBranchErrors];
-
-export type CompanyServicesDeleteCompanyBranchResponses = {
-    /**
-     * 200 OK without data
-     */
-    200: BasicResponse;
-};
-
-export type CompanyServicesDeleteCompanyBranchResponse = CompanyServicesDeleteCompanyBranchResponses[keyof CompanyServicesDeleteCompanyBranchResponses];
-
-export type CompanyServicesGetCompanyBranchData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/branches/{id}';
-};
-
-export type CompanyServicesGetCompanyBranchErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesGetCompanyBranchError = CompanyServicesGetCompanyBranchErrors[keyof CompanyServicesGetCompanyBranchErrors];
-
-export type CompanyServicesGetCompanyBranchResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: CompanyBranch;
-    };
-};
-
-export type CompanyServicesGetCompanyBranchResponse = CompanyServicesGetCompanyBranchResponses[keyof CompanyServicesGetCompanyBranchResponses];
-
-export type CompanyServicesUpdateCompanyBranchData = {
-    body: UpdateCompanyBranch;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/branches/{id}';
-};
-
-export type CompanyServicesUpdateCompanyBranchErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesUpdateCompanyBranchError = CompanyServicesUpdateCompanyBranchErrors[keyof CompanyServicesUpdateCompanyBranchErrors];
-
-export type CompanyServicesUpdateCompanyBranchResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: CompanyBranch;
-    };
-};
-
-export type CompanyServicesUpdateCompanyBranchResponse = CompanyServicesUpdateCompanyBranchResponses[keyof CompanyServicesUpdateCompanyBranchResponses];
-
-export type CompanyServicesAddCompanyMemberData = {
-    body: CreateCompanyMember;
-    path?: never;
-    query?: never;
-    url: '/companies/members';
-};
-
-export type CompanyServicesAddCompanyMemberErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type CompanyServicesAddCompanyMemberError = CompanyServicesAddCompanyMemberErrors[keyof CompanyServicesAddCompanyMemberErrors];
-
-export type CompanyServicesAddCompanyMemberResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    201: {
-        success: boolean;
-        message: string;
-        data?: CompanyMember;
-    };
-};
-
-export type CompanyServicesAddCompanyMemberResponse = CompanyServicesAddCompanyMemberResponses[keyof CompanyServicesAddCompanyMemberResponses];
-
-export type CompanyServicesRemoveCompanyMemberData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/members/{id}';
-};
-
-export type CompanyServicesRemoveCompanyMemberErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesRemoveCompanyMemberError = CompanyServicesRemoveCompanyMemberErrors[keyof CompanyServicesRemoveCompanyMemberErrors];
-
-export type CompanyServicesRemoveCompanyMemberResponses = {
-    /**
-     * 200 OK without data
-     */
-    200: BasicResponse;
-};
-
-export type CompanyServicesRemoveCompanyMemberResponse = CompanyServicesRemoveCompanyMemberResponses[keyof CompanyServicesRemoveCompanyMemberResponses];
-
-export type CompanyServicesUpdateCompanyMemberData = {
-    body: UpdateCompanyMember;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/members/{id}';
-};
-
-export type CompanyServicesUpdateCompanyMemberErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesUpdateCompanyMemberError = CompanyServicesUpdateCompanyMemberErrors[keyof CompanyServicesUpdateCompanyMemberErrors];
-
-export type CompanyServicesUpdateCompanyMemberResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: CompanyMember;
-    };
-};
-
-export type CompanyServicesUpdateCompanyMemberResponse = CompanyServicesUpdateCompanyMemberResponses[keyof CompanyServicesUpdateCompanyMemberResponses];
-
-export type CompanyServicesGetCompanyBySlugData = {
-    body?: never;
-    path: {
-        slug: string;
-    };
-    query?: never;
-    url: '/companies/slug/{slug}';
-};
-
-export type CompanyServicesGetCompanyBySlugErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesGetCompanyBySlugError = CompanyServicesGetCompanyBySlugErrors[keyof CompanyServicesGetCompanyBySlugErrors];
-
-export type CompanyServicesGetCompanyBySlugResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Company;
-    };
-};
-
-export type CompanyServicesGetCompanyBySlugResponse = CompanyServicesGetCompanyBySlugResponses[keyof CompanyServicesGetCompanyBySlugResponses];
-
-export type CompanyServicesGetCompanyBranchesData = {
-    body?: never;
-    path: {
-        companyId: string;
-    };
-    query?: never;
-    url: '/companies/{companyId}/branches';
-};
-
-export type CompanyServicesGetCompanyBranchesErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesGetCompanyBranchesError = CompanyServicesGetCompanyBranchesErrors[keyof CompanyServicesGetCompanyBranchesErrors];
-
-export type CompanyServicesGetCompanyBranchesResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<CompanyBranch>;
-    };
-};
-
-export type CompanyServicesGetCompanyBranchesResponse = CompanyServicesGetCompanyBranchesResponses[keyof CompanyServicesGetCompanyBranchesResponses];
-
-export type CompanyServicesGetCompanyMembersData = {
-    body?: never;
-    path: {
-        companyId: string;
-    };
-    query?: never;
-    url: '/companies/{companyId}/members';
-};
-
-export type CompanyServicesGetCompanyMembersErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesGetCompanyMembersError = CompanyServicesGetCompanyMembersErrors[keyof CompanyServicesGetCompanyMembersErrors];
-
-export type CompanyServicesGetCompanyMembersResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<CompanyMember>;
-    };
-};
-
-export type CompanyServicesGetCompanyMembersResponse = CompanyServicesGetCompanyMembersResponses[keyof CompanyServicesGetCompanyMembersResponses];
-
-export type CompanyServicesDeleteCompanyData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/{id}';
-};
-
-export type CompanyServicesDeleteCompanyErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesDeleteCompanyError = CompanyServicesDeleteCompanyErrors[keyof CompanyServicesDeleteCompanyErrors];
-
-export type CompanyServicesDeleteCompanyResponses = {
-    /**
-     * 200 OK without data
-     */
-    200: BasicResponse;
-};
-
-export type CompanyServicesDeleteCompanyResponse = CompanyServicesDeleteCompanyResponses[keyof CompanyServicesDeleteCompanyResponses];
-
-export type CompanyServicesGetCompanyData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/{id}';
-};
-
-export type CompanyServicesGetCompanyErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesGetCompanyError = CompanyServicesGetCompanyErrors[keyof CompanyServicesGetCompanyErrors];
-
-export type CompanyServicesGetCompanyResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Company;
-    };
-};
-
-export type CompanyServicesGetCompanyResponse = CompanyServicesGetCompanyResponses[keyof CompanyServicesGetCompanyResponses];
-
-export type CompanyServicesUpdateCompanyData = {
-    body: UpdateCompany;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/{id}';
-};
-
-export type CompanyServicesUpdateCompanyErrors = {
-    /**
-     * 400 Bad Request — INVALID_DATA
-     */
-    400: ApiErrorResponse;
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesUpdateCompanyError = CompanyServicesUpdateCompanyErrors[keyof CompanyServicesUpdateCompanyErrors];
-
-export type CompanyServicesUpdateCompanyResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Company;
-    };
-};
-
-export type CompanyServicesUpdateCompanyResponse = CompanyServicesUpdateCompanyResponses[keyof CompanyServicesUpdateCompanyResponses];
-
-export type CompanyServicesSwitchActiveCompanyData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/companies/{id}/switch';
-};
-
-export type CompanyServicesSwitchActiveCompanyErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-    /**
-     * 404 Not Found — NOT_FOUND
-     */
-    404: ApiErrorResponse;
-};
-
-export type CompanyServicesSwitchActiveCompanyError = CompanyServicesSwitchActiveCompanyErrors[keyof CompanyServicesSwitchActiveCompanyErrors];
-
-export type CompanyServicesSwitchActiveCompanyResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: SwitchActiveCompanyResponse;
-    };
-};
-
-export type CompanyServicesSwitchActiveCompanyResponse = CompanyServicesSwitchActiveCompanyResponses[keyof CompanyServicesSwitchActiveCompanyResponses];
-
 export type FeatureServicesGetFeaturesData = {
     body?: never;
     path?: never;
@@ -2267,49 +1713,49 @@ export type FeatureServicesCreateFeatureResponses = {
 
 export type FeatureServicesCreateFeatureResponse = FeatureServicesCreateFeatureResponses[keyof FeatureServicesCreateFeatureResponses];
 
-export type FeatureServicesGetCompanyFeaturesData = {
+export type FeatureServicesGetOrganizationFeaturesData = {
     body?: never;
     path: {
-        companyId: string;
+        organizationId: string;
     };
     query?: {
         onlyEnabled?: boolean;
     };
-    url: '/features/companies/{companyId}';
+    url: '/features/organizations/{organizationId}';
 };
 
-export type FeatureServicesGetCompanyFeaturesErrors = {
+export type FeatureServicesGetOrganizationFeaturesErrors = {
     /**
      * 401 Unauthorized — UNAUTHORIZED
      */
     401: ApiErrorResponse;
 };
 
-export type FeatureServicesGetCompanyFeaturesError = FeatureServicesGetCompanyFeaturesErrors[keyof FeatureServicesGetCompanyFeaturesErrors];
+export type FeatureServicesGetOrganizationFeaturesError = FeatureServicesGetOrganizationFeaturesErrors[keyof FeatureServicesGetOrganizationFeaturesErrors];
 
-export type FeatureServicesGetCompanyFeaturesResponses = {
+export type FeatureServicesGetOrganizationFeaturesResponses = {
     /**
      * Successful response wrapping data payload
      */
     200: {
         success: boolean;
         message: string;
-        data?: Array<CompanyFeature>;
+        data?: Array<OrganizationFeature>;
     };
 };
 
-export type FeatureServicesGetCompanyFeaturesResponse = FeatureServicesGetCompanyFeaturesResponses[keyof FeatureServicesGetCompanyFeaturesResponses];
+export type FeatureServicesGetOrganizationFeaturesResponse = FeatureServicesGetOrganizationFeaturesResponses[keyof FeatureServicesGetOrganizationFeaturesResponses];
 
-export type FeatureServicesAssignCompanyFeatureData = {
-    body: CreateCompanyFeature;
+export type FeatureServicesAssignOrganizationFeatureData = {
+    body: CreateOrganizationFeature;
     path: {
-        companyId: string;
+        organizationId: string;
     };
     query?: never;
-    url: '/features/companies/{companyId}/assign';
+    url: '/features/organizations/{organizationId}/assign';
 };
 
-export type FeatureServicesAssignCompanyFeatureErrors = {
+export type FeatureServicesAssignOrganizationFeatureErrors = {
     /**
      * 400 Bad Request — INVALID_DATA
      */
@@ -2320,40 +1766,40 @@ export type FeatureServicesAssignCompanyFeatureErrors = {
     401: ApiErrorResponse;
 };
 
-export type FeatureServicesAssignCompanyFeatureError = FeatureServicesAssignCompanyFeatureErrors[keyof FeatureServicesAssignCompanyFeatureErrors];
+export type FeatureServicesAssignOrganizationFeatureError = FeatureServicesAssignOrganizationFeatureErrors[keyof FeatureServicesAssignOrganizationFeatureErrors];
 
-export type FeatureServicesAssignCompanyFeatureResponses = {
+export type FeatureServicesAssignOrganizationFeatureResponses = {
     /**
      * Successful response wrapping data payload
      */
     201: {
         success: boolean;
         message: string;
-        data?: CompanyFeature;
+        data?: OrganizationFeature;
     };
 };
 
-export type FeatureServicesAssignCompanyFeatureResponse = FeatureServicesAssignCompanyFeatureResponses[keyof FeatureServicesAssignCompanyFeatureResponses];
+export type FeatureServicesAssignOrganizationFeatureResponse = FeatureServicesAssignOrganizationFeatureResponses[keyof FeatureServicesAssignOrganizationFeatureResponses];
 
-export type FeatureServicesGetCompanyAvailableFeaturesData = {
+export type FeatureServicesGetOrganizationAvailableFeaturesData = {
     body?: never;
     path: {
-        companyId: string;
+        organizationId: string;
     };
     query?: never;
-    url: '/features/companies/{companyId}/available';
+    url: '/features/organizations/{organizationId}/available';
 };
 
-export type FeatureServicesGetCompanyAvailableFeaturesErrors = {
+export type FeatureServicesGetOrganizationAvailableFeaturesErrors = {
     /**
      * 401 Unauthorized — UNAUTHORIZED
      */
     401: ApiErrorResponse;
 };
 
-export type FeatureServicesGetCompanyAvailableFeaturesError = FeatureServicesGetCompanyAvailableFeaturesErrors[keyof FeatureServicesGetCompanyAvailableFeaturesErrors];
+export type FeatureServicesGetOrganizationAvailableFeaturesError = FeatureServicesGetOrganizationAvailableFeaturesErrors[keyof FeatureServicesGetOrganizationAvailableFeaturesErrors];
 
-export type FeatureServicesGetCompanyAvailableFeaturesResponses = {
+export type FeatureServicesGetOrganizationAvailableFeaturesResponses = {
     /**
      * Successful response wrapping data payload
      */
@@ -2364,55 +1810,55 @@ export type FeatureServicesGetCompanyAvailableFeaturesResponses = {
     };
 };
 
-export type FeatureServicesGetCompanyAvailableFeaturesResponse = FeatureServicesGetCompanyAvailableFeaturesResponses[keyof FeatureServicesGetCompanyAvailableFeaturesResponses];
+export type FeatureServicesGetOrganizationAvailableFeaturesResponse = FeatureServicesGetOrganizationAvailableFeaturesResponses[keyof FeatureServicesGetOrganizationAvailableFeaturesResponses];
 
-export type FeatureServicesRemoveCompanyFeatureData = {
+export type FeatureServicesRemoveOrganizationFeatureData = {
     body?: never;
     path: {
-        companyId: string;
+        organizationId: string;
         featureId: string;
     };
     query?: never;
-    url: '/features/companies/{companyId}/features/{featureId}';
+    url: '/features/organizations/{organizationId}/features/{featureId}';
 };
 
-export type FeatureServicesRemoveCompanyFeatureErrors = {
+export type FeatureServicesRemoveOrganizationFeatureErrors = {
     /**
      * 401 Unauthorized — UNAUTHORIZED
      */
     401: ApiErrorResponse;
 };
 
-export type FeatureServicesRemoveCompanyFeatureError = FeatureServicesRemoveCompanyFeatureErrors[keyof FeatureServicesRemoveCompanyFeatureErrors];
+export type FeatureServicesRemoveOrganizationFeatureError = FeatureServicesRemoveOrganizationFeatureErrors[keyof FeatureServicesRemoveOrganizationFeatureErrors];
 
-export type FeatureServicesRemoveCompanyFeatureResponses = {
+export type FeatureServicesRemoveOrganizationFeatureResponses = {
     /**
      * 200 OK without data
      */
     200: BasicResponse;
 };
 
-export type FeatureServicesRemoveCompanyFeatureResponse = FeatureServicesRemoveCompanyFeatureResponses[keyof FeatureServicesRemoveCompanyFeatureResponses];
+export type FeatureServicesRemoveOrganizationFeatureResponse = FeatureServicesRemoveOrganizationFeatureResponses[keyof FeatureServicesRemoveOrganizationFeatureResponses];
 
-export type FeatureServicesGetCompanyRoleFeaturesData = {
+export type FeatureServicesGetOrganizationRoleFeaturesData = {
     body?: never;
     path: {
-        companyId: string;
+        organizationId: string;
     };
     query?: never;
-    url: '/features/companies/{companyId}/roles';
+    url: '/features/organizations/{organizationId}/roles';
 };
 
-export type FeatureServicesGetCompanyRoleFeaturesErrors = {
+export type FeatureServicesGetOrganizationRoleFeaturesErrors = {
     /**
      * 401 Unauthorized — UNAUTHORIZED
      */
     401: ApiErrorResponse;
 };
 
-export type FeatureServicesGetCompanyRoleFeaturesError = FeatureServicesGetCompanyRoleFeaturesErrors[keyof FeatureServicesGetCompanyRoleFeaturesErrors];
+export type FeatureServicesGetOrganizationRoleFeaturesError = FeatureServicesGetOrganizationRoleFeaturesErrors[keyof FeatureServicesGetOrganizationRoleFeaturesErrors];
 
-export type FeatureServicesGetCompanyRoleFeaturesResponses = {
+export type FeatureServicesGetOrganizationRoleFeaturesResponses = {
     /**
      * Successful response wrapping data payload
      */
@@ -2423,17 +1869,17 @@ export type FeatureServicesGetCompanyRoleFeaturesResponses = {
     };
 };
 
-export type FeatureServicesGetCompanyRoleFeaturesResponse = FeatureServicesGetCompanyRoleFeaturesResponses[keyof FeatureServicesGetCompanyRoleFeaturesResponses];
+export type FeatureServicesGetOrganizationRoleFeaturesResponse = FeatureServicesGetOrganizationRoleFeaturesResponses[keyof FeatureServicesGetOrganizationRoleFeaturesResponses];
 
 export type FeatureServicesCheckRoleFeatureAccessData = {
     body?: never;
     path: {
-        companyId: string;
+        organizationId: string;
         roleId: string;
         featureCode: string;
     };
     query?: never;
-    url: '/features/companies/{companyId}/roles/{roleId}/access/{featureCode}';
+    url: '/features/organizations/{organizationId}/roles/{roleId}/access/{featureCode}';
 };
 
 export type FeatureServicesCheckRoleFeatureAccessErrors = {
@@ -2458,16 +1904,16 @@ export type FeatureServicesCheckRoleFeatureAccessResponses = {
 
 export type FeatureServicesCheckRoleFeatureAccessResponse = FeatureServicesCheckRoleFeatureAccessResponses[keyof FeatureServicesCheckRoleFeatureAccessResponses];
 
-export type FeatureServicesToggleCompanyFeatureData = {
-    body: CompanyToggleFeatureRequest;
+export type FeatureServicesToggleOrganizationFeatureData = {
+    body: OrganizationToggleFeatureRequest;
     path: {
-        companyId: string;
+        organizationId: string;
     };
     query?: never;
-    url: '/features/companies/{companyId}/toggle';
+    url: '/features/organizations/{organizationId}/toggle';
 };
 
-export type FeatureServicesToggleCompanyFeatureErrors = {
+export type FeatureServicesToggleOrganizationFeatureErrors = {
     /**
      * 400 Bad Request — INVALID_DATA
      */
@@ -2478,20 +1924,20 @@ export type FeatureServicesToggleCompanyFeatureErrors = {
     401: ApiErrorResponse;
 };
 
-export type FeatureServicesToggleCompanyFeatureError = FeatureServicesToggleCompanyFeatureErrors[keyof FeatureServicesToggleCompanyFeatureErrors];
+export type FeatureServicesToggleOrganizationFeatureError = FeatureServicesToggleOrganizationFeatureErrors[keyof FeatureServicesToggleOrganizationFeatureErrors];
 
-export type FeatureServicesToggleCompanyFeatureResponses = {
+export type FeatureServicesToggleOrganizationFeatureResponses = {
     /**
      * Successful response wrapping data payload
      */
     200: {
         success: boolean;
         message: string;
-        data?: CompanyFeature;
+        data?: OrganizationFeature;
     };
 };
 
-export type FeatureServicesToggleCompanyFeatureResponse = FeatureServicesToggleCompanyFeatureResponses[keyof FeatureServicesToggleCompanyFeatureResponses];
+export type FeatureServicesToggleOrganizationFeatureResponse = FeatureServicesToggleOrganizationFeatureResponses[keyof FeatureServicesToggleOrganizationFeatureResponses];
 
 export type FeatureServicesGetRoleFeaturesData = {
     body?: never;
@@ -2566,7 +2012,7 @@ export type FeatureServicesRevokeRoleFeatureData = {
         featureId: string;
     };
     query?: {
-        companyId?: string;
+        organizationId?: string;
     };
     url: '/features/roles/{roleId}/features/{featureId}';
 };
@@ -2737,7 +2183,7 @@ export type FormServicesListMyAssignmentsData = {
     body?: never;
     path?: never;
     query?: {
-        companyId?: string;
+        organizationId?: string;
         memberId?: string;
     };
     url: '/forms/assignments';
@@ -2938,42 +2384,11 @@ export type FormServicesDownloadAttachmentResponses = {
     200: unknown;
 };
 
-export type FormServicesListTemplatesByCompanyData = {
-    body?: never;
-    path: {
-        companyId: string;
-    };
-    query?: never;
-    url: '/forms/companies/{companyId}/templates';
-};
-
-export type FormServicesListTemplatesByCompanyErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type FormServicesListTemplatesByCompanyError = FormServicesListTemplatesByCompanyErrors[keyof FormServicesListTemplatesByCompanyErrors];
-
-export type FormServicesListTemplatesByCompanyResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<FormTemplate>;
-    };
-};
-
-export type FormServicesListTemplatesByCompanyResponse = FormServicesListTemplatesByCompanyResponses[keyof FormServicesListTemplatesByCompanyResponses];
-
 export type FormServicesListOccurrencesData = {
     body?: never;
     path?: never;
     query: {
-        companyId: string;
+        organizationId: string;
         formTemplateId?: string;
         planId?: string;
     };
@@ -3109,11 +2524,42 @@ export type FormServicesCancelOccurrenceResponses = {
 
 export type FormServicesCancelOccurrenceResponse = FormServicesCancelOccurrenceResponses[keyof FormServicesCancelOccurrenceResponses];
 
+export type FormServicesListTemplatesByOrganizationData = {
+    body?: never;
+    path: {
+        organizationId: string;
+    };
+    query?: never;
+    url: '/forms/organizations/{organizationId}/templates';
+};
+
+export type FormServicesListTemplatesByOrganizationErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type FormServicesListTemplatesByOrganizationError = FormServicesListTemplatesByOrganizationErrors[keyof FormServicesListTemplatesByOrganizationErrors];
+
+export type FormServicesListTemplatesByOrganizationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<FormTemplate>;
+    };
+};
+
+export type FormServicesListTemplatesByOrganizationResponse = FormServicesListTemplatesByOrganizationResponses[keyof FormServicesListTemplatesByOrganizationResponses];
+
 export type FormServicesListPlansData = {
     body?: never;
     path?: never;
     query: {
-        companyId: string;
+        organizationId: string;
     };
     url: '/forms/plans';
 };
@@ -3364,7 +2810,7 @@ export type FormServicesListReviewQueueData = {
     body?: never;
     path?: never;
     query: {
-        companyId: string;
+        organizationId: string;
     };
     url: '/forms/reviews';
 };
@@ -3395,7 +2841,7 @@ export type FormServicesListSubmissionsData = {
     body?: never;
     path?: never;
     query?: {
-        companyId?: string;
+        organizationId?: string;
         assignmentId?: string;
     };
     url: '/forms/submissions';
@@ -4243,72 +3689,6 @@ export type FormServicesDeleteSectionResponses = {
 
 export type FormServicesDeleteSectionResponse = FormServicesDeleteSectionResponses[keyof FormServicesDeleteSectionResponses];
 
-export type LeaveServicesGetCompanyRequestsData = {
-    body?: never;
-    path: {
-        companyId: string;
-    };
-    query?: {
-        status?: string;
-    };
-    url: '/leaves/companies/{companyId}/requests';
-};
-
-export type LeaveServicesGetCompanyRequestsErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type LeaveServicesGetCompanyRequestsError = LeaveServicesGetCompanyRequestsErrors[keyof LeaveServicesGetCompanyRequestsErrors];
-
-export type LeaveServicesGetCompanyRequestsResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<LeaveRequest>;
-    };
-};
-
-export type LeaveServicesGetCompanyRequestsResponse = LeaveServicesGetCompanyRequestsResponses[keyof LeaveServicesGetCompanyRequestsResponses];
-
-export type LeaveServicesGetTypesByCompanyData = {
-    body?: never;
-    path: {
-        companyId: string;
-    };
-    query?: {
-        onlyActive?: boolean;
-    };
-    url: '/leaves/companies/{companyId}/types';
-};
-
-export type LeaveServicesGetTypesByCompanyErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type LeaveServicesGetTypesByCompanyError = LeaveServicesGetTypesByCompanyErrors[keyof LeaveServicesGetTypesByCompanyErrors];
-
-export type LeaveServicesGetTypesByCompanyResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<LeaveType>;
-    };
-};
-
-export type LeaveServicesGetTypesByCompanyResponse = LeaveServicesGetTypesByCompanyResponses[keyof LeaveServicesGetTypesByCompanyResponses];
-
 export type LeaveServicesGetQuotasByMemberData = {
     body?: never;
     path: {
@@ -4371,6 +3751,72 @@ export type LeaveServicesGetMemberRequestsResponses = {
 };
 
 export type LeaveServicesGetMemberRequestsResponse = LeaveServicesGetMemberRequestsResponses[keyof LeaveServicesGetMemberRequestsResponses];
+
+export type LeaveServicesGetOrganizationRequestsData = {
+    body?: never;
+    path: {
+        organizationId: string;
+    };
+    query?: {
+        status?: string;
+    };
+    url: '/leaves/organizations/{organizationId}/requests';
+};
+
+export type LeaveServicesGetOrganizationRequestsErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type LeaveServicesGetOrganizationRequestsError = LeaveServicesGetOrganizationRequestsErrors[keyof LeaveServicesGetOrganizationRequestsErrors];
+
+export type LeaveServicesGetOrganizationRequestsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<LeaveRequest>;
+    };
+};
+
+export type LeaveServicesGetOrganizationRequestsResponse = LeaveServicesGetOrganizationRequestsResponses[keyof LeaveServicesGetOrganizationRequestsResponses];
+
+export type LeaveServicesGetTypesByOrganizationData = {
+    body?: never;
+    path: {
+        organizationId: string;
+    };
+    query?: {
+        onlyActive?: boolean;
+    };
+    url: '/leaves/organizations/{organizationId}/types';
+};
+
+export type LeaveServicesGetTypesByOrganizationErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type LeaveServicesGetTypesByOrganizationError = LeaveServicesGetTypesByOrganizationErrors[keyof LeaveServicesGetTypesByOrganizationErrors];
+
+export type LeaveServicesGetTypesByOrganizationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<LeaveType>;
+    };
+};
+
+export type LeaveServicesGetTypesByOrganizationResponse = LeaveServicesGetTypesByOrganizationResponses[keyof LeaveServicesGetTypesByOrganizationResponses];
 
 export type LeaveServicesCreateQuotaData = {
     body: CreateLeaveQuota;
@@ -4627,25 +4073,25 @@ export type LeaveServicesUpdateTypeResponses = {
 
 export type LeaveServicesUpdateTypeResponse = LeaveServicesUpdateTypeResponses[keyof LeaveServicesUpdateTypeResponses];
 
-export type LocationServiceListLocationsByCompanyData = {
+export type LocationServiceListLocationsByOrganizationData = {
     body?: never;
     path?: never;
     query: {
-        companyId: string;
+        organizationId: string;
     };
     url: '/locations';
 };
 
-export type LocationServiceListLocationsByCompanyErrors = {
+export type LocationServiceListLocationsByOrganizationErrors = {
     /**
      * 401 Unauthorized — UNAUTHORIZED
      */
     401: ApiErrorResponse;
 };
 
-export type LocationServiceListLocationsByCompanyError = LocationServiceListLocationsByCompanyErrors[keyof LocationServiceListLocationsByCompanyErrors];
+export type LocationServiceListLocationsByOrganizationError = LocationServiceListLocationsByOrganizationErrors[keyof LocationServiceListLocationsByOrganizationErrors];
 
-export type LocationServiceListLocationsByCompanyResponses = {
+export type LocationServiceListLocationsByOrganizationResponses = {
     /**
      * Successful response wrapping data payload
      */
@@ -4656,7 +4102,7 @@ export type LocationServiceListLocationsByCompanyResponses = {
     };
 };
 
-export type LocationServiceListLocationsByCompanyResponse = LocationServiceListLocationsByCompanyResponses[keyof LocationServiceListLocationsByCompanyResponses];
+export type LocationServiceListLocationsByOrganizationResponse = LocationServiceListLocationsByOrganizationResponses[keyof LocationServiceListLocationsByOrganizationResponses];
 
 export type LocationServiceCreateLocationData = {
     body: CreateLocation;
@@ -4691,37 +4137,6 @@ export type LocationServiceCreateLocationResponses = {
 
 export type LocationServiceCreateLocationResponse = LocationServiceCreateLocationResponses[keyof LocationServiceCreateLocationResponses];
 
-export type LocationServiceListLocationsByBranchData = {
-    body?: never;
-    path: {
-        branchId: string;
-    };
-    query?: never;
-    url: '/locations/branch/{branchId}';
-};
-
-export type LocationServiceListLocationsByBranchErrors = {
-    /**
-     * 401 Unauthorized — UNAUTHORIZED
-     */
-    401: ApiErrorResponse;
-};
-
-export type LocationServiceListLocationsByBranchError = LocationServiceListLocationsByBranchErrors[keyof LocationServiceListLocationsByBranchErrors];
-
-export type LocationServiceListLocationsByBranchResponses = {
-    /**
-     * Successful response wrapping data payload
-     */
-    200: {
-        success: boolean;
-        message: string;
-        data?: Array<Location>;
-    };
-};
-
-export type LocationServiceListLocationsByBranchResponse = LocationServiceListLocationsByBranchResponses[keyof LocationServiceListLocationsByBranchResponses];
-
 export type LocationServiceSetPrimaryLocationData = {
     body: SetPrimaryLocationRequest;
     path?: never;
@@ -4754,6 +4169,37 @@ export type LocationServiceSetPrimaryLocationResponses = {
 };
 
 export type LocationServiceSetPrimaryLocationResponse = LocationServiceSetPrimaryLocationResponses[keyof LocationServiceSetPrimaryLocationResponses];
+
+export type LocationServiceListLocationsBySiteData = {
+    body?: never;
+    path: {
+        siteId: string;
+    };
+    query?: never;
+    url: '/locations/site/{siteId}';
+};
+
+export type LocationServiceListLocationsBySiteErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type LocationServiceListLocationsBySiteError = LocationServiceListLocationsBySiteErrors[keyof LocationServiceListLocationsBySiteErrors];
+
+export type LocationServiceListLocationsBySiteResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<Location>;
+    };
+};
+
+export type LocationServiceListLocationsBySiteResponse = LocationServiceListLocationsBySiteResponses[keyof LocationServiceListLocationsBySiteResponses];
 
 export type LocationServiceAssignSlotLocationData = {
     body: CreateScheduleSlotLocation;
@@ -4899,7 +4345,7 @@ export type LocationServiceDeleteLocationData = {
         id: string;
     };
     query: {
-        companyId: string;
+        organizationId: string;
     };
     url: '/locations/{id}';
 };
@@ -5000,6 +4446,560 @@ export type LocationServiceUpdateLocationResponses = {
 
 export type LocationServiceUpdateLocationResponse = LocationServiceUpdateLocationResponses[keyof LocationServiceUpdateLocationResponses];
 
+export type OrganizationServicesGetOrganizationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/organizations/';
+};
+
+export type OrganizationServicesGetOrganizationsErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type OrganizationServicesGetOrganizationsError = OrganizationServicesGetOrganizationsErrors[keyof OrganizationServicesGetOrganizationsErrors];
+
+export type OrganizationServicesGetOrganizationsResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<Organization>;
+    };
+};
+
+export type OrganizationServicesGetOrganizationsResponse = OrganizationServicesGetOrganizationsResponses[keyof OrganizationServicesGetOrganizationsResponses];
+
+export type OrganizationServicesCreateOrganizationData = {
+    body: CreateOrganization;
+    path?: never;
+    query?: never;
+    url: '/organizations/';
+};
+
+export type OrganizationServicesCreateOrganizationErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type OrganizationServicesCreateOrganizationError = OrganizationServicesCreateOrganizationErrors[keyof OrganizationServicesCreateOrganizationErrors];
+
+export type OrganizationServicesCreateOrganizationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    201: {
+        success: boolean;
+        message: string;
+        data?: Organization;
+    };
+};
+
+export type OrganizationServicesCreateOrganizationResponse = OrganizationServicesCreateOrganizationResponses[keyof OrganizationServicesCreateOrganizationResponses];
+
+export type OrganizationServicesAddOrganizationMemberData = {
+    body: CreateOrganizationMember;
+    path?: never;
+    query?: never;
+    url: '/organizations/members';
+};
+
+export type OrganizationServicesAddOrganizationMemberErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type OrganizationServicesAddOrganizationMemberError = OrganizationServicesAddOrganizationMemberErrors[keyof OrganizationServicesAddOrganizationMemberErrors];
+
+export type OrganizationServicesAddOrganizationMemberResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    201: {
+        success: boolean;
+        message: string;
+        data?: OrganizationMember;
+    };
+};
+
+export type OrganizationServicesAddOrganizationMemberResponse = OrganizationServicesAddOrganizationMemberResponses[keyof OrganizationServicesAddOrganizationMemberResponses];
+
+export type OrganizationServicesRemoveOrganizationMemberData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/members/{id}';
+};
+
+export type OrganizationServicesRemoveOrganizationMemberErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesRemoveOrganizationMemberError = OrganizationServicesRemoveOrganizationMemberErrors[keyof OrganizationServicesRemoveOrganizationMemberErrors];
+
+export type OrganizationServicesRemoveOrganizationMemberResponses = {
+    /**
+     * 200 OK without data
+     */
+    200: BasicResponse;
+};
+
+export type OrganizationServicesRemoveOrganizationMemberResponse = OrganizationServicesRemoveOrganizationMemberResponses[keyof OrganizationServicesRemoveOrganizationMemberResponses];
+
+export type OrganizationServicesUpdateOrganizationMemberData = {
+    body: UpdateOrganizationMember;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/members/{id}';
+};
+
+export type OrganizationServicesUpdateOrganizationMemberErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesUpdateOrganizationMemberError = OrganizationServicesUpdateOrganizationMemberErrors[keyof OrganizationServicesUpdateOrganizationMemberErrors];
+
+export type OrganizationServicesUpdateOrganizationMemberResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: OrganizationMember;
+    };
+};
+
+export type OrganizationServicesUpdateOrganizationMemberResponse = OrganizationServicesUpdateOrganizationMemberResponses[keyof OrganizationServicesUpdateOrganizationMemberResponses];
+
+export type OrganizationServicesCreateSiteData = {
+    body: CreateSite;
+    path?: never;
+    query?: never;
+    url: '/organizations/sites';
+};
+
+export type OrganizationServicesCreateSiteErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+};
+
+export type OrganizationServicesCreateSiteError = OrganizationServicesCreateSiteErrors[keyof OrganizationServicesCreateSiteErrors];
+
+export type OrganizationServicesCreateSiteResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    201: {
+        success: boolean;
+        message: string;
+        data?: Site;
+    };
+};
+
+export type OrganizationServicesCreateSiteResponse = OrganizationServicesCreateSiteResponses[keyof OrganizationServicesCreateSiteResponses];
+
+export type OrganizationServicesDeleteSiteData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: {
+        organizationId?: string;
+    };
+    url: '/organizations/sites/{id}';
+};
+
+export type OrganizationServicesDeleteSiteErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesDeleteSiteError = OrganizationServicesDeleteSiteErrors[keyof OrganizationServicesDeleteSiteErrors];
+
+export type OrganizationServicesDeleteSiteResponses = {
+    /**
+     * 200 OK without data
+     */
+    200: BasicResponse;
+};
+
+export type OrganizationServicesDeleteSiteResponse = OrganizationServicesDeleteSiteResponses[keyof OrganizationServicesDeleteSiteResponses];
+
+export type OrganizationServicesGetSiteData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/sites/{id}';
+};
+
+export type OrganizationServicesGetSiteErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesGetSiteError = OrganizationServicesGetSiteErrors[keyof OrganizationServicesGetSiteErrors];
+
+export type OrganizationServicesGetSiteResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Site;
+    };
+};
+
+export type OrganizationServicesGetSiteResponse = OrganizationServicesGetSiteResponses[keyof OrganizationServicesGetSiteResponses];
+
+export type OrganizationServicesUpdateSiteData = {
+    body: UpdateSite;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/sites/{id}';
+};
+
+export type OrganizationServicesUpdateSiteErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesUpdateSiteError = OrganizationServicesUpdateSiteErrors[keyof OrganizationServicesUpdateSiteErrors];
+
+export type OrganizationServicesUpdateSiteResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Site;
+    };
+};
+
+export type OrganizationServicesUpdateSiteResponse = OrganizationServicesUpdateSiteResponses[keyof OrganizationServicesUpdateSiteResponses];
+
+export type OrganizationServicesGetOrganizationBySlugData = {
+    body?: never;
+    path: {
+        slug: string;
+    };
+    query?: never;
+    url: '/organizations/slug/{slug}';
+};
+
+export type OrganizationServicesGetOrganizationBySlugErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesGetOrganizationBySlugError = OrganizationServicesGetOrganizationBySlugErrors[keyof OrganizationServicesGetOrganizationBySlugErrors];
+
+export type OrganizationServicesGetOrganizationBySlugResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Organization;
+    };
+};
+
+export type OrganizationServicesGetOrganizationBySlugResponse = OrganizationServicesGetOrganizationBySlugResponses[keyof OrganizationServicesGetOrganizationBySlugResponses];
+
+export type OrganizationServicesDeleteOrganizationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/{id}';
+};
+
+export type OrganizationServicesDeleteOrganizationErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesDeleteOrganizationError = OrganizationServicesDeleteOrganizationErrors[keyof OrganizationServicesDeleteOrganizationErrors];
+
+export type OrganizationServicesDeleteOrganizationResponses = {
+    /**
+     * 200 OK without data
+     */
+    200: BasicResponse;
+};
+
+export type OrganizationServicesDeleteOrganizationResponse = OrganizationServicesDeleteOrganizationResponses[keyof OrganizationServicesDeleteOrganizationResponses];
+
+export type OrganizationServicesGetOrganizationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/{id}';
+};
+
+export type OrganizationServicesGetOrganizationErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesGetOrganizationError = OrganizationServicesGetOrganizationErrors[keyof OrganizationServicesGetOrganizationErrors];
+
+export type OrganizationServicesGetOrganizationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Organization;
+    };
+};
+
+export type OrganizationServicesGetOrganizationResponse = OrganizationServicesGetOrganizationResponses[keyof OrganizationServicesGetOrganizationResponses];
+
+export type OrganizationServicesUpdateOrganizationData = {
+    body: UpdateOrganization;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/{id}';
+};
+
+export type OrganizationServicesUpdateOrganizationErrors = {
+    /**
+     * 400 Bad Request — INVALID_DATA
+     */
+    400: ApiErrorResponse;
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesUpdateOrganizationError = OrganizationServicesUpdateOrganizationErrors[keyof OrganizationServicesUpdateOrganizationErrors];
+
+export type OrganizationServicesUpdateOrganizationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Organization;
+    };
+};
+
+export type OrganizationServicesUpdateOrganizationResponse = OrganizationServicesUpdateOrganizationResponses[keyof OrganizationServicesUpdateOrganizationResponses];
+
+export type OrganizationServicesSwitchActiveOrganizationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/organizations/{id}/switch';
+};
+
+export type OrganizationServicesSwitchActiveOrganizationErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesSwitchActiveOrganizationError = OrganizationServicesSwitchActiveOrganizationErrors[keyof OrganizationServicesSwitchActiveOrganizationErrors];
+
+export type OrganizationServicesSwitchActiveOrganizationResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: SwitchActiveOrganizationResponse;
+    };
+};
+
+export type OrganizationServicesSwitchActiveOrganizationResponse = OrganizationServicesSwitchActiveOrganizationResponses[keyof OrganizationServicesSwitchActiveOrganizationResponses];
+
+export type OrganizationServicesGetOrganizationMembersData = {
+    body?: never;
+    path: {
+        organizationId: string;
+    };
+    query?: never;
+    url: '/organizations/{organizationId}/members';
+};
+
+export type OrganizationServicesGetOrganizationMembersErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesGetOrganizationMembersError = OrganizationServicesGetOrganizationMembersErrors[keyof OrganizationServicesGetOrganizationMembersErrors];
+
+export type OrganizationServicesGetOrganizationMembersResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<OrganizationMember>;
+    };
+};
+
+export type OrganizationServicesGetOrganizationMembersResponse = OrganizationServicesGetOrganizationMembersResponses[keyof OrganizationServicesGetOrganizationMembersResponses];
+
+export type OrganizationServicesGetSitesData = {
+    body?: never;
+    path: {
+        organizationId: string;
+    };
+    query?: never;
+    url: '/organizations/{organizationId}/sites';
+};
+
+export type OrganizationServicesGetSitesErrors = {
+    /**
+     * 401 Unauthorized — UNAUTHORIZED
+     */
+    401: ApiErrorResponse;
+    /**
+     * 404 Not Found — NOT_FOUND
+     */
+    404: ApiErrorResponse;
+};
+
+export type OrganizationServicesGetSitesError = OrganizationServicesGetSitesErrors[keyof OrganizationServicesGetSitesErrors];
+
+export type OrganizationServicesGetSitesResponses = {
+    /**
+     * Successful response wrapping data payload
+     */
+    200: {
+        success: boolean;
+        message: string;
+        data?: Array<Site>;
+    };
+};
+
+export type OrganizationServicesGetSitesResponse = OrganizationServicesGetSitesResponses[keyof OrganizationServicesGetSitesResponses];
+
 export type PermissionServicesGetPermissionsData = {
     body?: never;
     path?: never;
@@ -5066,7 +5066,7 @@ export type PermissionServicesGetMyPermissionsData = {
     body?: never;
     path?: never;
     query?: {
-        companyId?: string;
+        organizationId?: string;
     };
     url: '/permissions/me';
 };
@@ -5126,25 +5126,25 @@ export type RoleServicesCreateRoleResponses = {
 
 export type RoleServicesCreateRoleResponse = RoleServicesCreateRoleResponses[keyof RoleServicesCreateRoleResponses];
 
-export type RoleServicesGetCompanyRolesData = {
+export type RoleServicesGetOrganizationRolesData = {
     body?: never;
     path: {
-        companyId: string;
+        organizationId: string;
     };
     query?: never;
-    url: '/permissions/roles/company/{companyId}';
+    url: '/permissions/roles/organization/{organizationId}';
 };
 
-export type RoleServicesGetCompanyRolesErrors = {
+export type RoleServicesGetOrganizationRolesErrors = {
     /**
      * 401 Unauthorized — UNAUTHORIZED
      */
     401: ApiErrorResponse;
 };
 
-export type RoleServicesGetCompanyRolesError = RoleServicesGetCompanyRolesErrors[keyof RoleServicesGetCompanyRolesErrors];
+export type RoleServicesGetOrganizationRolesError = RoleServicesGetOrganizationRolesErrors[keyof RoleServicesGetOrganizationRolesErrors];
 
-export type RoleServicesGetCompanyRolesResponses = {
+export type RoleServicesGetOrganizationRolesResponses = {
     /**
      * Successful response wrapping data payload
      */
@@ -5155,7 +5155,7 @@ export type RoleServicesGetCompanyRolesResponses = {
     };
 };
 
-export type RoleServicesGetCompanyRolesResponse = RoleServicesGetCompanyRolesResponses[keyof RoleServicesGetCompanyRolesResponses];
+export type RoleServicesGetOrganizationRolesResponse = RoleServicesGetOrganizationRolesResponses[keyof RoleServicesGetOrganizationRolesResponses];
 
 export type RoleServicesAssignPermissionToRoleData = {
     body: CreateRolePermission;

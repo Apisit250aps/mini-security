@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/components/button';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import {
   useFormSubmissionQueries,
   useReviewDetailQueries,
@@ -28,18 +28,21 @@ export default function FormReviewView({
   submissionId: string;
 }) {
   const router = useRouter();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
 
   const [note, setNote] = useState('');
   const [answerNotes, setAnswerNotes] = useState<Record<string, string>>({});
   const { hasPermission, isSuperAdmin } = usePermission();
-  const answerMutation = useFormReviewRecordAnswer(activeCompanyId || '');
-  const sectionMutation = useFormReviewRecordSection(activeCompanyId || '');
+  const answerMutation = useFormReviewRecordAnswer(activeOrganizationId || '');
+  const sectionMutation = useFormReviewRecordSection(
+    activeOrganizationId || '',
+  );
 
   const submissionQuery = useFormSubmissionQueries(submissionId);
   const reviewQuery = useReviewDetailQueries(submissionId);
 
-  const finalizeMutation = useFormReviewFinalize(activeCompanyId || '');
+  const finalizeMutation = useFormReviewFinalize(activeOrganizationId || '');
 
   const handleFinalize = (action: 'APPROVE' | 'RETURN') => {
     if (!submissionQuery.data) return;
@@ -64,7 +67,7 @@ export default function FormReviewView({
               ? 'อนุมัติแบบฟอร์มเรียบร้อย'
               : 'ส่งกลับให้แก้ไขเรียบร้อย',
           );
-          router.push('/company/forms/reviews');
+          router.push('/organization/forms/reviews');
         },
         onError: (err) => {
           toast.error(
@@ -76,7 +79,7 @@ export default function FormReviewView({
   };
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || submissionQuery.isLoading;
+    isOrganizationLoading || !activeOrganizationId || submissionQuery.isLoading;
   const detail = submissionQuery.data;
   const entries = reviewQuery.data ?? [];
   const superseded = new Set(entries.map((e) => e.supersedesEntryId));
@@ -115,12 +118,12 @@ export default function FormReviewView({
 
   return (
     <PageLayout
-      pageId="companyFormReview"
+      pageId="organizationFormReview"
       title={`ตรวจแบบฟอร์ม: ${detail?.template?.name || 'กำลังโหลด...'}`}
       description="ตรวจสอบคำตอบและพิจารณาอนุมัติ"
       isLoading={isPageLoading}
       actions={
-        <Link href="/company/forms/reviews">
+        <Link href="/organization/forms/reviews">
           <Button
             variant="ghost"
             size="sm"

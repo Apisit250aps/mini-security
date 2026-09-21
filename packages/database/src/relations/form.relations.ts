@@ -1,10 +1,10 @@
 import type { RelationsHelper } from './types';
 
 export const formRelations = (r: RelationsHelper) => ({
-  company: {
+  organization: {
     formTemplates: r.many.formTemplate(),
   },
-  companyMember: {
+  organizationMember: {
     createdFormTemplates: r.many.formTemplate(),
     startedFormSubmissions: r.many.formSubmission({
       alias: 'startedFormSubmissions',
@@ -20,37 +20,43 @@ export const formRelations = (r: RelationsHelper) => ({
     formAssignments: r.many.formAssignment(),
   },
   formTemplate: {
-    company: r.one.company({
-      from: r.formTemplate.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formTemplate.organizationId,
+      to: r.organization.id,
     }),
-    creator: r.one.companyMember({
+    creator: r.one.organizationMember({
       from: r.formTemplate.createdBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
     }),
     versions: r.many.formVersion(),
     plans: r.many.formPlan(),
   },
   formVersion: {
-    company: r.one.company({ from: r.formVersion.companyId, to: r.company.id }),
+    organization: r.one.organization({
+      from: r.formVersion.organizationId,
+      to: r.organization.id,
+    }),
     template: r.one.formTemplate({
       from: r.formVersion.formTemplateId,
       to: r.formTemplate.id,
     }),
-    creator: r.one.companyMember({
+    creator: r.one.organizationMember({
       from: r.formVersion.createdBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
     }),
-    publisher: r.one.companyMember({
+    publisher: r.one.organizationMember({
       from: r.formVersion.publishedBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
     }),
     sections: r.many.formSection(),
     fields: r.many.formField(),
     submissions: r.many.formSubmission(),
   },
   formSection: {
-    company: r.one.company({ from: r.formSection.companyId, to: r.company.id }),
+    organization: r.one.organization({
+      from: r.formSection.organizationId,
+      to: r.organization.id,
+    }),
     version: r.one.formVersion({
       from: r.formSection.formVersionId,
       to: r.formVersion.id,
@@ -58,7 +64,10 @@ export const formRelations = (r: RelationsHelper) => ({
     fields: r.many.formField(),
   },
   formField: {
-    company: r.one.company({ from: r.formField.companyId, to: r.company.id }),
+    organization: r.one.organization({
+      from: r.formField.organizationId,
+      to: r.organization.id,
+    }),
     version: r.one.formVersion({
       from: r.formField.formVersionId,
       to: r.formVersion.id,
@@ -71,9 +80,9 @@ export const formRelations = (r: RelationsHelper) => ({
     answers: r.many.formAnswer(),
   },
   formFieldOption: {
-    company: r.one.company({
-      from: r.formFieldOption.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formFieldOption.organizationId,
+      to: r.organization.id,
     }),
     version: r.one.formVersion({
       from: r.formFieldOption.formVersionId,
@@ -89,7 +98,10 @@ export const formRelations = (r: RelationsHelper) => ({
       from: r.formPlan.id,
       to: r.formPlanRecurringSchedule.planId,
     }),
-    company: r.one.company({ from: r.formPlan.companyId, to: r.company.id }),
+    organization: r.one.organization({
+      from: r.formPlan.organizationId,
+      to: r.organization.id,
+    }),
     template: r.one.formTemplate({
       from: r.formPlan.formTemplateId,
       to: r.formTemplate.id,
@@ -99,29 +111,29 @@ export const formRelations = (r: RelationsHelper) => ({
     occurrences: r.many.formOccurrence(),
   },
   formPlanTarget: {
-    company: r.one.company({
-      from: r.formPlanTarget.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formPlanTarget.organizationId,
+      to: r.organization.id,
     }),
     plan: r.one.formPlan({ from: r.formPlanTarget.planId, to: r.formPlan.id }),
     role: r.one.role({ from: r.formPlanTarget.roleId, to: r.role.id }),
-    member: r.one.companyMember({
-      from: r.formPlanTarget.companyMemberId,
-      to: r.companyMember.id,
+    member: r.one.organizationMember({
+      from: r.formPlanTarget.organizationMemberId,
+      to: r.organizationMember.id,
     }),
   },
   formPlanPeriod: {
-    company: r.one.company({
-      from: r.formPlanPeriod.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formPlanPeriod.organizationId,
+      to: r.organization.id,
     }),
     plan: r.one.formPlan({ from: r.formPlanPeriod.planId, to: r.formPlan.id }),
     occurrences: r.many.formOccurrence(),
   },
   formOccurrence: {
-    company: r.one.company({
-      from: r.formOccurrence.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formOccurrence.organizationId,
+      to: r.organization.id,
     }),
     plan: r.one.formPlan({ from: r.formOccurrence.planId, to: r.formPlan.id }),
     version: r.one.formVersion({
@@ -135,25 +147,25 @@ export const formRelations = (r: RelationsHelper) => ({
     assignments: r.many.formAssignment(),
   },
   formAssignment: {
-    company: r.one.company({
-      from: r.formAssignment.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formAssignment.organizationId,
+      to: r.organization.id,
     }),
     occurrence: r.one.formOccurrence({
       from: r.formAssignment.occurrenceId,
       to: r.formOccurrence.id,
     }),
     role: r.one.role({ from: r.formAssignment.roleId, to: r.role.id }),
-    member: r.one.companyMember({
-      from: r.formAssignment.companyMemberId,
-      to: r.companyMember.id,
+    member: r.one.organizationMember({
+      from: r.formAssignment.organizationMemberId,
+      to: r.organizationMember.id,
     }),
     submissions: r.many.formSubmission(),
   },
   formSubmission: {
-    company: r.one.company({
-      from: r.formSubmission.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formSubmission.organizationId,
+      to: r.organization.id,
     }),
     assignment: r.one.formAssignment({
       from: r.formSubmission.assignmentId,
@@ -163,14 +175,14 @@ export const formRelations = (r: RelationsHelper) => ({
       from: r.formSubmission.formVersionId,
       to: r.formVersion.id,
     }),
-    startedByMember: r.one.companyMember({
+    startedByMember: r.one.organizationMember({
       from: r.formSubmission.startedBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
       alias: 'startedFormSubmissions',
     }),
-    submittedByMember: r.one.companyMember({
+    submittedByMember: r.one.organizationMember({
       from: r.formSubmission.submittedBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
       alias: 'submittedFormSubmissions',
     }),
     contributors: r.many.formSubmissionContributor(),
@@ -178,21 +190,24 @@ export const formRelations = (r: RelationsHelper) => ({
     reviewEntries: r.many.formReviewEntry(),
   },
   formSubmissionContributor: {
-    company: r.one.company({
-      from: r.formSubmissionContributor.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formSubmissionContributor.organizationId,
+      to: r.organization.id,
     }),
     submission: r.one.formSubmission({
       from: r.formSubmissionContributor.submissionId,
       to: r.formSubmission.id,
     }),
-    member: r.one.companyMember({
+    member: r.one.organizationMember({
       from: r.formSubmissionContributor.memberId,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
     }),
   },
   formAnswer: {
-    company: r.one.company({ from: r.formAnswer.companyId, to: r.company.id }),
+    organization: r.one.organization({
+      from: r.formAnswer.organizationId,
+      to: r.organization.id,
+    }),
     version: r.one.formVersion({
       from: r.formAnswer.formVersionId,
       to: r.formVersion.id,
@@ -202,30 +217,30 @@ export const formRelations = (r: RelationsHelper) => ({
       to: r.formSubmission.id,
     }),
     field: r.one.formField({ from: r.formAnswer.fieldId, to: r.formField.id }),
-    updatedByMember: r.one.companyMember({
+    updatedByMember: r.one.organizationMember({
       from: r.formAnswer.updatedBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
     }),
     attachments: r.many.formAnswerAttachment(),
   },
   formAnswerAttachment: {
-    company: r.one.company({
-      from: r.formAnswerAttachment.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formAnswerAttachment.organizationId,
+      to: r.organization.id,
     }),
     answer: r.one.formAnswer({
       from: r.formAnswerAttachment.answerId,
       to: r.formAnswer.id,
     }),
-    uploadedByMember: r.one.companyMember({
+    uploadedByMember: r.one.organizationMember({
       from: r.formAnswerAttachment.uploadedBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
     }),
   },
   formReviewEntry: {
-    company: r.one.company({
-      from: r.formReviewEntry.companyId,
-      to: r.company.id,
+    organization: r.one.organization({
+      from: r.formReviewEntry.organizationId,
+      to: r.organization.id,
     }),
     submission: r.one.formSubmission({
       from: r.formReviewEntry.submissionId,
@@ -235,9 +250,9 @@ export const formRelations = (r: RelationsHelper) => ({
       from: r.formReviewEntry.answerId,
       to: r.formAnswer.id,
     }),
-    reviewedByMember: r.one.companyMember({
+    reviewedByMember: r.one.organizationMember({
       from: r.formReviewEntry.reviewedBy,
-      to: r.companyMember.id,
+      to: r.organizationMember.id,
     }),
   },
 });

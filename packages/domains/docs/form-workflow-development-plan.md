@@ -18,7 +18,7 @@
 | Infrastructure | packages/infrastructures/src/repositories/form.repo.ts และ compositions/applications/form/form.usecase.ts: repository + DI |
 | API            | apps/api/src/controllers/form.controller.ts, routes/form.route.ts: Hono authenticated routes                               |
 | API contract   | packages/client/spec/models/form.tsp, services/form.tsp → generated @repo/client                                           |
-| Frontend       | apps/web/src/modules/form/{views,components,hooks}; Next routes ภายใต้ /company/forms                                      |
+| Frontend       | apps/web/src/modules/form/{views,components,hooks}; Next routes ภายใต้ /organization/forms                                 |
 
 ปัจจุบัน start submission หา shared draft ด้วย Role + template และ review ยังบังคับ OWNER หลังตรวจ permission มี UI role dialog และ review ทั้งชุด แบบใหม่นี้แทนกติกาเหล่านั้น ไม่ใช่เพิ่ม assignment แล้วปล่อย authorization เดิมค้างอยู่
 
@@ -64,7 +64,7 @@ Use cases: Create/UpdatePlan, Activate/PausePlan, PreviewSchedule, List/GetPlan,
 
 Use cases: ListMyAssignments, GetAssignment, StartAssignmentSubmission, SaveDraft, Submit, CreateCorrection
 
-- actor มาจาก auth context; resolve assignment → company/version/policy จาก DB
+- actor มาจาก auth context; resolve assignment → organization/version/policy จาก DB
 - เปลี่ยน draft lookup เป็น assignment; ตรวจ permission + recipient scope ไม่ใช้ creator/Owner แทน
 - รักษา concurrency token, revision chain, contributor lineage และ immutability หลัง submit
 - reuse upload infrastructure ที่มีจริง ตรวจ protocol/authorization ก่อนต่อ UI ไม่สร้าง mock upload แทน integration
@@ -89,7 +89,7 @@ Use cases: ListReviewQueue, GetReviewDetail, RecordAnswerReview, RecordSectionRe
 
 | กลุ่ม endpoint เสนอภายใต้ /forms                   | ข้อมูลสำคัญ                                                |
 | -------------------------------------------------- | ---------------------------------------------------------- |
-| GET templates/company list, GET template           | pagination/filter + detail; ต่อ naming เดิมใน routes/spec  |
+| GET templates/organization list, GET template      | pagination/filter + detail; ต่อ naming เดิมใน routes/spec  |
 | GET/POST templates/:id/plans                       | plan list/create                                           |
 | GET/PUT plans/:id                                  | detail/update พร้อม expectedRevision                       |
 | POST plans/:id/activate, pause                     | explicit lifecycle commands                                |
@@ -104,7 +104,7 @@ Use cases: ListReviewQueue, GetReviewDetail, RecordAnswerReview, RecordSectionRe
 | POST submissions/:id/review-entries                | target/action/note/expectedRevision/expectedHeadId         |
 | POST submissions/:id/finalize                      | APPROVE/RETURN/note/expectedRevision                       |
 
-ใช้ controllers/routes ใน apps/api, shared response envelope/error mapping เดิม และ TypeSpec models alias domain entities; request DTO ตัด actor/company ที่ server ต้อง resolve ไม่เชื่อ payload
+ใช้ controllers/routes ใน apps/api, shared response envelope/error mapping เดิม และ TypeSpec models alias domain entities; request DTO ตัด actor/organization ที่ server ต้อง resolve ไม่เชื่อ payload
 
 เพิ่ม pagination metadata และ available actions ใน read DTO ตามความจำเป็น Generate domain entities → TypeSpec → OpenAPI/SDK ด้วย scripts ของ packages จริง ตรวจ diff ว่าไม่มี generated files อื่นหาย
 

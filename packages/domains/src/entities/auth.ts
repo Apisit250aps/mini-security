@@ -12,7 +12,7 @@ export class Session implements SessionEntity {
   expiresAt: Date;
   ipAddress?: string | null;
   userAgent?: string | null;
-  activeCompanyId?: string | null;
+  activeOrganizationId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 
@@ -23,7 +23,7 @@ export class Session implements SessionEntity {
     this.expiresAt = data.expiresAt;
     this.ipAddress = data.ipAddress;
     this.userAgent = data.userAgent;
-    this.activeCompanyId = data.activeCompanyId;
+    this.activeOrganizationId = data.activeOrganizationId;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }

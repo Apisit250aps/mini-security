@@ -235,7 +235,9 @@ export class PreviewScheduleUseCase implements IPreviewScheduleUseCase {
   @RequirePermission('form_plan:read')
   async execute(context: IPreviewScheduleContext): Promise<Date[]> {
     const plan = await this.planRepo.findById(context.planId);
-    if (!plan || plan.companyId !== context.companyId) {
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (!plan || (organizationId && plan.organizationId !== organizationId)) {
       throw new NotFoundError('Form plan not found');
     }
 

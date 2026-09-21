@@ -124,13 +124,13 @@ test('check-in persists calculated late status and Bangkok date, and prevents a 
       id: 'member',
       roleId: 'role',
       userId: 'actor',
-      companyId: 'company',
+      organizationId: 'organization',
       isActive: true,
     }),
-  } as import('@repo/domains/repositories/company').ICompanyMemberRepository;
+  } as import('@repo/domains/repositories/organization').IOrganizationMemberRepository;
   const useCase = new CheckInAttendanceUseCase(logs, slots, schedules, members);
   const context = {
-    companyMemberId: 'member',
+    organizationMemberId: 'member',
     scheduleSlotId: morning.id,
     user: { id: 'actor', isAdmin: true, isActive: true },
   };

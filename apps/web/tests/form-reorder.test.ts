@@ -53,7 +53,7 @@ for (const kind of ['sections', 'fields'] as const) {
     new Function('require', 'exports', js)(requireMock, exports);
     const mutation = exports[
       kind === 'sections' ? 'useFormSectionReorder' : 'useFormFieldReorder'
-    ]!('company', 'template');
+    ]!('organization', 'template');
     const queryKey = formKeys.template('template');
     const items = [
       { id: 'a', sortOrder: 0 },

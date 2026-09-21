@@ -46,10 +46,10 @@ import type {
 
 export interface IFormTemplateRepository
   extends BaseRepository<FormTemplate, CreateFormTemplate, UpdateFormTemplate> {
-  findByCompanyId(companyId: string): Promise<FormTemplate[]>;
-  findByIdAndCompany(
+  findByOrganizationId(organizationId: string): Promise<FormTemplate[]>;
+  findByIdAndOrganization(
     id: string,
-    companyId: string,
+    organizationId: string,
   ): Promise<FormTemplate | null>;
 }
 
@@ -92,7 +92,7 @@ export interface IFormFieldOptionRepository
   deleteByFieldId(fieldId: string): Promise<void>;
   replaceOptions(
     fieldId: string,
-    companyId: string,
+    organizationId: string,
     formVersionId: string,
     options: Array<{ label: string; value: string; sortOrder?: number }>,
   ): Promise<FormFieldOption[]>;
@@ -100,10 +100,16 @@ export interface IFormFieldOptionRepository
 
 export interface IFormPlanRepository
   extends BaseRepository<FormPlan, CreateFormPlan, UpdateFormPlan> {
-  findByTemplateId(templateId: string, companyId: string): Promise<FormPlan[]>;
-  findActive(companyId: string, templateId: string): Promise<FormPlan | null>;
+  findByTemplateId(
+    templateId: string,
+    organizationId: string,
+  ): Promise<FormPlan[]>;
+  findActive(
+    organizationId: string,
+    templateId: string,
+  ): Promise<FormPlan | null>;
   listPlans(
-    companyId: string,
+    organizationId: string,
     page: number,
     limit: number,
   ): Promise<FormPlan[]>;
@@ -132,7 +138,7 @@ export interface IFormOccurrenceRepository {
   create(occurrence: CreateFormOccurrence): Promise<FormOccurrence>;
   cancel(id: string, update: UpdateFormOccurrence): Promise<FormOccurrence>;
   list(
-    companyId: string,
+    organizationId: string,
     formTemplateId?: string,
     planId?: string,
   ): Promise<FormOccurrence[]>;
@@ -142,10 +148,13 @@ export interface IFormAssignmentRepository {
   findById(id: string): Promise<FormAssignment | null>;
   findByOccurrenceId(occurrenceId: string): Promise<FormAssignment[]>;
   findByMemberId(
-    companyId: string,
+    organizationId: string,
     memberId: string,
   ): Promise<FormAssignment[]>;
-  findByRoleId(companyId: string, roleId: string): Promise<FormAssignment[]>;
+  findByRoleId(
+    organizationId: string,
+    roleId: string,
+  ): Promise<FormAssignment[]>;
   findActiveByOccurrenceAndRole(
     occurrenceId: string,
     roleId: string,
@@ -164,18 +173,18 @@ export interface IFormSubmissionRepository
     CreateFormSubmission,
     UpdateFormSubmission
   > {
-  findByCompanyId(companyId: string): Promise<FormSubmission[]>;
+  findByOrganizationId(organizationId: string): Promise<FormSubmission[]>;
   findByAssignmentId(
     assignmentId: string,
-    companyId: string,
+    organizationId: string,
   ): Promise<FormSubmission[]>;
   findByAssignmentIds(
     assignmentIds: string[],
-    companyId: string,
+    organizationId: string,
   ): Promise<FormSubmission[]>;
   findDraftByAssignmentId(
     assignmentId: string,
-    companyId: string,
+    organizationId: string,
   ): Promise<FormSubmission | null>;
   findBySupersedesId(supersedesId: string): Promise<FormSubmission | null>;
 }
@@ -220,7 +229,7 @@ export interface IFormReviewEntryRepository {
     submissionIds: string[],
   ): Promise<FormReviewEntry[]>;
   create(entry: CreateFormReviewEntry): Promise<FormReviewEntry>;
-  list(companyId: string): Promise<FormReviewEntry[]>;
+  list(organizationId: string): Promise<FormReviewEntry[]>;
 }
 
 /** Private immutable objects. Downloads must be authorized through the answer's submission. */
@@ -229,7 +238,7 @@ export interface IFormAttachmentStorage {
     bytes: Uint8Array,
     originalName: string,
   ): Promise<string | null>;
-  put(companyId: string, bytes: Uint8Array): Promise<string>;
+  put(organizationId: string, bytes: Uint8Array): Promise<string>;
   read(storageKey: string): Promise<Uint8Array>;
   remove(storageKey: string): Promise<void>;
 }

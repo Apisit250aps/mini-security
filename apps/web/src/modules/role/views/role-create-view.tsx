@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import FormPageLayout from '@/shared/components/layouts/form-page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
 import RoleCreateForm from '../components/form/role-create-form';
 import {
@@ -17,16 +17,17 @@ import { ShieldCheck, Info, CheckCircle2 } from 'lucide-react';
 
 export default function RoleCreateView() {
   const router = useRouter();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrgLoading } =
+    useActiveOrganization();
   const { isSuperAdmin } = usePermission();
-  const basePath = activeCompanyId ? '/company/role' : '/admin/role';
-  const isPageLoading = isCompanyLoading && !isSuperAdmin;
+  const basePath = activeOrganizationId ? '/organization/role' : '/admin/role';
+  const isPageLoading = isOrgLoading && !isSuperAdmin;
 
   return (
     <FormPageLayout
       title="เพิ่มบทบาทใหม่"
       description={
-        activeCompanyId
+        activeOrganizationId
           ? 'กำหนดบทบาทและตำแหน่งพนักงานสำหรับองค์กรนี้ พร้อมระบุประเภทสิทธิ์เริ่มต้น'
           : 'สร้างบทบาทใหม่ในระบบ กำหนดระดับสิทธิ์และขอบเขตการใช้งาน'
       }
@@ -51,7 +52,7 @@ export default function RoleCreateView() {
                 <div>
                   <strong className="text-foreground">ADMIN:</strong>{' '}
                   เหมาะสำหรับผู้จัดการสาขาหรือหัวหน้างาน
-                  สามารถดูและจัดการข้อมูลส่วนใหญ่ของบริษัทได้
+                  สามารถดูและจัดการข้อมูลส่วนใหญ่ขององค์กรได้
                 </div>
               </div>
               <div className="flex items-start gap-2">
@@ -93,7 +94,7 @@ export default function RoleCreateView() {
       <Card>
         <CardContent className="p-6">
           <RoleCreateForm
-            companyId={activeCompanyId || undefined}
+            organizationId={activeOrganizationId || undefined}
             onSuccess={() => router.push(basePath)}
           />
         </CardContent>

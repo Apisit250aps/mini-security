@@ -139,7 +139,7 @@ test('Null, undefined, and empty string handling', () => {
 
 test('Backward compatibility: unencrypted plaintext is returned as-is', () => {
   const legacyStrings = [
-    'legacy_plain_email@company.com',
+    'legacy_plain_email@organization.com',
     'regular non-encrypted address string',
     'some-plain-token',
   ];

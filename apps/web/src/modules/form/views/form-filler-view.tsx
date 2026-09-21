@@ -31,10 +31,10 @@ import { ButtonLoading } from '@repo/ui/components/shared/button/index';
 import { useOverlay } from '@repo/ui/hooks';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
 import {
   useFormSubmissionQueries,
   useReviewDetailQueries,
@@ -92,11 +92,14 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   const router = useRouter();
   const ui = useOverlay();
 
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
   const { data: session } = useSession();
 
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
-  const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
+  const membersQuery = useOrganizationMembersQueries(
+    activeOrganizationId || '',
+  );
+  const rolesQuery = useGetOrganizationRoles(activeOrganizationId || '');
   const submissionQuery = useFormSubmissionQueries(submissionId);
   const reviewQuery = useReviewDetailQueries(submissionId);
   const reviewEntries = reviewQuery.data || [];
@@ -104,15 +107,15 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
   const saveDraftMutation = useFormSubmissionSaveDraft(
     submissionId,
-    activeCompanyId || '',
+    activeOrganizationId || '',
   );
   const submitMutation = useFormSubmissionSubmit(
     submissionId,
-    activeCompanyId || '',
+    activeOrganizationId || '',
   );
   const correctionMutation = useFormSubmissionCreateCorrection(
     submissionId,
-    activeCompanyId || '',
+    activeOrganizationId || '',
   );
 
   const attachmentPending =
@@ -226,7 +229,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
             {
               onSuccess: () => {
                 toast.success('ส่งแบบฟอร์มเพื่อรอพิจารณาอนุมัติเรียบร้อยแล้ว');
-                router.push('/company/forms/submissions');
+                router.push('/organization/forms/submissions');
               },
               onError: (err) => {
                 toast.error(getErrorMessage(err, 'ไม่สามารถส่งแบบฟอร์มได้'));
@@ -244,7 +247,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   }, [detail, form, saveDraftMutation, submitMutation, router]);
 
   const handleClone = useCallback(() => {
-    if (!detail || !activeCompanyId || !currentMember) return;
+    if (!detail || !activeOrganizationId || !currentMember) return;
     ui.alert.open({
       title: 'ยืนยันการคัดลอกเพื่อสร้างฉบับแก้ไข',
       description:
@@ -257,7 +260,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
             const newSub = res?.data;
             if (newSub?.id) {
               toast.success('สร้างฉบับแก้ไขใหม่เรียบร้อยแล้ว');
-              router.push(`/company/forms/submissions/${newSub.id}`);
+              router.push(`/organization/forms/submissions/${newSub.id}`);
             }
           },
           onError: (err) => {
@@ -269,7 +272,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   }, [
     ui.alert,
     detail,
-    activeCompanyId,
+    activeOrganizationId,
     currentMember,
     correctionMutation,
     submissionId,
@@ -277,7 +280,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
   ]);
 
   const handleOpenReview = useCallback(() => {
-    if (!detail || !activeCompanyId) return;
+    if (!detail || !activeOrganizationId) return;
     ui.dialog.open({
       title: 'พิจารณาอนุมัติ/ปฏิเสธแบบฟอร์ม',
       description: `รหัสการบันทึก: #${submissionId.slice(0, 8)}`,
@@ -285,23 +288,23 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
       children: (
         <FormSubmissionReviewDialog
           submissionId={submissionId}
-          companyId={activeCompanyId}
+          organizationId={activeOrganizationId}
           reviewerMemberId={currentMember?.id || ''}
           onClose={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, detail, activeCompanyId, submissionId, currentMember]);
+  }, [ui.dialog, detail, activeOrganizationId, submissionId, currentMember]);
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || submissionQuery.isLoading;
+    isOrganizationLoading || !activeOrganizationId || submissionQuery.isLoading;
 
   if (!isPageLoading && !detail) {
     return (
       <PageLayout
-        pageId="companyFormSubmissionDetail"
+        pageId="organizationFormSubmissionDetail"
         actions={
-          <Link href="/company/forms/submissions">
+          <Link href="/organization/forms/submissions">
             <Button
               variant="ghost"
               size="sm"
@@ -330,7 +333,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
   return (
     <PageLayout
-      pageId="companyFormSubmissionDetail"
+      pageId="organizationFormSubmissionDetail"
       title={
         template?.name ? `แบบฟอร์ม: ${template.name}` : 'บันทึกแบบฟอร์มตรวจสอบ'
       }
@@ -341,7 +344,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
       loadingText="กำลังโหลดข้อมูลแบบฟอร์ม..."
       actions={
         <div className="flex items-center gap-2">
-          <Link href="/company/forms/submissions">
+          <Link href="/organization/forms/submissions">
             <Button
               variant="ghost"
               size="sm"
@@ -632,7 +635,7 @@ export default function FormFillerView({ submissionId }: FormFillerViewProps) {
 
         {/* Floating Bottom Sticky Action Bar */}
         <div className="sticky bottom-4 z-10 flex items-center justify-between gap-4 p-4 rounded-xl border border-border/80 bg-background/95 backdrop-blur-md shadow-lg">
-          <Link href="/company/forms/submissions">
+          <Link href="/organization/forms/submissions">
             <Button variant="outline" size="sm" className="gap-1.5">
               <ArrowLeft className="size-4" />
               กลับหน้ารายการตรวจ

@@ -3,19 +3,20 @@ import { useScheduleCreate } from '../../hooks/attendance-mutations';
 import ScheduleForm from './schedule-form';
 
 export default function ScheduleCreateForm({
-  companyId,
+  organizationId,
   onSuccess,
 }: {
-  companyId: string;
+  organizationId?: string;
   onSuccess: () => void;
 }) {
-  const mutation = useScheduleCreate(companyId);
+  const targetOrgId = organizationId || '';
+  const mutation = useScheduleCreate(targetOrgId);
   return (
     <ScheduleForm
-      companyId={companyId}
+      organizationId={targetOrgId}
       isLoading={mutation.isPending}
       onSubmit={(data) =>
-        mutation.mutate({ ...data, companyId }, { onSuccess })
+        mutation.mutate({ ...data, organizationId: targetOrgId }, { onSuccess })
       }
     />
   );

@@ -3,12 +3,12 @@
 import React, { useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { ScheduleSlot } from '@repo/domains/entities';
+import type { ScheduleSlot } from '@repo/client';
 import DetailPageLayout from '@/shared/components/layouts/detail-page-layout';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import {
-  useCompanySchedulesQueries,
+  useGetCheckInSchedulesByOrganization,
   useScheduleSlotsQueries,
 } from '../hooks/attendance-queries';
 import {
@@ -16,7 +16,7 @@ import {
   useSlotUpdate,
   useSlotDelete,
 } from '../hooks/attendance-mutations';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
 import { useOverlay } from '@repo/ui/hooks';
 import { Button } from '@repo/ui/components/button';
 import { Badge } from '@repo/ui/components/badge';
@@ -46,11 +46,14 @@ export default function ScheduleDetailView({
 }: ScheduleDetailViewProps) {
   const router = useRouter();
   const ui = useOverlay();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrgLoading } =
+    useActiveOrganization();
 
-  const schedulesQuery = useCompanySchedulesQueries(activeCompanyId || '');
+  const schedulesQuery = useGetCheckInSchedulesByOrganization(
+    activeOrganizationId || '',
+  );
   const slotsQuery = useScheduleSlotsQueries(scheduleId);
-  const rolesQuery = useCompanyRolesQueries(activeCompanyId || '');
+  const rolesQuery = useGetOrganizationRoles(activeOrganizationId || '');
 
   const createMutation = useSlotCreate(scheduleId);
   const updateMutation = useSlotUpdate(scheduleId);
@@ -91,7 +94,7 @@ export default function ScheduleDetailView({
           onSubmit={(data: SlotFormValues) => {
             createMutation.mutate(
               {
-                companyId: schedule.companyId,
+                organizationId: schedule.organizationId,
                 label: data.label,
                 slotOrder: data.slotOrder,
                 windowStart: data.windowStart,
@@ -156,21 +159,21 @@ export default function ScheduleDetailView({
   // Open Offcanvas Sheet to Configure Slot Locations
   const handleOpenSlotLocations = useCallback(
     (slot: ScheduleSlot) => {
-      if (!activeCompanyId) return;
+      if (!activeOrganizationId) return;
       ui.sheet.open({
         title: `จุดตรวจและสถานที่: ${slot.label}`,
         description: 'กำหนดพิกัดและสถานที่ที่อนุญาตให้ลงเวลาสำหรับรอบนี้',
         size: '2xl',
         children: (
           <SlotLocationsPanel
-            companyId={activeCompanyId}
+            organizationId={activeOrganizationId}
             slot={slot}
             onBack={() => ui.sheet.close()}
           />
         ),
       });
     },
-    [activeCompanyId, ui.sheet],
+    [activeOrganizationId, ui.sheet],
   );
 
   // Open Offcanvas Sheet to Edit Schedule Metadata
@@ -302,13 +305,13 @@ export default function ScheduleDetailView({
     [handleOpenEditSlot, handleOpenSlotLocations, handleDeleteSlot],
   );
 
-  const isLoading = isCompanyLoading || schedulesQuery.isLoading;
+  const isLoading = isOrgLoading || schedulesQuery.isLoading;
 
   if (!isLoading && !schedule) {
     return (
       <DetailPageLayout
         title="ไม่พบตารางเวลา"
-        backHref="/company/attendance/schedules"
+        backHref="/organization/attendance/schedules"
       >
         <EmptyState
           icon={Calendar}
@@ -316,7 +319,7 @@ export default function ScheduleDetailView({
           description="ตารางเวลานี้อาจถูกลบหรือไม่มีสิทธิ์เข้าถึง"
           action={
             <Button
-              onPress={() => router.push('/company/attendance/schedules')}
+              onPress={() => router.push('/organization/attendance/schedules')}
             >
               กลับสู่หน้ารายการตารางเวลา
             </Button>
@@ -330,7 +333,7 @@ export default function ScheduleDetailView({
     <DetailPageLayout
       title={schedule?.name || 'ตารางเวลาเข้างาน'}
       description="จัดการรอบเวลาเช็คชื่อ (Slots) กำหนดช่วงเวลา และสถานที่ที่อนุญาตให้ลงเวลา"
-      backHref="/company/attendance/schedules"
+      backHref="/organization/attendance/schedules"
       backLabel="กลับหน้ารายการตารางเวลา"
       isLoading={isLoading}
       badges={

@@ -36,8 +36,8 @@ export type IUpdateFormTemplateContext = ISecurityContext & {
   data: UpdateFormTemplate;
 };
 export type IGetFormTemplateContext = ISecurityContext & { id: string };
-export type IListFormTemplatesByCompanyContext = ISecurityContext & {
-  companyId: string;
+export type IListFormTemplatesByOrganizationContext = ISecurityContext & {
+  organizationId: string;
 };
 export type ICreateFormSectionContext = ISecurityContext & {
   data: CreateFormSection;
@@ -72,8 +72,8 @@ export type IGetFormTemplateUseCase = BaseUseCase<
   IGetFormTemplateContext,
   FormTemplateDetail | null
 >;
-export type IListFormTemplatesByCompanyUseCase = BaseUseCase<
-  IListFormTemplatesByCompanyContext,
+export type IListFormTemplatesByOrganizationUseCase = BaseUseCase<
+  IListFormTemplatesByOrganizationContext,
   FormTemplate[]
 >;
 export type ICreateFormSectionUseCase = BaseUseCase<
@@ -111,7 +111,7 @@ export type IReorderFormFieldsUseCase = BaseUseCase<
 // Plan, Schedule, Occurrence, Assignment
 export type ICreateFormPlanTargetInput = {
   roleId?: string | null;
-  companyMemberId?: string | null;
+  organizationMemberId?: string | null;
   roleDistribution?: FormRoleDistribution | null;
 };
 export type ICreateFormPlanPeriodInput = {
@@ -149,7 +149,9 @@ export type IGetFormPlanUseCase = BaseUseCase<
   IGetFormPlanContext,
   FormPlanDetail
 >;
-export type IListFormPlansContext = ISecurityContext & { companyId: string };
+export type IListFormPlansContext = ISecurityContext & {
+  organizationId: string;
+};
 export type IListFormPlansUseCase = BaseUseCase<
   IListFormPlansContext,
   FormPlan[]
@@ -178,7 +180,7 @@ export type IPreviewScheduleUseCase = BaseUseCase<
 >;
 
 export type IOpenDueOccurrencesContext = ISecurityContext & {
-  companyId: string;
+  organizationId: string;
 };
 export type IOpenDueOccurrencesUseCase = BaseUseCase<
   IOpenDueOccurrencesContext,
@@ -195,7 +197,7 @@ export type ICancelOccurrenceUseCase = BaseUseCase<
   FormOccurrence
 >;
 export type IListOccurrencesContext = ISecurityContext & {
-  companyId: string;
+  organizationId: string;
   formTemplateId?: string;
   planId?: string;
 };
@@ -243,7 +245,7 @@ export type MyAssignmentItem = FormAssignment & {
   availableActions?: FormTaskAvailableActions;
 };
 export type IListMyAssignmentsContext = ISecurityContext & {
-  companyId: string;
+  organizationId: string;
   memberId: string;
 };
 export type IListMyAssignmentsUseCase = BaseUseCase<
@@ -270,7 +272,7 @@ export type ICancelAssignmentUseCase = BaseUseCase<
 >;
 export type IReplaceAssignmentContext = ISecurityContext & {
   assignmentId: string;
-  newCompanyMemberId?: string;
+  newOrganizationMemberId?: string;
   newRoleId?: string;
   cancelReason: string;
   memberId?: string | null;
@@ -284,10 +286,10 @@ export type OccurrenceAssignmentItem = {
   id: string;
   assignmentId: string;
   occurrenceId: string;
-  companyId: string;
+  organizationId: string;
   formVersionId: string;
   roleId?: string | null;
-  companyMemberId?: string | null;
+  organizationMemberId?: string | null;
   roleName?: string | null;
   memberName?: string | null;
   assignmentType: 'PERSONAL' | 'ROLE';
@@ -305,7 +307,7 @@ export type OccurrenceAssignmentItem = {
 
 export type IListOccurrenceAssignmentsContext = ISecurityContext & {
   occurrenceId: string;
-  companyId?: string;
+  organizationId?: string;
 };
 
 export type IListOccurrenceAssignmentsUseCase = BaseUseCase<
@@ -339,10 +341,10 @@ export type ICreateCorrectionUseCase = BaseUseCase<
 >;
 export type IGetFormSubmissionContext = ISecurityContext & {
   id: string;
-  companyId?: string;
+  organizationId?: string;
 };
 export type IListFormSubmissionsContext = ISecurityContext & {
-  companyId?: string;
+  organizationId?: string;
   assignmentId?: string;
 };
 
@@ -403,7 +405,7 @@ export type ReviewQueueItem = FormSubmission & {
   submitterName?: string | null;
 };
 export type IListReviewQueueUseCase = BaseUseCase<
-  ISecurityContext & { companyId: string },
+  ISecurityContext & { organizationId: string },
   ReviewQueueItem[]
 >;
 export type IGetReviewDetailUseCase = BaseUseCase<

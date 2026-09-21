@@ -20,25 +20,25 @@ export type IUpdateLocationContext = ISecurityContext & {
 
 export type IDeleteLocationContext = ISecurityContext & {
   id: string;
-  companyId: string;
+  organizationId: string;
 };
 
 export type IGetLocationContext = ISecurityContext & {
   id: string;
 };
 
-export type IGetLocationsByBranchContext = ISecurityContext & {
-  companyBranchId: string;
+export type IGetLocationsBySiteContext = ISecurityContext & {
+  siteId: string;
 };
 
-export type IGetLocationsByCompanyContext = ISecurityContext & {
-  companyId: string;
+export type IGetLocationsByOrganizationContext = ISecurityContext & {
+  organizationId: string;
 };
 
 export type ISetPrimaryLocationContext = ISecurityContext & {
   locationId: string;
-  companyBranchId: string;
-  companyId: string;
+  siteId: string;
+  organizationId: string;
 };
 
 export type IAssignSlotLocationContext = ISecurityContext & {
@@ -68,12 +68,12 @@ export type IGetLocationUseCase = BaseUseCase<
   IGetLocationContext,
   Location | null
 >;
-export type IGetLocationsByBranchUseCase = BaseUseCase<
-  IGetLocationsByBranchContext,
+export type IGetLocationsBySiteUseCase = BaseUseCase<
+  IGetLocationsBySiteContext,
   Location[]
 >;
-export type IGetLocationsByCompanyUseCase = BaseUseCase<
-  IGetLocationsByCompanyContext,
+export type IGetLocationsByOrganizationUseCase = BaseUseCase<
+  IGetLocationsByOrganizationContext,
   Location[]
 >;
 export type ISetPrimaryLocationUseCase = BaseUseCase<

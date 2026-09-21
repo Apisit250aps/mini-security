@@ -7,29 +7,30 @@ import type { FormSubmission } from '@repo/domains/entities';
 import ColumnActions from '@repo/ui/components/shared/dropdown/column-actions';
 import { useOverlay } from '@repo/ui/hooks';
 import { useSession } from '@/modules/auth/hooks/session-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useFormSubmissionCreateCorrection } from '../../hooks/form-mutations';
 import FormSubmissionReviewDialog from './form-submission-review-dialog';
 
 interface FormSubmissionColumnActionsProps<T extends FormSubmission> {
   cell: CellContext<T, unknown>;
-  companyId: string;
+  organizationId?: string;
 }
 
 export default function FormSubmissionColumnActions<T extends FormSubmission>({
   cell,
-  companyId,
+  organizationId,
 }: FormSubmissionColumnActionsProps<T>) {
+  const activeOrgId = organizationId || '';
   const router = useRouter();
   const ui = useOverlay();
   const submission = cell.row.original;
   const cloneMutation = useFormSubmissionCreateCorrection(
     submission.id,
-    companyId,
+    activeOrgId,
   );
 
   const { data: session } = useSession();
-  const membersQuery = useCompanyMembersQueries(companyId);
+  const membersQuery = useOrganizationMembersQueries(activeOrgId);
   const currentMember = membersQuery.data?.find(
     (m) => m.userId === session?.user.id && m.isActive,
   );
@@ -37,7 +38,7 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
   const memberId = currentMember?.id || '';
 
   const actionFill = useCallback(() => {
-    router.push(`/company/forms/submissions/${submission.id}`);
+    router.push(`/organization/forms/submissions/${submission.id}`);
   }, [router, submission.id]);
 
   const actionReview = useCallback(() => {
@@ -48,13 +49,13 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
       children: (
         <FormSubmissionReviewDialog
           submissionId={submission.id}
-          companyId={companyId}
+          organizationId={activeOrgId}
           reviewerMemberId={memberId}
           onClose={() => ui.dialog.close()}
         />
       ),
     });
-  }, [ui.dialog, submission.id, companyId, memberId]);
+  }, [ui.dialog, submission.id, activeOrgId, memberId]);
 
   const actionClone = useCallback(() => {
     ui.alert.open({
@@ -68,7 +69,7 @@ export default function FormSubmissionColumnActions<T extends FormSubmission>({
             ui.alert.close();
             const newSub = res?.data;
             if (newSub?.id) {
-              router.push(`/company/forms/submissions/${newSub.id}`);
+              router.push(`/organization/forms/submissions/${newSub.id}`);
             }
           },
         });

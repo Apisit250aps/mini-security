@@ -22,10 +22,10 @@ import { Badge } from '@repo/ui/components/badge';
 import { Input } from '@repo/ui/components/input';
 import { toast } from '@repo/ui/components/sonner';
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import { useSession } from '@/modules/auth/hooks/session-provider';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useMyAssignmentsQueries } from '../hooks/form-queries';
 import {
   useFormSubmissionStart,
@@ -37,22 +37,25 @@ import type { FormAssignmentItem, FormTaskWorkflowStatus } from '@repo/client';
 
 export default function FormTasksView() {
   const router = useRouter();
-  const { activeCompanyId, isLoading: isCompanyLoading } = useActiveCompany();
+  const { activeOrganizationId, isLoading: isOrganizationLoading } =
+    useActiveOrganization();
   const { data: sessionData } = useSession();
   const { hasPermission, isSuperAdmin } = usePermission();
 
-  const membersQuery = useCompanyMembersQueries(activeCompanyId || '');
+  const membersQuery = useOrganizationMembersQueries(
+    activeOrganizationId || '',
+  );
   const members = membersQuery.data || [];
   const currentMember = members.find((m) => m.userId === sessionData?.user?.id);
 
   const assignmentsQuery = useMyAssignmentsQueries({
-    companyId: activeCompanyId || '',
+    organizationId: activeOrganizationId || '',
     memberId: currentMember?.id,
   });
 
-  const startMutation = useFormSubmissionStart(activeCompanyId || '');
+  const startMutation = useFormSubmissionStart(activeOrganizationId || '');
   const correctionMutation = useFormSubmissionCreateCorrectionMutation(
-    activeCompanyId || '',
+    activeOrganizationId || '',
   );
 
   const [filterTab, setFilterTab] = useState<'PENDING' | 'COMPLETED' | 'ALL'>(
@@ -132,7 +135,7 @@ export default function FormTasksView() {
         onSuccess: (res) => {
           const sub = res?.data;
           if (sub?.id) {
-            router.push(`/company/forms/submissions/${sub.id}`);
+            router.push(`/organization/forms/submissions/${sub.id}`);
           }
         },
         onError: (err) => {
@@ -147,7 +150,7 @@ export default function FormTasksView() {
       onSuccess: (res) => {
         const sub = res?.data;
         if (sub?.id) {
-          router.push(`/company/forms/submissions/${sub.id}`);
+          router.push(`/organization/forms/submissions/${sub.id}`);
         }
       },
       onError: (err) => {
@@ -237,13 +240,15 @@ export default function FormTasksView() {
   };
 
   const isPageLoading =
-    isCompanyLoading || !activeCompanyId || assignmentsQuery.isLoading;
+    isOrganizationLoading ||
+    !activeOrganizationId ||
+    assignmentsQuery.isLoading;
 
   const canManagePlans = isSuperAdmin || hasPermission('form_plan:manage');
 
   return (
     <PageLayout
-      pageId="companyFormTasks"
+      pageId="organizationFormTasks"
       title="งานตรวจของฉัน"
       description="รายการงานตรวจที่ได้รับมอบหมายตามรอบการตรวจที่เปิดอยู่"
       isLoading={isPageLoading}
@@ -339,7 +344,7 @@ export default function FormTasksView() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push('/company/forms/plans')}
+                  onClick={() => router.push('/organization/forms/plans')}
                 >
                   <CalendarCheck2 data-icon="inline-start" />
                   ไปยังแผนการตรวจ
@@ -429,7 +434,7 @@ export default function FormTasksView() {
                           className="text-[10px] font-normal"
                         >
                           {assignment.recipientLabel ||
-                            (assignment.companyMemberId
+                            (assignment.organizationMemberId
                               ? 'งานส่วนตัว'
                               : assignment.roleName
                                 ? `ตำแหน่ง: ${assignment.roleName}`
@@ -461,7 +466,7 @@ export default function FormTasksView() {
                         size="sm"
                         onClick={() =>
                           router.push(
-                            `/company/forms/submissions/${assignment.latestSubmissionId}`,
+                            `/organization/forms/submissions/${assignment.latestSubmissionId}`,
                           )
                         }
                       >
@@ -498,7 +503,7 @@ export default function FormTasksView() {
                         size="sm"
                         onClick={() =>
                           router.push(
-                            `/company/forms/submissions/${assignment.latestSubmissionId}`,
+                            `/organization/forms/submissions/${assignment.latestSubmissionId}`,
                           )
                         }
                       >

@@ -31,7 +31,7 @@ import type {
   IFormSubmissionRepository,
   IFormReviewEntryRepository,
 } from '@repo/domains/repositories/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type { IUserRepository } from '@repo/domains/repositories/user';
 import type { IRoleRepository } from '@repo/domains/repositories/permission';
 import {
@@ -169,7 +169,7 @@ function resolveAssignmentWorkflowAndActions(params: {
 export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
   constructor(
     private readonly assignmentRepo: IFormAssignmentRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly occurrenceRepo?: IFormOccurrenceRepository,
     private readonly templateRepo?: IFormTemplateRepository,
     private readonly roleRepo?: IRoleRepository,
@@ -187,14 +187,17 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
       !member ||
       !member.isActive ||
       member.userId !== context.user?.id ||
-      member.companyId !== context.companyId
+      member.organizationId !== context.organizationId
     ) {
-      throw new NotFoundError('Company member not found');
+      throw new NotFoundError('Organization member not found');
     }
 
     const [byMember, byRole] = await Promise.all([
-      this.assignmentRepo.findByMemberId(context.companyId, context.memberId),
-      this.assignmentRepo.findByRoleId(context.companyId, member.roleId),
+      this.assignmentRepo.findByMemberId(
+        context.organizationId,
+        context.memberId,
+      ),
+      this.assignmentRepo.findByRoleId(context.organizationId, member.roleId),
     ]);
 
     const merged = new Map<string, FormAssignment>();
@@ -278,7 +281,7 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
       this.submissionRepo && assignmentIds.length > 0
         ? await this.submissionRepo.findByAssignmentIds(
             assignmentIds,
-            context.companyId,
+            context.organizationId,
           )
         : [];
 
@@ -317,7 +320,7 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
           isAssignedToCurrentActor: true,
         });
 
-      const isPersonal = Boolean(a.companyMemberId);
+      const isPersonal = Boolean(a.organizationMemberId);
       const recipientLabel = isPersonal
         ? 'งานส่วนตัว'
         : role?.name
@@ -352,25 +355,29 @@ export class ListMyAssignmentsUseCase implements IListMyAssignmentsUseCase {
 export class GetAssignmentUseCase implements IGetAssignmentUseCase {
   constructor(
     private readonly assignmentRepo: IFormAssignmentRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
   ) {}
 
   @RequirePermission('form_submission:read')
   async execute(context: IGetAssignmentContext): Promise<FormAssignment> {
     const assignment = await this.assignmentRepo.findById(context.assignmentId);
-    const companyId = context.companyId ?? context.activeCompanyId;
-    if (!assignment || (companyId && assignment.companyId !== companyId)) {
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (
+      !assignment ||
+      (organizationId && assignment.organizationId !== organizationId)
+    ) {
       throw new NotFoundError('Assignment not found');
     }
 
     if (context.memberId) {
       const member = await this.memberRepo.findById(context.memberId);
       if (!member) {
-        throw new NotFoundError('Company member not found');
+        throw new NotFoundError('Organization member not found');
       }
 
       if (
-        assignment.companyMemberId !== context.memberId &&
+        assignment.organizationMemberId !== context.memberId &&
         assignment.roleId !== member.roleId
       ) {
         throw new NotFoundError('Assignment not found');
@@ -394,8 +401,12 @@ export class CancelAssignmentUseCase implements ICancelAssignmentUseCase {
       const assignment = await this.assignmentRepo.findById(
         context.assignmentId,
       );
-      const companyId = context.companyId ?? context.activeCompanyId;
-      if (!assignment || (companyId && assignment.companyId !== companyId)) {
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
+      if (
+        !assignment ||
+        (organizationId && assignment.organizationId !== organizationId)
+      ) {
         throw new NotFoundError('Assignment not found');
       }
       if (assignment.cancelledAt != null) {
@@ -439,7 +450,12 @@ export class ReplaceAssignmentUseCase implements IReplaceAssignmentUseCase {
       const oldAssignment = await this.assignmentRepo.findById(
         context.assignmentId,
       );
-      if (!oldAssignment || oldAssignment.companyId !== context.companyId) {
+      const organizationId =
+        context.organizationId ?? context.activeOrganizationId;
+      if (
+        !oldAssignment ||
+        (organizationId && oldAssignment.organizationId !== organizationId)
+      ) {
         throw new NotFoundError('Assignment not found');
       }
       if (oldAssignment.cancelledAt != null) {
@@ -453,11 +469,11 @@ export class ReplaceAssignmentUseCase implements IReplaceAssignmentUseCase {
       });
 
       return this.assignmentRepo.create({
-        companyId: oldAssignment.companyId,
+        organizationId: oldAssignment.organizationId,
         occurrenceId: oldAssignment.occurrenceId,
         formVersionId: oldAssignment.formVersionId,
         roleId: context.newRoleId ?? null,
-        companyMemberId: context.newCompanyMemberId ?? null,
+        organizationMemberId: context.newOrganizationMemberId ?? null,
         replacesAssignmentId: oldAssignment.id,
         assignedBy: context.memberId ?? context.userId,
         revision: 1,
@@ -473,7 +489,7 @@ export class ListOccurrenceAssignmentsUseCase
     private readonly assignmentRepo: IFormAssignmentRepository,
     private readonly occurrenceRepo: IFormOccurrenceRepository,
     private readonly planRepo: IFormPlanRepository,
-    private readonly memberRepo: ICompanyMemberRepository,
+    private readonly memberRepo: IOrganizationMemberRepository,
     private readonly roleRepo?: IRoleRepository,
     private readonly submissionRepo?: IFormSubmissionRepository,
     private readonly reviewEntryRepo?: IFormReviewEntryRepository,
@@ -485,8 +501,12 @@ export class ListOccurrenceAssignmentsUseCase
     context: IListOccurrenceAssignmentsContext,
   ): Promise<OccurrenceAssignmentItem[]> {
     const occurrence = await this.occurrenceRepo.findById(context.occurrenceId);
-    const companyId = context.companyId ?? context.activeCompanyId;
-    if (!occurrence || (companyId && occurrence.companyId !== companyId)) {
+    const organizationId =
+      context.organizationId ?? context.activeOrganizationId;
+    if (
+      !occurrence ||
+      (organizationId && occurrence.organizationId !== organizationId)
+    ) {
       throw new NotFoundError('Occurrence not found');
     }
 
@@ -521,7 +541,7 @@ export class ListOccurrenceAssignmentsUseCase
     const memberIds = [
       ...new Set(
         assignments
-          .map((a) => a.companyMemberId)
+          .map((a) => a.organizationMemberId)
           .filter((id): id is string => Boolean(id)),
       ),
     ];
@@ -557,7 +577,7 @@ export class ListOccurrenceAssignmentsUseCase
       this.submissionRepo && assignmentIds.length > 0
         ? await this.submissionRepo.findByAssignmentIds(
             assignmentIds,
-            occurrence.companyId,
+            occurrence.organizationId,
           )
         : [];
 
@@ -580,15 +600,17 @@ export class ListOccurrenceAssignmentsUseCase
 
     return assignments.map((a) => {
       const role = a.roleId ? roleMap.get(a.roleId) : null;
-      const mem = a.companyMemberId ? memberMap.get(a.companyMemberId) : null;
+      const mem = a.organizationMemberId
+        ? memberMap.get(a.organizationMemberId)
+        : null;
       const u = mem ? userMap.get(mem.userId) : null;
       const memberName = u?.name ?? null;
       const assignSubs = submissionsByAssignment.get(a.id) ?? [];
 
-      const isPersonal = Boolean(a.companyMemberId);
+      const isPersonal = Boolean(a.organizationMemberId);
       const isAssignedToActor = Boolean(
         currentMember &&
-          ((isPersonal && a.companyMemberId === currentMember.id) ||
+          ((isPersonal && a.organizationMemberId === currentMember.id) ||
             (!isPersonal && a.roleId && a.roleId === currentMember.roleId)),
       );
 
@@ -613,10 +635,10 @@ export class ListOccurrenceAssignmentsUseCase
         id: a.id,
         assignmentId: a.id,
         occurrenceId: a.occurrenceId,
-        companyId: a.companyId,
+        organizationId: a.organizationId,
         formVersionId: a.formVersionId,
         roleId: a.roleId ?? null,
-        companyMemberId: a.companyMemberId ?? null,
+        organizationMemberId: a.organizationMemberId ?? null,
         roleName: role?.name ?? null,
         memberName,
         assignmentType: isPersonal ? 'PERSONAL' : 'ROLE',

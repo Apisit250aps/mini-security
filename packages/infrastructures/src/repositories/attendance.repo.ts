@@ -15,7 +15,7 @@ import {
   attendanceLogs,
   checkInSchedules,
   checkInScheduleRoles,
-  companyMember,
+  organizationMember,
   role,
   scheduleSlots,
 } from '@repo/database/schema';
@@ -101,7 +101,7 @@ export class CheckInScheduleRepository
       if (roleIds.length) {
         await tx.insert(checkInScheduleRoles).values(
           roleIds.map((roleId) => ({
-            companyId: schedule.companyId,
+            organizationId: schedule.organizationId,
             checkInScheduleId: schedule.id,
             roleId,
           })),
@@ -135,7 +135,7 @@ export class CheckInScheduleRepository
             .insert(checkInScheduleRoles)
             .values(
               roleIds.map((roleId) => ({
-                companyId: schedule.companyId,
+                organizationId: schedule.organizationId,
                 checkInScheduleId: id,
                 roleId,
               })),
@@ -168,7 +168,7 @@ export class CheckInScheduleRepository
   }
 
   async findByRoleId(
-    companyId: string,
+    organizationId: string,
     roleId: string,
   ): Promise<CheckInSchedule[]> {
     const assigned = this.db
@@ -178,26 +178,28 @@ export class CheckInScheduleRepository
       .where(
         and(
           eq(checkInScheduleRoles.checkInScheduleId, checkInSchedules.id),
-          eq(checkInScheduleRoles.companyId, companyId),
+          eq(checkInScheduleRoles.organizationId, organizationId),
           eq(checkInScheduleRoles.roleId, roleId),
           eq(checkInScheduleRoles.isActive, true),
           or(
-            eq(role.companyId, companyId),
-            and(isNull(role.companyId), eq(role.isSystemDefault, true)),
+            eq(role.organizationId, organizationId),
+            and(isNull(role.organizationId), eq(role.isSystemDefault, true)),
           ),
         ),
       );
     return this.load(
       and(
-        eq(checkInSchedules.companyId, companyId),
+        eq(checkInSchedules.organizationId, organizationId),
         eq(checkInSchedules.isActive, true),
         exists(assigned),
       ),
     );
   }
 
-  async findByCompanyId(companyId: string): Promise<CheckInSchedule[]> {
-    return this.load(eq(checkInSchedules.companyId, companyId));
+  async findByOrganizationId(
+    organizationId: string,
+  ): Promise<CheckInSchedule[]> {
+    return this.load(eq(checkInSchedules.organizationId, organizationId));
   }
 }
 
@@ -256,7 +258,7 @@ export class AttendanceLogRepository
       .from(attendanceLogs)
       .where(
         this.whereActive(
-          eq(attendanceLogs.companyMemberId, memberId),
+          eq(attendanceLogs.organizationMemberId, memberId),
           eq(attendanceLogs.workDate, workDate),
         ),
       );
@@ -273,7 +275,7 @@ export class AttendanceLogRepository
       .from(attendanceLogs)
       .where(
         this.whereActive(
-          eq(attendanceLogs.companyMemberId, memberId),
+          eq(attendanceLogs.organizationMemberId, memberId),
           eq(attendanceLogs.scheduleSlotId, slotId),
           eq(attendanceLogs.workDate, workDate),
         ),
@@ -283,16 +285,16 @@ export class AttendanceLogRepository
       : null;
   }
 
-  async findByCompanyAndDateRange(
-    companyId: string,
+  async findByOrganizationAndDateRange(
+    organizationId: string,
     startDate: string,
     endDate: string,
   ): Promise<AttendanceLog[]> {
     const results = await this.db
       .select({
         id: attendanceLogs.id,
-        companyId: attendanceLogs.companyId,
-        companyMemberId: attendanceLogs.companyMemberId,
+        organizationId: attendanceLogs.organizationId,
+        organizationMemberId: attendanceLogs.organizationMemberId,
         scheduleSlotId: attendanceLogs.scheduleSlotId,
         workDate: attendanceLogs.workDate,
         checkedInAt: attendanceLogs.checkedInAt,
@@ -311,14 +313,14 @@ export class AttendanceLogRepository
       })
       .from(attendanceLogs)
       .innerJoin(
-        companyMember,
-        eq(attendanceLogs.companyMemberId, companyMember.id),
+        organizationMember,
+        eq(attendanceLogs.organizationMemberId, organizationMember.id),
       )
       .where(
         this.whereActive(
-          eq(companyMember.companyId, companyId),
+          eq(organizationMember.organizationId, organizationId),
           between(attendanceLogs.workDate, startDate, endDate),
-          notDeleted(companyMember),
+          notDeleted(organizationMember),
         ),
       );
 
@@ -335,7 +337,7 @@ export class AttendanceLogRepository
       .from(attendanceLogs)
       .where(
         this.whereActive(
-          eq(attendanceLogs.companyMemberId, memberId),
+          eq(attendanceLogs.organizationMemberId, memberId),
           between(attendanceLogs.workDate, startDate, endDate),
         ),
       );
@@ -348,7 +350,7 @@ export class AttendanceLogRepository
       .values(data)
       .onConflictDoUpdate({
         target: [
-          attendanceLogs.companyMemberId,
+          attendanceLogs.organizationMemberId,
           attendanceLogs.scheduleSlotId,
           attendanceLogs.workDate,
         ],

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { IUnitOfWork } from '@repo/domains';
 import type { FormField, FormSubmission } from '@repo/domains/entities/form';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   IFormAssignmentRepository,
   IFormOccurrenceRepository,
@@ -37,8 +37,8 @@ import { calculateNextOccurrences } from '../src/use-cases/form/form-schedule.us
 const ctx = {
   user: { id: 'user' },
   memberId: 'member',
-  companyId: 'company',
-  activeCompanyId: 'company',
+  organizationId: 'organization',
+  activeOrganizationId: 'organization',
   permissions:
     'form_submission:read,form_submission:update,form_submission:submit,form_submission:create,form_review:read,form_review:answer,form_plan:manage',
   submissionId: 'submission',
@@ -56,7 +56,7 @@ function fixture() {
   };
   const submission = {
     id: 'submission',
-    companyId: 'company',
+    organizationId: 'organization',
     assignmentId: 'assignment',
     formVersionId: 'version',
     revision: 1,
@@ -66,14 +66,14 @@ function fixture() {
   } as FormSubmission;
   const assignment = {
     id: 'assignment',
-    companyId: 'company',
+    organizationId: 'organization',
     occurrenceId: 'occurrence',
     roleId: 'role',
-    companyMemberId: null,
+    organizationMemberId: null,
     cancelledAt: null as Date | null,
   };
   const occurrence = {
-    companyId: 'company',
+    organizationId: 'organization',
     planId: 'plan',
     cancelledAt: null as Date | null,
     opensAt: new Date(0),
@@ -81,7 +81,7 @@ function fixture() {
   };
   const member = {
     id: 'member',
-    companyId: 'company',
+    organizationId: 'organization',
     userId: 'user',
     roleId: 'role',
     isActive: true,
@@ -100,7 +100,7 @@ function fixture() {
       Object.assign(submission, update);
       return submission;
     },
-    findByCompanyId: async () => [submission],
+    findByOrganizationId: async () => [submission],
   } as IFormSubmissionRepository;
   const assignments = {
     findById: async () => assignment,
@@ -111,7 +111,7 @@ function fixture() {
   const members = {
     findById: async (id: string) =>
       id === 'member' ? member : { ...member, id, userId: 'someone-else' },
-  } as ICompanyMemberRepository;
+  } as IOrganizationMemberRepository;
   const contributors = {
     isContributor: async () => true,
     findMemberIdsForRevisionLineage: async () => [],
@@ -297,14 +297,14 @@ test('SELECT rejects duplicate values', async () => {
 });
 test('review detail rejects another tenant before reading entries', async () => {
   const f = fixture();
-  f.submission.companyId = 'foreign';
+  f.submission.organizationId = 'foreign';
   const usecase = new GetReviewDetailUseCase(
     f.reviews,
     f.submissions,
     f.assignments,
     f.members,
   );
-  await assert.rejects(usecase.execute(ctx), /company/);
+  await assert.rejects(usecase.execute(ctx), /organization/);
 });
 test('assigned submitter can read return notes without review permission', async () => {
   const f = fixture();
@@ -388,7 +388,7 @@ test('schedule preview excludes past rounds', () => {
 test('recurring opening progresses beyond seven rounds and deduplicates recipients', async () => {
   const plan = {
     id: 'plan',
-    companyId: 'company',
+    organizationId: 'organization',
     formTemplateId: 'template',
     fixedVersionId: 'version',
     effectiveFrom: new Date('2026-01-01T00:00:00Z'),
@@ -425,7 +425,7 @@ test('recurring opening progresses beyond seven rounds and deduplicates recipien
     {
       findByPlanId: async () => [
         { roleId: 'role', roleDistribution: 'PER_MEMBER' },
-        { companyMemberId: 'member' },
+        { organizationMemberId: 'member' },
       ],
     } as IFormPlanTargetRepository,
     {
@@ -433,11 +433,11 @@ test('recurring opening progresses beyond seven rounds and deduplicates recipien
     } as IFormVersionRepository,
     {} as IFormPlanPeriodRepository,
     {
-      findByCompanyId: async () => [
+      findByOrganizationId: async () => [
         { id: 'member', roleId: 'role', isActive: true },
         { id: 'inactive', roleId: 'role', isActive: false },
       ],
-    } as ICompanyMemberRepository,
+    } as IOrganizationMemberRepository,
   );
   await usecase.execute(ctx);
   assert.equal(created[0]?.opensAt.toISOString(), '2026-01-08T01:00:00.000Z');

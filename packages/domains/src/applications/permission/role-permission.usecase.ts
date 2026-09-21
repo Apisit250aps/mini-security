@@ -14,11 +14,11 @@ export type IRevokePermissionFromRoleContext = ISecurityContext & {
 export type IGetRolePermissionsContext = ISecurityContext & { roleId: string };
 export type ICheckUserPermissionContext = {
   userId: string;
-  companyId?: string;
+  organizationId?: string;
   action: string;
 };
 export type IGetMyPermissionsContext = ISecurityContext & {
-  companyId?: string;
+  organizationId?: string;
 };
 
 // Use Case Contracts

@@ -1,27 +1,27 @@
 import { z } from 'zod';
 import {
-  AssignCompanyFeatureUseCase,
+  AssignOrganizationFeatureUseCase,
   AssignRoleFeatureUseCase,
   CheckRoleFeatureAccessUseCase,
   CreateFeatureUseCase,
-  GetCompanyAvailableFeaturesUseCase,
-  GetCompanyFeaturesUseCase,
-  GetCompanyRoleFeaturesUseCase,
+  GetOrganizationAvailableFeaturesUseCase,
+  GetOrganizationFeaturesUseCase,
+  GetOrganizationRoleFeaturesUseCase,
   GetFeatureByIdUseCase,
   GetFeaturesUseCase,
   GetRoleFeaturesUseCase,
-  RemoveCompanyFeatureUseCase,
+  RemoveOrganizationFeatureUseCase,
   RevokeRoleFeatureUseCase,
-  ToggleCompanyFeatureUseCase,
+  ToggleOrganizationFeatureUseCase,
   ToggleFeatureUseCase,
   ToggleRoleFeatureUseCase,
   UpdateFeatureUseCase,
 } from '@repo/applications';
 import {
   featureSchema,
-  companyFeatureSchema,
+  organizationFeatureSchema,
   roleFeatureSchema,
-  createCompanyFeatureSchema,
+  createOrganizationFeatureSchema,
   createFeatureSchema,
   createRoleFeatureSchema,
   updateFeatureSchema,
@@ -30,12 +30,14 @@ import Controller from './base.controller';
 
 const idParamSchema = featureSchema.pick({ id: true });
 
-const companyIdParamSchema = companyFeatureSchema.pick({ companyId: true });
+const organizationIdParamSchema = organizationFeatureSchema.pick({
+  organizationId: true,
+});
 
 const roleIdParamSchema = roleFeatureSchema.pick({ roleId: true });
 
-const companyFeatureParamSchema = companyFeatureSchema.pick({
-  companyId: true,
+const organizationFeatureParamSchema = organizationFeatureSchema.pick({
+  organizationId: true,
   featureId: true,
 });
 
@@ -45,20 +47,20 @@ const roleFeatureParamSchema = roleFeatureSchema.pick({
 });
 
 const roleAccessParamSchema = z.object({
-  companyId: roleFeatureSchema.shape.companyId,
+  organizationId: roleFeatureSchema.shape.organizationId,
   roleId: roleFeatureSchema.shape.roleId,
   featureCode: featureSchema.shape.code,
 });
 
 const toggleFeatureBodySchema = featureSchema.pick({ isActive: true });
 
-const companyToggleBodySchema = companyFeatureSchema.pick({
+const organizationToggleBodySchema = organizationFeatureSchema.pick({
   featureId: true,
   isEnabled: true,
 });
 
 const roleToggleBodySchema = roleFeatureSchema.pick({
-  companyId: true,
+  organizationId: true,
   featureId: true,
   isEnabled: true,
 });
@@ -70,16 +72,16 @@ export class FeatureController extends Controller {
     private readonly toggleFeatureUseCase: ToggleFeatureUseCase,
     private readonly getFeaturesUseCase: GetFeaturesUseCase,
     private readonly getFeatureByIdUseCase: GetFeatureByIdUseCase,
-    private readonly assignCompanyFeatureUseCase: AssignCompanyFeatureUseCase,
-    private readonly toggleCompanyFeatureUseCase: ToggleCompanyFeatureUseCase,
-    private readonly removeCompanyFeatureUseCase: RemoveCompanyFeatureUseCase,
-    private readonly getCompanyFeaturesUseCase: GetCompanyFeaturesUseCase,
-    private readonly getCompanyAvailableFeaturesUseCase: GetCompanyAvailableFeaturesUseCase,
+    private readonly assignOrganizationFeatureUseCase: AssignOrganizationFeatureUseCase,
+    private readonly toggleOrganizationFeatureUseCase: ToggleOrganizationFeatureUseCase,
+    private readonly removeOrganizationFeatureUseCase: RemoveOrganizationFeatureUseCase,
+    private readonly getOrganizationFeaturesUseCase: GetOrganizationFeaturesUseCase,
+    private readonly getOrganizationAvailableFeaturesUseCase: GetOrganizationAvailableFeaturesUseCase,
     private readonly assignRoleFeatureUseCase: AssignRoleFeatureUseCase,
     private readonly toggleRoleFeatureUseCase: ToggleRoleFeatureUseCase,
     private readonly revokeRoleFeatureUseCase: RevokeRoleFeatureUseCase,
     private readonly getRoleFeaturesUseCase: GetRoleFeaturesUseCase,
-    private readonly getCompanyRoleFeaturesUseCase: GetCompanyRoleFeaturesUseCase,
+    private readonly getOrganizationRoleFeaturesUseCase: GetOrganizationRoleFeaturesUseCase,
     private readonly checkRoleFeatureAccessUseCase: CheckRoleFeatureAccessUseCase,
   ) {
     super();
@@ -153,85 +155,98 @@ export class FeatureController extends Controller {
   );
 
   /**
-   * Company Features (Entitlement & Toggles)
+   * Organization Features (Entitlement & Toggles)
    */
 
-  public getCompanyFeatures = this.validator(
-    { params: companyIdParamSchema },
+  public getOrganizationFeatures = this.validator(
+    { params: organizationIdParamSchema },
     async (c) => {
-      const { companyId } = c.get('params');
+      const { organizationId } = c.get('params');
       const onlyEnabled = c.req.query('onlyEnabled') === 'true';
 
-      const companyFeatures = await this.getCompanyFeaturesUseCase.execute({
-        ...this.securityContext(c),
-        companyId,
-        onlyEnabled,
-      });
+      const organizationFeatures =
+        await this.getOrganizationFeaturesUseCase.execute({
+          ...this.securityContext(c),
+          organizationId,
+          onlyEnabled,
+        });
       return this.success(
         c,
-        'Company features retrieved successfully',
-        companyFeatures,
+        'Organization features retrieved successfully',
+        organizationFeatures,
       );
     },
   );
 
-  public getCompanyAvailableFeatures = this.validator(
-    { params: companyIdParamSchema },
+  public getOrganizationAvailableFeatures = this.validator(
+    { params: organizationIdParamSchema },
     async (c) => {
-      const { companyId } = c.get('params');
-      const features = await this.getCompanyAvailableFeaturesUseCase.execute({
-        ...this.securityContext(c),
-        companyId,
-      });
+      const { organizationId } = c.get('params');
+      const features =
+        await this.getOrganizationAvailableFeaturesUseCase.execute({
+          ...this.securityContext(c),
+          organizationId,
+        });
       return this.success(
         c,
-        'Company available features retrieved successfully',
+        'Organization available features retrieved successfully',
         features,
       );
     },
   );
 
-  public assignCompanyFeature = this.validator(
-    { body: createCompanyFeatureSchema },
+  public assignOrganizationFeature = this.validator(
+    { body: createOrganizationFeatureSchema },
     async (c) => {
       const body = c.get('body');
       const user = c.get('user');
-      const result = await this.assignCompanyFeatureUseCase.execute({
+      const result = await this.assignOrganizationFeatureUseCase.execute({
         ...this.securityContext(c),
         data: {
           ...body,
           assignedBy: user?.id ?? null,
         },
       });
-      return this.created(c, 'Company feature assigned successfully', result);
+      return this.created(
+        c,
+        'Organization feature assigned successfully',
+        result,
+      );
     },
   );
 
-  public toggleCompanyFeature = this.validator(
-    { params: companyIdParamSchema, body: companyToggleBodySchema },
+  public toggleOrganizationFeature = this.validator(
+    {
+      params: organizationIdParamSchema,
+      body: organizationToggleBodySchema,
+    },
     async (c) => {
-      const { companyId } = c.get('params');
+      const { organizationId } = c.get('params');
       const { featureId, isEnabled } = c.get('body');
-      const result = await this.toggleCompanyFeatureUseCase.execute({
+      const result = await this.toggleOrganizationFeatureUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         featureId,
         isEnabled,
       });
-      return this.success(c, 'Company feature toggled successfully', result);
+      return this.success(
+        c,
+        'Organization feature toggled successfully',
+        result,
+      );
     },
   );
 
-  public removeCompanyFeature = this.validator(
-    { params: companyFeatureParamSchema },
+  public removeOrganizationFeature = this.validator(
+    { params: organizationFeatureParamSchema },
     async (c) => {
-      const { companyId, featureId } = c.get('params');
-      await this.removeCompanyFeatureUseCase.execute({
+      const { organizationId, featureId } = c.get('params');
+      await this.removeOrganizationFeatureUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         featureId,
       });
-      return this.success(c, 'Company feature removed successfully');
+      return this.success(c, 'Organization feature removed successfully');
     },
   );
 
@@ -251,17 +266,18 @@ export class FeatureController extends Controller {
     },
   );
 
-  public getCompanyRoleFeatures = this.validator(
-    { params: companyIdParamSchema },
+  public getOrganizationRoleFeatures = this.validator(
+    { params: organizationIdParamSchema },
     async (c) => {
-      const { companyId } = c.get('params');
-      const roleFeatures = await this.getCompanyRoleFeaturesUseCase.execute({
-        ...this.securityContext(c),
-        companyId,
-      });
+      const { organizationId } = c.get('params');
+      const roleFeatures =
+        await this.getOrganizationRoleFeaturesUseCase.execute({
+          ...this.securityContext(c),
+          organizationId,
+        });
       return this.success(
         c,
-        'Company role features retrieved successfully',
+        'Organization role features retrieved successfully',
         roleFeatures,
       );
     },
@@ -283,10 +299,10 @@ export class FeatureController extends Controller {
     { params: roleIdParamSchema, body: roleToggleBodySchema },
     async (c) => {
       const { roleId } = c.get('params');
-      const { companyId, featureId, isEnabled } = c.get('body');
+      const { organizationId, featureId, isEnabled } = c.get('body');
       const result = await this.toggleRoleFeatureUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         roleId,
         featureId,
         isEnabled,
@@ -299,10 +315,10 @@ export class FeatureController extends Controller {
     { params: roleFeatureParamSchema },
     async (c) => {
       const { roleId, featureId } = c.get('params');
-      const companyId = c.req.query('companyId') || '';
+      const organizationId = c.req.query('organizationId') || '';
       await this.revokeRoleFeatureUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         roleId,
         featureId,
       });
@@ -313,10 +329,10 @@ export class FeatureController extends Controller {
   public checkRoleFeatureAccess = this.validator(
     { params: roleAccessParamSchema },
     async (c) => {
-      const { companyId, roleId, featureCode } = c.get('params');
+      const { organizationId, roleId, featureCode } = c.get('params');
       const hasAccess = await this.checkRoleFeatureAccessUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         roleId,
         featureCode,
       });

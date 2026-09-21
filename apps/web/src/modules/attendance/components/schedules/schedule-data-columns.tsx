@@ -1,12 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { CheckInSchedule, Role } from '@repo/domains/entities';
+import type { CheckInSchedule, Role } from '@repo/client';
 import { Badge } from '@repo/ui/components/badge';
 import { formatDate } from '@/shared/utils';
 
 interface ScheduleColumnsOptions {
-  companyId: string;
+  organizationId?: string;
   roles?: Role[];
 }
 
@@ -21,7 +21,7 @@ export const scheduleDataColumns = ({
       header: 'ชื่อตารางเวลา',
       cell: ({ row, getValue }) => (
         <Link
-          href={`/company/attendance/schedules/${row.original.id}`}
+          href={`/organization/attendance/schedules/${row.original.id}`}
           className="font-semibold text-primary hover:underline flex flex-col group cursor-pointer"
         >
           <span>{getValue<string>()}</span>

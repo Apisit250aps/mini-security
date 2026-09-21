@@ -42,7 +42,7 @@ export default function RoleEditForm({
       defaultValues={{
         name: role.name,
         description: role.description ?? '',
-        companyId: role.companyId ?? null,
+        organizationId: role.organizationId ?? null,
         roleType: role.roleType,
         isSystemDefault: role.isSystemDefault,
       }}

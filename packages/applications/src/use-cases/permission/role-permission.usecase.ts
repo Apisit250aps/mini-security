@@ -14,7 +14,7 @@ import type {
   Permission,
   RolePermission,
 } from '@repo/domains/entities/permission';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   IPermissionRepository,
   IRolePermissionRepository,
@@ -130,7 +130,7 @@ export class CheckUserPermissionUseCase implements ICheckUserPermissionUseCase {
     private readonly rolePermissionRepository: IRolePermissionRepository,
     private readonly permissionRepository: IPermissionRepository,
     private readonly userRepository: IUserRepository,
-    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly organizationMemberRepository: IOrganizationMemberRepository,
   ) {}
 
   async execute(context: ICheckUserPermissionContext): Promise<boolean> {
@@ -143,12 +143,13 @@ export class CheckUserPermissionUseCase implements ICheckUserPermissionUseCase {
     // 2. Super admin bypasses all authorization checks
     if (user.isAdmin) return true;
 
-    // 3. When scoped to a specific company, check company membership and role permissions
-    if (context.companyId) {
-      const member = await this.companyMemberRepository.findByCompanyAndUser(
-        context.companyId,
-        context.userId,
-      );
+    // 3. When scoped to a specific organization, check organization membership and role permissions
+    if (context.organizationId) {
+      const member =
+        await this.organizationMemberRepository.findByOrganizationAndUser(
+          context.organizationId,
+          context.userId,
+        );
       if (!member || !member.isActive) return false;
 
       const permissions =
@@ -165,9 +166,8 @@ export class CheckUserPermissionUseCase implements ICheckUserPermissionUseCase {
     }
 
     // 4. When unscoped (global / system operations), check user active memberships' roles
-    const userMemberships = await this.companyMemberRepository.findByUserId(
-      context.userId,
-    );
+    const userMemberships =
+      await this.organizationMemberRepository.findByUserId(context.userId);
     const activeMemberships = userMemberships.filter((m) => m.isActive);
     if (activeMemberships.length === 0) return false;
 
@@ -187,7 +187,7 @@ export class CheckUserPermissionUseCase implements ICheckUserPermissionUseCase {
 export class GetMyPermissionsUseCase implements IGetMyPermissionsUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly companyMemberRepository: ICompanyMemberRepository,
+    private readonly organizationMemberRepository: IOrganizationMemberRepository,
     private readonly rolePermissionRepository: IRolePermissionRepository,
     private readonly permissionRepository: IPermissionRepository,
   ) {}
@@ -203,12 +203,13 @@ export class GetMyPermissionsUseCase implements IGetMyPermissionsUseCase {
       return this.permissionRepository.findAll();
     }
 
-    // 2. When scoped to a specific company
-    if (context.companyId) {
-      const member = await this.companyMemberRepository.findByCompanyAndUser(
-        context.companyId,
-        context.userId,
-      );
+    // 2. When scoped to a specific organization
+    if (context.organizationId) {
+      const member =
+        await this.organizationMemberRepository.findByOrganizationAndUser(
+          context.organizationId,
+          context.userId,
+        );
       if (!member || !member.isActive) return [];
 
       return this.rolePermissionRepository.findPermissionsByRoleId(
@@ -216,10 +217,9 @@ export class GetMyPermissionsUseCase implements IGetMyPermissionsUseCase {
       );
     }
 
-    // 3. Unscoped: aggregate permissions across all active company memberships
-    const userMemberships = await this.companyMemberRepository.findByUserId(
-      context.userId,
-    );
+    // 3. Unscoped: aggregate permissions across all active organization memberships
+    const userMemberships =
+      await this.organizationMemberRepository.findByUserId(context.userId);
     const activeMemberships = userMemberships.filter((m) => m.isActive);
     if (activeMemberships.length === 0) return [];
 

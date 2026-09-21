@@ -8,10 +8,10 @@ import type {
   IDeleteLocationContext,
   IDeleteLocationUseCase,
   IGetLocationContext,
-  IGetLocationsByBranchContext,
-  IGetLocationsByBranchUseCase,
-  IGetLocationsByCompanyContext,
-  IGetLocationsByCompanyUseCase,
+  IGetLocationsBySiteContext,
+  IGetLocationsBySiteUseCase,
+  IGetLocationsByOrganizationContext,
+  IGetLocationsByOrganizationUseCase,
   IGetLocationUseCase,
   IGetSlotLocationsContext,
   IGetSlotLocationAssignmentsUseCase,
@@ -46,7 +46,10 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
 
   @RequirePermission('location:manage')
   async execute(context: ICreateLocationContext): Promise<Location> {
-    PermissionGuard.requireCompanyScope(context, context.data.companyId);
+    PermissionGuard.requireOrganizationScope(
+      context,
+      context.data.organizationId,
+    );
 
     const parsed = await createLocationSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -54,8 +57,8 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
     }
 
     if (parsed.data.isPrimary) {
-      const existing = await this.locationRepo.findPrimaryByBranchId(
-        parsed.data.companyBranchId,
+      const existing = await this.locationRepo.findPrimaryBySiteId(
+        parsed.data.siteId,
       );
       if (existing) {
         const created = await this.locationRepo.create({
@@ -63,8 +66,8 @@ export class CreateLocationUseCase implements ICreateLocationUseCase {
           isPrimary: false,
         });
         return await this.locationRepo.setPrimaryLocation(
-          context.data.companyId,
-          parsed.data.companyBranchId,
+          context.data.organizationId,
+          parsed.data.siteId,
           created.id,
         );
       }
@@ -83,7 +86,7 @@ export class UpdateLocationUseCase implements IUpdateLocationUseCase {
       () => this.locationRepo.findById(context.id),
       'Location not found',
     );
-    PermissionGuard.requireCompanyScope(context, existing.companyId);
+    PermissionGuard.requireOrganizationScope(context, existing.organizationId);
 
     const parsed = await updateLocationSchema.safeParseAsync(context.data);
     if (!parsed.success) {
@@ -92,8 +95,8 @@ export class UpdateLocationUseCase implements IUpdateLocationUseCase {
 
     if (parsed.data.isPrimary) {
       await this.locationRepo.setPrimaryLocation(
-        existing.companyId,
-        existing.companyBranchId,
+        existing.organizationId,
+        existing.siteId,
         existing.id,
       );
     }
@@ -107,7 +110,7 @@ export class DeleteLocationUseCase implements IDeleteLocationUseCase {
 
   @RequirePermission('location:manage')
   async execute(context: IDeleteLocationContext): Promise<void> {
-    PermissionGuard.requireCompanyScope(context, context.companyId);
+    PermissionGuard.requireOrganizationScope(context, context.organizationId);
 
     await requireEntityExists(
       () => this.locationRepo.findById(context.id),
@@ -125,34 +128,35 @@ export class GetLocationUseCase implements IGetLocationUseCase {
   async execute(context: IGetLocationContext): Promise<Location | null> {
     const location = await this.locationRepo.findById(context.id);
     if (location) {
-      PermissionGuard.requireCompanyScope(context, location.companyId);
+      PermissionGuard.requireOrganizationScope(
+        context,
+        location.organizationId,
+      );
     }
     return location;
   }
 }
 
-export class GetLocationsByBranchUseCase
-  implements IGetLocationsByBranchUseCase
-{
+export class GetLocationsBySiteUseCase implements IGetLocationsBySiteUseCase {
   constructor(private readonly locationRepo: ILocationRepository) {}
 
   @RequirePermission('location:read')
-  async execute(context: IGetLocationsByBranchContext): Promise<Location[]> {
-    return await this.locationRepo.findActiveByBranchId(
-      context.companyBranchId,
-    );
+  async execute(context: IGetLocationsBySiteContext): Promise<Location[]> {
+    return await this.locationRepo.findActiveBySiteId(context.siteId);
   }
 }
 
-export class GetLocationsByCompanyUseCase
-  implements IGetLocationsByCompanyUseCase
+export class GetLocationsByOrganizationUseCase
+  implements IGetLocationsByOrganizationUseCase
 {
   constructor(private readonly locationRepo: ILocationRepository) {}
 
   @RequirePermission('location:read')
-  async execute(context: IGetLocationsByCompanyContext): Promise<Location[]> {
-    PermissionGuard.requireCompanyScope(context, context.companyId);
-    return await this.locationRepo.findByCompanyId(context.companyId);
+  async execute(
+    context: IGetLocationsByOrganizationContext,
+  ): Promise<Location[]> {
+    PermissionGuard.requireOrganizationScope(context, context.organizationId);
+    return await this.locationRepo.findByOrganizationId(context.organizationId);
   }
 }
 
@@ -161,10 +165,10 @@ export class SetPrimaryLocationUseCase implements ISetPrimaryLocationUseCase {
 
   @RequirePermission('location:manage')
   async execute(context: ISetPrimaryLocationContext): Promise<Location> {
-    PermissionGuard.requireCompanyScope(context, context.companyId);
+    PermissionGuard.requireOrganizationScope(context, context.organizationId);
     return await this.locationRepo.setPrimaryLocation(
-      context.companyId,
-      context.companyBranchId,
+      context.organizationId,
+      context.siteId,
       context.locationId,
     );
   }
@@ -181,7 +185,10 @@ export class AssignSlotLocationUseCase implements IAssignSlotLocationUseCase {
   async execute(
     context: IAssignSlotLocationContext,
   ): Promise<ScheduleSlotLocation> {
-    PermissionGuard.requireCompanyScope(context, context.data.companyId);
+    PermissionGuard.requireOrganizationScope(
+      context,
+      context.data.organizationId,
+    );
 
     const parsed = await createScheduleSlotLocationSchema.safeParseAsync(
       context.data,
@@ -196,14 +203,14 @@ export class AssignSlotLocationUseCase implements IAssignSlotLocationUseCase {
     ]);
     if (!slot || !location)
       throw new NotFoundError('Slot or location not found');
-    PermissionGuard.requireCompanyScope(context, slot.companyId);
-    PermissionGuard.requireCompanyScope(context, location.companyId);
+    PermissionGuard.requireOrganizationScope(context, slot.organizationId);
+    PermissionGuard.requireOrganizationScope(context, location.organizationId);
     if (
-      slot.companyId !== parsed.data.companyId ||
-      location.companyId !== parsed.data.companyId
+      slot.organizationId !== parsed.data.organizationId ||
+      location.organizationId !== parsed.data.organizationId
     ) {
       throw new ValidationError(
-        'Slot and location must belong to the specified company',
+        'Slot and location must belong to the specified organization',
       );
     }
 
@@ -232,7 +239,7 @@ export class UpdateSlotLocationUseCase implements IUpdateSlotLocationUseCase {
       () => this.slotLocationRepo.findById(context.id),
       'Slot location not found',
     );
-    PermissionGuard.requireCompanyScope(context, existing.companyId);
+    PermissionGuard.requireOrganizationScope(context, existing.organizationId);
 
     const parsed = await updateScheduleSlotLocationSchema.safeParseAsync(
       context.data,
@@ -255,7 +262,7 @@ export class GetSlotLocationsUseCase implements IGetSlotLocationsUseCase {
   async execute(context: IGetSlotLocationsContext): Promise<Location[]> {
     const slot = await this.slotRepo.findById(context.scheduleSlotId);
     if (!slot) throw new NotFoundError('Schedule slot not found');
-    PermissionGuard.requireCompanyScope(context, slot.companyId);
+    PermissionGuard.requireOrganizationScope(context, slot.organizationId);
     return await this.slotLocationRepo.findActiveLocationsBySlotId(
       context.scheduleSlotId,
     );
@@ -276,7 +283,7 @@ export class GetSlotLocationAssignmentsUseCase
   ): Promise<ScheduleSlotLocation[]> {
     const slot = await this.slotRepo.findById(context.scheduleSlotId);
     if (!slot) throw new NotFoundError('Schedule slot not found');
-    PermissionGuard.requireCompanyScope(context, slot.companyId);
+    PermissionGuard.requireOrganizationScope(context, slot.organizationId);
     return this.slotLocationRepo.findBySlotId(slot.id);
   }
 }

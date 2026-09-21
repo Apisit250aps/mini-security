@@ -6,15 +6,15 @@ import type { LeaveRequestStatus } from '@repo/domains/schema/leave';
 import { DataTable } from '@repo/ui/components/shared/table/data-table';
 import { DateRangeField } from '@repo/ui/form';
 import {
-  useCompanyLeaveRequestsQueries,
-  useCompanyLeaveTypesQueries,
+  useOrganizationLeaveRequestsQueries,
+  useOrganizationLeaveTypesQueries,
 } from '../../hooks/leave-queries';
-import { useCompanyMembersQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationMembersQueries } from '@/modules/organization/hooks/organization-queries';
 import { useUserListQueries } from '@/modules/user/hooks/user-queries';
 import leaveRequestDataColumns from './leave-request-data-columns';
 
 interface LeaveRequestDataTableProps {
-  companyId: string;
+  organizationId?: string;
 }
 
 const STATUS_FILTERS: { value: string; label: string }[] = [
@@ -26,8 +26,9 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 ];
 
 export default function LeaveRequestDataTable({
-  companyId,
+  organizationId,
 }: LeaveRequestDataTableProps) {
+  const activeOrgId = organizationId || '';
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
 
   const methods = useForm<{
@@ -43,13 +44,13 @@ export default function LeaveRequestDataTable({
       ? undefined
       : (selectedStatus as LeaveRequestStatus);
 
-  const requestsQuery = useCompanyLeaveRequestsQueries(companyId, {
+  const requestsQuery = useOrganizationLeaveRequestsQueries(activeOrgId, {
     status: statusParam,
     startDate: range?.start,
     endDate: range?.end,
   });
-  const typesQuery = useCompanyLeaveTypesQueries(companyId);
-  const membersQuery = useCompanyMembersQueries(companyId);
+  const typesQuery = useOrganizationLeaveTypesQueries(activeOrgId);
+  const membersQuery = useOrganizationMembersQueries(activeOrgId);
   const usersQuery = useUserListQueries();
 
   const usersMap = useMemo(() => {
@@ -59,12 +60,12 @@ export default function LeaveRequestDataTable({
   const columns = useMemo(
     () =>
       leaveRequestDataColumns({
-        companyId,
+        organizationId: activeOrgId,
         types: typesQuery.data || [],
         members: membersQuery.data || [],
         usersMap,
       }),
-    [companyId, typesQuery.data, membersQuery.data, usersMap],
+    [activeOrgId, typesQuery.data, membersQuery.data, usersMap],
   );
 
   const isLoading =

@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import type { FieldValues } from 'react-hook-form';
+import type { LeaveType } from '@repo/client';
 import {
   QuerySelectField,
   type QuerySelectFieldProps,
@@ -10,33 +11,34 @@ import {
   QueryComboboxField,
   type QueryComboboxFieldProps,
 } from './query-combobox-field';
-import { useCompanyLeaveTypesQueries } from '@/modules/leave/hooks/leave-queries';
+import { useOrganizationLeaveTypesQueries } from '@/modules/leave/hooks/leave-queries';
 
 export interface LeaveTypeSelectFieldProps<T extends FieldValues>
   extends QuerySelectFieldProps<T> {
-  companyId: string;
+  organizationId?: string;
   onlyActive?: boolean;
 }
 
 export interface LeaveTypeComboboxFieldProps<T extends FieldValues>
   extends QueryComboboxFieldProps<T> {
-  companyId: string;
+  organizationId?: string;
   onlyActive?: boolean;
 }
 
 /**
- * Shared React Hook Form Controller SelectField for Leave Types in a company.
+ * Shared React Hook Form Controller SelectField for Leave Types in an organization.
  */
 export function LeaveTypeSelectField<T extends FieldValues>({
-  companyId,
+  organizationId,
   onlyActive = true,
   placeholder = 'เลือกประเภทการลา...',
   ...props
 }: LeaveTypeSelectFieldProps<T>) {
-  const query = useCompanyLeaveTypesQueries(companyId, onlyActive);
+  const targetOrgId = organizationId || '';
+  const query = useOrganizationLeaveTypesQueries(targetOrgId, onlyActive);
 
   const options = useMemo(() => {
-    return (query.data ?? []).map((t) => ({
+    return (query.data ?? []).map((t: LeaveType) => ({
       value: t.id,
       label: `${t.name} (${t.isPaid ? 'ได้รับค่าจ้าง' : 'ไม่ได้รับค่าจ้าง'})`,
     }));
@@ -56,15 +58,16 @@ export function LeaveTypeSelectField<T extends FieldValues>({
  * Shared React Hook Form Controller ComboboxField for searchable Leave Types.
  */
 export function LeaveTypeComboboxField<T extends FieldValues>({
-  companyId,
+  organizationId,
   onlyActive = true,
   placeholder = 'ค้นหาประเภทการลา...',
   ...props
 }: LeaveTypeComboboxFieldProps<T>) {
-  const query = useCompanyLeaveTypesQueries(companyId, onlyActive);
+  const targetOrgId = organizationId || '';
+  const query = useOrganizationLeaveTypesQueries(targetOrgId, onlyActive);
 
   const options = useMemo(() => {
-    return (query.data ?? []).map((t) => ({
+    return (query.data ?? []).map((t: LeaveType) => ({
       value: t.id,
       label: `${t.name} (${t.isPaid ? 'ได้รับค่าจ้าง' : 'ไม่ได้รับค่าจ้าง'})`,
     }));

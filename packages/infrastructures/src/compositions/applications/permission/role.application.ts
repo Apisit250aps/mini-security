@@ -1,7 +1,7 @@
 import {
   CreateRoleUseCase,
   DeleteRoleUseCase,
-  GetRolesByCompanyUseCase,
+  GetRolesByOrganizationUseCase,
   GetRoleUseCase,
   GetSystemDefaultRolesUseCase,
   UpdateRoleUseCase,
@@ -21,7 +21,7 @@ export const deleteRoleUseCase = new DeleteRoleUseCase(
   userRepository,
 );
 export const getRoleUseCase = new GetRoleUseCase(roleRepository);
-export const getRolesByCompanyUseCase = new GetRolesByCompanyUseCase(
+export const getRolesByOrganizationUseCase = new GetRolesByOrganizationUseCase(
   roleRepository,
   userRepository,
 );

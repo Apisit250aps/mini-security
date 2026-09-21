@@ -26,18 +26,19 @@ const auth = betterAuth({
     jwt(),
     bearer(),
     customSession(async ({ user, session }) => {
-      const activeCompanyId = (session as { activeCompanyId?: string | null })
-        .activeCompanyId;
-      const { actions, companyId } = await getUserPermissionActions(
+      const activeOrganizationId = (
+        session as { activeOrganizationId?: string | null }
+      ).activeOrganizationId;
+      const { actions, organizationId } = await getUserPermissionActions(
         user.id,
-        activeCompanyId,
+        activeOrganizationId,
       );
       return {
         user,
         session: {
           ...session,
           permissions: actions.join(','),
-          activeCompanyId: companyId ?? activeCompanyId,
+          activeOrganizationId: organizationId ?? activeOrganizationId,
         },
       };
     }),
@@ -60,12 +61,14 @@ const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
-          const { companyId } = await getUserPermissionActions(session.userId);
+          const { organizationId } = await getUserPermissionActions(
+            session.userId,
+          );
 
           return {
             data: {
               ...session,
-              activeCompanyId: companyId,
+              activeOrganizationId: organizationId,
             },
           };
         },
@@ -103,7 +106,7 @@ const auth = betterAuth({
   },
   session: {
     additionalFields: {
-      activeCompanyId: {
+      activeOrganizationId: {
         type: 'string',
         required: false,
         input: false,

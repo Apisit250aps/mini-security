@@ -52,7 +52,7 @@ import type {
   PausePlanRequest,
 } from '@repo/client';
 
-export function useFormTemplateCreate(companyId: string) {
+export function useFormTemplateCreate(organizationId: string = '') {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateFormTemplate) => {
@@ -65,7 +65,7 @@ export function useFormTemplateCreate(companyId: string) {
     onSuccess: async () => {
       toast.success('สร้างแบบฟอร์มสำเร็จ');
       await queryClient.invalidateQueries({
-        queryKey: formKeys.templates(companyId),
+        queryKey: formKeys.templates(organizationId),
       });
     },
     onError: (error) =>
@@ -73,7 +73,10 @@ export function useFormTemplateCreate(companyId: string) {
   });
 }
 
-export function useFormTemplateUpdate(companyId: string, templateId: string) {
+export function useFormTemplateUpdate(
+  organizationId: string,
+  templateId: string,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: UpdateFormTemplate) => {
@@ -91,7 +94,7 @@ export function useFormTemplateUpdate(companyId: string, templateId: string) {
           queryKey: formKeys.template(templateId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.templates(companyId),
+          queryKey: formKeys.templates(organizationId),
         }),
       ]);
     },
@@ -100,7 +103,10 @@ export function useFormTemplateUpdate(companyId: string, templateId: string) {
   });
 }
 
-export function useFormSectionCreate(companyId: string, templateId: string) {
+export function useFormSectionCreate(
+  organizationId: string,
+  templateId: string,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateFormSection) => {
@@ -118,7 +124,7 @@ export function useFormSectionCreate(companyId: string, templateId: string) {
           queryKey: formKeys.template(templateId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.templates(companyId),
+          queryKey: formKeys.templates(organizationId),
         }),
       ]);
     },
@@ -127,7 +133,10 @@ export function useFormSectionCreate(companyId: string, templateId: string) {
   });
 }
 
-export function useFormSectionReorder(companyId: string, templateId: string) {
+export function useFormSectionReorder(
+  organizationId: string,
+  templateId: string,
+) {
   const queryClient = useQueryClient();
   const queryKey = formKeys.template(templateId);
   return useMutation({
@@ -173,7 +182,7 @@ export function useFormSectionReorder(companyId: string, templateId: string) {
           queryKey: formKeys.template(templateId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.templates(companyId),
+          queryKey: formKeys.templates(organizationId),
         }),
       ]);
     },
@@ -188,14 +197,17 @@ export function useFormSectionReorder(companyId: string, templateId: string) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.templates(companyId),
+          queryKey: formKeys.templates(organizationId),
         }),
       ]);
     },
   });
 }
 
-export function useFormFieldReorder(companyId: string, templateId: string) {
+export function useFormFieldReorder(
+  organizationId: string,
+  templateId: string,
+) {
   const queryClient = useQueryClient();
   const queryKey = formKeys.template(templateId);
   return useMutation({
@@ -241,7 +253,7 @@ export function useFormFieldReorder(companyId: string, templateId: string) {
           queryKey: formKeys.template(templateId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.templates(companyId),
+          queryKey: formKeys.templates(organizationId),
         }),
       ]);
     },
@@ -256,7 +268,7 @@ export function useFormFieldReorder(companyId: string, templateId: string) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.templates(companyId),
+          queryKey: formKeys.templates(organizationId),
         }),
       ]);
     },
@@ -354,7 +366,10 @@ export function useFormSectionDelete(templateId: string) {
   });
 }
 
-export function useFormVersionPublish(companyId: string, templateId: string) {
+export function useFormVersionPublish(
+  organizationId: string,
+  templateId: string,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: PublishFormVersionRequest) => {
@@ -372,7 +387,7 @@ export function useFormVersionPublish(companyId: string, templateId: string) {
           queryKey: formKeys.template(templateId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.plans(companyId, templateId),
+          queryKey: formKeys.plans(organizationId, templateId),
         }),
       ]);
     },
@@ -381,7 +396,7 @@ export function useFormVersionPublish(companyId: string, templateId: string) {
   });
 }
 
-export function useFormPlanCreate(companyId: string) {
+export function useFormPlanCreate(organizationId: string = '') {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateFormPlanRequest) => {
@@ -394,7 +409,9 @@ export function useFormPlanCreate(companyId: string) {
     onSuccess: async (_data, variables) => {
       toast.success('สร้างแผนการทำงานสำเร็จ');
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: formKeys.plans(companyId) }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.plans(organizationId),
+        }),
         ...(variables?.data?.formTemplateId
           ? [
               queryClient.invalidateQueries({
@@ -409,7 +426,7 @@ export function useFormPlanCreate(companyId: string) {
   });
 }
 
-export function useFormPlanUpdate(companyId: string, planId: string) {
+export function useFormPlanUpdate(organizationId: string, planId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: UpdateFormPlanRequest) => {
@@ -424,7 +441,9 @@ export function useFormPlanUpdate(companyId: string, planId: string) {
       toast.success('บันทึกการตั้งค่าแผนการตรวจสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: formKeys.plan(planId) }),
-        queryClient.invalidateQueries({ queryKey: formKeys.plans(companyId) }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.plans(organizationId),
+        }),
         queryClient.invalidateQueries({
           queryKey: formKeys.schedulePreview(planId),
         }),
@@ -438,7 +457,7 @@ export function useFormPlanUpdate(companyId: string, planId: string) {
   });
 }
 
-export function useFormPlanActivate(companyId: string, planId: string) {
+export function useFormPlanActivate(organizationId: string, planId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -456,7 +475,9 @@ export function useFormPlanActivate(companyId: string, planId: string) {
       toast.success('เปิดใช้งานแผนการทำงานสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: formKeys.plan(planId) }),
-        queryClient.invalidateQueries({ queryKey: formKeys.plans(companyId) }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.plans(organizationId),
+        }),
       ]);
     },
     onError: (error) =>
@@ -464,7 +485,7 @@ export function useFormPlanActivate(companyId: string, planId: string) {
   });
 }
 
-export function useFormPlanPause(companyId: string, planId: string) {
+export function useFormPlanPause(organizationId: string, planId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (body: PausePlanRequest) => {
@@ -479,7 +500,9 @@ export function useFormPlanPause(companyId: string, planId: string) {
       toast.success('ระงับแผนการทำงานสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: formKeys.plan(planId) }),
-        queryClient.invalidateQueries({ queryKey: formKeys.plans(companyId) }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.plans(organizationId),
+        }),
       ]);
     },
     onError: (error) =>
@@ -487,7 +510,7 @@ export function useFormPlanPause(companyId: string, planId: string) {
   });
 }
 
-export function useFormOccurrencesOpen(companyId: string) {
+export function useFormOccurrencesOpen(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: OpenOccurrencesRequest) => {
@@ -501,9 +524,11 @@ export function useFormOccurrencesOpen(companyId: string) {
       toast.success('เปิดรอบทำงานสำเร็จ');
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: formKeys.occurrences(companyId),
+          queryKey: formKeys.occurrences(organizationId),
         }),
-        queryClient.invalidateQueries({ queryKey: formKeys.plans(companyId) }),
+        queryClient.invalidateQueries({
+          queryKey: formKeys.plans(organizationId),
+        }),
       ]);
     },
     onError: (error) =>
@@ -511,7 +536,7 @@ export function useFormOccurrencesOpen(companyId: string) {
   });
 }
 
-export function useFormOccurrenceCancel(companyId: string) {
+export function useFormOccurrenceCancel(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -535,7 +560,7 @@ export function useFormOccurrenceCancel(companyId: string) {
           queryKey: formKeys.occurrence(variables.id),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.occurrences(companyId),
+          queryKey: formKeys.occurrences(organizationId),
         }),
       ]);
     },
@@ -544,7 +569,7 @@ export function useFormOccurrenceCancel(companyId: string) {
   });
 }
 
-export function useFormAssignmentCancel(companyId: string) {
+export function useFormAssignmentCancel(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -568,7 +593,7 @@ export function useFormAssignmentCancel(companyId: string) {
           queryKey: formKeys.assignment(variables.id),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.myAssignments(companyId),
+          queryKey: formKeys.myAssignments(organizationId),
         }),
       ]);
     },
@@ -577,7 +602,7 @@ export function useFormAssignmentCancel(companyId: string) {
   });
 }
 
-export function useFormAssignmentReplace(companyId: string) {
+export function useFormAssignmentReplace(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -601,7 +626,7 @@ export function useFormAssignmentReplace(companyId: string) {
           queryKey: formKeys.assignment(variables.id),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.myAssignments(companyId),
+          queryKey: formKeys.myAssignments(organizationId),
         }),
       ]);
     },
@@ -610,7 +635,7 @@ export function useFormAssignmentReplace(companyId: string) {
   });
 }
 
-export function useFormSubmissionStart(companyId: string) {
+export function useFormSubmissionStart(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: StartFormSubmissionRequest) => {
@@ -633,7 +658,7 @@ export function useFormSubmissionStart(companyId: string) {
           queryKey: ['FORM', 'OCCURRENCE'],
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.submissions(companyId),
+          queryKey: formKeys.submissions(organizationId),
         }),
       ]);
     },
@@ -644,7 +669,7 @@ export function useFormSubmissionStart(companyId: string) {
 
 export function useFormSubmissionSaveDraft(
   submissionId: string,
-  companyId?: string,
+  organizationId?: string,
 ) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -668,10 +693,10 @@ export function useFormSubmissionSaveDraft(
         queryClient.invalidateQueries({
           queryKey: ['FORM', 'OCCURRENCE'],
         }),
-        ...(companyId
+        ...(organizationId
           ? [
               queryClient.invalidateQueries({
-                queryKey: formKeys.submissions(companyId),
+                queryKey: formKeys.submissions(organizationId),
               }),
             ]
           : []),
@@ -684,7 +709,7 @@ export function useFormSubmissionSaveDraft(
 
 export function useFormSubmissionSubmit(
   submissionId: string,
-  companyId: string,
+  organizationId: string,
 ) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -703,7 +728,7 @@ export function useFormSubmissionSubmit(
           queryKey: formKeys.submission(submissionId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.submissions(companyId),
+          queryKey: formKeys.submissions(organizationId),
         }),
         queryClient.invalidateQueries({
           queryKey: ['FORM', 'ASSIGNMENTS'],
@@ -712,7 +737,7 @@ export function useFormSubmissionSubmit(
           queryKey: ['FORM', 'OCCURRENCE'],
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.reviewQueue(companyId),
+          queryKey: formKeys.reviewQueue(organizationId),
         }),
       ]);
     },
@@ -723,7 +748,7 @@ export function useFormSubmissionSubmit(
 
 export function useFormSubmissionCreateCorrection(
   submissionId: string,
-  companyId: string,
+  organizationId: string,
 ) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -741,7 +766,7 @@ export function useFormSubmissionCreateCorrection(
           queryKey: formKeys.submission(submissionId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.submissions(companyId),
+          queryKey: formKeys.submissions(organizationId),
         }),
         queryClient.invalidateQueries({
           queryKey: ['FORM', 'ASSIGNMENTS'],
@@ -756,7 +781,9 @@ export function useFormSubmissionCreateCorrection(
   });
 }
 
-export function useFormSubmissionCreateCorrectionMutation(companyId: string) {
+export function useFormSubmissionCreateCorrectionMutation(
+  organizationId: string,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (submissionId: string) => {
@@ -773,7 +800,7 @@ export function useFormSubmissionCreateCorrectionMutation(companyId: string) {
           queryKey: formKeys.submission(submissionId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.submissions(companyId),
+          queryKey: formKeys.submissions(organizationId),
         }),
         queryClient.invalidateQueries({
           queryKey: ['FORM', 'ASSIGNMENTS'],
@@ -788,7 +815,7 @@ export function useFormSubmissionCreateCorrectionMutation(companyId: string) {
   });
 }
 
-export function useFormReviewRecordAnswer(companyId: string) {
+export function useFormReviewRecordAnswer(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -816,7 +843,7 @@ export function useFormReviewRecordAnswer(companyId: string) {
           queryKey: formKeys.reviewDetail(variables.submissionId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.reviewQueue(companyId),
+          queryKey: formKeys.reviewQueue(organizationId),
         }),
       ]);
     },
@@ -825,7 +852,7 @@ export function useFormReviewRecordAnswer(companyId: string) {
   });
 }
 
-export function useFormReviewRecordSection(companyId: string) {
+export function useFormReviewRecordSection(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -853,7 +880,7 @@ export function useFormReviewRecordSection(companyId: string) {
           queryKey: formKeys.reviewDetail(variables.submissionId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.reviewQueue(companyId),
+          queryKey: formKeys.reviewQueue(organizationId),
         }),
       ]);
     },
@@ -862,7 +889,7 @@ export function useFormReviewRecordSection(companyId: string) {
   });
 }
 
-export function useFormReviewFinalize(companyId: string) {
+export function useFormReviewFinalize(organizationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -889,10 +916,10 @@ export function useFormReviewFinalize(companyId: string) {
           queryKey: formKeys.submission(variables.submissionId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.reviewQueue(companyId),
+          queryKey: formKeys.reviewQueue(organizationId),
         }),
         queryClient.invalidateQueries({
-          queryKey: formKeys.submissions(companyId),
+          queryKey: formKeys.submissions(organizationId),
         }),
         queryClient.invalidateQueries({
           queryKey: ['FORM', 'ASSIGNMENTS'],

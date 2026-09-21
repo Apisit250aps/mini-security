@@ -5,18 +5,18 @@ import { usePathname } from 'next/navigation';
 import { Separator } from '@repo/ui/components/separator';
 import { SidebarTrigger } from '@repo/ui/components/sidebar';
 
-import { CompanySwitcher } from './company-switcher';
+import { OrganizationSwitcher } from './organization-switcher';
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const isCompanySection = pathname.startsWith('/company');
+  const isOrganizationSection = pathname.startsWith('/organization');
 
   const sectionTitle = React.useMemo(() => {
     if (pathname.startsWith('/admin')) {
       return 'ศูนย์ควบคุมผู้ดูแลระบบสูงสุด';
     }
-    if (pathname.startsWith('/company')) {
-      return 'พื้นที่ทำงานบริษัท';
+    if (pathname.startsWith('/organization')) {
+      return 'พื้นที่ทำงานองค์กร';
     }
     return 'ศูนย์กลางความปลอดภัย';
   }, [pathname]);
@@ -35,9 +35,9 @@ export function SiteHeader() {
           </h1>
         </div>
 
-        {isCompanySection && (
+        {isOrganizationSection && (
           <div className="flex items-center gap-2">
-            <CompanySwitcher />
+            <OrganizationSwitcher />
           </div>
         )}
       </div>

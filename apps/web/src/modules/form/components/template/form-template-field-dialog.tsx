@@ -66,7 +66,7 @@ const formFieldSchema = z.object({
 type FormFieldValues = z.infer<typeof formFieldSchema>;
 
 interface FormTemplateFieldDialogProps {
-  companyId: string;
+  organizationId?: string;
   templateId: string;
   formVersionId: string;
   sections: FormSection[];
@@ -77,7 +77,7 @@ interface FormTemplateFieldDialogProps {
 }
 
 export default function FormTemplateFieldDialog({
-  companyId,
+  organizationId,
   templateId,
   formVersionId,
   sections,
@@ -86,6 +86,7 @@ export default function FormTemplateFieldDialog({
   field,
   onClose,
 }: FormTemplateFieldDialogProps) {
+  const activeOrgId = organizationId || '';
   const createFieldMutation = useFormFieldCreate(templateId);
 
   const editFieldMutation = useFormFieldEdit(templateId);
@@ -186,7 +187,7 @@ export default function FormTemplateFieldDialog({
       }
       createFieldMutation.mutate(
         {
-          companyId,
+          organizationId: activeOrgId,
           formVersionId,
           formSectionId: values.formSectionId,
           name: values.name,
@@ -212,7 +213,7 @@ export default function FormTemplateFieldDialog({
       field,
       originalOptions,
       methods,
-      companyId,
+      activeOrgId,
       formVersionId,
       fields,
       onClose,

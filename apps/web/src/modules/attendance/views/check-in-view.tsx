@@ -1,7 +1,7 @@
 'use client';
 
 import PageLayout from '@/shared/components/layouts/page-layout';
-import { useActiveCompany } from '@/modules/company-workspace/hooks/use-active-company';
+import { useActiveOrganization } from '@/modules/organization-workspace/hooks/use-active-organization';
 import {
   Card,
   CardHeader,
@@ -20,14 +20,15 @@ import { Building2, CalendarCheck, ShieldAlert } from 'lucide-react';
 import CheckInForm from '../components/logs/check-in-form';
 
 export default function CheckInView() {
-  const { activeCompany, activeCompanyId, isLoading } = useActiveCompany();
+  const { activeOrganization, activeOrganizationId, isLoading } =
+    useActiveOrganization();
   return (
     <PageLayout
       title="ลงเวลาเข้างาน"
       description="เลือกรอบและบันทึกเวลาเข้างานประจำวัน"
       isLoading={isLoading}
     >
-      {activeCompany ? (
+      {activeOrganization ? (
         <Card className="max-w-2xl border shadow-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
@@ -35,7 +36,9 @@ export default function CheckInView() {
                 <CalendarCheck className="size-5" />
               </div>
               <div className="flex flex-col">
-                <CardTitle className="text-xl">{activeCompany.name}</CardTitle>
+                <CardTitle className="text-xl">
+                  {activeOrganization.name}
+                </CardTitle>
                 <CardDescription className="text-xs">
                   ลงชื่อหลังเวลาสิ้นสุดรอบจะถือว่ามาสาย
                   ระบบยืนยันสถานะจากเวลาที่บันทึก
@@ -44,17 +47,20 @@ export default function CheckInView() {
             </div>
           </CardHeader>
           <CardContent>
-            {activeCompany.isActive ? (
-              <CheckInForm key={activeCompanyId} companyId={activeCompanyId} />
+            {activeOrganization.isActive ? (
+              <CheckInForm
+                key={activeOrganizationId}
+                organizationId={activeOrganizationId}
+              />
             ) : (
               <Empty className="py-8">
                 <EmptyMedia variant="icon">
                   <ShieldAlert className="size-6 text-destructive" />
                 </EmptyMedia>
                 <EmptyHeader>
-                  <EmptyTitle>บริษัทนี้ปิดใช้งานอยู่</EmptyTitle>
+                  <EmptyTitle>องค์กรนี้ปิดใช้งานอยู่</EmptyTitle>
                   <EmptyDescription>
-                    บริษัทของคุณถูกระงับหรือปิดใช้งาน
+                    องค์กรของคุณถูกระงับหรือปิดใช้งาน
                     กรุณาติดต่อผู้ดูแลระบบเพื่อขอเปิดใช้งาน
                   </EmptyDescription>
                 </EmptyHeader>
@@ -70,9 +76,9 @@ export default function CheckInView() {
                 <Building2 className="size-6 text-muted-foreground" />
               </EmptyMedia>
               <EmptyHeader>
-                <EmptyTitle>ยังไม่มีบริษัทที่คุณสามารถลงเวลาได้</EmptyTitle>
+                <EmptyTitle>ยังไม่มีองค์กรที่คุณสามารถลงเวลาได้</EmptyTitle>
                 <EmptyDescription>
-                  คุณยังไม่ได้เป็นสมาชิกของบริษัทใด
+                  คุณยังไม่ได้เป็นสมาชิกขององค์กรใด
                   หรือยังไม่มีสิทธิ์ในการลงเวลา กรุณาติดต่อผู้ดูแลระบบ
                 </EmptyDescription>
               </EmptyHeader>

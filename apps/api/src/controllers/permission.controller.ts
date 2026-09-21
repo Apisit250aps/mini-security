@@ -1,4 +1,4 @@
-import { companyMemberSchema } from '@repo/domains/schema/company';
+import { organizationMemberSchema } from '@repo/domains/schema/organization';
 import {
   permissionSchema,
   rolePermissionSchema,
@@ -17,7 +17,7 @@ import type {
   GetMyPermissionsUseCase,
   GetPermissionsUseCase,
   GetRolePermissionsUseCase,
-  GetRolesByCompanyUseCase,
+  GetRolesByOrganizationUseCase,
   GetRoleUseCase,
   GetSystemDefaultRolesUseCase,
   RevokePermissionFromRoleUseCase,
@@ -28,7 +28,9 @@ import Controller from './base.controller';
 
 const idParamSchema = permissionSchema.pick({ id: true });
 
-const companyRolesParamSchema = companyMemberSchema.pick({ companyId: true });
+const organizationRolesParamSchema = organizationMemberSchema.pick({
+  organizationId: true,
+});
 
 const roleIdParamSchema = rolePermissionSchema.pick({ roleId: true });
 
@@ -43,7 +45,7 @@ export class PermissionController extends Controller {
     private readonly updateRoleUseCase: UpdateRoleUseCase,
     private readonly deleteRoleUseCase: DeleteRoleUseCase,
     private readonly getRoleUseCase: GetRoleUseCase,
-    private readonly getRolesByCompanyUseCase: GetRolesByCompanyUseCase,
+    private readonly getRolesByOrganizationUseCase: GetRolesByOrganizationUseCase,
     private readonly getSystemDefaultRolesUseCase: GetSystemDefaultRolesUseCase,
     private readonly createPermissionUseCase: CreatePermissionUseCase,
     private readonly updatePermissionUseCase: UpdatePermissionUseCase,
@@ -68,17 +70,17 @@ export class PermissionController extends Controller {
     return this.success(c, 'System default roles retrieved', roles);
   };
 
-  public getCompanyRoles = this.validator(
-    { params: companyRolesParamSchema },
+  public getOrganizationRoles = this.validator(
+    { params: organizationRolesParamSchema },
     async (c) => {
-      const { companyId } = c.get('params');
+      const { organizationId } = c.get('params');
       const user = c.get('user');
-      const roles = await this.getRolesByCompanyUseCase.execute({
+      const roles = await this.getRolesByOrganizationUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
         userId: user?.id,
       });
-      return this.success(c, 'Company roles retrieved', roles);
+      return this.success(c, 'Organization roles retrieved', roles);
     },
   );
 
@@ -100,7 +102,7 @@ export class PermissionController extends Controller {
       ...this.securityContext(c),
       data: body,
       userId: user?.id,
-      companyId: body.companyId ?? undefined,
+      organizationId: body.organizationId ?? undefined,
     });
     return this.created(c, 'Role created successfully', role);
   });
@@ -142,14 +144,14 @@ export class PermissionController extends Controller {
   };
 
   public getMyPermissions = this.validator(
-    { query: companyRolesParamSchema.partial().optional() },
+    { query: organizationRolesParamSchema.partial().optional() },
     async (c) => {
       const user = c.get('user');
       const query = c.get('query');
       const permissions = await this.getMyPermissionsUseCase.execute({
         ...this.securityContext(c),
         userId: user?.id,
-        companyId: query?.companyId,
+        organizationId: query?.organizationId,
       });
       return this.success(c, 'Current user permissions retrieved', permissions);
     },

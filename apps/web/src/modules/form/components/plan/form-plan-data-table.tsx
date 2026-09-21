@@ -6,25 +6,25 @@ import { Input } from '@repo/ui/components/input';
 import { Search } from 'lucide-react';
 import type { FormPlan, FormTemplate } from '@repo/domains/entities';
 import {
-  useCompanyFormTemplatesQueries,
+  useOrganizationFormTemplatesQueries,
   useFormPlansQueries,
 } from '../../hooks/form-queries';
 import formPlanDataColumns from './form-plan-data-columns';
 
 interface FormPlanDataTableProps {
-  companyId: string;
+  organizationId: string;
 }
 
 export default function FormPlanDataTable({
-  companyId,
+  organizationId,
 }: FormPlanDataTableProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'ALL' | 'ACTIVE' | 'DRAFT' | 'PAUSED'
   >('ALL');
 
-  const plansQuery = useFormPlansQueries(companyId);
-  const templatesQuery = useCompanyFormTemplatesQueries(companyId);
+  const plansQuery = useFormPlansQueries(organizationId);
+  const templatesQuery = useOrganizationFormTemplatesQueries(organizationId);
 
   const templatesMap = useMemo(() => {
     const map = new Map<string, FormTemplate>();
@@ -33,8 +33,8 @@ export default function FormPlanDataTable({
   }, [templatesQuery.data]);
 
   const columns = useMemo(
-    () => formPlanDataColumns({ companyId, templatesMap }),
-    [companyId, templatesMap],
+    () => formPlanDataColumns({ organizationId, templatesMap }),
+    [organizationId, templatesMap],
   );
 
   const filteredData = useMemo(() => {

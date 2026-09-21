@@ -15,7 +15,7 @@ import {
   FieldGroup,
 } from '@repo/ui/components/field';
 import { ButtonLoading } from '@repo/ui/components/shared/button/index';
-import { useCompanyRolesQueries } from '@/modules/role/hooks/role-queries';
+import { useGetOrganizationRoles } from '@/modules/role/hooks/role-queries';
 import type { FormProps } from '@/types';
 
 export const scheduleFormSchema = z.object({
@@ -27,29 +27,30 @@ export const scheduleFormSchema = z.object({
 export type ScheduleFormValues = z.infer<typeof scheduleFormSchema>;
 
 type ScheduleFormProps = FormProps<ScheduleFormValues> & {
-  companyId: string;
+  organizationId?: string;
 };
 
 export default function ScheduleForm({
-  companyId,
+  organizationId,
   onSubmit,
   defaultValues,
   isLoading,
 }: ScheduleFormProps) {
-  const rolesQuery = useCompanyRolesQueries(companyId);
+  const targetOrgId = organizationId || '';
+  const rolesQuery = useGetOrganizationRoles(targetOrgId);
 
   const roleOptions = useMemo(() => {
     return (rolesQuery.data || [])
       .filter(
         (role) =>
-          role.companyId === companyId ||
-          (role.companyId == null && role.isSystemDefault),
+          role.organizationId === targetOrgId ||
+          (role.organizationId == null && role.isSystemDefault),
       )
       .map((r) => ({
         value: r.id,
         label: r.name,
       }));
-  }, [rolesQuery.data, companyId]);
+  }, [rolesQuery.data, targetOrgId]);
 
   const methods = useForm<ScheduleFormValues>({
     resolver: zodResolver(scheduleFormSchema),
@@ -118,7 +119,7 @@ export default function ScheduleForm({
                   ))}
                 </div>
               ) : (
-                <p>ยังไม่มีบทบาทของบริษัทนี้</p>
+                <p>ยังไม่มีบทบาทขององค์กรนี้</p>
               )}
               <FieldError errors={[fieldState.error]} />
             </FieldSet>

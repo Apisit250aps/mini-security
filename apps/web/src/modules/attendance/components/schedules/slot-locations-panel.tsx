@@ -5,9 +5,9 @@ import type { Location, ScheduleSlot } from '@repo/client';
 import { Button } from '@repo/ui/components/button';
 import { Alert, AlertTitle, AlertDescription } from '@repo/ui/components/alert';
 import { usePermission } from '@/modules/auth/hooks/permission-provider';
-import { useCompanyBranchesQueries } from '@/modules/company/hooks/company-queries';
+import { useOrganizationSitesQueries } from '@/modules/organization/hooks/organization-queries';
 import {
-  useCompanyLocations,
+  useListLocationsByOrganization,
   useSlotLocationAssignments,
 } from '@/modules/location/hooks/location-queries';
 import { useSlotLocationToggle } from '@/modules/location/hooks/location-mutations';
@@ -15,25 +15,26 @@ import LocationForm from '@/modules/location/components/location-form';
 import LocationTable from '@/modules/location/components/location-table';
 
 export default function SlotLocationsPanel({
-  companyId,
+  organizationId,
   slot,
   onBack,
 }: {
-  companyId: string;
+  organizationId?: string;
   slot: ScheduleSlot;
   onBack: () => void;
 }) {
+  const targetOrgId = organizationId || '';
   const { hasPermission } = usePermission();
-  const locations = useCompanyLocations(companyId);
-  const branches = useCompanyBranchesQueries(companyId);
-  const assignments = useSlotLocationAssignments(companyId, slot.id);
-  const toggle = useSlotLocationToggle(companyId, slot.id);
+  const locations = useListLocationsByOrganization(targetOrgId);
+  const sites = useOrganizationSitesQueries(targetOrgId);
+  const assignments = useSlotLocationAssignments(targetOrgId, slot.id);
+  const toggle = useSlotLocationToggle(targetOrgId, slot.id);
   const [editor, setEditor] = useState<Location | 'new' | null>(null);
   const canManageLocations = hasPermission('location:manage');
   const canManageSlot = hasPermission('attendance_schedule:manage');
-  const hasError = locations.isError || branches.isError || assignments.isError;
+  const hasError = locations.isError || sites.isError || assignments.isError;
   const loading =
-    locations.isLoading || branches.isLoading || assignments.isLoading;
+    locations.isLoading || sites.isLoading || assignments.isLoading;
   const allowedCount = (assignments.data ?? []).filter(
     (assignment) =>
       assignment.isActive &&
@@ -41,9 +42,8 @@ export default function SlotLocationsPanel({
         (location) =>
           location.id === assignment.locationId &&
           location.isActive &&
-          branches.data?.some(
-            (branch) =>
-              branch.id === location.companyBranchId && branch.isActive,
+          sites.data?.some(
+            (site) => site.id === location.siteId && site.isActive,
           ),
       ),
   ).length;
@@ -52,7 +52,7 @@ export default function SlotLocationsPanel({
     return (
       <LocationForm
         key={editor === 'new' ? 'new' : editor.id}
-        companyId={companyId}
+        organizationId={targetOrgId}
         location={editor === 'new' ? undefined : editor}
         onClose={() => setEditor(null)}
       />
@@ -88,7 +88,7 @@ export default function SlotLocationsPanel({
               variant="outline"
               onPress={() => {
                 void locations.refetch();
-                void branches.refetch();
+                void sites.refetch();
                 void assignments.refetch();
               }}
             >
@@ -112,20 +112,19 @@ export default function SlotLocationsPanel({
             </AlertTitle>
             <AlertDescription>
               {assignments.data?.length
-                ? 'เช็คอินได้เฉพาะสถานที่ที่เปิดใช้ในรอบนี้ และสถานที่กับสาขาต้องเปิดใช้งานด้วย หากปิดทั้งหมดจะเช็คอินไม่ได้'
+                ? 'เช็คอินได้เฉพาะสถานที่ที่เปิดใช้ในรอบนี้ และสถานที่กับไซต์/สาขาต้องเปิดใช้งานด้วย หากปิดทั้งหมดจะเช็คอินไม่ได้'
                 : 'รอบที่ไม่เคยกำหนดสถานที่ลงเวลาได้โดยไม่ตรวจ GPS เมื่อเลือกสถานที่แล้วจะต้องตรวจพื้นที่ทุกครั้ง'}
             </AlertDescription>
           </Alert>
           <LocationTable
             locations={locations.data ?? []}
-            branches={branches.data ?? []}
+            sites={sites.data ?? []}
             actions={(location) => {
               const assignment = assignments.data?.find(
                 (item) => item.locationId === location.id,
               );
-              const branchActive = branches.data?.some(
-                (branch) =>
-                  branch.id === location.companyBranchId && branch.isActive,
+              const siteActive = sites.data?.some(
+                (site) => site.id === location.siteId && site.isActive,
               );
               return (
                 <div className="flex flex-col gap-2">
@@ -144,7 +143,7 @@ export default function SlotLocationsPanel({
                         toggle.isPending ||
                         assignments.isFetching ||
                         (!assignment?.isActive &&
-                          (!location.isActive || !branchActive))
+                          (!location.isActive || !siteActive))
                       }
                       onPress={() =>
                         toggle.mutate({ locationId: location.id, assignment })

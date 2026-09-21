@@ -7,11 +7,11 @@ import { formatDate, formatDateTime } from '@/shared/utils/date';
 import FormSubmissionColumnActions from './form-submission-column-actions';
 
 interface FormSubmissionColumnsOptions {
-  companyId: string;
+  organizationId: string;
 }
 
 export const formSubmissionDataColumns = ({
-  companyId,
+  organizationId,
 }: FormSubmissionColumnsOptions): ColumnDef<FormSubmissionItem>[] => [
   {
     id: 'planAndTemplate',
@@ -20,7 +20,7 @@ export const formSubmissionDataColumns = ({
       const item = row.original;
       return (
         <Link
-          href={`/company/forms/submissions/${item.id}`}
+          href={`/organization/forms/submissions/${item.id}`}
           className="flex flex-col group cursor-pointer max-w-[260px]"
         >
           <span className="font-semibold text-sm text-primary group-hover:underline transition-colors truncate">
@@ -174,7 +174,10 @@ export const formSubmissionDataColumns = ({
     id: 'actions',
     header: '',
     cell: (cell) => (
-      <FormSubmissionColumnActions cell={cell} companyId={companyId} />
+      <FormSubmissionColumnActions
+        cell={cell}
+        organizationId={organizationId}
+      />
     ),
   },
 ];

@@ -9,7 +9,7 @@ import type {
   IAttendanceLogRepository,
   ICheckInScheduleRepository,
 } from '@repo/domains/repositories/attendance';
-import type { ICompanyMemberRepository } from '@repo/domains/repositories/company';
+import type { IOrganizationMemberRepository } from '@repo/domains/repositories/organization';
 import type {
   Location,
   ScheduleSlotLocation,
@@ -27,18 +27,18 @@ import {
   ValidationError,
 } from '../src/lib/error';
 
-const companyId = '11111111-1111-4111-8111-111111111111';
+const organizationId = '11111111-1111-4111-8111-111111111111';
 const locationId = '22222222-2222-4222-8222-222222222222';
 const slotId = '33333333-3333-4333-8333-333333333333';
 const context = {
   user: { id: 'actor', isActive: true },
-  activeCompanyId: companyId,
+  activeOrganizationId: organizationId,
   permissions:
     'attendance_schedule:read,attendance_schedule:manage,attendance:check_in',
 };
 const slot = {
   id: slotId,
-  companyId,
+  organizationId,
   checkInScheduleId: 'schedule',
   label: 'All day',
   slotOrder: 1,
@@ -50,7 +50,7 @@ const slot = {
 };
 const assignment: ScheduleSlotLocation = {
   id: 'assignment',
-  companyId,
+  organizationId,
   scheduleSlotId: slotId,
   locationId,
   isActive: false,
@@ -59,8 +59,8 @@ const assignment: ScheduleSlotLocation = {
 };
 const location: Location = {
   id: locationId,
-  companyId,
-  companyBranchId: 'branch',
+  organizationId,
+  siteId: 'site',
   name: 'Test office',
   address: 'Test',
   latitude: 13.75,
@@ -72,7 +72,7 @@ const location: Location = {
   updatedAt: new Date(),
 };
 
-test('slot settings returns inactive assignments and enforces the stored slot company', async () => {
+test('slot settings returns inactive assignments and enforces the stored slot organization', async () => {
   let reads = 0;
   const repo = {
     findBySlotId: async () => {
@@ -89,7 +89,7 @@ test('slot settings returns inactive assignments and enforces the stored slot co
   await assert.rejects(
     useCase.execute({
       ...context,
-      activeCompanyId: 'foreign',
+      activeOrganizationId: 'foreign',
       scheduleSlotId: slotId,
     }),
     ForbiddenError,
@@ -110,7 +110,7 @@ test('slot settings returns inactive assignments and enforces the stored slot co
   );
 });
 
-test('reactivates the same assignment and rejects updates from another company', async () => {
+test('reactivates the same assignment and rejects updates from another organization', async () => {
   let writes = 0;
   const repo = {
     findById: async () => assignment,
@@ -134,7 +134,7 @@ test('reactivates the same assignment and rejects updates from another company',
   await assert.rejects(
     useCase.execute({
       ...context,
-      activeCompanyId: 'foreign',
+      activeOrganizationId: 'foreign',
       id: assignment.id,
       data: { isActive: true },
     }),
@@ -165,10 +165,10 @@ function checkInFixture(
         id: 'member',
         userId: 'actor',
         roleId: 'role',
-        companyId,
+        organizationId,
         isActive: true,
       }),
-    } as ICompanyMemberRepository,
+    } as IOrganizationMemberRepository,
     {
       findBySlotId: async () => assignments,
       findActiveLocationsBySlotId: async () => allowed,
@@ -178,7 +178,7 @@ function checkInFixture(
 }
 const checkIn = {
   ...context,
-  companyMemberId: 'member',
+  organizationMemberId: 'member',
   scheduleSlotId: slotId,
 };
 
@@ -219,7 +219,7 @@ test('enabled geofence rejects missing and outside GPS then retains source input
   assert.equal(fixture.writes(), 1);
 });
 
-test('assignment rejects foreign resources even when the submitted company is the active company', async () => {
+test('assignment rejects foreign resources even when the submitted organization is the active organization', async () => {
   const repo = {
     findBySlotAndLocation: async () => {
       throw new Error('Must not read foreign assignments');
@@ -228,20 +228,25 @@ test('assignment rejects foreign resources even when the submitted company is th
   const useCase = new AssignSlotLocationUseCase(
     repo,
     {
-      findById: async () => ({ ...slot, companyId: 'foreign' }),
+      findById: async () => ({ ...slot, organizationId: 'foreign' }),
     } as IScheduleSlotRepository,
     { findById: async () => location } as ILocationRepository,
   );
   await assert.rejects(
     useCase.execute({
       ...context,
-      data: { companyId, scheduleSlotId: slotId, locationId, isActive: true },
+      data: {
+        organizationId,
+        scheduleSlotId: slotId,
+        locationId,
+        isActive: true,
+      },
     }),
     ForbiddenError,
   );
 });
 
-test('check-in location lookup rejects a slot outside the active company', async () => {
+test('check-in location lookup rejects a slot outside the active organization', async () => {
   const useCase = new GetSlotLocationsUseCase(
     {
       findActiveLocationsBySlotId: async () => {
@@ -249,7 +254,7 @@ test('check-in location lookup rejects a slot outside the active company', async
       },
     } as IScheduleSlotLocationRepository,
     {
-      findById: async () => ({ ...slot, companyId: 'foreign' }),
+      findById: async () => ({ ...slot, organizationId: 'foreign' }),
     } as IScheduleSlotRepository,
   );
   await assert.rejects(

@@ -3,8 +3,8 @@ import {
   AssignSlotLocationUseCase,
   CreateLocationUseCase,
   DeleteLocationUseCase,
-  GetLocationsByBranchUseCase,
-  GetLocationsByCompanyUseCase,
+  GetLocationsBySiteUseCase,
+  GetLocationsByOrganizationUseCase,
   GetLocationUseCase,
   GetSlotLocationsUseCase,
   GetSlotLocationAssignmentsUseCase,
@@ -21,14 +21,16 @@ import {
 import Controller from './base.controller';
 
 const idParamSchema = z.object({ id: z.string().uuid() });
-const branchIdParamSchema = z.object({ branchId: z.string().uuid() });
+const siteIdParamSchema = z.object({ siteId: z.string().uuid() });
 const slotIdParamSchema = z.object({ slotId: z.string().uuid() });
-const companyIdQuerySchema = z.object({ companyId: z.string().uuid() });
-const deleteQuerySchema = z.object({ companyId: z.string().uuid() });
+const organizationIdQuerySchema = z.object({
+  organizationId: z.string().uuid(),
+});
+const deleteQuerySchema = z.object({ organizationId: z.string().uuid() });
 
 const setPrimaryLocationBodySchema = z.object({
   locationId: z.string().uuid(),
-  companyBranchId: z.string().uuid(),
+  siteId: z.string().uuid(),
 });
 
 export class LocationController extends Controller {
@@ -37,8 +39,8 @@ export class LocationController extends Controller {
     private readonly updateLocationUseCase: UpdateLocationUseCase,
     private readonly deleteLocationUseCase: DeleteLocationUseCase,
     private readonly getLocationUseCase: GetLocationUseCase,
-    private readonly getLocationsByBranchUseCase: GetLocationsByBranchUseCase,
-    private readonly getLocationsByCompanyUseCase: GetLocationsByCompanyUseCase,
+    private readonly getLocationsBySiteUseCase: GetLocationsBySiteUseCase,
+    private readonly getLocationsByOrganizationUseCase: GetLocationsByOrganizationUseCase,
     private readonly setPrimaryLocationUseCase: SetPrimaryLocationUseCase,
     private readonly assignSlotLocationUseCase: AssignSlotLocationUseCase,
     private readonly updateSlotLocationUseCase: UpdateSlotLocationUseCase,
@@ -48,29 +50,29 @@ export class LocationController extends Controller {
     super();
   }
 
-  public listLocationsByCompany = this.validator(
-    { query: companyIdQuerySchema },
+  public listLocationsByOrganization = this.validator(
+    { query: organizationIdQuerySchema },
     async (c) => {
-      const { companyId } = c.get('query');
-      const locations = await this.getLocationsByCompanyUseCase.execute({
+      const { organizationId } = c.get('query');
+      const locations = await this.getLocationsByOrganizationUseCase.execute({
         ...this.securityContext(c),
-        companyId,
+        organizationId,
       });
       return this.success(c, 'Locations retrieved successfully', locations);
     },
   );
 
-  public listLocationsByBranch = this.validator(
-    { params: branchIdParamSchema },
+  public listLocationsBySite = this.validator(
+    { params: siteIdParamSchema },
     async (c) => {
-      const { branchId } = c.get('params');
-      const locations = await this.getLocationsByBranchUseCase.execute({
+      const { siteId } = c.get('params');
+      const locations = await this.getLocationsBySiteUseCase.execute({
         ...this.securityContext(c),
-        companyBranchId: branchId,
+        siteId,
       });
       return this.success(
         c,
-        'Branch locations retrieved successfully',
+        'Site locations retrieved successfully',
         locations,
       );
     },
@@ -115,11 +117,11 @@ export class LocationController extends Controller {
     { params: idParamSchema, query: deleteQuerySchema },
     async (c) => {
       const { id } = c.get('params');
-      const { companyId } = c.get('query');
+      const { organizationId } = c.get('query');
       await this.deleteLocationUseCase.execute({
         ...this.securityContext(c),
         id,
-        companyId,
+        organizationId,
       });
       return this.success(c, 'Location deleted successfully');
     },
@@ -133,8 +135,9 @@ export class LocationController extends Controller {
       const location = await this.setPrimaryLocationUseCase.execute({
         ...security,
         locationId: body.locationId,
-        companyBranchId: body.companyBranchId,
-        companyId: security.companyId ?? security.activeCompanyId ?? '',
+        siteId: body.siteId,
+        organizationId:
+          security.organizationId ?? security.activeOrganizationId ?? '',
       });
       return this.success(c, 'Primary location set successfully', location);
     },

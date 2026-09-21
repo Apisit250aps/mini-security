@@ -51,51 +51,51 @@ interface FeatureServices {
     | ApiNotFoundResponse
     | ApiUnauthorizedResponse;
 
-  // ─── Company Features ───────────────────────────────────────────────────────
+  // ─── Organization Features ──────────────────────────────────────────────────
   @get
-  @route("/companies/{companyId}")
-  @summary("Get company features")
-  getCompanyFeatures(
-    @path companyId: string,
+  @route("/organizations/{organizationId}")
+  @summary("Get organization features")
+  getOrganizationFeatures(
+    @path organizationId: string,
     @query onlyEnabled?: boolean,
-  ): ApiOkResponse<CompanyFeature[]> | ApiUnauthorizedResponse;
+  ): ApiOkResponse<OrganizationFeature[]> | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/available")
-  @summary("Get available features for company")
-  getCompanyAvailableFeatures(@path companyId: string):
+  @route("/organizations/{organizationId}/available")
+  @summary("Get available features for organization")
+  getOrganizationAvailableFeatures(@path organizationId: string):
     | ApiOkResponse<Feature[]>
     | ApiUnauthorizedResponse;
 
   @post
-  @route("/companies/{companyId}/assign")
-  @summary("Assign feature to company")
-  assignCompanyFeature(
-    @path companyId: string,
-    @body body: CreateCompanyFeature,
-  ): ApiCreatedResponse<CompanyFeature> | ApiBadRequestResponse | ApiUnauthorizedResponse;
+  @route("/organizations/{organizationId}/assign")
+  @summary("Assign feature to organization")
+  assignOrganizationFeature(
+    @path organizationId: string,
+    @body body: CreateOrganizationFeature,
+  ): ApiCreatedResponse<OrganizationFeature> | ApiBadRequestResponse | ApiUnauthorizedResponse;
 
   @put
-  @route("/companies/{companyId}/toggle")
-  @summary("Toggle company feature")
-  toggleCompanyFeature(
-    @path companyId: string,
-    @body body: CompanyToggleFeatureRequest,
-  ): ApiOkResponse<CompanyFeature> | ApiBadRequestResponse | ApiUnauthorizedResponse;
+  @route("/organizations/{organizationId}/toggle")
+  @summary("Toggle organization feature")
+  toggleOrganizationFeature(
+    @path organizationId: string,
+    @body body: OrganizationToggleFeatureRequest,
+  ): ApiOkResponse<OrganizationFeature> | ApiBadRequestResponse | ApiUnauthorizedResponse;
 
   @delete
-  @route("/companies/{companyId}/features/{featureId}")
-  @summary("Remove feature from company")
-  removeCompanyFeature(
-    @path companyId: string,
+  @route("/organizations/{organizationId}/features/{featureId}")
+  @summary("Remove feature from organization")
+  removeOrganizationFeature(
+    @path organizationId: string,
     @path featureId: string,
   ): ApiOkBasicResponse | ApiUnauthorizedResponse;
 
   // ─── Role Features ─────────────────────────────────────────────────────────
   @get
-  @route("/companies/{companyId}/roles")
-  @summary("Get role features for company")
-  getCompanyRoleFeatures(@path companyId: string):
+  @route("/organizations/{organizationId}/roles")
+  @summary("Get role features for organization")
+  getOrganizationRoleFeatures(@path organizationId: string):
     | ApiOkResponse<RoleFeature[]>
     | ApiUnauthorizedResponse;
 
@@ -128,14 +128,14 @@ interface FeatureServices {
   revokeRoleFeature(
     @path roleId: string,
     @path featureId: string,
-    @query companyId?: string,
+    @query organizationId?: string,
   ): ApiOkBasicResponse | ApiUnauthorizedResponse;
 
   @get
-  @route("/companies/{companyId}/roles/{roleId}/access/{featureCode}")
+  @route("/organizations/{organizationId}/roles/{roleId}/access/{featureCode}")
   @summary("Check role feature access")
   checkRoleFeatureAccess(
-    @path companyId: string,
+    @path organizationId: string,
     @path roleId: string,
     @path featureCode: string,
   ): ApiOkResponse<FeatureAccessResponse> | ApiUnauthorizedResponse;

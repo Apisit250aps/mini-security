@@ -85,11 +85,11 @@ import "./models/common.tsp";
 import "./models/entities.tsp";
 
 import "./models/user.tsp";
-import "./models/company.tsp";
+import "./models/organization.tsp";
 import "./models/product.tsp";
 
 import "./services/user.tsp";
-import "./services/company.tsp";
+import "./services/organization.tsp";
 import "./services/product.tsp";
 
 @service(#{ title: "<Project Name> API Service" })
